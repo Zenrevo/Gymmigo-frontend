@@ -15,6 +15,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+   const [isAgreed, setIsAgreed] = useState(false);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const { login } = useAuth();
@@ -163,13 +164,32 @@ const LoginPage = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     maxLength={10}
-                    required
+                     required
                   />
                 </div>
+
+                <div className="flex items-center gap-3 px-1">
+                  <div className="relative group">
+                    <input 
+                      type="checkbox" 
+                      id="terms-check"
+                      checked={isAgreed}
+                      onChange={(e) => setIsAgreed(e.target.checked)}
+                      className="peer w-5 h-5 opacity-0 absolute cursor-pointer z-10"
+                    />
+                    <div className="w-5 h-5 rounded border border-white/20 bg-white/5 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-all">
+                      <div className="w-1.5 h-3 border-r-2 border-b-2 border-white rotate-45 mb-0.5" />
+                    </div>
+                  </div>
+                  <label htmlFor="terms-check" className="text-xs text-white/40 cursor-pointer select-none leading-relaxed">
+                    I agree to the <Link to="/terms" target="_blank" className="text-white/60 hover:text-primary transition-colors underline underline-offset-4">Terms of Service</Link> and <Link to="/privacy" target="_blank" className="text-white/60 hover:text-primary transition-colors underline underline-offset-4">Privacy Policy</Link>.
+                  </label>
+                </div>
+
                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
                 <button
-                  disabled={isLoading}
-                  className="w-full btn-primary py-4 flex items-center justify-center gap-2 group"
+                  disabled={isLoading || !isAgreed}
+                  className="w-full btn-primary py-4 flex items-center justify-center gap-2 group disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
                   {isLoading ? <Loader2 className="animate-spin" /> : (
                     <>
@@ -200,10 +220,10 @@ const LoginPage = () => {
                     required
                   />
                 </div>
-                {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
                 <button
-                  disabled={isLoading}
-                  className="w-full btn-primary py-4 flex items-center justify-center gap-2"
+                  disabled={isLoading || !isAgreed}
+                  className="w-full btn-primary py-4 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
                   {isLoading ? <Loader2 className="animate-spin" /> : 'Verify & Continue'}
                 </button>

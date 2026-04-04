@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Mail, MessageSquare, Phone, Globe, ChevronLeft } from 'lucide-react';
+import { Mail, MessageSquare, Globe, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ContactUs = () => {

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FileText, Shield, Gavel, Scale, ChevronLeft } from 'lucide-react';
+import { FileText, Scale, ChevronLeft, UserCheck, CreditCard, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const TermsConditions = () => {
@@ -21,7 +21,7 @@ const TermsConditions = () => {
               <FileText size={24} />
             </div>
             <div>
-              <h1 className="text-4xl font-display font-black italic uppercase tracking-tighter">Terms & Conditions</h1>
+              <h1 className="text-4xl font-display font-black italic uppercase tracking-tighter">Terms of Service</h1>
               <p className="text-white/40 text-sm mt-1 uppercase tracking-widest font-bold">Last Updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
           </div>
@@ -34,46 +34,67 @@ const TermsConditions = () => {
               <p>By accessing or using Gymmigo.in, you agree to be bound by these Terms and Conditions. This platform is owned and operated by Zenrevo (zenrevo.in). If you do not agree with any part of these terms, you must not use our platform.</p>
             </section>
 
-            <section className="space-y-4">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 2. Use of License
+            <section className="space-y-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic underline decoration-primary/30 underline-offset-8">
+                2. Use of Service & Account Security
               </h2>
-              <p>Permission is granted to temporarily use the Gymmigo.in platform for personal, non-commercial transitory viewing or for gym management purposes. Under this license, you may not:</p>
-              <ul className="list-disc pl-6 space-y-3 font-bold text-white/60">
-                <li>Modify or copy the materials;</li>
-                <li>Use the materials for any commercial purpose (except gym management);</li>
-                <li>Attempt to decompile or reverse engineer any software;</li>
-                <li>Remove any copyright or other proprietary notations.</li>
-              </ul>
-            </section>
-
-            <section className="space-y-4">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 3. Data Governance
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <Gavel className="text-primary mb-4" size={20} />
-                  <h4 className="font-bold mb-2">Legal Use</h4>
-                  <p className="text-sm text-white/40">You agree to use Gymmigo.in only for lawful purposes and in accordance with your local fitness regulations.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-primary">
+                    <UserCheck size={20} />
+                    <h3 className="font-bold">Account Responsibility</h3>
+                  </div>
+                  <p className="text-sm">You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized access.</p>
                 </div>
-                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <Scale className="text-primary mb-4" size={20} />
-                  <h4 className="font-bold mb-2">Liability</h4>
-                  <p className="text-sm text-white/40">Zenrevo shall not be held liable for any damages that arise out of the use or inability to use the platform.</p>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-emerald-400">
+                    <CreditCard size={20} />
+                    <h3 className="font-bold">Subscription & Payments</h3>
+                  </div>
+                  <p className="text-sm">Gym memberships and subscriptions purchased via Gymmigo.in are subject to the specific terms set by the affiliated gym. Payments are non-refundable unless specified otherwise by the service provider.</p>
                 </div>
               </div>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 4. Communication
+                <div className="w-1 h-6 bg-primary" /> 3. Prohibited Behavior
               </h2>
-              <p>Any formal notices or communications regarding these Terms should be sent to us:</p>
-              <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 space-y-2">
-                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Email:</span> support@gymmigo.in</p>
-                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Alternative:</span> support@zenrevo.in</p>
-                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Parent Company:</span> Zenrevo (zenrevo.in)</p>
+              <p>Under this legal agreement, users are explicitly prohibited from:</p>
+              <ul className="list-disc pl-6 space-y-3 font-bold text-white/60">
+                <li>Sharing your personal check-in QR code with others;</li>
+                <li>Engaging in fraudulent check-ins or manipulating attendance data;</li>
+                <li>Attempting to decompile or reverse engineer any platform software;</li>
+                <li>Removing any copyright or other proprietary notations from the platform.</li>
+              </ul>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 4. Data Usage Acceptance
+              </h2>
+              <div className="p-6 bg-white/5 rounded-2xl border border-white/5 border-l-4 border-l-primary/50">
+                <p className="text-sm italic">"By logging in, you acknowledge that we will process your phone number, profile details, and attendance logs as described in our Privacy Policy to provide you with seamless fitness management services."</p>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 5. Termination & Liability
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <AlertCircle className="text-red-400 mb-4" size={20} />
+                  <h4 className="font-bold mb-2">Discontinuance</h4>
+                  <p className="text-sm text-white/40">Zenrevo reserves the right to terminate your access for violations of these terms, including fraudulent activity or non-payment.</p>
+                </div>
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <Scale className="text-primary mb-4" size={20} />
+                  <h4 className="font-bold mb-2">Limitation</h4>
+                  <p className="text-sm text-white/40">Zenrevo shall not be held liable for any personal injury, property damage, or data loss arising from your participation in gym activities.</p>
+                </div>
               </div>
             </section>
           </div>

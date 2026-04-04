@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, FileText, ChevronLeft } from 'lucide-react';
+import { Shield, Lock, Eye, ChevronLeft, Smartphone, User, History, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
@@ -29,32 +29,60 @@ const PrivacyPolicy = () => {
           <div className="space-y-10 text-white/70 leading-relaxed">
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 1. Overview
+                <div className="w-1 h-6 bg-primary" /> 1. Operational Overview
               </h2>
               <p>Welcome to Gymmigo.in. This Privacy Policy explains how Zenrevo ("we," "us," or "our") collects, uses, and protects your information when you use our fitness management platform. We are committed to maintaining the highest standards of data protection and transparency.</p>
             </section>
 
-            <section className="space-y-4">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 2. Information Collection
+            <section className="space-y-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic underline decoration-primary/30 underline-offset-8">
+                2. Information We Collect & How We Handle It
               </h2>
-              <p>We collect information to provide better services to our users. This includes:</p>
-              <ul className="list-disc pl-6 space-y-3">
-                <li><span className="text-white font-bold">Identity Data:</span> Including phone numbers for authentication via Firebase.</li>
-                <li><span className="text-white font-bold">Usage Data:</span> Information about how you use our app, gym check-ins, and activity logs.</li>
-                <li><span className="text-white font-bold">Gym Data:</span> For gym owners, we collect business details, staff information, and management configurations.</li>
-              </ul>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-primary">
+                    <Smartphone size={20} />
+                    <h3 className="font-bold">Authentication Data</h3>
+                  </div>
+                  <p className="text-sm">We collect your <span className="text-white font-bold">Phone Number</span> and Firebase Authentication tokens to secure your account. This data is handled by Google Firebase under their strict security protocols.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-emerald-400">
+                    <User size={20} />
+                    <h3 className="font-bold">Profile Information</h3>
+                  </div>
+                  <p className="text-sm">We collect your <span className="text-white font-bold">Name, Age, Gender, Height, and Weight</span> to personalize your fitness journey and calculate accurate metrics. This is stored securely on our AWS-hosted infrastructure.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-blue-400">
+                    <History size={20} />
+                    <h3 className="font-bold">Activity Logs</h3>
+                  </div>
+                  <p className="text-sm">We track your <span className="text-white font-bold">Gym Check-ins and Attendance History</span>. This data is shared exclusively with your affiliated gym to manage memberships and occupancy.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-yellow-400">
+                    <CreditCard size={20} />
+                    <h3 className="font-bold">Payment Data</h3>
+                  </div>
+                  <p className="text-sm">Payment transactions (CC/UPI/Net Banking) are processed by <span className="text-white font-bold">PCI-compliant 3rd parties</span>. Gymmigo does not store your card or bank credentials on its servers.</p>
+                </div>
+              </div>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 3. Data Protection
+                <div className="w-1 h-6 bg-primary" /> 3. Data Governance
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                 <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
                   <Lock className="text-primary mb-4" size={20} />
                   <h4 className="font-bold mb-2">Encryption</h4>
-                  <p className="text-sm text-white/40">All data is encrypted in transit and at rest using industry-standard protocols.</p>
+                  <p className="text-sm text-white/40">All sensitive user data is encrypted in transit and at rest using industry-standard protocols.</p>
                 </div>
                 <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
                   <Eye className="text-primary mb-4" size={20} />
@@ -66,9 +94,9 @@ const PrivacyPolicy = () => {
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 4. Contact Us
+                <div className="w-1 h-6 bg-primary" /> 4. Communication & Rights
               </h2>
-              <p>If you have any questions or concerns regarding your privacy, please reach out to us:</p>
+              <p>You have the right to request a copy of your data or request deletion of your account at any time. Any formal notices or communications regarding your privacy should be sent to us:</p>
               <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 space-y-2">
                 <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Email:</span> support@gymmigo.in</p>
                 <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Alternative:</span> support@zenrevo.in</p>
