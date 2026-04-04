@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -34,8 +33,6 @@ export const GymProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to load gym details.');
       console.error('Failed to fetch gym:', err);
-      // Optional: navigate away if not found
-      // navigate('/');
     } finally {
       setLoading(false);
     }

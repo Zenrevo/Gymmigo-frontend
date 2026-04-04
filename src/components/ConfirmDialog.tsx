@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import Modal from './Modal';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 
