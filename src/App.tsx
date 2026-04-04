@@ -5,6 +5,7 @@ import RegisterRolePage from './pages/Auth/RegisterRolePage';
 import PrivacyPolicy from './pages/Public/PrivacyPolicy';
 import TermsConditions from './pages/Public/TermsConditions';
 import ContactUs from './pages/Public/ContactUs';
+import LandingPage from './pages/Public/LandingPage';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Discovery from './pages/Discovery/Discovery';
 import Profile from './pages/Profile/Profile';
@@ -43,14 +44,15 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: { children: Reac
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsConditions />} />
       <Route path="/contact" element={<ContactUs />} />
       <Route path="/register-role" element={<ProtectedRoute requireOnboarding={false}><RegisterRolePage /></ProtectedRoute>} />
       
-      <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route index element={<Dashboard />} />
+      <Route path="/app" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+        <Route path="dashboard" element={<Dashboard />} />
         <Route path="discovery" element={<Discovery />} />
         <Route path="profile" element={<Profile />} />
         <Route path="gym-owner/add-gym" element={<AddGymPage />} />

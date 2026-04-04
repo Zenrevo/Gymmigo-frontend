@@ -97,7 +97,7 @@ const LoginPage = () => {
         if (response.data.data.is_new_user || !userData.active_role) {
           navigate('/register-role');
         } else {
-          navigate('/');
+          navigate('/app/dashboard');
         }
       }
     } catch (err: any) {
