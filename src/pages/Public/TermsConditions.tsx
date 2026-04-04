@@ -1,89 +1,88 @@
 import { motion } from 'framer-motion';
-import { FileText, ArrowLeft, CheckCircle } from 'lucide-react';
+import { FileText, Shield, Gavel, Scale, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import BrandLogo from '../../components/BrandLogo';
 
 const TermsConditions = () => {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-primary/30">
-      {/* Header */}
-      <header className="nav-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between border-b border-white/5">
-        <Link to="/login" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors">
-          <ArrowLeft size={20} />
-          <span className="text-sm font-bold">Back to Login</span>
+      <div className="max-w-4xl mx-auto px-6 py-20">
+        <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
+          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          Back to Home
         </Link>
-        <BrandLogo size={32} />
-      </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-8"
+          className="glass-card p-10 md:p-16 border-white/10 space-y-12"
         >
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center">
-              <FileText className="text-orange-500" size={24} />
+          <div className="flex items-center gap-4 border-b border-white/5 pb-8">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+              <FileText size={24} />
             </div>
             <div>
-              <h1 className="text-4xl font-display font-black italic uppercase tracking-tighter">Terms of Service</h1>
-              <p className="text-white/40 text-sm mt-1 uppercase tracking-widest font-bold">Effective Date: April 2026</p>
+              <h1 className="text-4xl font-display font-black italic uppercase tracking-tighter">Terms & Conditions</h1>
+              <p className="text-white/40 text-sm mt-1 uppercase tracking-widest font-bold">Last Updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
           </div>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-orange-500">1. Acceptance of Terms</h2>
-            <p className="text-white/60 leading-relaxed">
-              By accessing or using Gymmigo, you agree to be bound by these terms. If you do not agree to all of these terms, do not use our service.
-            </p>
-          </section>
+          <div className="space-y-10 text-white/70 leading-relaxed">
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 1. Agreement to Terms
+              </h2>
+              <p>By accessing or using Gymmigo.in, you agree to be bound by these Terms and Conditions. This platform is owned and operated by Zenrevo (zenrevo.in). If you do not agree with any part of these terms, you must not use our platform.</p>
+            </section>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-orange-500">2. Account Responsibility</h2>
-            <p className="text-white/60 leading-relaxed">
-              You are responsible for maintaining the confidentiality of your account information, including your phone-based authentication details. You agree to notify us immediately of any unauthorized use of your account.
-            </p>
-          </section>
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 2. Use of License
+              </h2>
+              <p>Permission is granted to temporarily use the Gymmigo.in platform for personal, non-commercial transitory viewing or for gym management purposes. Under this license, you may not:</p>
+              <ul className="list-disc pl-6 space-y-3 font-bold text-white/60">
+                <li>Modify or copy the materials;</li>
+                <li>Use the materials for any commercial purpose (except gym management);</li>
+                <li>Attempt to decompile or reverse engineer any software;</li>
+                <li>Remove any copyright or other proprietary notations.</li>
+              </ul>
+            </section>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-orange-500">3. Gym Memberships</h2>
-            <p className="text-white/60 leading-relaxed">
-              Gymmigo acts as a platform to connect members with gym owners. While we facilitate the management of memberships:
-            </p>
-            <ul className="list-disc list-inside text-white/60 space-y-2 ml-4">
-              <li>Individual gyms are responsible for their own facilities and safety protocols.</li>
-              <li>Members must follow all rules and guidelines set by the specific gym they attend.</li>
-              <li>Subscription fees are subject to the refund policy of the respective gym.</li>
-            </ul>
-          </section>
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 3. Data Governance
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <Gavel className="text-primary mb-4" size={20} />
+                  <h4 className="font-bold mb-2">Legal Use</h4>
+                  <p className="text-sm text-white/40">You agree to use Gymmigo.in only for lawful purposes and in accordance with your local fitness regulations.</p>
+                </div>
+                <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <Scale className="text-primary mb-4" size={20} />
+                  <h4 className="font-bold mb-2">Liability</h4>
+                  <p className="text-sm text-white/40">Zenrevo shall not be held liable for any damages that arise out of the use or inability to use the platform.</p>
+                </div>
+              </div>
+            </section>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-orange-500">4. Health & Safety</h2>
-            <div className="bg-orange-500/5 border border-orange-500/10 p-6 rounded-2xl">
-              <p className="text-white font-bold mb-2 flex items-center gap-2">
-                <CheckCircle className="text-orange-500" size={18} />
-                Medical Clearance
-              </p>
-              <p className="text-white/60 text-sm leading-relaxed">
-                Before starting any new fitness program, we strongly recommend consulting with a healthcare professional. You assume all risks associated with physical activities performed at gyms listed on Gymmigo.
-              </p>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-orange-500">5. Limitation of Liability</h2>
-            <p className="text-white/60 leading-relaxed">
-              Gymmigo shall not be liable for any indirect, incidental, or special damages, including physical injury, arising out of your use of the platform or gym facilities managed through our service.
-            </p>
-          </section>
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 4. Communication
+              </h2>
+              <p>Any formal notices or communications regarding these Terms should be sent to us:</p>
+              <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 space-y-2">
+                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Email:</span> support@gymmigo.in</p>
+                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Alternative:</span> support@zenrevo.in</p>
+                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Parent Company:</span> Zenrevo (zenrevo.in)</p>
+              </div>
+            </section>
+          </div>
 
           <div className="pt-12 border-t border-white/5 text-center">
-            <p className="text-white/20 text-xs italic tracking-widest uppercase font-black">
-              Gymmigo - Elite Fitness Ecosystem
-            </p>
+            <p className="text-white/20 text-[10px] font-bold uppercase tracking-[0.4em]">© {new Date().getFullYear()} Gymmigo.in by Zenrevo</p>
           </div>
         </motion.div>
-      </main>
+      </div>
     </div>
   );
 };

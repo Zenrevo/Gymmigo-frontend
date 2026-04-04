@@ -1,148 +1,126 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Send, ArrowLeft, MapPin, Globe, ExternalLink, HelpCircle } from 'lucide-react';
+import { Mail, MessageSquare, Phone, Globe, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import BrandLogo from '../../components/BrandLogo';
 
 const ContactUs = () => {
-  const [isSent, setIsSent] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSent(true);
-    setTimeout(() => setIsSent(false), 5000);
-  };
-
   return (
     <div className="min-h-screen bg-black text-white selection:bg-primary/30">
-      {/* Header */}
-      <header className="nav-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between border-b border-white/5">
-        <Link to="/login" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors">
-          <ArrowLeft size={20} />
-          <span className="text-sm font-bold">Back to Login</span>
+      <div className="max-w-6xl mx-auto px-6 py-20">
+        <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
+          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          Back to Home
         </Link>
-        <BrandLogo size={32} />
-      </header>
 
-      <main className="container mx-auto px-4 py-12 max-w-5xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           {/* Left Side: Info */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-8"
+            className="space-y-12"
           >
-            <div>
-              <h1 className="text-6xl font-display font-black italic tracking-tighter uppercase leading-[0.9]">
-                Get in <span className="text-primary">Touch</span>
+            <div className="space-y-4">
+              <h1 className="text-5xl md:text-7xl font-display font-black italic uppercase tracking-tighter leading-none">
+                Get in <br /><span className="text-primary">Touch</span>
               </h1>
-              <p className="text-white/40 text-lg mt-4 max-w-md">
-                Have questions about Gymmigo? Our support team is here to help you elevate your fitness experience.
+              <p className="text-white/40 text-lg max-w-md">
+                Have questions about Gymmigo? Our team at Zenrevo is here to support your fitness journey.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                  <Mail className="text-primary" size={20} />
+            <div className="space-y-8">
+              <div className="flex items-start gap-6 group">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all duration-500">
+                  <Mail size={24} />
                 </div>
-                <div>
-                  <p className="text-xs text-white/30 font-bold uppercase tracking-widest">Email Us</p>
-                  <p className="text-white/80 font-bold">support@gymmigo.com</p>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Email Support</h4>
+                  <p className="text-xl font-bold">support@gymmigo.in</p>
+                  <p className="text-sm text-white/40">support@zenrevo.in</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 group">
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                  <MapPin className="text-primary" size={20} />
+              <div className="flex items-start gap-6 group">
+                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-black transition-all duration-500">
+                  <MessageSquare size={24} />
                 </div>
-                <div>
-                  <p className="text-xs text-white/30 font-bold uppercase tracking-widest">Office</p>
-                  <p className="text-white/80 font-bold">Bangalore, India</p>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Live Chat</h4>
+                  <p className="text-xl font-bold">Available 24/7</p>
+                  <p className="text-sm text-white/40">Login to your dashboard for priority chat.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-6 group">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-black transition-all duration-500">
+                  <Globe size={24} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Parent Company</h4>
+                  <p className="text-xl font-bold">Zenrevo</p>
+                  <a href="https://zenrevo.in" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline font-bold">zenrevo.in</a>
                 </div>
               </div>
             </div>
 
-            <div className="pt-8 flex gap-4">
-              <a href="#" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-primary hover:bg-primary/10 transition-all">
-                <Globe size={20} />
-              </a>
-              <a href="#" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-primary hover:bg-primary/10 transition-all">
-                <ExternalLink size={20} />
-              </a>
-              <a href="#" className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-primary hover:bg-primary/10 transition-all">
-                <HelpCircle size={20} />
-              </a>
+            <div className="pt-8 border-t border-white/5">
+              <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">© {new Date().getFullYear()} Gymmigo.in by Zenrevo</p>
             </div>
           </motion.div>
 
           {/* Right Side: Form */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="glass-card p-8 xl:p-10 border-white/10"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass-card p-10 md:p-12 border-white/10 shadow-2xl relative overflow-hidden"
           >
-            {isSent ? (
-               <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-                    <Send className="text-primary animate-bounce" size={32} />
-                  </div>
-                  <h3 className="text-2xl font-bold">Message Sent!</h3>
-                  <p className="text-white/40">We'll get back to you within 24 hours.</p>
-                  <button onClick={() => setIsSent(false)} className="btn-primary px-8 mt-4">Send another message</button>
-               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Name</label>
-                    <input
-                      type="text"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all"
-                      placeholder="Your Name"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Email</label>
-                    <input
-                      type="email"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all"
-                      placeholder="email@example.com"
-                      required
-                    />
-                  </div>
-                </div>
-
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -z-10" />
+            
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Subject</label>
-                  <input
-                    type="text"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all"
-                    placeholder="How can we help?"
-                    required
+                  <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="John Doe" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all"
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Message</label>
-                  <textarea
-                    rows={4}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all resize-none"
-                    placeholder="Tell us everything..."
-                    required
+                  <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Email Address</label>
+                  <input 
+                    type="email" 
+                    placeholder="john@example.com" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all"
                   />
                 </div>
+              </div>
 
-                <button type="submit" className="w-full btn-primary py-4 flex items-center justify-center gap-2 group">
-                  Send Message
-                  <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </button>
-              </form>
-            )}
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Subject</label>
+                <select className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all appearance-none cursor-pointer">
+                  <option className="bg-black">General Inquiry</option>
+                  <option className="bg-black">Gym Partnership</option>
+                  <option className="bg-black">Support Issue</option>
+                  <option className="bg-black">Others</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Your Message</label>
+                <textarea 
+                  rows={5}
+                  placeholder="How can we help you?" 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all resize-none"
+                />
+              </div>
+
+              <button className="btn-primary w-full py-5 text-lg font-black italic uppercase tracking-wide shadow-xl shadow-primary/20">
+                Send Message
+              </button>
+            </form>
           </motion.div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

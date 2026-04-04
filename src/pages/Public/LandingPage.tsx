@@ -253,7 +253,7 @@ const LandingPage = () => {
                <div className="space-y-8 max-w-sm">
                   <BrandLogo size={48} showText={true} />
                   <p className="text-white/40 leading-relaxed">
-                    Elevating fitness operations globally. Join thousands of gym owners optimizing their success with the Gymmigo platform.
+                    Elevating fitness operations globally. Gymmigo is a product of Zenrevo (zenrevo.in), designed to empower gym owners and fitness enthusiasts.
                   </p>
                   <div className="flex gap-4">
                      <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:bg-primary/20 hover:text-primary transition-all">
@@ -292,7 +292,11 @@ const LandingPage = () => {
                         <li><Link to="/contact" className="hover:text-primary transition-colors">Help Center</Link></li>
                         <li className="flex items-center gap-2">
                            <Mail size={14} />
-                           <span className="text-[10px] font-bold">support@gymmigo.com</span>
+                           <span className="text-[10px] font-bold">support@gymmigo.in</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                           <Mail size={14} />
+                           <span className="text-[10px] font-bold text-white/30">support@zenrevo.in</span>
                         </li>
                      </ul>
                   </div>
@@ -301,7 +305,7 @@ const LandingPage = () => {
             
             <div className="pt-12 flex flex-col sm:flex-row justify-between items-center gap-6">
                <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.3em]">
-                 © {new Date().getFullYear()} Gymmigo. All rights reserved.
+                 © {new Date().getFullYear()} Gymmigo.in by Zenrevo. All rights reserved.
                </p>
                <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary" />
