@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterRolePage from './pages/Auth/RegisterRolePage';
+import PrivacyPolicy from './pages/Public/PrivacyPolicy';
+import TermsConditions from './pages/Public/TermsConditions';
+import ContactUs from './pages/Public/ContactUs';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Discovery from './pages/Discovery/Discovery';
 import Profile from './pages/Profile/Profile';
@@ -41,6 +44,9 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsConditions />} />
+      <Route path="/contact" element={<ContactUs />} />
       <Route path="/register-role" element={<ProtectedRoute requireOnboarding={false}><RegisterRolePage /></ProtectedRoute>} />
       
       <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

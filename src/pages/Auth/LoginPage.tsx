@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Phone, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../components/BrandLogo';
+import { auth } from '../../../firebaseConfig';
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 
 const LoginPage = () => {
   const [phone, setPhone] = useState('');
@@ -12,10 +14,38 @@ const LoginPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
+  // Initialize reCAPTCHA on mount
+  useEffect(() => {
+    if (!recaptchaVerifierRef.current) {
+      try {
+        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+          callback: () => {
+            console.log('reCAPTCHA solved');
+          },
+          'expired-callback': () => {
+            console.log('reCAPTCHA expired');
+          }
+        });
+      } catch (err) {
+        console.error('Failed to initialize reCAPTCHA:', err);
+      }
+    }
+
+    return () => {
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,12 +53,19 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API_URL}/auth/send-otp`, { phone: `+91${phone}` });
-      if (response.data.success) {
-        setStep('otp');
+      if (!recaptchaVerifierRef.current) {
+        throw new Error('reCAPTCHA not initialized. Please refresh.');
       }
+      
+      const appVerifier = recaptchaVerifierRef.current;
+      const formatPhone = `+91${phone}`;
+
+      const result = await signInWithPhoneNumber(auth, formatPhone, appVerifier);
+      setConfirmationResult(result);
+      setStep('otp');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to send OTP. Please try again.');
+      console.error('Firebase Auth Error:', err);
+      setError('Failed to send code. Please ensure you are using a test number or check your internet.');
     } finally {
       setIsLoading(false);
     }
@@ -36,24 +73,36 @@ const LoginPage = () => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!confirmationResult) return;
+
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await axios.post(`${API_URL}/auth/verify-otp`, { phone: `+91${phone}`, otp });
-      if (response.data.success) {
-        const { user, tokens } = response.data.data;
-        const { access_token, refresh_token } = tokens;
-        login(access_token, refresh_token, user);
+      // 1. Verify OTP with Firebase
+      const result = await confirmationResult.confirm(otp);
+      const firebaseUser = result.user;
 
-        if (response.data.data.is_new_user || !user.active_role) {
+      // 2. Get Firebase ID Token
+      const idToken = await firebaseUser.getIdToken();
+
+      // 3. Send ID Token to our backend
+      const response = await axios.post(`${API_URL}/auth/firebase-login`, { id_token: idToken });
+
+      if (response.data.success) {
+        const { user: userData, tokens } = response.data.data;
+        const { access_token, refresh_token } = tokens;
+        login(access_token, refresh_token, userData);
+
+        if (response.data.data.is_new_user || !userData.active_role) {
           navigate('/register-role');
         } else {
           navigate('/');
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Invalid OTP. Please try again.');
+      console.error('Login Error:', err);
+      setError('Invalid code. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -67,16 +116,18 @@ const LoginPage = () => {
         className="w-full max-w-md glass-card p-8 space-y-8"
       >
         <div className="flex flex-col items-center justify-center space-y-4">
-          <BrandLogo size={100} className="mb-2 animate-float" />
-          {/* <div className="text-center">
+          <BrandLogo size={80} className="mb-2 animate-float" />
+          <div className="text-center">
             <h1 className="text-5xl font-display font-black tracking-tighter italic bg-gradient-to-r from-primary-dark via-primary to-primary-dark bg-clip-text text-transparent">
               GYMMIGO
             </h1>
-            <p className="text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase mt-1">
+            <p className="text-white/40 text-[9px] font-bold tracking-[0.4em] uppercase mt-1">
               Elevate Your Fitness
             </p>
-          </div> */}
+          </div>
         </div>
+
+        <div id="recaptcha-container"></div>
 
         <div className="space-y-6">
           <div className="text-center">
@@ -168,10 +219,16 @@ const LoginPage = () => {
           </AnimatePresence>
         </div>
 
-        <div className="pt-8 border-t border-white/5 text-center">
-          <p className="text-white/20 text-xs">
-            By signing up, you agree to our Terms of Service and Privacy Policy.
+        <div className="pt-8 border-t border-white/5 text-center flex flex-col items-center gap-4">
+          <p className="text-white/20 text-xs flex flex-wrap justify-center gap-x-2 gap-y-1">
+            <span>By signing up, you agree to our</span>
+            <Link to="/terms" className="text-white/40 hover:text-primary transition-colors underline underline-offset-4">Terms of Service</Link>
+            <span>and</span>
+            <Link to="/privacy" className="text-white/40 hover:text-primary transition-colors underline underline-offset-4">Privacy Policy</Link>
           </p>
+          <Link to="/contact" className="text-primary/60 hover:text-primary text-xs font-bold uppercase tracking-widest transition-colors">
+            Contact Support
+          </Link>
         </div>
       </motion.div>
     </div>

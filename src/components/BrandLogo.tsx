@@ -12,7 +12,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({
   showText = true
 }) => {
   return (
-    <div className={`flex items-center gap-1.5 ${className} bg-black`}>
+    <div className={`flex items-center gap-1.5 ${className}`}>
 
       {/* Logo */}
       <div
