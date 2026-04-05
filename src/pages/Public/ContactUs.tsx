@@ -1,14 +1,18 @@
 import { motion } from 'framer-motion';
-import { Mail, MessageSquare, Globe, ChevronLeft } from 'lucide-react';
+import { Mail, MessageSquare, Globe, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const ContactUs = () => {
+  const { token } = useAuth();
+  const BACK_PATH = token ? "/app/dashboard" : "/";
+
   return (
     <div className="min-h-screen bg-black text-white selection:bg-primary/30">
       <div className="max-w-6xl mx-auto px-6 py-20">
-        <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
-          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Back to Home
+        <Link to={BACK_PATH} className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-bold uppercase tracking-widest">Back to {token ? 'Dashboard' : 'Home'}</span>
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">

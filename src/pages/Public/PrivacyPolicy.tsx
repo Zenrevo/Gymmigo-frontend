@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, ChevronLeft, Smartphone, User, History, CreditCard, Globe, Share2, Trash2 } from 'lucide-react';
+import { Shield, ArrowLeft, Lock, Eye, Smartphone, User, History, CreditCard, Globe, Share2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const PrivacyPolicy = () => {
+  const { token } = useAuth();
+  const BACK_PATH = token ? "/app/dashboard" : "/";
   return (
     <div className="min-h-screen bg-black text-white selection:bg-primary/30">
       <div className="max-w-4xl mx-auto px-6 py-20">
-        <Link to="/" className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
-          <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Back to Home
+        <Link to={BACK_PATH} className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
+          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-xs font-bold uppercase tracking-widest">Back to {token ? 'Dashboard' : 'Home'}</span>
         </Link>
 
         <motion.div

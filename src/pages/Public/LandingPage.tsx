@@ -387,7 +387,7 @@ const LandingPage = () => {
                         <li><a href="#how-it-works" className="hover:text-primary transition-colors">Process</a></li>
                         <li><a href="#features" className="hover:text-primary transition-colors">Features</a></li>
                         <li><a href="#pricing" className="hover:text-primary transition-colors">Pricing</a></li>
-                        <li><Link to="/discovery" className="hover:text-primary transition-colors">Find Gyms</Link></li>
+                        <li><Link to="/app/discovery" className="hover:text-primary transition-colors">Find Gyms</Link></li>
                      </ul>
                   </div>
                   <div className="space-y-8">

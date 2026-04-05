@@ -14,8 +14,14 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
 
-  const { login } = useAuth();
+  const { login, token } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (token) {
+      navigate('/app/dashboard');
+    }
+  }, [token, navigate]);
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   const handleSendOTP = async (e: React.FormEvent) => {

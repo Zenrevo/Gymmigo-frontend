@@ -41,6 +41,11 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: { children: Reac
   return children;
 };
 
+const NotFoundRedirect = () => {
+  const { token } = useAuth();
+  return <Navigate to={token ? "/app/dashboard" : "/"} />;
+};
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -69,7 +74,7 @@ const AppRoutes = () => {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<NotFoundRedirect />} />
     </Routes>
   );
 };
