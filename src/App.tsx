@@ -42,7 +42,8 @@ const ProtectedRoute = ({ children, requireOnboarding = true }: { children: Reac
 };
 
 const NotFoundRedirect = () => {
-  const { token } = useAuth();
+  const { token, isLoading } = useAuth();
+  if (isLoading) return null; // Wait for auth to settle
   return <Navigate to={token ? "/app/dashboard" : "/"} />;
 };
 

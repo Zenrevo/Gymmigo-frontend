@@ -28,8 +28,10 @@ const GymManageDashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Helper to determine active tab based on URL path
-  const currentPath = location.pathname.split('/').pop();
-  const activeTab = currentPath === gymId ? '' : currentPath;
+  // Since we are at /app/gym-owner/gyms/:gymId, the last segment is the tab
+  const segments = location.pathname.split('/');
+  const lastSegment = segments[segments.length - 1];
+  const activeTab = lastSegment === gymId ? '' : lastSegment;
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-96 gap-4">
@@ -97,7 +99,7 @@ const GymManageDashboard = () => {
             return (
               <Link
                 key={item.id}
-                to={`/app/gym-owner/gyms/${gymId}${item.id ? `/${item.id}` : ''}`}
+                to={item.id || "."}
                 onClick={() => setMobileMenuOpen(false)}
                 className={clsx(
                   "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all group",
