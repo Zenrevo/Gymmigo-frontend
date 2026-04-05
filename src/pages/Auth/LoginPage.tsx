@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Phone, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../components/BrandLogo';
-import { auth } from '../../../firebaseConfig';
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 
 const LoginPage = () => {
   const [phone, setPhone] = useState('');
@@ -14,39 +12,11 @@ const LoginPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isAgreed, setIsAgreed] = useState(false);
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-
-  // Initialize reCAPTCHA on mount
-  useEffect(() => {
-    if (!recaptchaVerifierRef.current) {
-      try {
-        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-          callback: () => {
-            console.log('reCAPTCHA solved');
-          },
-          'expired-callback': () => {
-            console.log('reCAPTCHA expired');
-          }
-        });
-      } catch (err) {
-        console.error('Failed to initialize reCAPTCHA:', err);
-      }
-    }
-
-    return () => {
-      if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
-        recaptchaVerifierRef.current = null;
-      }
-    };
-  }, []);
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,24 +24,16 @@ const LoginPage = () => {
     setError('');
 
     try {
-      if (!recaptchaVerifierRef.current) {
-        throw new Error('reCAPTCHA not initialized. Please refresh.');
+      const response = await axios.post(`${API_URL}/auth/send-otp`, { phone: `+91${phone}` });
+      
+      if (response.data.success) {
+        setStep('otp');
+      } else {
+        setError(response.data.message || 'Failed to send OTP');
       }
-
-      const appVerifier = recaptchaVerifierRef.current;
-      const formatPhone = `+91${phone}`;
-
-      // Universal Bypass for Verification (All Numbers)
-      setStep('otp');
-      setIsLoading(false);
-      return;
-
-      const result = await signInWithPhoneNumber(auth, formatPhone, appVerifier);
-      setConfirmationResult(result);
-      setStep('otp');
     } catch (err: any) {
-      console.error('Firebase Auth Error:', err);
-      setError('Failed to send code. Please ensure you are using a test number or check your internet.');
+      console.error('Auth Error:', err);
+      setError('Failed to send code. Please check your internet.');
     } finally {
       setIsLoading(false);
     }
@@ -79,48 +41,26 @@ const LoginPage = () => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirmationResult) return;
 
     setIsLoading(true);
     setError('');
 
     try {
-      // Universal Bypass for Verification (All Numbers)
-      if (otp.length === 6) {
-        const mockUser = {
-          id: `mock-id-${phone}`,
-          phone: phone,
-          roles: ['gym_owner'],
-          active_role: 'gym_owner',
-          onboarding_complete: true
-        };
-        login('mock-access-token', 'mock-refresh-token', mockUser);
-        navigate('/app/dashboard');
-        return;
-      }
-
-      if (!confirmationResult) return;
+      const response = await axios.post(`${API_URL}/auth/verify-otp`, { phone: `+91${phone}`, otp });
       
-      // 1. Verify OTP with Firebase
-      const result = await confirmationResult.confirm(otp);
-      const firebaseUser = result.user;
-
-      // 2. Get Firebase ID Token
-      const idToken = await firebaseUser.getIdToken();
-
-      // 3. Send ID Token to our backend
-      const response = await axios.post(`${API_URL}/auth/firebase-login`, { id_token: idToken });
-
       if (response.data.success) {
-        const { user: userData, tokens } = response.data.data;
+        const { user: userData, tokens, is_new_user } = response.data.data;
         const { access_token, refresh_token } = tokens;
+        
         login(access_token, refresh_token, userData);
-
-        if (response.data.data.is_new_user || !userData.active_role) {
+        
+        if (is_new_user || userData.roles.length === 0) {
           navigate('/register-role');
         } else {
           navigate('/app/dashboard');
         }
+      } else {
+        setError(response.data.message || 'Invalid OTP');
       }
     } catch (err: any) {
       console.error('Login Error:', err);
@@ -139,10 +79,7 @@ const LoginPage = () => {
       >
         <div className="flex flex-col items-center justify-center space-y-4">
           <BrandLogo size={80} className="mb-2 animate-float" />
-
         </div>
-
-        <div id="recaptcha-container"></div>
 
         <div className="space-y-6">
           <div className="text-center">
