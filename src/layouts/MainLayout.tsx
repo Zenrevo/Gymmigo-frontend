@@ -170,7 +170,7 @@ const MainLayout = () => {
       </main>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-2xl border border-white/20 px-8 py-3 rounded-full flex items-center gap-12 shadow-2xl z-50">
+      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-2xl border border-white/20 px-8 py-3 rounded-xl flex items-center gap-12 shadow-2xl z-50 w-[90%] justify-around">
         {navItems.map((item) => (
           <Link
             key={item.name}

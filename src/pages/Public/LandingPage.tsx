@@ -243,10 +243,11 @@ const LandingPage = () => {
         <div className="container mx-auto px-6">
            <div className="max-w-4xl mx-auto text-center space-y-8 mb-24">
               <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary">The Process</h4>
-              <h2 className="text-6xl md:text-8xl font-display font-black italic uppercase tracking-tighter leading-none">
-                Zero friction. <br />
-                <span className="text-white/20">Max Performance.</span>
-              </h2>
+              <h1 className="text-5xl md:text-7xl lg:text-9xl font-display font-black leading-[0.9] tracking-tighter italic">
+              POWER YOUR <br />
+              <span className="text-primary">FITNESS</span> <br />
+              ENTERPRISE
+            </h1>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -282,13 +283,13 @@ const LandingPage = () => {
               </p>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((feature, idx) => (
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {features.map((feature, index) => (
                 <motion.div
-                  key={idx}
+                  key={index}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
+                  transition={{ delay: index * 0.05 }}
                   viewport={{ once: true }}
                   className="glass-card p-8 border-white/5 hover:border-primary/40 transition-all group cursor-default"
                 >
@@ -347,10 +348,11 @@ const LandingPage = () => {
       {/* Final CTA */}
       <section className="py-48 relative overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-primary/5 -z-10" />
-        <div className="container mx-auto px-6 text-center space-y-16">
-           <h2 className="text-7xl md:text-9xl font-display font-black italic uppercase tracking-tighter leading-none">
-             Ready to <span className="text-primary">Scale</span>?
-           </h2>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+          <h2 className="text-5xl md:text-8xl lg:text-9xl font-display font-black italic tracking-tighter leading-none mb-8">
+            DOMINATE YOUR <br />
+            INFRASTRUCTURE
+          </h2>
            <Link to={CTA_PATH} className="btn-primary px-16 py-8 text-2xl font-black italic uppercase inline-flex items-center gap-4 group">
               Join Gymmigo Today
               <ArrowRight size={32} className="group-hover:translate-x-3 transition-transform" />

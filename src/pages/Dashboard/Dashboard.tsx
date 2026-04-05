@@ -62,7 +62,7 @@ const Dashboard = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 text-xs font-bold uppercase tracking-widest">
             {user?.active_role?.replace('_', ' ')} MODE
           </div>
-          <h1 className="text-5xl font-display font-black tracking-tighter">
+          <h1 className="text-3xl md:text-5xl font-display font-black tracking-tighter">
             HELLO, {user?.phone?.slice(-4) || 'MEMBER'}
           </h1>
           <p className="text-white/40 max-w-md">
@@ -208,11 +208,11 @@ const OwnerDashboardView = ({ data }: { data: any }) => {
   return (
     <>
       <div className="md:col-span-2 space-y-6">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
           <h3 className="text-xl font-bold">Your Gyms</h3>
           <Link 
             to="/app/gym-owner/add-gym" 
-            className="btn-primary py-2 px-4 rounded-xl text-xs flex items-center gap-2"
+            className="btn-primary py-2 px-4 rounded-xl text-xs flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             <Plus size={14} /> List New Gym
           </Link>
