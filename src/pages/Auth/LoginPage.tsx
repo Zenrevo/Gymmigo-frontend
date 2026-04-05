@@ -12,7 +12,7 @@ const LoginPage = () => {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isAgreed, setIsAgreed] = useState(false);
+  const [isAgreed, setIsAgreed] = useState(true);
 
   const { login, token } = useAuth();
   const navigate = useNavigate();

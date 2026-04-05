@@ -6,6 +6,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase, FileText, Mail, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../components/BrandLogo';
+import { clsx } from 'clsx';
 const roles = [
   {
     id: 'user',
@@ -20,6 +21,7 @@ const roles = [
     description: 'Manage clients, schedules, and build your professional brand.',
     icon: Dumbbell,
     color: 'from-primary/20 to-orange-600/20',
+    comingSoon: true,
   },
   {
     id: 'gym_owner',
@@ -192,13 +194,32 @@ const RegisterRolePage = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      onClick={() => setSelectedRole(role.id)}
-                      className={`group relative text-left p-8 glass-card transition-all duration-500 overflow-hidden ${isSelected ? 'border-primary ring-1 ring-primary' : 'hover:border-white/20'
-                        }`}
+                      onClick={() => !role.comingSoon && setSelectedRole(role.id)}
+                      disabled={role.comingSoon}
+                      className={clsx(
+                        "group relative text-left p-8 glass-card transition-all duration-500 overflow-hidden",
+                        isSelected ? "border-primary ring-1 ring-primary" : "hover:border-white/20",
+                        role.comingSoon && "opacity-60 cursor-not-allowed grayscale-[0.5]"
+                      )}
                     >
-                      <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      <div className={clsx(
+                        "absolute inset-0 bg-gradient-to-br transition-opacity duration-500",
+                        role.color,
+                        isSelected || !role.comingSoon ? "opacity-10" : "opacity-0 group-hover:opacity-100"
+                      )} />
+                      
+                      {role.comingSoon && (
+                        <div className="absolute top-4 right-4 bg-primary/20 text-primary text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter border border-primary/30 z-20">
+                          Coming Soon
+                        </div>
+                      )}
+
                       <div className="relative z-10 space-y-6">
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 group-hover:scale-110 group-hover:border-primary/50 transition-all duration-500 ${isSelected ? 'text-primary bg-primary/10 border-primary' : 'text-white/40 group-hover:text-white'}`}>
+                        <div className={clsx(
+                          "w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 transition-all duration-500",
+                          isSelected ? "text-primary bg-primary/10 border-primary" : "text-white/40 group-hover:text-white group-hover:border-primary/50",
+                          !isSelected && !role.comingSoon && "group-hover:scale-110"
+                        )}>
                           <role.icon size={28} />
                         </div>
                         <div className="space-y-2">
@@ -208,7 +229,7 @@ const RegisterRolePage = () => {
                           </p>
                         </div>
                       </div>
-                      {isSelected && (
+                      {isSelected && !role.comingSoon && (
                         <div className="absolute top-4 right-4 text-primary">
                           <Check size={24} />
                         </div>
