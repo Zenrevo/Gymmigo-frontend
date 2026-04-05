@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import QRScannerModal from '../../components/QRScannerModal';
+import PageLoader from '../../components/PageLoader';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -45,11 +46,7 @@ const Dashboard = () => {
     fetchData();
   }, [user?.active_role, user?.roles]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64 text-primary animate-pulse font-display text-2xl">
-      LOADING YOUR HUB...
-    </div>
-  );
+  if (loading) return <PageLoader message="Loading your hub..." />;
 
   return (
     <div className="space-y-12">

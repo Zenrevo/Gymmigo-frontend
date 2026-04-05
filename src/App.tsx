@@ -24,12 +24,13 @@ import SettingsTab from './pages/Dashboard/gym-tabs/SettingsTab';
 import MainLayout from './layouts/MainLayout';
 import { NotificationProvider } from './context/NotificationContext';
 import { NotificationContainer } from './components/Toast';
+import PageLoader from './components/PageLoader';
 import './index.css';
 
 const ProtectedRoute = ({ children, requireOnboarding = true }: { children: React.ReactNode; requireOnboarding?: boolean }) => {
   const { user, token, isLoading } = useAuth();
 
-  if (isLoading) return <div className="h-screen w-screen flex items-center justify-center bg-black text-primary animate-pulse font-display text-4xl italic">GYMMIGO</div>;
+  if (isLoading) return <PageLoader fullScreen message="Authenticating..." />;
   if (!token) return <Navigate to="/login" />;
   
   // Check if current role is completed

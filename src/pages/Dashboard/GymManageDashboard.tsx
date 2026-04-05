@@ -3,9 +3,10 @@ import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   Building2, ArrowLeft, Users, Dumbbell, 
   TrendingUp, Star, Settings, Image as ImageIcon,
-  Clock, Wifi, CreditCard, ChevronRight, Menu, X, Loader2, AlertCircle
+  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PageLoader from '../../components/PageLoader';
 import { useGym } from '../../context/GymContext';
 import clsx from 'clsx';
 
@@ -33,12 +34,7 @@ const GymManageDashboard = () => {
   const lastSegment = segments[segments.length - 1];
   const activeTab = lastSegment === gymId ? '' : lastSegment;
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center h-96 gap-4">
-      <Loader2 className="text-primary animate-spin" size={48} />
-      <p className="text-primary font-display text-xl animate-pulse">SYNCHRONIZING CONTROL CENTER...</p>
-    </div>
-  );
+  if (loading) return <PageLoader message="Synchronizing control center..." />;
 
   if (error || !gym) return (
     <div className="text-center p-20 space-y-4">
