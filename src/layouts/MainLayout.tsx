@@ -95,7 +95,7 @@ const MainLayout = () => {
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                  className="absolute right-0 mt-3 w-64 glass-card border-white/10 shadow-2xl py-2 overflow-hidden z-50 origin-top-right"
+                  className="absolute right-0 mt-3 w-64 glass-card bg-black/40 border-white/10 shadow-2xl py-2 overflow-hidden z-50 origin-top-right"
                 >
                   <div className="px-4 py-3 border-b border-white/5">
                     <p className="text-xs text-white/40 font-bold uppercase tracking-widest">Active Role</p>
@@ -110,12 +110,20 @@ const MainLayout = () => {
                     >
                       <User size={16} /> My Account
                     </Link>
-                    <button className="flex items-center gap-3 px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors w-full text-left">
+                    <Link
+                      to="/app/coming-soon"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors w-full text-left"
+                    >
                       <Settings size={16} /> Settings
-                    </button>
-                    <button className="flex items-center gap-3 px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors w-full text-left">
+                    </Link>
+                    <Link
+                      to="/app/coming-soon"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors w-full text-left"
+                    >
                       <HelpCircle size={16} /> Help & Support
-                    </button>
+                    </Link>
                   </div>
 
                   {/* Role Switching Section */}
@@ -170,7 +178,7 @@ const MainLayout = () => {
       </main>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-2xl border border-white/20 px-8 py-3 rounded-xl flex items-center gap-12 shadow-2xl z-50 w-[90%] justify-around">
+      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-3xl border border-white/20 px-8 py-3 rounded-xl flex items-center gap-12 shadow-2xl z-50 w-[90%] justify-around">
         {navItems.map((item) => (
           <Link
             key={item.name}

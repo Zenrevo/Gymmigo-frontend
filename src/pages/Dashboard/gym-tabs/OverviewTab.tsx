@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
-import { Users, TrendingUp, Shield, Plus, X, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock } from 'lucide-react';
+import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock } from 'lucide-react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -9,8 +9,7 @@ import Modal from '../../../components/Modal';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const OverviewTab = () => {
-  const { gym, refetch, gymId } = useGym();
-  const [isUpdating, setIsUpdating] = useState(false);
+  const { gym, gymId } = useGym();
 
   // Daily QR state
   const [qrData, setQrData] = useState<{ qr_payload: string; date: string; token: string } | null>(null);
@@ -34,23 +33,7 @@ const OverviewTab = () => {
     fetchQR();
   }, [gymId]);
 
-  const updateOccupancy = async (change: number) => {
-    if (!gym) return;
-    const newValue = Math.max(0, (gym.gym.current_occupancy || 0) + change);
-    if (newValue > gym.gym.max_capacity) return;
 
-    setIsUpdating(true);
-    try {
-      await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/capacity`, {
-        current_occupancy: newValue
-      });
-      await refetch();
-    } catch (err) {
-      console.error('Failed to update occupancy', err);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
 
   const downloadQR = () => {
     const svg = document.getElementById('daily-qr-svg');
@@ -100,29 +83,12 @@ const OverviewTab = () => {
             <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight italic">LIVE OCCUPANCY</h2>
           </div>
           
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 pr-4">
             <div className="space-y-1 text-right">
               <p className="text-7xl font-display font-black italic tracking-tighter text-primary">
                 {gym?.gym?.current_occupancy || 0}
               </p>
               <p className="text-white/40 font-bold uppercase tracking-widest text-[10px]">Members In-Gym</p>
-            </div>
-            
-            <div className="flex flex-col gap-2">
-              <button 
-                onClick={() => updateOccupancy(1)}
-                disabled={isUpdating}
-                className="w-10 h-10 rounded-xl bg-primary text-black flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all font-bold"
-              >
-                <Plus size={20} />
-              </button>
-              <button 
-                onClick={() => updateOccupancy(-1)}
-                disabled={isUpdating}
-                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white flex items-center justify-center hover:scale-105 active:scale-95 disabled:opacity-50 transition-all"
-              >
-                <X size={18} />
-              </button>
             </div>
           </div>
         </div>

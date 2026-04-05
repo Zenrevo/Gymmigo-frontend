@@ -6,7 +6,7 @@ import {
   Users, Dumbbell, Building2, 
   TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import QRScannerModal from '../../components/QRScannerModal';
 import PageLoader from '../../components/PageLoader';
 
@@ -182,23 +182,25 @@ const UserDashboardView = ({ data }: { data: any }) => {
 
 
 const TrainerDashboardView = ({ data: _data }: { data: any }) => {
+  const navigate = useNavigate();
   return (
-    <>
-      <div className="md:col-span-2 space-y-6">
-        <h3 className="text-xl font-bold">Active Clients</h3>
-        <div className="glass-card p-12 text-center text-white/20">
-          Client roster will appear here. No active clients yet.
-        </div>
+    <div className="md:col-span-3 py-12 flex flex-col items-center justify-center text-center space-y-8 glass-card border-dashed">
+      <div className="w-24 h-24 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary animate-pulse">
+        <Users size={48} />
       </div>
-      <div className="space-y-8">
-        <h3 className="text-xl font-bold">Earnings</h3>
-        <div className="glass-card p-10 bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20">
-          <TrendingUp className="text-emerald-500 mb-4" />
-          <p className="text-white/40 text-xs font-bold uppercase">Total Earned</p>
-          <p className="text-4xl font-black">₹0.00</p>
-        </div>
+      <div className="max-w-md space-y-4">
+        <h3 className="text-3xl font-display font-black tracking-tighter italic uppercase">Trainer Suite Coming Soon</h3>
+        <p className="text-white/40 text-sm leading-relaxed">
+          We are currently building a powerful suite of tools for trainers to manage clients, track progress, and grow their fitness business. Stay tuned for the ultimate coaching experience.
+        </p>
       </div>
-    </>
+      <button 
+        onClick={() => navigate('/app/discovery')}
+        className="btn-primary py-3 px-8 flex items-center gap-2"
+      >
+        Explore Gyms & Trainers <ArrowRight size={18} />
+      </button>
+    </div>
   );
 };
 

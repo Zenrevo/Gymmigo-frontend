@@ -25,6 +25,7 @@ import MainLayout from './layouts/MainLayout';
 import { NotificationProvider } from './context/NotificationContext';
 import { NotificationContainer } from './components/Toast';
 import PageLoader from './components/PageLoader';
+import ComingSoon from './components/ComingSoon';
 import './index.css';
 
 const ProtectedRoute = ({ children, requireOnboarding = true }: { children: React.ReactNode; requireOnboarding?: boolean }) => {
@@ -73,6 +74,7 @@ const AppRoutes = () => {
           <Route path="gallery" element={<GalleryTab />} />
           <Route path="reviews" element={<ReviewsTab />} />
           <Route path="settings" element={<SettingsTab />} />
+          <Route path="coming-soon" element={<ComingSoon />} />
         </Route>
       </Route>
 

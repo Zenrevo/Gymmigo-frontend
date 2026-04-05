@@ -622,7 +622,7 @@ const MembersTab = () => {
         )}
       </div>
 
-      {/* Members List */}
+      {/* Lists */}
       <AnimatePresence mode="wait">
         {viewMode === 'members' ? (
           <motion.div key="members" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -637,7 +637,7 @@ const MembersTab = () => {
               </div>
             ) : (
               <>
-                {/* Table Header */}
+                {/* Table Header (Desktop Only) */}
                 <div className="hidden md:grid grid-cols-[1fr_120px_100px_100px_100px_80px] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
                   <span>Member</span>
                   <span>Plan</span>
@@ -646,61 +646,90 @@ const MembersTab = () => {
                   <span>Expires</span>
                   <span></span>
                 </div>
+
                 {/* Rows */}
                 <div className="divide-y divide-white/5">
                   {members.map((m, i) => (
                     <motion.div key={m.membership_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_100px_100px_100px_80px] gap-4 items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_100px_100px_100px_80px] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
                       onClick={() => fetchMemberDetail(m.membership_id)}>
-                      {/* Member info */}
-                      <div className="flex items-center gap-3 w-full">
-                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm shrink-0">
-                          {(m.user_name || 'U')[0].toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-bold truncate">{m.user_name || 'Unknown'}</p>
-                            {m.is_currently_checked_in && (
-                              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" title="Currently in gym" />
-                            )}
+                      
+                      {/* -- Header Row: Avatar, Name, Phone, Status (Mobile Optimized) -- */}
+                      <div className="flex items-start justify-between w-full md:w-auto">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm shrink-0">
+                            {(m.user_name || 'U')[0].toUpperCase()}
                           </div>
-                          <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold truncate text-sm sm:text-base">{m.user_name || 'Unknown'}</p>
+                              {m.is_currently_checked_in && (
+                                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" title="Currently in gym" />
+                              )}
+                            </div>
+                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
+                          </div>
+                        </div>
+                        <div className="md:hidden">
+                           {statusBadge(m.status)}
                         </div>
                       </div>
-                      {/* Plan */}
-                      <span className="text-sm text-white/60 truncate">{m.plan_name || '—'}</span>
-                      {/* Status */}
-                      {statusBadge(m.status)}
-                      {/* Check-ins */}
-                      <span className="text-sm font-mono">{m.total_check_ins}</span>
-                      {/* Expires */}
-                      <span className="text-xs text-white/40">{formatDate(m.end_date)}</span>
-                      {/* Action */}
-                      <div className="flex items-center gap-1">
-                        {m.status === 'active' && (
-                          m.is_currently_checked_in ? (
-                            <button onClick={e => { e.stopPropagation(); handleCheckOut(m.membership_id); }}
-                              disabled={actionLoading === m.membership_id}
-                              className="p-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all" title="Check Out">
-                              {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={14} />}
-                            </button>
-                          ) : (
-                            <button onClick={e => { e.stopPropagation(); handleCheckIn(m.membership_id); }}
-                              disabled={actionLoading === m.membership_id}
-                              className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all" title="Check In">
-                              {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={14} />}
-                            </button>
-                          )
-                        )}
-                        <button onClick={e => { e.stopPropagation(); openEditModal(m); }}
-                          className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all" title="Edit Info">
-                          <Edit2 size={14} />
-                        </button>
-                        <ChevronRight size={16} className="text-white/20 group-hover:text-primary transition-colors" />
+
+                      {/* -- Details Grid (Mobile: 2x2 Grid, Desktop: Columns) -- */}
+                      <div className="grid grid-cols-2 md:contents gap-3 p-3 md:p-0 bg-white/[0.03] md:bg-transparent rounded-xl border border-white/5 md:border-0">
+                        <div className="flex flex-col md:block">
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">PLAN</span>
+                           <span className="text-xs md:text-sm text-white/60 truncate font-medium">{m.plan_name || '—'}</span>
+                        </div>
+                        <div className="hidden md:block">{statusBadge(m.status)}</div>
+                        <div className="flex flex-col md:block">
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">VISITS</span>
+                           <span className="text-xs md:text-sm font-mono text-white/80">{m.total_check_ins} Check-ins</span>
+                        </div>
+                        <div className="flex flex-col md:block">
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">EXPIRES</span>
+                           <span className="text-xs text-white/40">{formatDate(m.end_date)}</span>
+                        </div>
+                        <div className="md:hidden flex flex-col justify-center">
+                           <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">GYM STATUS</span>
+                           <span className={`text-[10px] font-bold ${m.is_currently_checked_in ? 'text-green-400' : 'text-white/20'}`}>
+                             {m.is_currently_checked_in ? 'In Gym Now' : 'Out of Gym'}
+                           </span>
+                        </div>
+                      </div>
+
+                      {/* -- Actions Row (Mobile: Full Width, Desktop: Inline) -- */}
+                      <div className="flex items-center justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t border-white/5 md:border-0 overflow-x-auto">
+                        <div className="flex items-center gap-2">
+                          {m.status === 'active' && (
+                            m.is_currently_checked_in ? (
+                              <button onClick={e => { e.stopPropagation(); handleCheckOut(m.membership_id); }}
+                                disabled={actionLoading === m.membership_id}
+                                className="p-2.5 md:p-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all border border-amber-500/20 flex items-center gap-2" title="Check Out">
+                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={16} />}
+                                <span className="md:hidden text-xs font-bold uppercase transition-all">OUT</span>
+                              </button>
+                            ) : (
+                              <button onClick={e => { e.stopPropagation(); handleCheckIn(m.membership_id); }}
+                                disabled={actionLoading === m.membership_id}
+                                className="p-2.5 md:p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 flex items-center gap-2" title="Check In">
+                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={16} />}
+                                <span className="md:hidden text-xs font-bold uppercase transition-all">IN</span>
+                              </button>
+                            )
+                          )}
+                          <button onClick={e => { e.stopPropagation(); openEditModal(m); }}
+                            className="p-2.5 md:p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/20 flex items-center gap-2" title="Edit Info">
+                            <Edit2 size={16} />
+                            <span className="md:hidden text-xs font-bold uppercase transition-all">EDIT</span>
+                          </button>
+                        </div>
+                        <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors shrink-0" />
                       </div>
                     </motion.div>
                   ))}
                 </div>
+
                 {/* Pagination */}
                 {totalMembers > 20 && (
                   <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm">
@@ -717,7 +746,7 @@ const MembersTab = () => {
             )}
           </motion.div>
         ) : (
-          /* Attendance Log */
+          /* Attendance Log View */
           <motion.div key="attendance" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="glass-card overflow-hidden">
             {loadingAttendance ? (
@@ -740,7 +769,9 @@ const MembersTab = () => {
                 <div className="divide-y divide-white/5">
                   {attendance.map((a, i) => (
                     <motion.div key={a.check_in_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_120px_80px_80px] gap-4 items-center hover:bg-white/[0.02] transition-colors">
+                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_120px_80px_80px] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors">
+                      
+                      {/* Member Info */}
                       <div className="flex items-center gap-3 w-full">
                         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${a.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
                         <div className="min-w-0">
@@ -748,22 +779,34 @@ const MembersTab = () => {
                           <p className="text-xs text-white/30">{a.user_phone}</p>
                         </div>
                       </div>
-                      <div className="text-sm">
-                        <p>{formatDate(a.check_in_time)}</p>
-                        <p className="text-white/40 text-xs">{formatTime(a.check_in_time)}</p>
+
+                      {/* Grid for details on Mobile */}
+                      <div className="grid grid-cols-2 md:contents gap-4 p-3 bg-white/[0.02] md:bg-transparent rounded-xl border border-white/5 md:border-0">
+                        <div className="text-sm">
+                           <span className="md:hidden block text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">IN</span>
+                          <p className="font-medium">{formatDate(a.check_in_time)}</p>
+                          <p className="text-white/40 text-xs">{formatTime(a.check_in_time)}</p>
+                        </div>
+                        <div className="text-sm">
+                          <span className="md:hidden block text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">OUT</span>
+                          {a.check_out_time ? (
+                            <>
+                              <p className="font-medium">{formatDate(a.check_out_time)}</p>
+                              <p className="text-white/40 text-xs">{formatTime(a.check_out_time)}</p>
+                            </>
+                          ) : (
+                            <span className="text-green-400 text-xs font-bold uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded">Active</span>
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">DURATION</span>
+                           <span className="text-sm font-mono text-white/60">{a.duration_minutes != null ? `${a.duration_minutes}m` : '—'}</span>
+                        </div>
+                        <div className="flex flex-col">
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">METHOD</span>
+                           <span className="text-[10px] uppercase tracking-widest text-white/30">{a.method}</span>
+                        </div>
                       </div>
-                      <div className="text-sm">
-                        {a.check_out_time ? (
-                          <>
-                            <p>{formatDate(a.check_out_time)}</p>
-                            <p className="text-white/40 text-xs">{formatTime(a.check_out_time)}</p>
-                          </>
-                        ) : (
-                          <span className="text-green-400 text-xs font-bold uppercase tracking-widest">Active</span>
-                        )}
-                      </div>
-                      <span className="text-sm font-mono text-white/60">{a.duration_minutes != null ? `${a.duration_minutes}m` : '—'}</span>
-                      <span className="text-[10px] uppercase tracking-widest text-white/30">{a.method}</span>
                     </motion.div>
                   ))}
                 </div>
