@@ -135,7 +135,7 @@ const AddGymPage = () => {
       };
 
       await axios.post(`${API_URL}/gym-owner/gyms`, payload);
-      navigate('/');
+      navigate('/app/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Failed to list gym. Please check all required fields.');
     } finally {
@@ -155,7 +155,7 @@ const AddGymPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <button 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/app/dashboard')}
           className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group self-start"
         >
           <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary/50">

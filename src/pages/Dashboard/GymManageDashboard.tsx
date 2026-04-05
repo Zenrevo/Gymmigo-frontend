@@ -43,7 +43,7 @@ const GymManageDashboard = () => {
       <AlertCircle className="mx-auto text-red-500" size={48} />
       <h2 className="text-2xl font-bold">Gym Not Found</h2>
       <p className="text-white/40">{error || "Could not load gym details."}</p>
-      <button onClick={() => navigate('/')} className="btn-primary px-6 py-2 mt-4">Back to Dashboard</button>
+      <button onClick={() => navigate('/app/dashboard')} className="btn-primary px-6 py-2 mt-4">Back to Dashboard</button>
     </div>
   );
 
@@ -52,7 +52,7 @@ const GymManageDashboard = () => {
       {/* Mobile Top Header (only visible on small screens) */}
       <div className="md:hidden flex items-center justify-between mb-4 glass-card p-4">
         <div className="flex items-center gap-3">
-          <Link to="/" className="text-white/60 hover:text-white">
+          <Link to="/app/dashboard" className="text-white/60 hover:text-white">
             <ArrowLeft size={20} />
           </Link>
           <h2 className="font-bold text-lg truncate max-w-[200px] uppercase italic">{gym.gym.name}</h2>
@@ -73,7 +73,7 @@ const GymManageDashboard = () => {
       )}>
         <div className="hidden md:block space-y-6 mb-8">
           <Link 
-            to="/"
+            to="/app/dashboard"
             className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group w-fit"
           >
             <ArrowLeft size={16} />
@@ -97,7 +97,7 @@ const GymManageDashboard = () => {
             return (
               <Link
                 key={item.id}
-                to={`/gym-owner/gyms/${gymId}${item.id ? `/${item.id}` : ''}`}
+                to={`/app/gym-owner/gyms/${gymId}${item.id ? `/${item.id}` : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
                 className={clsx(
                   "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all group",
