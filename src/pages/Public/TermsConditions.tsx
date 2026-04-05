@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FileText, Scale, ChevronLeft, UserCheck, CreditCard, AlertCircle } from 'lucide-react';
+import { FileText, Scale, ChevronLeft, UserCheck, AlertCircle, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const TermsConditions = () => {
@@ -36,7 +36,7 @@ const TermsConditions = () => {
 
             <section className="space-y-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic underline decoration-primary/30 underline-offset-8">
-                2. Use of Service & Account Security
+                2. Use of Service & Authentication
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -49,35 +49,35 @@ const TermsConditions = () => {
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <div className="flex items-center gap-3 text-emerald-400">
-                    <CreditCard size={20} />
-                    <h3 className="font-bold">Subscription & Payments</h3>
+                  <div className="flex items-center gap-3 text-blue-500">
+                    <Globe size={20} />
+                    <h3 className="font-bold">Google Login</h3>
                   </div>
-                  <p className="text-sm">Gym memberships and subscriptions purchased via Gymmigo.in are subject to the specific terms set by the affiliated gym. Payments are non-refundable unless specified otherwise by the service provider.</p>
+                  <p className="text-sm">When you choose to authenticate via Google OAuth, you authorize us to fetch basic profile information (name, email, picture) as described in our Privacy Policy. This data is used solely for identity verification within the platform.</p>
                 </div>
               </div>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 3. Prohibited Behavior
+                <div className="w-1 h-6 bg-primary" /> 3. Data Privacy & Use
               </h2>
-              <p>Under this legal agreement, users are explicitly prohibited from:</p>
-              <ul className="list-disc pl-6 space-y-3 font-bold text-white/60">
-                <li>Sharing your personal check-in QR code with others;</li>
-                <li>Engaging in fraudulent check-ins or manipulating attendance data;</li>
-                <li>Attempting to decompile or reverse engineer any platform software;</li>
-                <li>Removing any copyright or other proprietary notations from the platform.</li>
-              </ul>
+              <div className="p-6 bg-white/5 rounded-2xl border border-white/5 border-l-4 border-l-primary/50">
+                <p className="text-sm italic">"We strictly prohibit use of user data for any purpose other than providing fitness management services. User profile data is NOT shared with third parties under any circumstances."</p>
+              </div>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 4. Data Usage Acceptance
+                <div className="w-1 h-6 bg-primary" /> 4. Prohibited Behavior
               </h2>
-              <div className="p-6 bg-white/5 rounded-2xl border border-white/5 border-l-4 border-l-primary/50">
-                <p className="text-sm italic">"By logging in, you acknowledge that we will process your phone number, profile details, and attendance logs as described in our Privacy Policy to provide you with seamless fitness management services."</p>
-              </div>
+              <p>Under this legal agreement, users are explicitly prohibited from:</p>
+              <ul className="list-disc pl-6 space-y-3 font-bold text-white/60">
+                <li>Sharing your personal check-in QR code or account access with others;</li>
+                <li>Engaging in fraudulent check-ins or manipulating attendance data;</li>
+                <li>Attempting to decompile or reverse engineer any platform software;</li>
+                <li>Removing any copyright or other proprietary notations.</li>
+              </ul>
             </section>
 
             <section className="space-y-4">

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, ChevronLeft, Smartphone, User, History, CreditCard } from 'lucide-react';
+import { Shield, Lock, Eye, ChevronLeft, Smartphone, User, History, CreditCard, Globe, Share2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
@@ -49,15 +49,23 @@ const PrivacyPolicy = () => {
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-blue-500">
+                    <Globe size={20} />
+                    <h3 className="font-bold">Google OAuth</h3>
+                  </div>
+                  <p className="text-sm">We use <span className="text-white font-bold">Google OAuth</span> to authenticate users. We only access basic profile information such as name, email, and profile picture. This data is used solely for identity verification and account personalization.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-3 text-emerald-400">
                     <User size={20} />
                     <h3 className="font-bold">Profile Information</h3>
                   </div>
-                  <p className="text-sm">We collect your <span className="text-white font-bold">Name, Age, Gender, Height, and Weight</span> to personalize your fitness journey and calculate accurate metrics. This is stored securely on our AWS-hosted infrastructure.</p>
+                  <p className="text-sm">We collect your <span className="text-white font-bold">Name, Age, Gender, Height, and Weight</span> to personalize your fitness journey and calculate accurate metrics. This is stored securely on our infrastructure.</p>
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <div className="flex items-center gap-3 text-blue-400">
+                  <div className="flex items-center gap-3 text-emerald-500">
                     <History size={20} />
                     <h3 className="font-bold">Activity Logs</h3>
                   </div>
@@ -70,6 +78,15 @@ const PrivacyPolicy = () => {
                     <h3 className="font-bold">Payment Data</h3>
                   </div>
                   <p className="text-sm">Payment transactions (CC/UPI/Net Banking) are processed by <span className="text-white font-bold">PCI-compliant 3rd parties</span>. Gymmigo does not store your card or bank credentials on its servers.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-red-400">
+                    <Share2 size={20} />
+                    <h3 className="font-bold">Third Parties</h3>
+                  </div>
+                  <p className="text-sm italic text-white/50 underline decoration-red-400/30 font-display font-black tracking-wide">"Your personal profile data is NOT shared with third parties."</p>
+                  <p className="text-xs text-white/40">We strictly follow Google's User Data Policy regarding the limited use of OAuth-fetched profile information.</p>
                 </div>
               </div>
             </section>
@@ -94,12 +111,23 @@ const PrivacyPolicy = () => {
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 4. Communication & Rights
+                <div className="w-1 h-6 bg-primary" /> 4. Data Retention & Deletion
               </h2>
-              <p>You have the right to request a copy of your data or request deletion of your account at any time. Any formal notices or communications regarding your privacy should be sent to us:</p>
+              <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4 items-start">
+                <Trash2 className="text-primary shrink-0" size={20} />
+                <div className="space-y-2">
+                  <p className="text-sm">We retain your data as long as your account is active. You can request account deletion by emailing us directly. Upon deletion, all your personal profile data, including Google OAuth-fetched information, is wiped from our active databases within 30 days.</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
+                <div className="w-1 h-6 bg-primary" /> 5. Communication & Rights
+              </h2>
+              <p>You have the right to request a copy of your data or request removal at any time. Any formal notices regarding your privacy should be sent to us:</p>
               <div className="p-6 bg-primary/5 rounded-2xl border border-primary/10 space-y-2">
                 <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Email:</span> support@gymmigo.in</p>
-                <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Alternative:</span> support@zenrevo.in</p>
                 <p className="text-sm"><span className="text-white/40 uppercase tracking-widest font-bold mr-2">Company:</span> Zenrevo (zenrevo.in)</p>
               </div>
             </section>
