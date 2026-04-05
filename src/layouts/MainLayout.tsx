@@ -17,9 +17,9 @@ const MainLayout = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
-    { name: 'Home', path: '/', icon: Home },
-    { name: 'Explore', path: '/discovery', icon: Search },
-    { name: 'Profile', path: '/profile', icon: User },
+    { name: 'Home', path: '/app/dashboard', icon: Home },
+    { name: 'Explore', path: '/app/discovery', icon: Search },
+    { name: 'Profile', path: '/app/profile', icon: User },
   ];
 
   // Close dropdown when clicking outside
@@ -37,7 +37,7 @@ const MainLayout = () => {
     try {
       await switchRole(role);
       setIsProfileOpen(false);
-      navigate('/');
+      navigate('/app/dashboard');
     } catch (error) {
       console.error('Failed to switch role');
     }
@@ -57,7 +57,7 @@ const MainLayout = () => {
     <div className="min-h-screen bg-black flex flex-col text-white font-sans selection:bg-primary/30">
       {/* Header */}
       <header className="nav-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between border-b border-white/5">
-        <Link to="/" className="hover:opacity-80 transition-opacity">
+        <Link to="/app/dashboard" className="hover:opacity-80 transition-opacity">
           <BrandLogo size={40} showText={true} />
         </Link>
 
@@ -104,7 +104,7 @@ const MainLayout = () => {
 
                   <div className="py-2">
                     <Link
-                      to="/profile"
+                      to="/app/profile"
                       onClick={() => setIsProfileOpen(false)}
                       className="flex items-center gap-3 px-4 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors"
                     >

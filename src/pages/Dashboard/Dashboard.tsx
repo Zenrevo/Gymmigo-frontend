@@ -211,7 +211,7 @@ const OwnerDashboardView = ({ data }: { data: any }) => {
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xl font-bold">Your Gyms</h3>
           <Link 
-            to="/gym-owner/add-gym" 
+            to="/app/gym-owner/add-gym" 
             className="btn-primary py-2 px-4 rounded-xl text-xs flex items-center gap-2"
           >
             <Plus size={14} /> List New Gym
@@ -220,7 +220,7 @@ const OwnerDashboardView = ({ data }: { data: any }) => {
         {data?.length ? data.map((item: any, index: number) => (
           <Link 
             key={item.gym?.id || index} 
-            to={`/gym-owner/gyms/${item.gym?.id}`}
+            to={`/app/gym-owner/gyms/${item.gym?.id}`}
             className="glass-card p-6 flex items-center justify-between group hover:border-primary/50 transition-all active:scale-98"
           >
             <div className="flex items-center gap-4">
