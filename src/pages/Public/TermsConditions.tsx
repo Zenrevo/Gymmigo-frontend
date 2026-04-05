@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FileText, ArrowLeft, CheckCircle2, Shield, Scale, Gavel, Globe, UserCheck, AlertCircle } from 'lucide-react';
+import { FileText, ArrowLeft, Scale, Globe, UserCheck, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
