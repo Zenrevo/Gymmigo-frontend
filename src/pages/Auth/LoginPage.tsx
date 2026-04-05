@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-   const [isAgreed, setIsAgreed] = useState(false);
+  const [isAgreed, setIsAgreed] = useState(false);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const { login } = useAuth();
@@ -57,7 +57,7 @@ const LoginPage = () => {
       if (!recaptchaVerifierRef.current) {
         throw new Error('reCAPTCHA not initialized. Please refresh.');
       }
-      
+
       const appVerifier = recaptchaVerifierRef.current;
       const formatPhone = `+91${phone}`;
 
@@ -118,14 +118,7 @@ const LoginPage = () => {
       >
         <div className="flex flex-col items-center justify-center space-y-4">
           <BrandLogo size={80} className="mb-2 animate-float" />
-          <div className="text-center">
-            <h1 className="text-5xl font-display font-black tracking-tighter italic bg-gradient-to-r from-primary-dark via-primary to-primary-dark bg-clip-text text-transparent">
-              GYMMIGO
-            </h1>
-            <p className="text-white/40 text-[9px] font-bold tracking-[0.4em] uppercase mt-1">
-              Elevate Your Fitness
-            </p>
-          </div>
+
         </div>
 
         <div id="recaptcha-container"></div>
@@ -164,14 +157,14 @@ const LoginPage = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     maxLength={10}
-                     required
+                    required
                   />
                 </div>
 
                 <div className="flex items-center gap-3 px-1">
                   <div className="relative group">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       id="terms-check"
                       checked={isAgreed}
                       onChange={(e) => setIsAgreed(e.target.checked)}
@@ -220,7 +213,7 @@ const LoginPage = () => {
                     required
                   />
                 </div>
-                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+                {error && <p className="text-red-400 text-xs text-center">{error}</p>}
                 <button
                   disabled={isLoading || !isAgreed}
                   className="w-full btn-primary py-4 flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
