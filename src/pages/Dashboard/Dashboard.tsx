@@ -205,6 +205,10 @@ const TrainerDashboardView = ({ data: _data }: { data: any }) => {
 };
 
 const OwnerDashboardView = ({ data }: { data: any }) => {
+  const totalGyms = data?.length || 0;
+  const totalMembers = data?.reduce((acc: number, item: any) => acc + (item.metrics?.active_members || 0), 0) || 0;
+  const totalRevenue = data?.reduce((acc: number, item: any) => acc + (item.metrics?.monthly_revenue || 0), 0) || 0;
+
   return (
     <>
       <div className="md:col-span-2 space-y-6">
@@ -221,21 +225,41 @@ const OwnerDashboardView = ({ data }: { data: any }) => {
           <Link 
             key={item.gym?.id || index} 
             to={`/app/gym-owner/gyms/${item.gym?.id}`}
-            className="glass-card p-6 flex items-center justify-between group hover:border-primary/50 transition-all active:scale-98"
+            className="glass-card p-6 flex flex-col gap-4 group hover:border-primary/50 transition-all active:scale-98 relative"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all">
-                <Building2 size={24} />
+            <div className="absolute top-6 right-6">
+              <span className="text-emerald-500 text-[10px] font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest">ACTIVE</span>
+            </div>
+            
+            <div className="flex items-center gap-4 pr-16">
+              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden shrink-0">
+                {item.gym?.logo_url ? (
+                  <img src={item.gym.logo_url} alt={item.gym.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 size={24} />
+                )}
               </div>
               <div>
-                <h4 className="font-bold group-hover:text-primary transition-colors">{item.gym?.name}</h4>
-                <p className="text-xs text-white/40">{item.gym?.description?.slice(0, 50) || 'No description available'}...</p>
+                <h4 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">{item.gym?.name}</h4>
+                <p className="text-xs text-white/40 line-clamp-1">{item.gym?.description || 'No description available'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-emerald-500 text-[10px] font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest">ACTIVE</span>
-              <div className="text-white/20 group-hover:text-primary transition-colors">
-                <ArrowRight size={18} />
+
+            {/* Performance Analytics Grid */}
+            <div className="grid grid-cols-2 gap-4 mt-2 pt-4 border-t border-white/5 group-hover:border-white/10 transition-colors">
+              <div className="bg-white/5 rounded-xl p-3 flex flex-col justify-end">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Active Users</p>
+                  <Users size={14} className="text-primary/60" />
+                </div>
+                <p className="text-2xl font-black text-white">{item.metrics?.active_members || 0}</p>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 flex flex-col justify-end relative overflow-hidden">
+                <TrendingUp size={60} className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors" />
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">MTD Revenue</p>
+                </div>
+                <p className="text-2xl font-black text-white">₹{(item.metrics?.monthly_revenue || 0).toLocaleString()}</p>
               </div>
             </div>
           </Link>
@@ -244,13 +268,22 @@ const OwnerDashboardView = ({ data }: { data: any }) => {
         )}
       </div>
       <div className="space-y-8">
-        <h3 className="text-xl font-bold">Overview</h3>
-        <div className="glass-card p-8 border-primary/20">
-          <TrendingUp className="text-primary mb-4" />
-          <h4 className="font-bold">Occupancy</h4>
-          <p className="text-4xl font-black mt-2">0%</p>
-          <div className="w-full bg-white/5 h-2 rounded-full mt-4 overflow-hidden">
-             <div className="bg-primary w-[0%] h-full transition-all" />
+        <h3 className="text-xl font-bold">Portfolio Overview</h3>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="glass-card p-6 border-b-2 border-b-primary/50 relative overflow-hidden group hover:border-white/10 transition-colors">
+            <Building2 size={80} className="absolute -right-4 -bottom-4 text-primary/5 group-hover:text-primary/10 transition-all transform group-hover:scale-110" />
+            <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><Building2 size={14} className="text-primary"/> Total Gyms</h4>
+            <p className="text-3xl font-black">{totalGyms}</p>
+          </div>
+          <div className="glass-card p-6 border-b-2 border-b-emerald-500/50 relative overflow-hidden group hover:border-white/10 transition-colors">
+             <Users size={80} className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-all transform group-hover:scale-110" />
+             <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><Users size={14} className="text-emerald-500"/> Total Active Members</h4>
+             <p className="text-3xl font-black">{totalMembers}</p>
+          </div>
+          <div className="glass-card p-6 border-b-2 border-b-green-500/50 relative overflow-hidden group hover:border-white/10 transition-colors">
+             <TrendingUp size={80} className="absolute -right-4 -bottom-4 text-green-500/5 group-hover:text-green-500/10 transition-all transform group-hover:scale-110" />
+             <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><TrendingUp size={14} className="text-green-500"/> Combined MTD Revenue</h4>
+             <p className="text-3xl font-black">₹{totalRevenue.toLocaleString()}</p>
           </div>
         </div>
       </div>

@@ -19,6 +19,7 @@ const navItems = [
   { id: 'amenities', name: 'Amenities', icon: Wifi },
   { id: 'gallery', name: 'Gallery', icon: ImageIcon },
   { id: 'reviews', name: 'Reviews', icon: Star },
+  { id: 'finance', name: 'Finance', icon: TrendingUp },
   { id: 'settings', name: 'Settings', icon: Settings },
 ];
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '../../../components/Modal';
@@ -61,6 +62,7 @@ interface MemberDetail extends Member {
 const MembersTab = () => {
   const { gym, gymId } = useGym();
   const { showNotification } = useNotification();
+  const navigate = useNavigate();
 
   // View mode: members list or attendance log
   const [viewMode, setViewMode] = useState<'members' | 'attendance'>('members');
@@ -722,6 +724,20 @@ const MembersTab = () => {
                             className="p-2.5 md:p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/20 flex items-center gap-2" title="Edit Info">
                             <Edit2 size={16} />
                             <span className="md:hidden text-xs font-bold uppercase transition-all">EDIT</span>
+                          </button>
+                          <button onClick={e => { 
+                              e.stopPropagation(); 
+                              navigate('../finance', { 
+                                state: { 
+                                  memberId: m.user_id,
+                                  memberName: m.user_name,
+                                  memberPhone: m.user_phone
+                                } 
+                              }); 
+                            }}
+                            className="p-2.5 md:p-2 rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-all border border-orange-500/20 flex items-center gap-2" title="Create Invoice">
+                            <CreditCard size={16} />
+                            <span className="md:hidden text-xs font-bold uppercase transition-all">BILL</span>
                           </button>
                         </div>
                         <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors shrink-0" />

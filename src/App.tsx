@@ -21,6 +21,7 @@ import AmenitiesTab from './pages/Dashboard/gym-tabs/AmenitiesTab';
 import GalleryTab from './pages/Dashboard/gym-tabs/GalleryTab';
 import ReviewsTab from './pages/Dashboard/gym-tabs/ReviewsTab';
 import SettingsTab from './pages/Dashboard/gym-tabs/SettingsTab';
+import FinanceTab from './pages/Dashboard/gym-tabs/FinanceTab';
 import MainLayout from './layouts/MainLayout';
 import { NotificationProvider } from './context/NotificationContext';
 import { NotificationContainer } from './components/Toast';
@@ -74,6 +75,7 @@ const AppRoutes = () => {
           <Route path="gallery" element={<GalleryTab />} />
           <Route path="reviews" element={<ReviewsTab />} />
           <Route path="settings" element={<SettingsTab />} />
+          <Route path="finance" element={<FinanceTab />} />
           <Route path="coming-soon" element={<ComingSoon />} />
         </Route>
       </Route>

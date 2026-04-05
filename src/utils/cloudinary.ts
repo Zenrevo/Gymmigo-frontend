@@ -13,7 +13,9 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
   formData.append('upload_preset', UPLOAD_PRESET);
 
   try {
-    const response = await axios.post(
+    // We use a fresh axios instance to avoid global 'Authorization' interceptors 
+    // that cause Cloudinary CORS failures.
+    const response = await axios.create().post(
       `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
       formData,
       {

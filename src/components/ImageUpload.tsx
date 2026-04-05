@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Camera, Loader2, X, Plus } from 'lucide-react';
-import { uploadToCloudinary } from '../utils/cloudinary';
+import { uploadToR2 } from '../utils/r2';
 import { clsx } from 'clsx';
 
 interface ImageUploadProps {
@@ -46,7 +46,7 @@ const ImageUpload = ({
     setPreview(localPreview);
 
     try {
-      const url = await uploadToCloudinary(file);
+      const url = await uploadToR2(file);
       onUploadComplete(url);
       setPreview(url);
     } catch (err: any) {

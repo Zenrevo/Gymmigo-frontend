@@ -32,6 +32,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
   const [address, setAddress] = useState<AddressResult | null>(null);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [searchBox, setSearchBox] = useState<google.maps.places.Autocomplete | null>(null);
+  const [mapCenter] = useState(initialCenter || { lat: 19.0760, lng: 72.8777 });
 
   const geocodeTimeout = useRef<any>(null);
   const skipNextGeocode = useRef(false);
@@ -175,7 +176,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
             {isLoaded ? (
               <GoogleMap
                 mapContainerStyle={{ width: '100%', height: '100%' }}
-                center={initialCenter || { lat: 19.0760, lng: 72.8777 }}
+                center={mapCenter}
                 zoom={15}
                 onLoad={setMap}
                 onIdle={onIdle}

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
+import MapPickerModal from '../../components/MapPickerModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -13,6 +14,7 @@ const Profile = () => {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
   const { showNotification } = useNotification();
 
   const fetchProfileData = async () => {
@@ -140,16 +142,20 @@ const Profile = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">City</label>
-                <div className="relative group">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Mumbai"
-                    value={profile?.city || ''} 
-                    onChange={(e) => setProfile({...profile, city: e.target.value})}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
-                  />
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">City Location</label>
+                <div 
+                  onClick={() => setIsMapOpen(true)}
+                  className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl py-3 px-4 hover:border-primary transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    <MapPin className="text-white/20 group-hover:text-primary transition-colors" size={18} />
+                    <span className={profile?.city ? "text-white" : "text-white/20"}>
+                      {profile?.city || 'Pick location on Map'}
+                    </span>
+                  </div>
+                  <div className="text-primary text-[10px] uppercase font-bold tracking-widest bg-primary/10 px-2 py-1 rounded">
+                    Change
+                  </div>
                 </div>
               </div>
             </div>
@@ -224,6 +230,16 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      
+      {/* Map Picker Modal */}
+      <MapPickerModal 
+        isOpen={isMapOpen}
+        onClose={() => setIsMapOpen(false)}
+        onConfirm={(location) => {
+          setProfile({ ...profile, city: location.city });
+          setIsMapOpen(false);
+        }}
+      />
     </div>
   );
 };

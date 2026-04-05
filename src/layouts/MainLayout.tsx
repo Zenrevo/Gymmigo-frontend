@@ -3,11 +3,14 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Home, Search, User, LogOut, Shield, ChevronDown,
-  Settings, PlusCircle, Bell, HelpCircle
+  Settings, PlusCircle, Bell, HelpCircle, Users
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../components/BrandLogo';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const MainLayout = () => {
   const { user, logout, switchRole } = useAuth();
@@ -15,12 +18,48 @@ const MainLayout = () => {
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [gymBranding, setGymBranding] = useState<{name: string, logo: string} | null>(null);
 
-  const navItems = [
+  const gymMatch = location.pathname.match(/\/app\/gym-owner\/gyms\/([^\/\s]+)/);
+  const activeGymId = gymMatch ? gymMatch[1] : null;
+
+  // Auto-load gym branding if in a gym-specific route
+  useEffect(() => {
+    const match = location.pathname.match(/\/app\/gym-owner\/gyms\/([^\/\s]+)/);
+    if (match && match[1]) {
+      const gymId = match[1];
+      axios.get(`${API_URL}/gym-owner/gyms/${gymId}`)
+        .then(res => {
+          if (res.data.data?.name) {
+            setGymBranding({
+              name: res.data.data.name,
+              logo: res.data.data.logo_url
+            });
+          }
+        })
+        .catch(err => console.error("Sidebar branding failed", err));
+    } else {
+      setGymBranding(null);
+    }
+  }, [location.pathname]);
+
+  let navItems: any[] = [
     { name: 'Home', path: '/app/dashboard', icon: Home },
     { name: 'Explore', path: '/app/discovery', icon: Search },
     { name: 'Profile', path: '/app/profile', icon: User },
   ];
+
+  if (user?.active_role === 'gym_owner') {
+    if (activeGymId) {
+      navItems = [
+        { name: 'Home', path: '/app/dashboard', icon: Home },
+        { name: 'Members', path: `/app/gym-owner/gyms/${activeGymId}/members`, icon: Users },
+        { name: 'Settings', path: `/app/gym-owner/gyms/${activeGymId}/settings`, icon: Settings },
+      ];
+    } else {
+      navItems = [];
+    }
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -57,8 +96,20 @@ const MainLayout = () => {
     <div className="min-h-screen bg-black flex flex-col text-white font-sans selection:bg-primary/30">
       {/* Header */}
       <header className="nav-blur sticky top-0 z-40 px-6 py-4 flex items-center justify-between border-b border-white/5">
-        <Link to="/app/dashboard" className="hover:opacity-80 transition-opacity">
-          <BrandLogo size={40} showText={true} />
+        <Link to="/app/dashboard" className="hover:opacity-80 transition-all flex items-center gap-3">
+          {gymBranding?.logo ? (
+            <div className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl border border-white/10 overflow-hidden bg-white/5 shadow-neon-sm p-0.5 group-hover:border-primary/50 transition-all">
+                <img src={gymBranding.logo} alt={gymBranding.name} className="w-full h-full object-cover rounded-[10px]" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 leading-none mb-1">Managing</span>
+                <span className="text-sm font-display font-black tracking-tighter group-hover:text-primary transition-colors">{gymBranding.name}</span>
+              </div>
+            </div>
+          ) : (
+            <BrandLogo size={40} showText={true} />
+          )}
         </Link>
 
         <div className="flex items-center gap-6">
@@ -178,20 +229,35 @@ const MainLayout = () => {
       </main>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-3xl border border-white/20 px-8 py-3 rounded-xl flex items-center gap-12 shadow-2xl z-50 w-[90%] justify-around">
-        {navItems.map((item) => (
-          <Link
-            key={item.name}
-            to={item.path}
-            className={clsx(
-              "flex flex-col items-center gap-1 transition-colors",
-              location.pathname === item.path ? "text-primary scale-110" : "text-white/40 hover:text-white"
-            )}
-          >
-            <item.icon size={24} />
-          </Link>
-        ))}
-      </nav>
+      {navItems.length > 0 && (
+        <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-3xl border border-white/20 px-8 py-3 rounded-xl flex items-center gap-12 shadow-2xl z-50 w-[90%] justify-around">
+          {navItems.map((item) => {
+            if (item.action) {
+              return (
+                <button
+                  key={item.name}
+                  onClick={item.action}
+                  className="flex flex-col items-center gap-1 transition-colors text-white/40 hover:text-white"
+                >
+                  <item.icon size={24} />
+                </button>
+              );
+            }
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={clsx(
+                  "flex flex-col items-center gap-1 transition-colors",
+                  location.pathname === item.path ? "text-primary scale-110" : "text-white/40 hover:text-white"
+                )}
+              >
+                <item.icon size={24} />
+              </Link>
+            );
+          })}
+        </nav>
+      )}
     </div>
   );
 };
