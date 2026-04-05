@@ -97,6 +97,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     refreshUser();
+
+    // Response interceptor for 401 (Unauthorized)
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          console.warn('Unauthorized request. Logging out...');
+          logout();
+          window.location.href = '/'; // Simple redirect to root/login
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => axios.interceptors.response.eject(interceptor);
   }, []);
 
   return (

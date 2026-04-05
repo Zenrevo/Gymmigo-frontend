@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGym } from '../../../context/GymContext';
-import { Image as ImageIcon, Video, Trash2, Link, Star, Loader2 } from 'lucide-react';
+import { Image as ImageIcon, Video, Trash2, Star, Loader2 } from 'lucide-react';
+import ImageUpload from '../../../components/ImageUpload';
 import axios from 'axios';
 import Modal from '../../../components/Modal';
 
@@ -141,12 +142,13 @@ const GalleryTab = () => {
 
       {/* Modals */}
       <Modal isOpen={imgModalOpen} onClose={() => setImgModalOpen(false)} title="Upload Photo">
-        <form onSubmit={handleAddImage} className="space-y-4">
-           <div>
-              <label className="block text-xs font-bold text-white/60 uppercase mb-2 flex items-center gap-2"><Link size={14}/> Image URL Hosting Link *</label>
-              <input required type="url" value={imgUrl} onChange={e => setImgUrl(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none" placeholder="https://..." />
-           </div>
-           <label className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 cursor-pointer">
+        <form onSubmit={handleAddImage} className="space-y-6">
+           <ImageUpload 
+             label="Choose Photo"
+             onUploadComplete={(url) => setImgUrl(url)}
+             aspectRatio="square"
+           />
+           <label className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/10 cursor-pointer group">
               <input type="checkbox" checked={imgPrimary} onChange={e => setImgPrimary(e.target.checked)} className="w-5 h-5 accent-yellow-500" />
               <div>
                 <span className="text-sm font-bold text-yellow-500">Set as Primary Display Image</span>

@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase, FileText, Mail, UserCircle } from 'lucide-react';
+import { User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase, FileText, Mail, UserCircle, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../components/BrandLogo';
 import { clsx } from 'clsx';
+import MapPickerModal from '../../components/MapPickerModal';
 const roles = [
   {
     id: 'user',
@@ -36,6 +37,7 @@ const RegisterRolePage = () => {
   const [step, setStep] = useState<'role' | 'profile'>('role');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
   const [error, setError] = useState('');
 
   // Shared Profile Form States (Mandatory for all professional roles)
@@ -47,12 +49,34 @@ const RegisterRolePage = () => {
     pan_number: '',
     experience_years: '',
     specializations: '',
+    // Address Fields (Primarily for Member onboarding)
+    address_line1: '',
+    landmark: '',
+    city: '',
+    state: '',
+    pincode: '',
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
   });
 
   const { user, login, switchRole, refreshUser } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
+  // Handle map confirmation
+  const handleMapConfirm = (result: any) => {
+    setFormData(prev => ({
+      ...prev,
+      address_line1: result.address_line1,
+      city: result.city,
+      state: result.state,
+      pincode: result.pincode,
+      latitude: result.latitude,
+      longitude: result.longitude,
+    }));
+    setIsMapOpen(false);
+  };
 
   const handleRoleSelection = async () => {
     if (!selectedRole) return;
@@ -110,12 +134,31 @@ const RegisterRolePage = () => {
       let payload = {};
 
       if (selectedRole === 'user') {
+        // 1. Update Personal Profile
         endpoint = '/profile/me';
         payload = {
           full_name: formData.full_name,
-          email: formData.email
+          email: formData.email,
+          city: formData.city || undefined
         };
         await axios.patch(`${API_URL}${endpoint}`, payload);
+
+        // 2. Create Address
+        if (formData.address_line1) {
+          const addressPayload = {
+            address_line1: formData.address_line1,
+            landmark: formData.landmark || undefined,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.pincode,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            country: 'India',
+            label: 'home',
+            is_primary: true
+          };
+          await axios.post(`${API_URL}/profile/me/addresses`, addressPayload);
+        }
       } else if (selectedRole === 'trainer') {
         // Backend TrainerProfileCreate requires expertises list
         endpoint = '/trainer/profile/create';
@@ -299,6 +342,100 @@ const RegisterRolePage = () => {
 
                 <div className="w-full h-px bg-white/5 my-6" />
 
+                {/* ── MEMBER SPECIFIC: ADDRESS SECTION ── */}
+                {selectedRole === 'user' && (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-2 mb-2">
+                       <MapPin className="text-primary" size={18} />
+                       <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Location Details</h3>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm text-white/60 ml-1">Location Selection</label>
+                      <button
+                        type="button"
+                        onClick={() => setIsMapOpen(true)}
+                        className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-xl py-4 px-4 hover:border-primary transition-all group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                            <MapPin size={20} />
+                          </div>
+                          <div className="text-left">
+                            <span className={clsx("block text-sm font-bold", formData.address_line1 ? "text-white" : "text-white/20")}>
+                              {formData.address_line1 || 'Pick your address on Map'}
+                            </span>
+                            {formData.address_line1 && (
+                              <span className="text-[10px] text-primary font-black uppercase tracking-widest">Pin Dropped Correctly</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-primary text-xs font-bold uppercase tracking-widest px-3 py-1 bg-primary/10 rounded-lg">
+                          {formData.address_line1 ? 'Change' : 'Open Map'}
+                        </div>
+                      </button>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">Landmark (Optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Near HDFC Bank"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          value={formData.landmark}
+                          onChange={(e) => setFormData({ ...formData, landmark: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">City</label>
+                        <input
+                          type="text"
+                          placeholder="Mumbai"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">State</label>
+                        <input
+                          type="text"
+                          placeholder="Maharashtra"
+                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          value={formData.state}
+                          onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">Pin Code</label>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          placeholder="400001"
+                          className={clsx(
+                            "w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all",
+                            formData.pincode && !/^[1-9][0-9]{5}$/.test(formData.pincode) && "border-red-500/50 focus:border-red-500"
+                          )}
+                          value={formData.pincode}
+                          onChange={(e) => setFormData({ ...formData, pincode: e.target.value.replace(/\D/g, '') })}
+                          required
+                        />
+                        {formData.pincode && !/^[1-9][0-9]{5}$/.test(formData.pincode) && (
+                          <p className="text-[10px] text-red-400 mt-1 ml-1 uppercase font-bold tracking-tighter">Enter a valid 6-digit Indian pincode</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="w-full h-px bg-white/5 my-6" />
+
                 {/* ── ROLE SPECIFIC FIELDS ── */}
                 {selectedRole === 'trainer' && (
                   <div className="space-y-4">
@@ -405,6 +542,15 @@ const RegisterRolePage = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <MapPickerModal 
+          isOpen={isMapOpen}
+          initialCenter={formData.latitude !== undefined && formData.longitude !== undefined 
+            ? { lat: formData.latitude, lng: formData.longitude } 
+            : undefined}
+          onClose={() => setIsMapOpen(false)}
+          onConfirm={handleMapConfirm}
+        />
       </div>
     </div>
   );

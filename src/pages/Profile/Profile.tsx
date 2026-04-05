@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { User, Phone, MapPin, Save, Plus, Trash2, Shield, Camera } from 'lucide-react';
+import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle } from 'lucide-react';
+import ImageUpload from '../../components/ImageUpload';
+import { useNotification } from '../../context/NotificationContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -11,6 +13,7 @@ const Profile = () => {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { showNotification } = useNotification();
 
   const fetchProfileData = async () => {
     try {
@@ -35,10 +38,18 @@ const Profile = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.patch(`${API_URL}/profile/me`, profile);
+      // Ensure date_of_birth is in YYYY-MM-DD format if present
+      const payload = {
+         ...profile,
+         date_of_birth: profile.date_of_birth || null,
+         gender: profile.gender || null,
+      };
+      await axios.patch(`${API_URL}/profile/me`, payload);
       await refreshUser();
-    } catch (err) {
+      showNotification('Profile updated successfully', 'success');
+    } catch (err: any) {
       console.error('Update failed:', err);
+      showNotification(err.response?.data?.error?.message || 'Failed to update profile', 'error');
     } finally {
       setSaving(false);
     }
@@ -60,43 +71,98 @@ const Profile = () => {
         <div className="md:col-span-2 space-y-8">
           <form onSubmit={handleUpdateProfile} className="glass-card p-10 space-y-8">
             <div className="flex items-center gap-8">
-              <div className="relative group shrink-0">
-                <div className="w-24 h-24 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-white/20 overflow-hidden group-hover:border-primary transition-all duration-500">
-                  {profile?.avatar_url ? (
-                    <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                  ) : <User size={40} />}
-                </div>
-                <button type="button" className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all">
-                  <Camera size={16} />
-                </button>
-              </div>
+              <ImageUpload 
+                initialUrl={profile?.avatar_url}
+                onUploadComplete={(url) => setProfile({...profile, avatar_url: url})}
+                className="shrink-0"
+              />
               <div className="space-y-1">
-                <h3 className="text-xl font-bold">{profile?.full_name || 'Set your name'}</h3>
-                <p className="text-white/40 text-sm flex items-center gap-2">
-                  <Phone size={14} /> {user?.phone}
+                <h3 className="text-2xl font-black italic tracking-tight">{profile?.full_name || 'SET YOUR NAME'}</h3>
+                <p className="text-white/40 text-sm flex items-center gap-2 font-medium">
+                  <Phone size={14} className="text-primary" /> {user?.phone}
                 </p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6 pt-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Full Name</label>
-                <input 
-                  type="text" 
-                  value={profile?.full_name || ''} 
-                  onChange={(e) => setProfile({...profile, full_name: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
+                <div className="relative group">
+                  <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <input 
+                    type="text" 
+                    placeholder="John Doe"
+                    value={profile?.full_name || ''} 
+                    onChange={(e) => setProfile({...profile, full_name: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Bio</label>
-                <input 
-                  type="text" 
-                  value={profile?.bio || ''} 
-                  onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Email Address</label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <input 
+                    type="email" 
+                    placeholder="john@example.com"
+                    value={profile?.email || ''} 
+                    onChange={(e) => setProfile({...profile, email: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
+                  />
+                </div>
               </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Date of Birth</label>
+                <div className="relative group">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <input 
+                    type="date" 
+                    value={profile?.date_of_birth || ''} 
+                    onChange={(e) => setProfile({...profile, date_of_birth: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all text-white/80"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Gender</label>
+                <select 
+                  value={profile?.gender || ''} 
+                  onChange={(e) => setProfile({...profile, gender: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer"
+                >
+                  <option value="" className="bg-black">Select Gender</option>
+                  <option value="male" className="bg-black">Male</option>
+                  <option value="female" className="bg-black">Female</option>
+                  <option value="other" className="bg-black">Other</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">City</label>
+                <div className="relative group">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Mumbai"
+                    value={profile?.city || ''} 
+                    onChange={(e) => setProfile({...profile, city: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Profile Bio</label>
+              <textarea 
+                rows={3}
+                placeholder="Tell us about yourself..."
+                value={profile?.bio || ''} 
+                onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-white/20 custom-scrollbar"
+              />
             </div>
 
             <button type="submit" disabled={saving} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">

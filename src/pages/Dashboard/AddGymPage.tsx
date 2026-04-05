@@ -8,6 +8,7 @@ import {
   Wifi, Zap, Wind, Coffee, Car, Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import MapPickerModal from '../../components/MapPickerModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -46,7 +47,11 @@ const AddGymPage = () => {
     amenities: [] as string[],
     facilities: [] as { name: string; description: string; is_included: boolean; quantity: number }[],
     equipment: [] as { name: string; brand: string; quantity: number; category: string }[],
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
   });
+
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   const nextStep = () => setStep(s => s + 1);
   const prevStep = () => setStep(s => s - 1);
@@ -110,7 +115,7 @@ const AddGymPage = () => {
         name: formData.name,
         description: formData.description,
         established_year: parseInt(formData.established_year) || undefined,
-        contact_phone: formData.contact_phone,
+        contact_phone: formData.contact_phone.startsWith('+91') ? formData.contact_phone : `+91${formData.contact_phone}`,
         contact_email: formData.contact_email,
         website_url: formData.website_url || undefined,
         max_capacity: parseInt(formData.max_capacity) || undefined,
@@ -125,6 +130,8 @@ const AddGymPage = () => {
             city: formData.city,
             state: formData.state,
             pincode: formData.pincode,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
             country: 'India',
             is_primary: true
           }
@@ -253,14 +260,18 @@ const AddGymPage = () => {
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Contact Phone</label>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                    <div className="relative flex items-center">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                        <Phone className="text-white/20" size={18} />
+                        <span className="text-white/60 font-bold text-sm border-r border-white/10 pr-2">+91</span>
+                      </div>
                       <input 
                         type="tel"
-                        placeholder="+91 99999 99999"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 focus:border-primary outline-none"
+                        placeholder="10-digit number"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-[5.5rem] pr-4 focus:border-primary outline-none transition-all"
                         value={formData.contact_phone}
-                        onChange={(e) => setFormData({...formData, contact_phone: e.target.value})}
+                        onChange={(e) => setFormData({...formData, contact_phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                        maxLength={10}
                         required
                       />
                     </div>
@@ -305,53 +316,35 @@ const AddGymPage = () => {
               className="glass-card p-6 sm:p-10 space-y-8"
             >
               <div className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-6">
-                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">City</label>
-                    <input 
-                      type="text"
-                      placeholder="e.g. Mumbai"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
-                      value={formData.city}
-                      onChange={(e) => setFormData({...formData, city: e.target.value})}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">State</label>
-                    <input 
-                      type="text"
-                      placeholder="e.g. Maharashtra"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
-                      value={formData.state}
-                      onChange={(e) => setFormData({...formData, state: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Pin Code</label>
-                  <input 
-                    type="text"
-                    placeholder="400001"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
-                    value={formData.pincode}
-                    onChange={(e) => setFormData({...formData, pincode: e.target.value})}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Full Address (Line 1)</label>
-                  <input 
-                    type="text"
-                    placeholder="Shop No. 12, Main Street..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
-                    value={formData.address_line1}
-                    onChange={(e) => setFormData({...formData, address_line1: e.target.value})}
-                    required
-                  />
+                <div className="space-y-4">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Gym Location</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsMapOpen(true)}
+                    className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-primary transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
+                        <MapPin size={24} />
+                      </div>
+                      <div className="text-left space-y-1">
+                        <span className={`block font-bold transition-colors ${formData.address_line1 ? 'text-white text-lg' : 'text-white/20'}`}>
+                          {formData.address_line1 || 'Pin your gym location on map'}
+                        </span>
+                        {formData.address_line1 ? (
+                           <div className="flex items-center gap-2">
+                             <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded font-black tracking-widest uppercase">Verified Location</span>
+                             <span className="text-[10px] text-white/40">{formData.city}, {formData.pincode}</span>
+                           </div>
+                        ) : (
+                           <span className="text-[10px] text-white/20 uppercase tracking-widest font-bold">100% Accurate Pincode Identification</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="btn-primary py-2 px-4 text-[10px] h-fit">
+                      {formData.address_line1 ? 'CHANGE' : 'OPEN MAP'}
+                    </div>
+                  </button>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-6 pt-4">
@@ -566,6 +559,26 @@ const AddGymPage = () => {
           )}
         </AnimatePresence>
       </form>
+
+      <MapPickerModal 
+        isOpen={isMapOpen}
+        initialCenter={formData.latitude !== undefined && formData.longitude !== undefined 
+          ? { lat: formData.latitude, lng: formData.longitude } 
+          : undefined}
+        onClose={() => setIsMapOpen(false)}
+        onConfirm={(result) => {
+          setFormData(prev => ({
+            ...prev,
+            address_line1: result.address_line1,
+            city: result.city,
+            state: result.state,
+            pincode: result.pincode,
+            latitude: result.latitude,
+            longitude: result.longitude
+          }));
+          setIsMapOpen(false);
+        }}
+      />
     </div>
   );
 };
