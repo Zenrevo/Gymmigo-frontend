@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase, FileText, Mail, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import BrandLogo from '../../components/BrandLogo';
 const roles = [
   {
     id: 'user',
@@ -35,7 +35,7 @@ const RegisterRolePage = () => {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   // Shared Profile Form States (Mandatory for all professional roles)
   const [formData, setFormData] = useState({
     full_name: '',
@@ -54,10 +54,10 @@ const RegisterRolePage = () => {
 
   const handleRoleSelection = async () => {
     if (!selectedRole) return;
-    
+
     // Check if user already has this role and if it's completed
     const existingRole = user?.roles?.find((r: any) => r.role === selectedRole);
-    
+
     if (existingRole) {
       if (existingRole.is_completed) {
         setIsLoading(true);
@@ -109,7 +109,7 @@ const RegisterRolePage = () => {
 
       if (selectedRole === 'user') {
         endpoint = '/profile/me';
-        payload = { 
+        payload = {
           full_name: formData.full_name,
           email: formData.email
         };
@@ -117,17 +117,17 @@ const RegisterRolePage = () => {
       } else if (selectedRole === 'trainer') {
         // Backend TrainerProfileCreate requires expertises list
         endpoint = '/trainer/profile/create';
-        payload = { 
+        payload = {
           full_name: formData.full_name,
           bio: `Professional trainer with ${formData.experience_years} years experience.`,
-          experience_years: parseInt(formData.experience_years) || 0, 
+          experience_years: parseInt(formData.experience_years) || 0,
           expertises: formData.specializations.split(',').map(s => s.trim()).filter(s => s)
         };
         await axios.post(`${API_URL}${endpoint}`, payload);
       } else if (selectedRole === 'gym_owner') {
         // Backend GymOwnerProfileCreate requires full_name and email
         endpoint = '/gym-owner/profile/create';
-        payload = { 
+        payload = {
           full_name: formData.full_name,
           email: formData.email,
           business_name: formData.business_name,
@@ -153,25 +153,22 @@ const RegisterRolePage = () => {
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-4xl space-y-12 py-12">
         <div className="text-center space-y-4">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center"
           >
-            <h1 className="text-5xl font-display font-black tracking-tighter italic bg-gradient-to-r from-primary-dark via-primary to-primary-dark bg-clip-text text-transparent">
-              GYMMIGO
-            </h1>
-            <p className="text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase mt-1">
-              Elevate Your Fitness
-            </p>
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <BrandLogo size={80} className="mb-2 animate-float" />
+            </div>
           </motion.div>
           <div className="space-y-1">
             <h2 className="text-3xl font-bold">
               {step === 'role' ? 'Choose your path' : 'Complete your profile'}
             </h2>
             <p className="text-white/40">
-              {step === 'role' 
-                ? 'Select the role that best fits your needs on Gymmigo.' 
+              {step === 'role'
+                ? 'Select the role that best fits your needs on Gymmigo.'
                 : 'Tell us a bit more about you to get started.'}
             </p>
           </div>
@@ -179,7 +176,7 @@ const RegisterRolePage = () => {
 
         <AnimatePresence mode="wait">
           {step === 'role' ? (
-            <motion.div 
+            <motion.div
               key="role-selection"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -196,9 +193,8 @@ const RegisterRolePage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       onClick={() => setSelectedRole(role.id)}
-                      className={`group relative text-left p-8 glass-card transition-all duration-500 overflow-hidden ${
-                        isSelected ? 'border-primary ring-1 ring-primary' : 'hover:border-white/20'
-                      }`}
+                      className={`group relative text-left p-8 glass-card transition-all duration-500 overflow-hidden ${isSelected ? 'border-primary ring-1 ring-primary' : 'hover:border-white/20'
+                        }`}
                     >
                       <div className={`absolute inset-0 bg-gradient-to-br ${role.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                       <div className="relative z-10 space-y-6">
@@ -239,7 +235,7 @@ const RegisterRolePage = () => {
               </div>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key="profile-form"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -247,19 +243,19 @@ const RegisterRolePage = () => {
               className="max-w-xl mx-auto glass-card p-8"
             >
               <form onSubmit={handleProfileSubmit} className="space-y-6">
-                
+
                 {/* ── SHARED FIELDS for ALL ROLES ── */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm text-white/60 ml-1">Full Name</label>
                     <div className="relative">
                       <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                      <input 
+                      <input
                         type="text"
                         placeholder="John Doe"
                         className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                         value={formData.full_name}
-                        onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                         required
                       />
                     </div>
@@ -268,12 +264,12 @@ const RegisterRolePage = () => {
                     <label className="text-sm text-white/60 ml-1">Email Address</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                      <input 
+                      <input
                         type="email"
                         placeholder="john@example.com"
                         className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
                       />
                     </div>
@@ -289,12 +285,12 @@ const RegisterRolePage = () => {
                       <label className="text-sm text-white/60 ml-1">Years of Experience</label>
                       <div className="relative">
                         <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                        <input 
+                        <input
                           type="number"
                           placeholder="5"
                           className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                           value={formData.experience_years}
-                          onChange={(e) => setFormData({...formData, experience_years: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, experience_years: e.target.value })}
                           required
                         />
                       </div>
@@ -303,12 +299,12 @@ const RegisterRolePage = () => {
                       <label className="text-sm text-white/60 ml-1">Specializations (comma separated)</label>
                       <div className="relative">
                         <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                        <input 
+                        <input
                           type="text"
                           placeholder="weight_loss, muscle_gain, cardio"
                           className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                           value={formData.specializations}
-                          onChange={(e) => setFormData({...formData, specializations: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, specializations: e.target.value })}
                           required
                         />
                         <p className="text-[10px] text-white/20 mt-1 ml-1 uppercase tracking-wider font-bold">
@@ -325,12 +321,12 @@ const RegisterRolePage = () => {
                       <label className="text-sm text-white/60 ml-1">Business Name</label>
                       <div className="relative">
                         <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                        <input 
+                        <input
                           type="text"
                           placeholder="Gymmigo Fitness Center"
                           className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                           value={formData.business_name}
-                          onChange={(e) => setFormData({...formData, business_name: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
                           required
                         />
                       </div>
@@ -338,22 +334,22 @@ const RegisterRolePage = () => {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm text-white/60 ml-1">GSTIN (Optional)</label>
-                        <input 
+                        <input
                           type="text"
                           placeholder="22AAAAA0000A1Z5"
                           className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.gstin}
-                          onChange={(e) => setFormData({...formData, gstin: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm text-white/60 ml-1">PAN Number</label>
-                        <input 
+                        <input
                           type="text"
                           placeholder="ABCDE1234F"
                           className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.pan_number}
-                          onChange={(e) => setFormData({...formData, pan_number: e.target.value})}
+                          onChange={(e) => setFormData({ ...formData, pan_number: e.target.value })}
                           required
                         />
                       </div>
