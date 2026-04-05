@@ -8,6 +8,7 @@ import ContactUs from './pages/Public/ContactUs';
 import LandingPage from './pages/Public/LandingPage';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Discovery from './pages/Discovery/Discovery';
+import GymProfile from './pages/Discovery/GymProfile';
 import Profile from './pages/Profile/Profile';
 import AddGymPage from './pages/Dashboard/AddGymPage';
 import GymManageDashboard from './pages/Dashboard/GymManageDashboard';
@@ -63,6 +64,8 @@ const AppRoutes = () => {
       <Route path="/app" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="discovery" element={<Discovery />} />
+        <Route path="gyms/:gymId" element={<GymProfile />} />
+        <Route path="trainers/:trainerId" element={<ComingSoon />} />
         <Route path="profile" element={<Profile />} />
         <Route path="gym-owner/add-gym" element={<AddGymPage />} />
         <Route path="gym-owner/gyms/:gymId" element={<GymProvider><GymManageDashboard /></GymProvider>}>

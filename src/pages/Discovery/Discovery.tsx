@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Search, MapPin, Star, Filter, ArrowRight, Building2, User, LocateFixed, Loader2, Lock, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const Discovery = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'gyms' | 'trainers'>('gyms');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -177,6 +179,10 @@ const Discovery = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
+              onClick={() => {
+                if (activeTab === 'gyms') navigate(`/app/gyms/${item.id}`);
+                else navigate(`/app/trainers/${item.id}`);
+              }}
               className="glass-card group overflow-hidden cursor-pointer flex flex-col h-full hover:border-primary/30 transition-colors"
             >
               <div className="h-40 md:h-48 relative overflow-hidden bg-white/5 shrink-0">
