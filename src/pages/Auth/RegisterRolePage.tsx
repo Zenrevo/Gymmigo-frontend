@@ -64,7 +64,7 @@ const RegisterRolePage = () => {
         try {
           await switchRole(selectedRole);
           showNotification(`Switched to ${selectedRole} mode`, 'success');
-          navigate('/');
+          navigate('/app/dashboard');
         } catch (err) {
           setError('Failed to switch role.');
         } finally {
@@ -140,7 +140,7 @@ const RegisterRolePage = () => {
       // Refresh user to sync completed state
       await refreshUser();
       showNotification('Profile completed!', 'success');
-      navigate('/');
+      navigate('/app/dashboard');
     } catch (err: any) {
       const msg = err.response?.data?.error?.message || 'Verification failed. Please check required fields.';
       setError(msg);

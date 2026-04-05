@@ -95,7 +95,7 @@ const LandingPage = () => {
   const CTA_PATH = token ? "/app/dashboard" : "/login";
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-primary/30 selection:text-white antialiased">
+    <div className="min-h-screen bg-black text-white selection:bg-primary/30 selection:text-white antialiased overflow-x-hidden">
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'nav-blur py-3 border-b border-white/10' : 'py-8 bg-transparent'}`}>
         <div className="container mx-auto px-6 flex items-center justify-between">
@@ -156,7 +156,7 @@ const LandingPage = () => {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center pt-32 pb-48 overflow-hidden">
         {/* Animated Background */}
-        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[160px] -z-10 animate-float" />
+        <div className="absolute top-0 left-1/4 w-[800px] h-[800px] max-w-[100vw] bg-primary/10 rounded-full blur-[160px] -z-10 animate-float" />
         <div className="absolute -bottom-40 right-1/4 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[140px] -z-10" />
 
         <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
@@ -173,9 +173,9 @@ const LandingPage = () => {
               <p className="text-[10px] font-black uppercase tracking-widest text-white/60">Trusted by top fitness brands</p>
             </div>
             
-            <h1 className="text-7xl md:text-9xl font-display font-black italic tracking-tighter uppercase leading-[0.8]">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-display font-black italic tracking-tighter uppercase leading-[0.9] md:leading-[0.8]">
               Power Your <br />
-              <span className="text-primary glow-text underline decoration-white/10 underline-offset-[20px]">Fitness</span> <br />
+              <span className="text-primary glow-text underline decoration-white/10 underline-offset-[12px] md:underline-offset-[20px]">Fitness</span> <br />
               Enterprise
             </h1>
             
@@ -243,7 +243,7 @@ const LandingPage = () => {
         <div className="container mx-auto px-6">
            <div className="max-w-4xl mx-auto text-center space-y-8 mb-24">
               <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary">The Process</h4>
-              <h1 className="text-5xl md:text-7xl lg:text-9xl font-display font-black leading-[0.9] tracking-tighter italic">
+              <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-display font-black leading-[0.9] tracking-tighter italic">
               POWER YOUR <br />
               <span className="text-primary">FITNESS</span> <br />
               ENTERPRISE
@@ -349,7 +349,7 @@ const LandingPage = () => {
       <section className="py-48 relative overflow-hidden border-t border-white/5">
         <div className="absolute inset-0 bg-primary/5 -z-10" />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-          <h2 className="text-5xl md:text-8xl lg:text-9xl font-display font-black italic tracking-tighter leading-none mb-8">
+          <h2 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-display font-black italic tracking-tighter leading-none mb-8">
             DOMINATE YOUR <br />
             INFRASTRUCTURE
           </h2>
