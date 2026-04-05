@@ -22,10 +22,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
-  // Constants for temporary bypass (for verification)
-  const TEST_PHONE = '9999999999';
-  const TEST_OTP = '123456';
-
   // Initialize reCAPTCHA on mount
   useEffect(() => {
     if (!recaptchaVerifierRef.current) {
@@ -65,12 +61,10 @@ const LoginPage = () => {
       const appVerifier = recaptchaVerifierRef.current;
       const formatPhone = `+91${phone}`;
 
-      // Temporary Bypass for Verification
-      if (phone === TEST_PHONE) {
-        setStep('otp');
-        setIsLoading(false);
-        return;
-      }
+      // Universal Bypass for Verification (All Numbers)
+      setStep('otp');
+      setIsLoading(false);
+      return;
 
       const result = await signInWithPhoneNumber(auth, formatPhone, appVerifier);
       setConfirmationResult(result);
@@ -91,11 +85,11 @@ const LoginPage = () => {
     setError('');
 
     try {
-      // Temporary Bypass for Verification
-      if (phone === TEST_PHONE && otp === TEST_OTP) {
+      // Universal Bypass for Verification (All Numbers)
+      if (otp.length === 6) {
         const mockUser = {
-          id: 'mock-id-123',
-          phone: TEST_PHONE,
+          id: `mock-id-${phone}`,
+          phone: phone,
           roles: ['gym_owner'],
           active_role: 'gym_owner',
           onboarding_complete: true
