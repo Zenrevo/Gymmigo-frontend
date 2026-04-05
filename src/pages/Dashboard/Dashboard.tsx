@@ -26,13 +26,14 @@ const Dashboard = () => {
       }
 
       try {
+        setLoading(true);
         let endpoint = '';
         if (user.active_role === 'user') endpoint = '/memberships/my';
         else if (user.active_role === 'trainer') endpoint = '/trainer/full';
         else if (user.active_role === 'gym_owner') endpoint = '/gym-owner/gyms';
 
         if (endpoint) {
-          const res = await axios.get(`${API_URL}${endpoint}`);
+          const res = await axios.get(`${API_URL}${endpoint}`, { timeout: 10000 });
           setData(res.data.data);
         }
       } catch (err) {
@@ -42,7 +43,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [user?.active_role]);
+  }, [user?.active_role, user?.roles]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64 text-primary animate-pulse font-display text-2xl">

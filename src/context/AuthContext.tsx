@@ -21,7 +21,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Axios Global Interceptor
+// Axios Global Configuration
+axios.defaults.timeout = 10000; // 10 second global timeout
+
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -64,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const response = await axios.get(`${API_URL}/auth/me`);
+      const response = await axios.get(`${API_URL}/auth/me`, { timeout: 10000 });
       if (response.data.success) {
         setUser(response.data.data);
       } else {
@@ -81,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const switchRole = async (role: string) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/switch-role`, { role });
+      const response = await axios.post(`${API_URL}/auth/switch-role`, { role }, { timeout: 10000 });
       if (response.data.success) {
         const { user: userData, tokens } = response.data.data;
         const { access_token, refresh_token } = tokens;
