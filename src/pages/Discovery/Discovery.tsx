@@ -4,10 +4,12 @@ import { Search, MapPin, Star, Filter, ArrowRight, Building2, User, LocateFixed,
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
+import InfoModal from '../../components/InfoModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 import { useGeoLocation } from '../../context/LocationContext';
+import { openInMap } from '../../utils/navigation';
 
 const Discovery = () => {
   const navigate = useNavigate();
@@ -17,21 +19,24 @@ const Discovery = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isNearMe, setIsNearMe] = useState(true); // Default to near me if location exists
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
       const endpoint = activeTab === 'gyms' ? '/gyms/' : '/trainers/';
-      const params: any = { 
-        search, 
+      const params: any = {
+        search,
         page_size: 20,
         sort_by: isNearMe ? 'distance' : 'rating'
       };
 
-      if (isNearMe && selectedLocation) {
+      if (selectedLocation) {
         params.lat = selectedLocation.latitude;
         params.lng = selectedLocation.longitude;
-        params.radius = 50; // 50km radius for discovery
+        if (isNearMe) {
+          params.radius = 5; // explicitly set to 5km radius as requested
+        }
       }
 
       const response = await axios.get(`${API_URL}${endpoint}`, { params });
@@ -53,6 +58,11 @@ const Discovery = () => {
       if (!selectedLocation) {
         refreshGPS();
       }
+      
+      // Show info modal if not hidden
+      if (!localStorage.getItem('hideDiscoveryNearMeInfo')) {
+        setIsInfoModalOpen(true);
+      }
     } else {
       setIsNearMe(false);
     }
@@ -73,33 +83,33 @@ const Discovery = () => {
             <div className="pl-6 text-white/20">
               <Search size={22} />
             </div>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={`Search ${activeTab === 'gyms' ? 'gyms, crossfit, yoga...' : 'fitness coaches...'}`}
-              className="flex-1 bg-transparent border-none py-5 px-4 focus:ring-0 outline-none text-white font-medium placeholder:text-white/20"
+              className="flex-1 min-w-0 bg-transparent border-none py-4 sm:py-5 px-3 sm:px-4 focus:ring-0 outline-none text-sm sm:text-base text-white font-medium placeholder:text-white/20"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            
+
             <div className="flex items-center gap-1 pr-1">
-              <button 
+              <button
                 onClick={handleNearMe}
                 disabled={isLocating}
                 title="Near Me"
                 className={clsx(
-                  "p-4 rounded-xl transition-all flex items-center justify-center gap-2",
+                  "p-3 sm:p-4 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0",
                   isNearMe ? "bg-primary text-black" : "text-white/40 hover:bg-white/5 hover:text-white"
                 )}
               >
-                {isLocating ? <Loader2 size={20} className="animate-spin" /> : <LocateFixed size={20} />}
+                {isLocating ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
                 {isNearMe && <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Active</span>}
               </button>
 
-              <button 
+              <button
                 title="Filters"
-                className="p-4 rounded-xl text-white/40 hover:bg-white/5 hover:text-white transition-all"
+                className="p-3 sm:p-4 rounded-xl text-white/40 hover:bg-white/5 hover:text-white transition-all shrink-0"
               >
-                <Filter size={20} />
+                <Filter size={18} />
               </button>
             </div>
           </div>
@@ -111,9 +121,8 @@ const Discovery = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all relative flex items-center gap-2 ${
-                activeTab === tab ? 'bg-primary text-white shadow-lg' : 'text-white/40 hover:text-white'
-              }`}
+              className={`px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all relative flex items-center gap-2 ${activeTab === tab ? 'bg-primary text-white shadow-lg' : 'text-white/40 hover:text-white'
+                }`}
             >
               {tab}
               {tab === 'trainers' && (
@@ -130,7 +139,7 @@ const Discovery = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         <AnimatePresence mode="popLayout">
           {activeTab === 'trainers' ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="col-span-full py-24 flex flex-col items-center justify-center text-center space-y-6"
@@ -171,8 +180,8 @@ const Discovery = () => {
               <div className="h-40 md:h-48 relative overflow-hidden bg-white/5 shrink-0">
                 {activeTab === 'gyms' ? (
                   item.logo_url ? (
-                    <img 
-                      src={item.logo_url} 
+                    <img
+                      src={item.logo_url}
                       alt={item.name}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
@@ -186,28 +195,28 @@ const Discovery = () => {
                     <User size={100} />
                   </div>
                 )}
-                
+
                 {/* badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                   {item.distance !== undefined && item.distance !== null && (
-                     <div className="bg-primary px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-black shadow-lg">
-                       {item.distance < 1 ? `${Math.round(item.distance * 1000)}m` : `${item.distance.toFixed(1)}km`} away
-                     </div>
-                   )}
-                   {activeTab === 'gyms' && item.max_capacity && (
-                      <div className={clsx(
-                        "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg backdrop-blur-md border",
-                        (item.current_occupancy / item.max_capacity) > 0.8 ? "bg-red-500/80 text-white border-red-500/20" :
+                  {item.distance !== undefined && item.distance !== null && (
+                    <div className="bg-primary px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-black shadow-lg">
+                      {item.distance < 1 ? `${Math.round(item.distance * 1000)}m` : `${item.distance.toFixed(1)}km`} away
+                    </div>
+                  )}
+                  {activeTab === 'gyms' && item.max_capacity && (
+                    <div className={clsx(
+                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg backdrop-blur-md border",
+                      (item.current_occupancy / item.max_capacity) > 0.8 ? "bg-red-500/80 text-white border-red-500/20" :
                         (item.current_occupancy / item.max_capacity) > 0.5 ? "bg-orange-500/80 text-white border-orange-500/20" :
-                        "bg-emerald-500/80 text-white border-emerald-500/20"
-                      )}>
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                        </span>
-                        Live
-                      </div>
-                   )}
+                          "bg-emerald-500/80 text-white border-emerald-500/20"
+                    )}>
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                      </span>
+                      Live
+                    </div>
+                  )}
                 </div>
 
                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 border border-white/10">
@@ -226,10 +235,16 @@ const Discovery = () => {
                       {item.description}
                     </p>
                   )}
-                  <p className="text-white/40 text-[10px] md:text-[11px] flex items-center gap-1 font-medium">
-                    <MapPin size={12} className="shrink-0 text-primary/50" />
-                    <span className="line-clamp-1">{activeTab === 'gyms' ? (item.address_line1 || item.city) : (item.location || 'Online / Home Visits')}</span>
-                  </p>
+                  <div 
+                    role="button"
+                    onClick={(e) => openInMap(e, activeTab === 'gyms' ? (item.address_line1 || item.city) : item.location, item.latitude, item.longitude)}
+                    className="text-white/40 text-[10px] md:text-[11px] flex items-center gap-1 font-medium hover:text-primary transition-colors cursor-pointer group/addr"
+                  >
+                    <MapPin size={12} className="shrink-0 text-primary/50 group-hover/addr:text-primary group-hover/addr:scale-110 transition-all" />
+                    <span className="line-clamp-1 border-b border-transparent group-hover/addr:border-primary/30">
+                      {activeTab === 'gyms' ? (item.address_line1 || item.city) : (item.location || 'Online / Home Visits')}
+                    </span>
+                  </div>
                 </div>
 
                 {activeTab === 'gyms' && item.max_capacity && (
@@ -263,6 +278,15 @@ const Discovery = () => {
           )}
         </AnimatePresence>
       </div>
+      
+      <InfoModal 
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        title="Nearest Gyms"
+        description="We're currently showing gyms within a 5km radius of your location, sorted by proximity to give you the most convenient options."
+        icon={Sparkles}
+        storageKey="hideDiscoveryNearMeInfo"
+      />
     </div>
   );
 };

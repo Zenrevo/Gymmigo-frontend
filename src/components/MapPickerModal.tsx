@@ -1,9 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
-import { GoogleMap, useJsApiLoader, Autocomplete } from '@react-google-maps/api';
 import { MapPin, Search, X, Navigation, Loader2, Check } from 'lucide-react';
+import { useState, useCallback, useRef } from 'react';
+import { GoogleMap, Autocomplete } from '@react-google-maps/api';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
+import { useGeoLocation } from '../context/LocationContext';
 
 interface AddressResult {
   address_line1: string;
@@ -22,11 +21,7 @@ interface MapPickerModalProps {
 }
 
 const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPickerModalProps) => {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: GOOGLE_MAPS_LIBRARIES,
-  });
+  const { isLoaded } = useGeoLocation();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [address, setAddress] = useState<AddressResult | null>(null);

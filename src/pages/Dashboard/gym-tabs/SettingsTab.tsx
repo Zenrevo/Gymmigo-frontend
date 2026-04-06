@@ -5,6 +5,7 @@ import ImageUpload from '../../../components/ImageUpload';
 import MapPickerModal from '../../../components/MapPickerModal';
 import axios from 'axios';
 import { useNotification } from '../../../context/NotificationContext';
+import { getGoogleMapsUrl } from '../../../utils/navigation';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -195,12 +196,17 @@ const SettingsTab = () => {
                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
                       <MapIcon size={20} />
                     </div>
-                    <div>
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-white/40">Current Pin Location</span>
-                      <span className="block text-sm font-bold text-white leading-tight">
+                    <a 
+                      href={getGoogleMapsUrl(address.address_line1, address.latitude, address.longitude)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/addr"
+                    >
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-white/40 group-hover/addr:text-primary transition-colors">Current Pin Location</span>
+                      <span className="block text-sm font-bold text-white leading-tight group-hover/addr:text-primary group-hover/addr:underline underline-offset-2 transition-all">
                         {address.address_line1 || 'No location set yet'}
                       </span>
-                    </div>
+                    </a>
                   </div>
                   <button 
                     type="button" 

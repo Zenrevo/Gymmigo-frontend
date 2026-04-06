@@ -174,6 +174,21 @@ const MembersTab = () => {
 
   useEffect(() => { fetchMembers(); }, [fetchMembers]);
 
+  // ── Listen for Global Live Updates ─────────────────────────────────────────
+  useEffect(() => {
+    const handleLiveUpdate = () => {
+      fetchMembers();
+      if (selectedMember) {
+         fetchMemberDetail(selectedMember.membership_id);
+      }
+    };
+    
+    window.addEventListener('gym_live_update_fetch', handleLiveUpdate);
+    return () => {
+      window.removeEventListener('gym_live_update_fetch', handleLiveUpdate);
+    };
+  }, [fetchMembers, selectedMember?.membership_id]);
+
   // ── Quick Check-in Search ──────────────────────────────────────────────────
   useEffect(() => {
     if (!quickSearch || quickSearch.length < 2 || !gymId) {
@@ -226,18 +241,25 @@ const MembersTab = () => {
   };
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  const handleCheckIn = async (membershipId: string) => {
-    setActionLoading(membershipId);
-    try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/check-in`);
-      showNotification('Member checked in successfully', 'success');
-      fetchMembers();
-      if (selectedMember?.membership_id === membershipId) fetchMemberDetail(membershipId);
-    } catch (err: any) {
-      // Global interceptor handles this
-    } finally {
-      setActionLoading(null);
-    }
+  const handleCheckIn = (membershipId: string, memberName?: string | null) => {
+    setConfirmAction({
+      title: 'Manual Check-in',
+      message: `Are you sure you want to manually check in ${memberName || 'this member'}?`,
+      onConfirm: async () => {
+        setActionLoading(membershipId);
+        try {
+          await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/check-in`);
+          showNotification('Member checked in successfully', 'success');
+          fetchMembers();
+          if (selectedMember?.membership_id === membershipId) fetchMemberDetail(membershipId);
+        } catch (err: any) {
+          // Global interceptor handles this
+        } finally {
+          setActionLoading(null);
+          setConfirmAction(null);
+        }
+      }
+    });
   };
 
   const handleCheckOut = async (membershipId: string) => {
@@ -275,6 +297,32 @@ const MembersTab = () => {
         }
       },
     });
+  };
+
+  const handleAcceptRequest = async (membershipId: string) => {
+    setActionLoading(membershipId);
+    try {
+      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/accept`);
+      showNotification('Request accepted successfully', 'success');
+      fetchMembers();
+    } catch (err: any) {
+      showNotification('Failed to accept request', 'error');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectRequest = async (membershipId: string) => {
+    setActionLoading(membershipId);
+    try {
+      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/reject`);
+      showNotification('Request rejected', 'success');
+      fetchMembers();
+    } catch (err: any) {
+      showNotification('Failed to reject request', 'error');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   // ── Enroll ─────────────────────────────────────────────────────────────────
@@ -388,12 +436,12 @@ const MembersTab = () => {
 
             <div className="flex gap-2 flex-wrap">
               {selectedMember.status === 'active' && !selectedMember.is_currently_checked_in && (
-                <button onClick={() => handleCheckIn(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
+                <button onClick={() => handleCheckIn(selectedMember.membership_id, selectedMember.user_name)} disabled={actionLoading === selectedMember.membership_id}
                   className="btn-primary py-2 px-4 text-sm flex items-center gap-2">
                   {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={14} />} Check In
                 </button>
               )}
-              {selectedMember.is_currently_checked_in && (
+              {selectedMember.status === 'active' && selectedMember.is_currently_checked_in && (
                 <button onClick={() => handleCheckOut(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
                   className="py-2 px-4 text-sm flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl hover:bg-amber-500/30 transition-all">
                   {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={14} />} Check Out
@@ -404,6 +452,18 @@ const MembersTab = () => {
                   className="py-2 px-4 text-sm flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all">
                   <Ban size={14} /> Cancel
                 </button>
+              )}
+              {selectedMember.status === 'pending' && (
+                <>
+                  <button onClick={() => handleAcceptRequest(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
+                    className="btn-primary py-2 px-4 text-sm flex items-center gap-2 w-full md:w-auto justify-center">
+                    {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Accept
+                  </button>
+                  <button onClick={() => handleRejectRequest(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
+                    className="py-2 px-4 text-sm flex items-center gap-2 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl hover:bg-rose-500/20 transition-all w-full md:w-auto justify-center">
+                    {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />} Reject
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -543,7 +603,7 @@ const MembersTab = () => {
                               Check Out
                             </button>
                           ) : (
-                            <button onClick={() => { handleCheckIn(m.membership_id); setQuickSearch(''); setQuickResults([]); }}
+                            <button onClick={() => { handleCheckIn(m.membership_id, m.user_name); setQuickSearch(''); setQuickResults([]); }}
                               disabled={actionLoading === m.membership_id}
                               className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-all">
                               {actionLoading === m.membership_id ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
@@ -604,7 +664,7 @@ const MembersTab = () => {
             {/* Status filter */}
             <div className="flex items-center gap-2">
               <Filter size={14} className="text-white/30" />
-              {['', 'active', 'expired', 'cancelled'].map(s => (
+              {['', 'pending', 'active', 'expired', 'cancelled'].map(s => (
                 <button key={s} onClick={() => { setStatusFilter(s); setPage(1); }}
                   className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all capitalize ${statusFilter === s ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 text-white/40 border-white/5 hover:text-white'}`}>
                   {s || 'All'}
@@ -640,7 +700,7 @@ const MembersTab = () => {
             ) : (
               <>
                 {/* Table Header (Desktop Only) */}
-                <div className="hidden md:grid grid-cols-[1fr_120px_100px_100px_100px_80px] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
+                <div className="hidden md:grid grid-cols-[1fr_120px_100px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
                   <span>Member</span>
                   <span>Plan</span>
                   <span>Status</span>
@@ -653,7 +713,7 @@ const MembersTab = () => {
                 <div className="divide-y divide-white/5">
                   {members.map((m, i) => (
                     <motion.div key={m.membership_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_100px_100px_100px_80px] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_100px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
                       onClick={() => fetchMemberDetail(m.membership_id)}>
                       
                       {/* -- Header Row: Avatar, Name, Phone, Status (Mobile Optimized) -- */}
@@ -712,13 +772,29 @@ const MembersTab = () => {
                                 <span className="md:hidden text-xs font-bold uppercase transition-all">OUT</span>
                               </button>
                             ) : (
-                              <button onClick={e => { e.stopPropagation(); handleCheckIn(m.membership_id); }}
+                              <button onClick={e => { e.stopPropagation(); handleCheckIn(m.membership_id, m.user_name); }}
                                 disabled={actionLoading === m.membership_id}
                                 className="p-2.5 md:p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 flex items-center gap-2" title="Check In">
                                 {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={16} />}
                                 <span className="md:hidden text-xs font-bold uppercase transition-all">IN</span>
                               </button>
                             )
+                          )}
+                          {m.status === 'pending' && (
+                            <>
+                              <button onClick={e => { e.stopPropagation(); handleAcceptRequest(m.membership_id); }}
+                                disabled={actionLoading === m.membership_id}
+                                className="p-2.5 md:p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all border border-primary/20 flex items-center gap-2" title="Accept Request">
+                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                                <span className="md:hidden text-xs font-bold uppercase transition-all">Accept</span>
+                              </button>
+                              <button onClick={e => { e.stopPropagation(); handleRejectRequest(m.membership_id); }}
+                                disabled={actionLoading === m.membership_id}
+                                className="p-2.5 md:p-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all border border-rose-500/20 flex items-center gap-2" title="Reject Request">
+                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={16} />}
+                                <span className="md:hidden text-xs font-bold uppercase transition-all">Reject</span>
+                              </button>
+                            </>
                           )}
                           <button onClick={e => { e.stopPropagation(); openEditModal(m); }}
                             className="p-2.5 md:p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/20 flex items-center gap-2" title="Edit Info">

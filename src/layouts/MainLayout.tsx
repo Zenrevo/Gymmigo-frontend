@@ -3,26 +3,35 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Home, Search, User, LogOut, Shield, ChevronDown,
-  Settings, Bell, Users, MapPin, AlertCircle, Check as LucideCheck
+  Settings, Bell, Users, Check as LucideCheck
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../components/BrandLogo';
 import axios from 'axios';
 import { useGeoLocation } from '../context/LocationContext';
+import type { AddressResult } from '../context/LocationContext';
 import MapPickerModal from '../components/MapPickerModal';
+import InfoModal from '../components/InfoModal';
+import { Sparkles, MapPin } from 'lucide-react';
+import { getGoogleMapsUrl } from '../utils/navigation';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const MainLayout = () => {
   const { user, logout, switchRole } = useAuth();
-  const { selectedLocation, updateSelectedLocation, isMismatch } = useGeoLocation();
+  const { selectedLocation, updateSelectedLocation, isMismatch, currentGPS, isLoaded } = useGeoLocation();
   const [isMapOpen, setIsMapOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [gymBranding, setGymBranding] = useState<{name: string, logo: string} | null>(null);
+
+  // Auto-sync states
+  const [detectedAddr, setDetectedAddr] = useState<AddressResult | null>(null);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const syncAttempted = useRef(false);
 
   const gymMatch = location.pathname.match(/\/app\/gym-owner\/gyms\/([^\/\s]+)/);
   const activeGymId = gymMatch ? gymMatch[1] : null;
@@ -46,6 +55,35 @@ const MainLayout = () => {
       setGymBranding(null);
     }
   }, [location.pathname]);
+
+  // Auto-Sync Location Logic
+  useEffect(() => {
+    if (!isLoaded || selectedLocation || !currentGPS || syncAttempted.current) return;
+    
+    syncAttempted.current = true;
+    
+    // Use Google Geocoder to resolve current GPS
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ location: { lat: currentGPS.lat, lng: currentGPS.lng } }, (results, status) => {
+      if (status === 'OK' && results?.[0]) {
+        const result = results[0];
+        const comps = result.address_components;
+        const getComp = (type: string) => comps.find(c => c.types.includes(type))?.long_name || '';
+        
+        const newAddr = {
+          latitude: currentGPS.lat,
+          longitude: currentGPS.lng,
+          address_line1: result.formatted_address,
+          city: getComp('locality') || getComp('postal_town') || getComp('administrative_area_level_2'),
+          state: getComp('administrative_area_level_1'),
+          pincode: getComp('postal_code')
+        };
+        
+        setDetectedAddr(newAddr);
+        setIsSyncModalOpen(true);
+      }
+    });
+  }, [currentGPS, selectedLocation, isLoaded]);
 
   let navItems: any[] = [
     { name: 'Home', path: '/app/dashboard', icon: Home },
@@ -99,7 +137,7 @@ const MainLayout = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col text-white font-sans selection:bg-primary/30">
       {/* Header */}
-      <header className="nav-blur sticky top-0 z-40 px-6 py-4 flex flex-col gap-4 border-b border-white/5 bg-black/60 backdrop-blur-xl">
+      <header className="nav-blur sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-col gap-4 border-b border-white/5 bg-black/60 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/app/dashboard" className="hover:opacity-80 transition-all flex items-center gap-3">
@@ -118,7 +156,7 @@ const MainLayout = () => {
               )}
             </Link>
 
-            {/* Global Location Selector */}
+            {/* Desktop Location Selector */}
             <div className="hidden lg:flex items-center gap-2">
               <div className="h-4 w-[1px] bg-white/10 mx-2" />
               <button 
@@ -142,9 +180,15 @@ const MainLayout = () => {
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="text-[10px] font-black uppercase tracking-widest text-white/30 group-hover:text-primary transition-colors">Your Location</span>
-                  <span className="text-xs font-bold truncate max-w-[150px]">
+                  <a 
+                    href={getGoogleMapsUrl(selectedLocation?.address_line1, selectedLocation?.latitude, selectedLocation?.longitude)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => selectedLocation ? e.stopPropagation() : (e.preventDefault(), setIsMapOpen(true))}
+                    className="text-xs font-bold truncate max-w-[150px] hover:text-primary transition-colors border-b border-transparent hover:border-primary/30"
+                  >
                     {selectedLocation?.address_line1 || 'Select Location'}
-                  </span>
+                  </a>
                 </div>
                 <ChevronDown size={14} className="opacity-20 group-hover:opacity-100 transition-all" />
                 
@@ -274,30 +318,30 @@ const MainLayout = () => {
           </div>
         </div>
 
-        {/* Mobile Location Prompt */}
-        {isMismatch && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            className="lg:hidden bg-primary/20 border border-primary/30 rounded-xl p-3 flex items-center justify-between gap-4"
+        {/* Mobile Location Selector Row */}
+        <div className="flex lg:hidden items-center w-full min-w-0">
+          <button 
+            onClick={() => setIsMapOpen(true)}
+            className={clsx(
+              "flex-1 flex items-center gap-2 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border transition-all relative min-w-0 overflow-hidden",
+              isMismatch 
+                ? "bg-primary/20 border-primary/50 text-primary shadow-neon-sm" 
+                : "bg-white/5 border-white/10 text-white/60"
+            )}
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/20 rounded-lg text-primary">
-                <AlertCircle size={18} />
-              </div>
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-tight text-primary">Location Mismatch</p>
-                <p className="text-[10px] text-white/60">Your GPS doesn't match selected area.</p>
-              </div>
+            <MapPin size={16} className={clsx("shrink-0", isMismatch ? "text-primary" : "text-primary/50")} />
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Location</span>
+              <span className="text-xs font-bold truncate w-full">
+                {selectedLocation?.address_line1 || 'Set current location'}
+              </span>
             </div>
-            <button 
-              onClick={() => setIsMapOpen(true)}
-              className="px-4 py-2 bg-primary text-black text-[10px] font-black uppercase tracking-widest rounded-lg"
-            >
-              Update
-            </button>
-          </motion.div>
-        )}
+            {isMismatch && (
+              <div className="ml-auto bg-primary text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase">Mismatch</div>
+            )}
+            <ChevronDown size={14} className="ml-auto opacity-40" />
+          </button>
+        </div>
       </header>
 
       {/* Map Modal */}
@@ -312,6 +356,19 @@ const MainLayout = () => {
             city: addr.city
           });
           setIsMapOpen(false);
+        }}
+      />
+
+      {/* Auto-Sync Confirmation Modal */}
+      <InfoModal 
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        title="Location Detected"
+        description={`We've found your area: ${detectedAddr?.address_line1}. Would you like to use this location for distance calculations?`}
+        icon={Sparkles}
+        confirmText="Yes, Sync Location"
+        onConfirm={() => {
+          if (detectedAddr) updateSelectedLocation(detectedAddr);
         }}
       />
 

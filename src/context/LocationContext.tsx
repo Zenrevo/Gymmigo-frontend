@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useJsApiLoader } from '@react-google-maps/api';
 
-interface AddressResult {
+const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
+
+export interface AddressResult {
   latitude: number;
   longitude: number;
   address_line1: string;
@@ -17,11 +20,18 @@ interface LocationContextType {
   permissionStatus: 'prompt' | 'granted' | 'denied';
   updateSelectedLocation: (loc: AddressResult) => void;
   refreshGPS: () => Promise<void>;
+  isLoaded: boolean;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries: GOOGLE_MAPS_LIBRARIES,
+  });
+
   const [selectedLocation, setSelectedLocation] = useState<AddressResult | null>(() => {
     const saved = localStorage.getItem('selectedLocation');
     return saved ? JSON.parse(saved) : null;
@@ -84,7 +94,8 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       isLocating, 
       permissionStatus,
       updateSelectedLocation, 
-      refreshGPS 
+      refreshGPS,
+      isLoaded
     }}>
       {children}
     </LocationContext.Provider>

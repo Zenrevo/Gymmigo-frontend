@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   Building2, ArrowLeft, Users, Dumbbell, 
@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PageLoader from '../../components/PageLoader';
 import { useGym } from '../../context/GymContext';
 import clsx from 'clsx';
+import { useNotification } from '../../context/NotificationContext';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const navItems = [
   { id: '', name: 'Overview', icon: TrendingUp },
@@ -28,6 +31,53 @@ const GymManageDashboard = () => {
   const location = useLocation();
   const { gym, loading, error, gymId } = useGym();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { showNotification } = useNotification();
+
+  // ── Global WebSockets for Live Updates ─────────────────────────────────────
+  useEffect(() => {
+    if (!gymId) return;
+    
+    // Replace http(s) with ws(s)
+    const wsUrl = API_URL.replace(/^http/, 'ws') + `/ws/gyms/${gymId}`;
+    let reconnectTimer: ReturnType<typeof setTimeout>;
+    
+    const connect = () => {
+      const ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        console.log("Connected to global live updates");
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.message) {
+             // Custom notification for global websocket events
+             showNotification(data.message, 'success');
+          }
+          // Tell any mounted tabs (like Members) to fetch updated data silently
+          window.dispatchEvent(new Event('gym_live_update_fetch'));
+        } catch (e) {
+          console.error("Error processing websocket message", e);
+        }
+      };
+      
+      ws.onclose = () => {
+        console.log("Disconnected from live updates. Reconnecting in 5s...");
+        reconnectTimer = setTimeout(connect, 5000);
+      };
+      
+      return ws;
+    };
+    
+    const ws = connect();
+    
+    return () => {
+      clearTimeout(reconnectTimer);
+      ws.onclose = null; // Prevent reconnect on unmount
+      ws.close();
+    };
+  }, [gymId, showNotification]);
 
   // Helper to determine active tab based on URL path
   // Since we are at /app/gym-owner/gyms/:gymId, the last segment is the tab

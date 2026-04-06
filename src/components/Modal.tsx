@@ -30,17 +30,17 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: Moda
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
           
           {/* Modal Container */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`w-full ${maxWidth} bg-[#111] border border-white/10 rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]`}
+              className={`w-full ${maxWidth} bg-[#111] border border-white/10 rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[85vh] md:max-h-[90vh]`}
             >
               <div className="flex items-center justify-between p-6 border-b border-white/5">
                 <h3 className="text-xl font-display font-bold">{title}</h3>
@@ -52,7 +52,7 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: Moda
                 </button>
               </div>
               
-              <div className="p-6 overflow-y-auto custom-scrollbar">
+              <div className="p-6 pb-28 md:pb-6 overflow-y-auto custom-scrollbar">
                 {children}
               </div>
             </motion.div>

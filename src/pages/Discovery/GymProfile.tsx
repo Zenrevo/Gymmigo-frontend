@@ -16,6 +16,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
 
 import { useGeoLocation } from '../../context/LocationContext';
+import { useNotification } from '../../context/NotificationContext';
+import { getGoogleMapsUrl } from '../../utils/navigation';
 
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371e3; // metres
@@ -102,6 +104,9 @@ const GymProfile = () => {
   });
 
   const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'details' | 'amenities'>('overview');
+  const [applyingPlan, setApplyingPlan] = useState<any>(null);
+  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
+  const { showNotification } = useNotification();
 
   const distance = (gym?.addresses?.[0] && selectedLocation) 
     ? getDistance(selectedLocation.latitude, selectedLocation.longitude, gym.addresses[0].latitude, gym.addresses[0].longitude)
@@ -130,6 +135,27 @@ const GymProfile = () => {
     </div>
   );
 
+  const handleApplyMembership = async () => {
+    if (!applyingPlan) return;
+    try {
+      setIsSubmittingApplication(true);
+      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+      await axios.post(`${API_URL}/memberships/apply`, {
+        gym_id: gym.id,
+        plan_id: applyingPlan.id,
+        payment_method: 'cash'
+      }, { headers: authHeader });
+      
+      showNotification('Application submitted successfully! Waiting for gym owner approval.', 'success');
+      setApplyingPlan(null);
+    } catch (err: any) {
+      console.error('Failed to apply:', err);
+      showNotification(err.response?.data?.detail || 'Failed to submit application. Please try again.', 'error');
+    } finally {
+      setIsSubmittingApplication(false);
+    }
+  };
+
   const occupancyRatio = gym.current_occupancy / (gym.max_capacity || 100);
 
   return (
@@ -137,7 +163,7 @@ const GymProfile = () => {
       {/* Header Navigation */}
       <button 
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group w-fit"
+        className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group w-fit ml-[-0.5rem] sm:ml-0"
       >
         <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
         <span className="text-xs font-black uppercase tracking-[0.2em]">Back to Discovery</span>
@@ -160,28 +186,28 @@ const GymProfile = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         
         {/* Branding Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/10 p-4 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
+        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 sm:p-4 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
                {gym.logo_url ? (
                  <img src={gym.logo_url} alt="logo" className="w-full h-full object-contain" />
                ) : (
-                 <Building2 className="text-primary" size={48} />
+                 <Building2 className="text-primary" size={32} />
                )}
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-4xl md:text-6xl font-display font-black tracking-tighter italic uppercase truncate max-w-[200px] sm:max-w-md">{gym.name}</h1>
-                {gym.is_verified && <CheckCircle2 className="text-blue-500 shrink-0" size={20} />}
+                <h1 className="text-xl sm:text-4xl md:text-6xl font-display font-black tracking-tighter italic uppercase truncate max-w-[200px] sm:max-w-md">{gym.name}</h1>
+                {gym.is_verified && <CheckCircle2 className="text-blue-500 shrink-0" size={18} />}
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-white/60">
                 <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-white/10">
-                  <Star className="text-primary fill-primary" size={12} />
-                  <span className="text-xs sm:text-sm font-bold text-white">{gym.rating_avg?.toFixed(1) || 'NEW'}</span>
+                  <Star className="text-primary fill-primary" size={10} />
+                  <span className="text-[10px] sm:text-sm font-bold text-white">{gym.rating_avg?.toFixed(1) || 'NEW'}</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs sm:text-sm font-medium">
-                  <MapPin size={14} className="text-primary" />
-                  <span className="truncate max-w-[120px] sm:max-w-none">{gym.city}</span>
+                <div className="flex items-center gap-1 text-[10px] sm:text-sm font-medium">
+                  <MapPin size={12} className="text-primary" />
+                  <span className="truncate max-w-[150px] sm:max-w-none">{gym.city}</span>
                 </div>
               </div>
             </div>
@@ -198,13 +224,13 @@ const GymProfile = () => {
         {/* Left Column: Details */}
         <div className="lg:col-span-2 space-y-12">
           {/* Live Status Bar */}
-          <div className="glass-card p-8 flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden">
+          <div className="glass-card p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                <Activity size={80} className="text-primary" />
              </div>
              <div className="space-y-1 text-center sm:text-left shrink-0">
                <p className="text-[10px] text-white/20 font-black uppercase tracking-[0.3em]">Live Traffic</p>
-               <h3 className="text-2xl font-display font-black italic uppercase tracking-tight">CROWD STATUS</h3>
+               <h3 className="text-xl sm:text-2xl font-display font-black italic uppercase tracking-tight">CROWD STATUS</h3>
              </div>
              
              <div className="flex-1 w-full space-y-3">
@@ -271,9 +297,9 @@ const GymProfile = () => {
 
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* 10-Day Trend Chart */}
-                        <div className="glass-card p-8 space-y-6">
+                        <div className="glass-card p-6 sm:p-8 space-y-6">
                            <div className="flex items-center justify-between">
-                              <h4 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                              <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                                 <TrendingUp size={16} className="text-secondary" /> 10-Day Trend
                               </h4>
                               <span className="text-[10px] font-black uppercase text-white/20 tracking-widest">Peak Occupancy</span>
@@ -315,12 +341,12 @@ const GymProfile = () => {
                         </div>
 
                         {/* Best Time Suggestion */}
-                        <div className="glass-card p-8 border-secondary/20 relative overflow-hidden flex flex-col justify-center">
+                        <div className="glass-card p-6 sm:p-8 border-secondary/20 relative overflow-hidden flex flex-col justify-center">
                            <div className="absolute -top-12 -right-12 w-40 h-40 bg-secondary/10 blur-[60px] rounded-full" />
-                           <div className="relative z-10 space-y-6">
+                           <div className="relative z-10 space-y-4 sm:space-y-6">
                               <div className="space-y-1">
                                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Elite Suggestion</p>
-                                 <h4 className="text-2xl font-black italic uppercase tracking-tighter">Optimal Training Window</h4>
+                                 <h4 className="text-xl sm:text-2xl font-black italic uppercase tracking-tighter">Optimal Training Window</h4>
                               </div>
                               
                               {gym.best_time_suggestion ? (
@@ -429,7 +455,9 @@ const GymProfile = () => {
                             </div>
                           </div>
 
-                          <button className={clsx(
+                          <button 
+                            onClick={() => setApplyingPlan(plan)}
+                            className={clsx(
                             "px-5 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 group/btn",
                             plan.is_popular 
                               ? "bg-primary text-black shadow-lg shadow-primary/20" 
@@ -540,7 +568,7 @@ const GymProfile = () => {
 
         {/* Right Column: Info Sidebar */}
         <div className="space-y-8">
-           <div className="glass-card p-8 space-y-8">
+           <div className="glass-card p-6 sm:p-8 space-y-8">
               <div className="space-y-6">
                  <div className="flex items-center justify-between border-b border-white/5 pb-4">
                     <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20">Connect & Locate</h3>
@@ -554,12 +582,17 @@ const GymProfile = () => {
                     )}
                  </div>
                  <div className="space-y-4">
-                    <div className="flex gap-4">
-                       <MapPin className="text-primary shrink-0" size={20} />
-                       <p className="text-sm text-white/60 leading-relaxed font-medium">
-                         {gym.addresses?.[0]?.address_line1}, {gym.city}, {gym.state}, {gym.addresses?.[0]?.pincode}
-                       </p>
-                    </div>
+                  <a 
+                    href={getGoogleMapsUrl(`${gym.addresses?.[0]?.address_line1}, ${gym.city}, ${gym.state}, ${gym.addresses?.[0]?.pincode}`, gym.addresses?.[0]?.latitude, gym.addresses?.[0]?.longitude)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex gap-4 group hover:text-primary transition-colors"
+                  >
+                    <MapPin className="text-primary shrink-0 group-hover:scale-110 transition-transform" size={20} />
+                    <p className="text-sm text-white/60 leading-relaxed font-medium group-hover:text-white transition-colors">
+                      {gym.addresses?.[0]?.address_line1}, {gym.city}, {gym.state}, {gym.addresses?.[0]?.pincode}
+                    </p>
+                  </a>
                     {gym.contact_phone && (
                        <a href={`tel:${gym.contact_phone}`} className="flex items-center gap-4 hover:text-primary transition-colors group">
                           <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
@@ -604,7 +637,13 @@ const GymProfile = () => {
               </div>
            </div>
 
-           <div className="p-8 rounded-[2rem] bg-primary relative overflow-hidden group cursor-pointer shadow-2xl shadow-primary/20">
+           <div 
+              onClick={() => {
+                setActiveTab('plans');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="p-8 rounded-[2rem] bg-primary relative overflow-hidden group cursor-pointer shadow-2xl shadow-primary/20"
+            >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
               <div className="relative z-10 space-y-4">
                  <div className="flex flex-col">
@@ -619,6 +658,67 @@ const GymProfile = () => {
            </div>
         </div>
       </div>
+      
+      {/* Application Modal */}
+      <AnimatePresence>
+        {applyingPlan && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setApplyingPlan(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={e => e.stopPropagation()}
+              className="glass-card w-full max-w-md p-6 space-y-6 overflow-hidden relative"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-transparent" />
+              
+              <div className="space-y-2">
+                 <h2 className="text-2xl font-display font-black italic">CONFIRM APPLICATION</h2>
+                 <p className="text-sm text-white/40">You are about to submit a membership application to <span className="text-white font-bold">{gym.name}</span>.</p>
+              </div>
+              
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                 <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                    <span className="text-sm text-white/60">Selected Plan</span>
+                    <span className="text-sm font-bold">{applyingPlan.name}</span>
+                 </div>
+                 <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                    <span className="text-sm text-white/60">Duration</span>
+                    <span className="text-sm font-bold">{applyingPlan.duration_days ? `${applyingPlan.duration_days} days` : '1 month'}</span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                    <span className="text-sm text-white/60">Amount</span>
+                    <span className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded uppercase tracking-widest font-black">Pay at Gym (₹{applyingPlan.discounted_price || applyingPlan.price})</span>
+                 </div>
+              </div>
+              
+              <div className="pt-2 flex gap-3">
+                 <button 
+                  onClick={() => setApplyingPlan(null)}
+                  disabled={isSubmittingApplication}
+                  className="flex-1 py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-colors disabled:opacity-50"
+                 >
+                    Cancel
+                 </button>
+                 <button 
+                  onClick={handleApplyMembership}
+                  disabled={isSubmittingApplication}
+                  className="flex-1 py-3 rounded-xl bg-primary text-black text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group disabled:opacity-50"
+                 >
+                    {isSubmittingApplication ? <Loader2 size={16} className="animate-spin" /> : 'Submit Request'}
+                    {!isSubmittingApplication && <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />}
+                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

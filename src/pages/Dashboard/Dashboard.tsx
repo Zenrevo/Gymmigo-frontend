@@ -4,8 +4,9 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
   Users, Dumbbell, Building2, 
-  TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine
+  TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine, Activity
 } from 'lucide-react';
+import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
 import QRScannerModal from '../../components/QRScannerModal';
 import PageLoader from '../../components/PageLoader';
@@ -127,7 +128,20 @@ const UserDashboardView = ({ data }: { data: any }) => {
                </div>
                <div>
                  <h4 className="text-xl font-bold group-hover:text-primary transition-colors">{m.gym_name}</h4>
-                 <p className="text-white/40 text-sm">{m.plan_name} • Expires {new Date(m.end_date).toLocaleDateString()}</p>
+                 <div className="flex items-center gap-3 mt-1">
+                   <p className="text-white/40 text-sm">{m.plan_name} • Expires {new Date(m.end_date).toLocaleDateString()}</p>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-all">
+                      <Activity size={12} className={clsx(
+                        "animate-pulse",
+                        (m.current_occupancy / (m.max_capacity || 100)) > 0.8 ? "text-red-500" : 
+                        (m.current_occupancy / (m.max_capacity || 100)) > 0.5 ? "text-orange-500" : "text-emerald-500"
+                      )} />
+                      <span className="text-[11px] font-black uppercase tracking-tighter text-white">
+                        {m.current_occupancy} <span className="text-white/40 font-bold">LIVE</span>
+                      </span>
+                    </div>
+
+                 </div>
                </div>
              </div>
              <div className="text-right flex items-center gap-4">
