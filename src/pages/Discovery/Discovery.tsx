@@ -7,15 +7,16 @@ import { clsx } from 'clsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
+import { useGeoLocation } from '../../context/LocationContext';
+
 const Discovery = () => {
   const navigate = useNavigate();
+  const { selectedLocation, refreshGPS, isLocating } = useGeoLocation();
   const [activeTab, setActiveTab] = useState<'gyms' | 'trainers'>('gyms');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [isNearMe, setIsNearMe] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
+  const [isNearMe, setIsNearMe] = useState(true); // Default to near me if location exists
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -27,10 +28,10 @@ const Discovery = () => {
         sort_by: isNearMe ? 'distance' : 'rating'
       };
 
-      if (isNearMe && location) {
-        params.lat = location.lat;
-        params.lng = location.lng;
-        params.radius = 20; // 20km radius for near me
+      if (isNearMe && selectedLocation) {
+        params.lat = selectedLocation.latitude;
+        params.lng = selectedLocation.longitude;
+        params.radius = 50; // 50km radius for discovery
       }
 
       const response = await axios.get(`${API_URL}${endpoint}`, { params });
@@ -40,38 +41,20 @@ const Discovery = () => {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, search, isNearMe, location]);
+  }, [activeTab, search, isNearMe, selectedLocation]);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
   const handleNearMe = () => {
-    if (isNearMe) {
-      setIsNearMe(false);
-      return;
-    }
-
-    setIsLocating(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-          setIsNearMe(true);
-          setIsLocating(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setIsLocating(false);
-          alert("Could not get your location. Please check permissions.");
-        }
-      );
+    if (!isNearMe) {
+      setIsNearMe(true);
+      if (!selectedLocation) {
+        refreshGPS();
+      }
     } else {
-      setIsLocating(false);
-      alert("Geolocation is not supported by your browser.");
+      setIsNearMe(false);
     }
   };
 

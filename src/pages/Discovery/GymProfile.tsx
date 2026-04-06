@@ -13,6 +13,24 @@ import clsx from 'clsx';
 import PageLoader from '../../components/PageLoader';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
+
+import { useGeoLocation } from '../../context/LocationContext';
+
+const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371e3; // metres
+  const φ1 = lat1 * Math.PI/180;
+  const φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1) * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c; // in metres
+};
 
 const darkMapStyles = [
   { elementType: "geometry", stylers: [{ color: "#212121" }] },
@@ -74,14 +92,20 @@ const darkMapStyles = [
 const GymProfile = () => {
   const { gymId } = useParams();
   const navigate = useNavigate();
+  const { selectedLocation } = useGeoLocation();
   const [gym, setGym] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'details' | 'amenities'>('overview');
+
+  const distance = (gym?.addresses?.[0] && selectedLocation) 
+    ? getDistance(selectedLocation.latitude, selectedLocation.longitude, gym.addresses[0].latitude, gym.addresses[0].longitude)
+    : null;
 
   useEffect(() => {
     const fetchGym = async () => {
@@ -518,7 +542,17 @@ const GymProfile = () => {
         <div className="space-y-8">
            <div className="glass-card p-8 space-y-8">
               <div className="space-y-6">
-                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20 border-b border-white/5 pb-4">Connect & Locate</h3>
+                 <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20">Connect & Locate</h3>
+                    {distance !== null && (
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+                        <MapPin size={10} className="text-primary" />
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">
+                          {distance < 1000 ? `${Math.round(distance)}m` : `${(distance/1000).toFixed(1)}km`} away
+                        </span>
+                      </div>
+                    )}
+                 </div>
                  <div className="space-y-4">
                     <div className="flex gap-4">
                        <MapPin className="text-primary shrink-0" size={20} />
@@ -527,22 +561,28 @@ const GymProfile = () => {
                        </p>
                     </div>
                     {gym.contact_phone && (
-                       <div className="flex items-center gap-4">
-                          <Phone className="text-primary shrink-0" size={18} />
-                          <span className="text-sm text-white/60 font-medium">{gym.contact_phone}</span>
-                       </div>
+                       <a href={`tel:${gym.contact_phone}`} className="flex items-center gap-4 hover:text-primary transition-colors group">
+                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
+                            <Phone size={16} />
+                          </div>
+                          <span className="text-sm text-white/60 font-medium group-hover:text-white transition-colors">{gym.contact_phone}</span>
+                       </a>
                     )}
                     {gym.contact_email && (
-                       <div className="flex items-center gap-4">
-                          <Mail className="text-primary shrink-0" size={18} />
-                          <span className="text-sm text-white/60 font-medium truncate">{gym.contact_email}</span>
-                       </div>
+                       <a href={`mailto:${gym.contact_email}`} className="flex items-center gap-4 hover:text-primary transition-colors group">
+                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
+                            <Mail size={16} />
+                          </div>
+                          <span className="text-sm text-white/60 font-medium truncate group-hover:text-white transition-colors">{gym.contact_email}</span>
+                       </a>
                     )}
                     {gym.website_url && (
-                       <div className="flex items-center gap-4">
-                          <Globe className="text-primary shrink-0" size={18} />
-                          <span className="text-sm text-white/60 font-medium truncate underline underline-offset-4">{gym.website_url}</span>
-                       </div>
+                       <a href={gym.website_url.startsWith('http') ? gym.website_url : `https://${gym.website_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-primary transition-colors group">
+                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
+                            <Globe size={16} />
+                          </div>
+                          <span className="text-sm text-white/60 font-medium truncate underline underline-offset-4 group-hover:text-white transition-colors">{gym.website_url}</span>
+                       </a>
                     )}
                  </div>
               </div>

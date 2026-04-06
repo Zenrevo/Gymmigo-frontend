@@ -25,6 +25,7 @@ import SettingsTab from './pages/Dashboard/gym-tabs/SettingsTab';
 import FinanceTab from './pages/Dashboard/gym-tabs/FinanceTab';
 import MainLayout from './layouts/MainLayout';
 import { NotificationProvider } from './context/NotificationContext';
+import { LocationProvider } from './context/LocationContext';
 import { NotificationContainer } from './components/Toast';
 import PageLoader from './components/PageLoader';
 import ComingSoon from './components/ComingSoon';
@@ -92,10 +93,12 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
-          <NotificationContainer />
-          <AppRoutes />
-        </NotificationProvider>
+        <LocationProvider>
+          <NotificationProvider>
+            <NotificationContainer />
+            <AppRoutes />
+          </NotificationProvider>
+        </LocationProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -3,7 +3,7 @@ import { GoogleMap, useJsApiLoader, Autocomplete } from '@react-google-maps/api'
 import { MapPin, Search, X, Navigation, Loader2, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const lib: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
+const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
 
 interface AddressResult {
   address_line1: string;
@@ -25,7 +25,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: lib,
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -120,13 +120,24 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
 
   const handleCurrentLocation = () => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        skipNextGeocode.current = false; // We want to geocode after getting current position
-        map?.panTo({ lat: latitude, lng: longitude });
-        map?.setZoom(17);
-        performGeocode(latitude, longitude, true);
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          skipNextGeocode.current = false; // We want to geocode after getting current position
+          map?.panTo({ lat: latitude, lng: longitude });
+          map?.setZoom(17);
+          performGeocode(latitude, longitude, true);
+        },
+        (error) => {
+          console.error("Error getting location in map picker:", error);
+          if (error.code === error.PERMISSION_DENIED) {
+            alert("Location access denied. Please enable it in your browser settings to use current location.");
+          } else {
+            alert("Could not get your location. Please check your signal or try searching manually.");
+          }
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
     }
   };
 
