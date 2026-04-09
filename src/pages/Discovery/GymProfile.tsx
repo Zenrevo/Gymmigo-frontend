@@ -4,9 +4,10 @@ import axios from 'axios';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { 
   ArrowLeft, ArrowRight, MapPin, Star, Building2, 
-  CheckCircle2, Clock, Phone, Mail, 
-  Globe, Activity, Wifi, Dumbbell, 
-  Zap, Info, Loader2, Sparkles, TrendingUp, Image as ImageIcon
+  CheckCircle2, Clock, Phone, ShoppingCart, Package, X,
+  Activity, Wifi, Dumbbell, 
+  Zap, Info, Loader2, TrendingUp, Image as ImageIcon,
+  ChevronRight, Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -104,9 +105,12 @@ const GymProfile = () => {
   });
 
   const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'details' | 'amenities'>('overview');
-  const [applyingPlan, setApplyingPlan] = useState<any>(null);
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
   const { showNotification } = useNotification();
+
+  // Cart-based Selection State: one plan per category
+  const [cart, setCart] = useState<Record<string, any>>({});  // { slotName: plan }
+  const [selectedAddons, setSelectedAddons] = useState<any[]>([]);
 
   const distance = (gym?.addresses?.[0] && selectedLocation) 
     ? getDistance(selectedLocation.latitude, selectedLocation.longitude, gym.addresses[0].latitude, gym.addresses[0].longitude)
@@ -136,18 +140,27 @@ const GymProfile = () => {
   );
 
   const handleApplyMembership = async () => {
-    if (!applyingPlan) return;
+    const cartPlans = Object.values(cart);
+    if (cartPlans.length === 0) return;
     try {
       setIsSubmittingApplication(true);
       const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-      await axios.post(`${API_URL}/memberships/apply`, {
-        gym_id: gym.id,
-        plan_id: applyingPlan.id,
-        payment_method: 'cash'
-      }, { headers: authHeader });
       
-      showNotification('Application submitted successfully! Waiting for gym owner approval.', 'success');
-      setApplyingPlan(null);
+      const payload = {
+        gym_id: gym.id,
+        plans: cartPlans.map((p: any) => ({
+          plan_id: p.id,
+          selected_addons: selectedAddons.map(a => ({ id: a.id, name: a.name, price: a.price }))
+        })),
+        payment_method: 'cash',
+      };
+
+      await axios.post(`${API_URL}/memberships/apply-cart`, payload, { headers: authHeader });
+      
+      showNotification(`${cartPlans.length} plan(s) submitted successfully! Waiting for gym owner approval.`, 'success');
+      setCart({});
+      setSelectedAddons([]);
+      navigate('/app/dashboard');
     } catch (err: any) {
       console.error('Failed to apply:', err);
       showNotification(err.response?.data?.detail || 'Failed to submit application. Please try again.', 'error');
@@ -156,7 +169,51 @@ const GymProfile = () => {
     }
   };
 
-  const occupancyRatio = gym.current_occupancy / (gym.max_capacity || 100);
+  const occupancyRatio = (gym.current_occupancy || 0) / (gym.max_capacity || 100);
+
+  // Group plans by slot
+  const groupedPlans = (gym.membership_plans || []).reduce((acc: any, plan: any) => {
+    const slot = plan.slot_name || 'Full Access';
+    if (!acc[slot]) acc[slot] = [];
+    acc[slot].push(plan);
+    return acc;
+  }, {});
+
+  // Helper: get time slots from plan (new field first, fallback to legacy)
+  const getTimeSlotsFromPlan = (plan: any): {start: string; end: string}[] => {
+    if (plan.access_time_slots?.length) return plan.access_time_slots;
+    if (plan.access_start_time && plan.access_end_time) return [{ start: plan.access_start_time, end: plan.access_end_time }];
+    return [{ start: '06:00', end: '22:00' }];
+  };
+
+  const fmtTime = (t: string) => {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
+  };
+
+  const renderTimeSlots = (plan: any) => {
+    const slots = getTimeSlotsFromPlan(plan);
+    return slots.map(s => `${fmtTime(s.start)}-${fmtTime(s.end)}`).join('  •  ');
+  };
+
+  // Cart helpers
+  const togglePlanInCart = (slotName: string, plan: any) => {
+    setCart(prev => {
+      const copy = { ...prev };
+      if (copy[slotName]?.id === plan.id) {
+        delete copy[slotName];
+      } else {
+        copy[slotName] = plan;
+      }
+      return copy;
+    });
+  };
+
+  const cartPlans = Object.entries(cart); // [[slotName, plan], ...]
+  const cartTotal = cartPlans.reduce((sum, [, p]) => sum + (p.discounted_price || p.price || 0), 0) +
+                    selectedAddons.reduce((sum, a) => sum + a.price, 0);
 
   return (
     <div className="space-y-8 pb-12">
@@ -171,13 +228,8 @@ const GymProfile = () => {
 
       {/* Hero Section */}
       <div className="relative h-64 sm:h-80 md:h-[450px] rounded-[2rem] overflow-hidden group shadow-2xl border border-white/5 mx-[-1rem] sm:mx-0">
-        {/* Cover Image */}
         {gym.cover_image_url ? (
-          <img 
-            src={gym.cover_image_url} 
-            alt={gym.name} 
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-          />
+          <img src={gym.cover_image_url} alt={gym.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
         ) : (
           <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center text-white/5">
              <Building2 size={160} />
@@ -185,7 +237,6 @@ const GymProfile = () => {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         
-        {/* Branding Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 sm:p-4 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
@@ -205,25 +256,25 @@ const GymProfile = () => {
                   <Star className="text-primary fill-primary" size={10} />
                   <span className="text-[10px] sm:text-sm font-bold text-white">{gym.rating_avg?.toFixed(1) || 'NEW'}</span>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] sm:text-sm font-medium">
+                <div className="flex items-center gap-1 text-[10px] sm:text-sm font-medium cursor-pointer hover:text-white transition-colors"
+                   onClick={() => window.open(getGoogleMapsUrl(`${gym.addresses?.[0]?.address_line1}, ${gym.city}`, gym.addresses?.[0]?.latitude, gym.addresses?.[0]?.longitude))}>
                   <MapPin size={12} className="text-primary" />
-                  <span className="truncate max-w-[150px] sm:max-w-none">{gym.city}</span>
+                  <span className="underline underline-offset-2">{gym.city}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <button className="hidden sm:block btn-primary px-10 py-5 rounded-2xl shadow-[0_0_50px_rgba(var(--primary-rgb),0.3)] hover:scale-105 active:scale-95 transition-all text-sm font-black uppercase tracking-[0.2em] whitespace-nowrap">
-             Join Now
+          <button onClick={() => { setActiveTab('plans'); window.scrollTo({ top: 600, behavior: 'smooth' }); }} className="btn-primary px-10 py-5 rounded-2xl shadow-[0_0_50px_rgba(var(--primary-rgb),0.3)] hover:scale-105 active:scale-95 transition-all text-sm font-black uppercase tracking-[0.1em] whitespace-nowrap">
+             Get Membership
           </button>
         </div>
       </div>
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Left Column: Details */}
         <div className="lg:col-span-2 space-y-12">
-          {/* Live Status Bar */}
+          {/* Live Status */}
           <div className="glass-card p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative overflow-hidden">
              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                <Activity size={80} className="text-primary" />
@@ -252,7 +303,7 @@ const GymProfile = () => {
                  )}>
                    {occupancyRatio > 0.8 ? 'VERY BUSY' : occupancyRatio > 0.5 ? 'MODERATE' : 'QUIET'} NOW
                  </span>
-                 <span className="text-white/40">{gym.current_occupancy} / {gym.max_capacity} PEOPLE</span>
+                 <span className="text-white/40">{gym.current_occupancy || 0} / {gym.max_capacity || '100'} PEOPLE</span>
                </div>
              </div>
           </div>
@@ -271,7 +322,7 @@ const GymProfile = () => {
                 >
                   {tab}
                   {activeTab === tab && (
-                    <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full shadow-[0_-5px_15px_rgba(var(--primary-rgb),0.5)]" />
+                    <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
                   )}
                 </button>
               ))}
@@ -280,283 +331,291 @@ const GymProfile = () => {
             <div className="min-h-[400px]">
               <AnimatePresence mode="wait">
                 {activeTab === 'overview' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="space-y-12"
-                  >
-                    <div className="space-y-4">
-                       <h4 className="text-lg font-black italic uppercase tracking-tight flex items-center gap-2">
-                         <Info size={18} className="text-primary" /> About Facility
-                       </h4>
-                       <p className="text-white/60 leading-relaxed text-lg">
-                         {gym.description || "Welcome to our premier fitness facility. Experience world-class equipment and professional guidance designed for results."}
-                       </p>
-                    </div>
-
-                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* 10-Day Trend Chart */}
-                        <div className="glass-card p-6 sm:p-8 space-y-6">
-                           <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                <TrendingUp size={16} className="text-secondary" /> 10-Day Trend
-                              </h4>
-                              <span className="text-[10px] font-black uppercase text-white/20 tracking-widest">Peak Occupancy</span>
-                           </div>
-                           
-                           <div className="h-40 flex items-end justify-between gap-1 pt-4 relative">
-                              {(!gym.occupancy_trend || gym.occupancy_trend.length === 0) ? (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center text-center gap-3 bg-black/20 rounded-2xl border border-white/5">
-                                   <Activity className="text-white/10 animate-pulse" size={32} />
-                                   <div className="space-y-1">
-                                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Analyzing Patterns</p>
-                                      <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Collecting historical data...</p>
-                                   </div>
-                                </div>
-                              ) : (
-                                gym.occupancy_trend.map((item: any, idx: number) => (
-                                  <div key={idx} className="flex-1 flex flex-col items-center gap-3 group">
-                                     <div className="relative w-full flex flex-col justify-end h-32">
-                                        {/* Bar with Tooltip */}
-                                        <motion.div 
-                                          initial={{ height: 0 }}
-                                          animate={{ height: `${item.peak_occupancy}%` }}
-                                          transition={{ delay: idx * 0.05, duration: 0.8, ease: "easeOut" }}
-                                          className={clsx(
-                                            "w-full rounded-t-lg relative transition-all duration-300 group-hover:brightness-125 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]",
-                                            item.peak_occupancy > 80 ? "bg-red-500/80" : item.peak_occupancy > 50 ? "bg-orange-500/80" : "bg-emerald-500/80"
-                                          )}
-                                        />
-                                        {/* Value Label on Hover */}
-                                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                          <span className="text-[8px] font-black">{item.peak_occupancy}%</span>
-                                        </div>
-                                     </div>
-                                     <span className="text-[8px] font-black uppercase tracking-widest text-white/20">{item.date}</span>
-                                  </div>
-                                ))
-                              )}
-                           </div>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
+                     <div className="space-y-4">
+                        <h4 className="text-lg font-black italic uppercase tracking-tight flex items-center gap-2">
+                          <Info size={18} className="text-primary" /> About Facility
+                        </h4>
+                        <p className="text-white/60 leading-relaxed text-lg">
+                          {gym.description || "Welcome to our premier fitness facility. Experience world-class equipment and professional guidance designed for results."}
+                        </p>
+                     </div>
+                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
+                           <ImageIcon className="text-white/20 group-hover:text-primary" size={24} />
+                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.images?.length || 0} Photos</span>
                         </div>
-
-                        {/* Best Time Suggestion */}
-                        <div className="glass-card p-6 sm:p-8 border-secondary/20 relative overflow-hidden flex flex-col justify-center">
-                           <div className="absolute -top-12 -right-12 w-40 h-40 bg-secondary/10 blur-[60px] rounded-full" />
-                           <div className="relative z-10 space-y-4 sm:space-y-6">
-                              <div className="space-y-1">
-                                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Elite Suggestion</p>
-                                 <h4 className="text-xl sm:text-2xl font-black italic uppercase tracking-tighter">Optimal Training Window</h4>
-                              </div>
-                              
-                              {gym.best_time_suggestion ? (
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm">
-                                   <div className="flex items-center justify-between mb-2">
-                                      <span className="text-2xl font-black text-white">{gym.best_time_suggestion.time_range}</span>
-                                      <div className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[10px] font-black text-emerald-500 uppercase tracking-widest">
-                                         Highly Recommended
-                                      </div>
-                                   </div>
-                                   <p className="text-xs text-white/40 leading-relaxed">
-                                      {gym.best_time_suggestion.message}
-                                   </p>
-                                </div>
-                              ) : (
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm flex flex-col items-center justify-center text-center gap-3">
-                                   <Clock className="text-white/10" size={24} />
-                                   <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Syncing with facility sensors...</p>
-                                </div>
-                              )}
-
-                              <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-white/20">
-                                 <Info size={12} />
-                                 {gym.best_time_suggestion ? "Based on real-time activity historical data" : "Analyzing peak hours for this location"}
-                              </div>
-                           </div>
+                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
+                           <Dumbbell className="text-white/20 group-hover:text-primary" size={24} />
+                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.equipment?.length || 0} Machines</span>
+                        </div>
+                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
+                           <Zap className="text-white/20 group-hover:text-primary" size={24} />
+                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.facilities?.length || 0} Zones</span>
+                        </div>
+                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
+                           <Clock className="text-white/20 group-hover:text-primary" size={24} />
+                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.is_24_hours ? '24/7 Access' : 'Full Access'}</span>
                         </div>
                      </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                       <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                          <ImageIcon className="text-white/20 group-hover:text-primary" size={24} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">{gym.images?.length || 0} Photos</span>
-                       </div>
-                       <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                          <Dumbbell className="text-white/20 group-hover:text-primary" size={24} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">{gym.equipment?.length || 0} Machines</span>
-                       </div>
-                       <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                          <Zap className="text-white/20 group-hover:text-primary" size={24} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">{gym.facilities?.length || 0} Zones</span>
-                       </div>
-                       <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                          <Clock className="text-white/20 group-hover:text-primary" size={24} />
-                          <span className="text-[10px] font-black uppercase tracking-widest">{gym.is_24_hours ? '24/7 Access' : 'Full Access'}</span>
-                       </div>
-                    </div>
-
-                    <div className="space-y-6">
-                       <h4 className="text-lg font-black italic uppercase tracking-tight">Our Reach</h4>
-                       <div className="h-72 rounded-[2.5rem] overflow-hidden border border-white/10 relative shadow-2xl">
-                          {isLoaded && gym.addresses?.[0]?.latitude ? (
-                            <GoogleMap
-                              mapContainerStyle={{ width: '100%', height: '100%' }}
-                              center={{ lat: gym.addresses[0].latitude, lng: gym.addresses[0].longitude }}
-                              zoom={15}
-                              options={{
-                                styles: darkMapStyles,
-                                disableDefaultUI: true,
-                                zoomControl: true,
-                              }}
-                            >
-                              <MarkerF 
-                                position={{ lat: gym.addresses[0].latitude, lng: gym.addresses[0].longitude }}
-                                icon={{
-                                  path: google.maps.SymbolPath.CIRCLE,
-                                  fillColor: '#ff4d00',
-                                  fillOpacity: 1,
-                                  strokeWeight: 2,
-                                  strokeColor: '#ffffff',
-                                  scale: 8,
-                                }}
-                              />
-                            </GoogleMap>
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-10 text-center p-8">
-                               <Loader2 className="animate-spin text-primary mr-2" size={20} />
-                               <p className="text-xs font-black uppercase tracking-widest text-white/40">Initializing Elite Grid...</p>
-                            </div>
-                          )}
-                       </div>
-                    </div>
+                     {/* Traffic Analysis Component (Abstracted) */}
+                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="glass-card p-6 space-y-6">
+                           <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                             <TrendingUp size={16} className="text-secondary" /> Historical Trends
+                           </h4>
+                           <div className="h-40 flex items-end justify-between gap-1 pt-4">
+                              {(gym.occupancy_trend || []).length > 0 ? gym.occupancy_trend.map((item: any, idx: number) => (
+                                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
+                                   <div className={clsx("w-full rounded-t relative", item.peak > 80 ? "bg-red-500/60" : "bg-emerald-500/60")} style={{ height: `${item.peak}%` }} />
+                                   <span className="text-[6px] font-black text-white/20">{item.day}</span>
+                                </div>
+                              )) : <div className="w-full text-center text-white/10 text-[10px] uppercase font-bold">Patterns Loading...</div>}
+                           </div>
+                        </div>
+                        <div className="glass-card p-6 border-secondary/20 flex flex-col justify-center gap-4">
+                           <div className="space-y-1">
+                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Optimal Window</p>
+                              <h4 className="text-xl font-black italic uppercase tracking-tighter">
+                                {gym.best_time_suggestion?.time_range || "Loading Analysis..."}
+                              </h4>
+                           </div>
+                           <p className="text-[10px] text-white/40 leading-relaxed uppercase font-bold tracking-tight">
+                             {gym.best_time_suggestion?.message || "Analyzing facility data for best visit times..."}
+                           </p>
+                        </div>
+                     </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'plans' && (
-                    <div className="space-y-3">
-                      {gym.membership_plans?.length > 0 ? gym.membership_plans.map((plan: any) => (
-                        <div 
-                          key={plan.id} 
-                          className={clsx(
-                            "group px-5 py-4 flex items-center justify-between rounded-2xl transition-all duration-300",
-                            plan.is_popular 
-                              ? "bg-white/[0.05] border border-primary/30" 
-                              : "bg-white/[0.02] border border-white/5 hover:bg-white/[0.04]"
-                          )}
-                        >
-                          <div className="flex flex-col">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-black uppercase tracking-tight">{plan.name}</span>
-                              {plan.is_popular && <Sparkles size={8} className="text-primary animate-pulse" />}
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-black text-white/90">₹{plan.price.toLocaleString()}</span>
-                              <span className="text-[8px] text-white/20 font-bold uppercase">/ {plan.duration_type || 'mo'}</span>
-                            </div>
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                     {/* Category-based Plan Selection */}
+                     <div className="flex items-center gap-3 mb-2">
+                        <ShoppingCart size={16} className="text-primary" />
+                        <h4 className="text-xs font-black uppercase tracking-widest">Select Your Plans</h4>
+                        <span className="text-[9px] text-white/30 font-bold uppercase ml-auto">{cartPlans.length} selected</span>
+                     </div>
+
+                     {Object.entries(groupedPlans).map(([slotName, plans]: [string, any]) => (
+                       <div key={slotName} className="space-y-3">
+                          {/* Category Header */}
+                          <div className="flex items-center gap-2">
+                            <div className={clsx(
+                              "w-2 h-2 rounded-full",
+                              cart[slotName] ? "bg-primary" : "bg-white/20"
+                            )} />
+                            <span className="text-[11px] font-black uppercase tracking-widest">{slotName}</span>
+                            {cart[slotName] && (
+                              <span className="text-[8px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase ml-auto">
+                                ✓ {cart[slotName].name}
+                              </span>
+                            )}
                           </div>
 
-                          <button 
-                            onClick={() => setApplyingPlan(plan)}
-                            className={clsx(
-                            "px-5 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 active:scale-95 group/btn",
-                            plan.is_popular 
-                              ? "bg-primary text-black shadow-lg shadow-primary/20" 
-                              : "bg-white/5 text-white/40 hover:text-white"
-                          )}>
-                            <span>Select</span>
-                            <ArrowRight size={10} className="group-hover/btn:translate-x-1 transition-transform" />
-                          </button>
-                        </div>
-                      )) : (
-                        <div className="py-24 text-center text-white/20 font-black uppercase tracking-[0.2em]">
-                          <Loader2 className="mx-auto mb-4 animate-pulse text-white/5" size={40} />
-                          Elite Archives loading...
-                        </div>
-                      )}
-                    </div>
+                          {/* Plan Cards */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                             {plans.map((plan: any) => {
+                               const isSelected = cart[slotName]?.id === plan.id;
+                               return (
+                                 <button 
+                                   key={plan.id}
+                                   onClick={() => togglePlanInCart(slotName, plan)}
+                                   className={clsx(
+                                     "p-5 rounded-2xl transition-all border group relative flex flex-col items-center gap-1.5",
+                                     isSelected 
+                                       ? "bg-primary/10 border-primary shadow-lg shadow-primary/10" 
+                                       : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/[0.07]"
+                                   )}
+                                 >
+                                    {isSelected && (
+                                      <div className="absolute top-2 right-2">
+                                        <div className="w-5 h-5 rounded-full bg-primary text-black flex items-center justify-center">
+                                          <Check size={12} strokeWidth={3} />
+                                        </div>
+                                      </div>
+                                    )}
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">{plan.name}</span>
+                                    <div className="flex items-baseline gap-0.5">
+                                      <span className="text-[10px] text-white/40">₹</span>
+                                      <span className={clsx("text-2xl font-black", isSelected ? "text-primary" : "text-white")}>{plan.discounted_price || plan.price}</span>
+                                    </div>
+                                    <span className="text-[8px] font-bold text-primary uppercase tracking-widest">{plan.duration_days} Days</span>
+                                    {/* Time slots */}
+                                    <div className="flex flex-wrap justify-center gap-1 mt-1">
+                                       {getTimeSlotsFromPlan(plan).map((s: any, i: number) => (
+                                         <span key={i} className={clsx(
+                                           "inline-flex items-center gap-1 text-[9px] font-black rounded-lg px-2 py-0.5 uppercase tracking-wider",
+                                           isSelected 
+                                             ? "text-primary bg-primary/15 border border-primary/30" 
+                                             : "text-white/50 bg-white/5 border border-white/10"
+                                         )}>
+                                           <Clock size={8} />
+                                           {fmtTime(s.start)} - {fmtTime(s.end)}
+                                         </span>
+                                       ))}
+                                    </div>
+                                 </button>
+                               );
+                             })}
+                          </div>
+                       </div>
+                     ))}
+
+                     {/* Add-ons (show if any plans selected and addons exist) */}
+                     {cartPlans.length > 0 && gym.addons?.length > 0 && (
+                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <Package size={14} className="text-primary" />
+                            <span className="text-[11px] font-black uppercase tracking-widest">Add-on Services</span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                             {gym.addons.map((addon: any) => {
+                               const isAddonSelected = selectedAddons.find((a: any) => a.id === addon.id);
+                               return (
+                                 <div 
+                                   key={addon.id}
+                                   onClick={() => {
+                                     if (isAddonSelected) {
+                                       setSelectedAddons(selectedAddons.filter((a: any) => a.id !== addon.id));
+                                     } else {
+                                       setSelectedAddons([...selectedAddons, addon]);
+                                     }
+                                   }}
+                                   className={clsx(
+                                     "p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
+                                     isAddonSelected ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                                   )}
+                                 >
+                                    <div className="flex items-center gap-3">
+                                       <div className={clsx("w-5 h-5 rounded-md border flex items-center justify-center transition-all", isAddonSelected ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                                         {isAddonSelected && <Check size={12} />}
+                                       </div>
+                                       <div className="flex flex-col">
+                                         <span className="text-[11px] font-black uppercase text-white">{addon.name}</span>
+                                         <span className="text-[9px] text-white/40 uppercase tracking-tighter">{addon.duration_type} Access</span>
+                                       </div>
+                                    </div>
+                                    <span className="text-[11px] font-black text-emerald-500">+₹{addon.price}</span>
+                                 </div>
+                               );
+                             })}
+                          </div>
+                       </motion.div>
+                     )}
+
+                     {/* Cart Summary */}
+                     {cartPlans.length > 0 && (
+                       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-6 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                            <Zap size={100} className="text-primary" />
+                          </div>
+                          <div className="relative z-10 space-y-4">
+                             <div className="flex items-center gap-2">
+                               <ShoppingCart size={14} className="text-primary" />
+                               <p className="text-[10px] font-black uppercase text-primary tracking-widest">Your Cart — {cartPlans.length} {cartPlans.length === 1 ? 'Plan' : 'Plans'}</p>
+                             </div>
+                             
+                             {/* Cart Items */}
+                             <div className="space-y-2">
+                               {cartPlans.map(([slot, plan]) => (
+                                 <div key={slot} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                                    <div className="flex flex-col">
+                                      <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{slot}</span>
+                                      <span className="text-xs font-black italic uppercase tracking-tight">{plan.name}</span>
+                                      <div className="flex items-center gap-1 mt-0.5">
+                                        {getTimeSlotsFromPlan(plan).map((s: any, i: number) => (
+                                          <span key={i} className="text-[8px] font-bold text-primary/80">
+                                            {fmtTime(s.start)}-{fmtTime(s.end)}
+                                          </span>
+                                        ))}
+                                        <span className="text-[8px] text-white/20 ml-1">• {plan.duration_days}d</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-sm font-black text-white">₹{(plan.discounted_price || plan.price).toLocaleString()}</span>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); togglePlanInCart(slot, plan); }}
+                                        className="w-5 h-5 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                                      >
+                                        <X size={10} />
+                                      </button>
+                                    </div>
+                                 </div>
+                               ))}
+                               {selectedAddons.length > 0 && (
+                                 <div className="flex items-center justify-between py-2 border-b border-white/5">
+                                   <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Add-ons ({selectedAddons.length})</span>
+                                   <span className="text-sm font-black text-emerald-500">+₹{selectedAddons.reduce((s: number, a: any) => s + a.price, 0).toLocaleString()}</span>
+                                 </div>
+                               )}
+                             </div>
+
+                             {/* Total + Submit */}
+                             <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                                <div>
+                                   <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Grand Total</p>
+                                   <p className="text-3xl font-black text-white italic">₹{cartTotal.toLocaleString()}</p>
+                                </div>
+                                <button 
+                                  onClick={handleApplyMembership}
+                                  disabled={isSubmittingApplication}
+                                  className="h-14 px-8 rounded-xl bg-primary text-black flex items-center gap-2 font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                                >
+                                   {isSubmittingApplication ? <Loader2 className="animate-spin" size={20} /> : (
+                                     <>Apply Now <ChevronRight size={18} strokeWidth={3} /></>
+                                   )}
+                                </button>
+                             </div>
+                             <p className="text-[8px] text-white/20 uppercase font-bold tracking-widest flex items-center gap-1">
+                                <Info size={10} /> Instant application. Pay via chosen method at the facility front desk.
+                             </p>
+                          </div>
+                       </motion.div>
+                     )}
+                  </motion.div>
                 )}
 
                 {activeTab === 'gallery' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="grid grid-cols-2 md:grid-cols-3 gap-4"
-                  >
-                    {[...(gym.images || []), ...(Array.from({ length: 6 }).map((_, i) => ({ url: `https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80&i=${i}` })))].slice(0, 12).map((img: any, idx: number) => (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {(gym.images || []).map((img: any, idx: number) => (
                       <div key={idx} className="aspect-square rounded-2xl overflow-hidden glass-card border-none group cursor-pointer">
-                        <img 
-                          src={typeof img === 'string' ? img : img.url} 
-                          alt="gym" 
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
+                        <img src={img.url} alt="gym" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                     ))}
                   </motion.div>
                 )}
 
                 {activeTab === 'details' && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="space-y-12"
-                  >
-                    <div className="space-y-6">
-                      <h4 className="text-xl font-black italic uppercase tracking-tight flex items-center gap-3">
-                        <Dumbbell className="text-primary" size={24} /> Machine List
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {(gym.equipment?.length > 0 ? gym.equipment : [
-                          { name: 'Treadmills', quantity: 12 },
-                          { name: 'Dumbbell Set (2.5 - 50kg)', quantity: 2 },
-                          { name: 'Squat Racks', quantity: 4 },
-                          { name: 'Bench Press Station', quantity: 6 }
-                        ]).map((eq: any, idx: number) => (
-                          <div key={idx} className="glass-card p-5 flex items-center justify-between group hover:border-primary/30 transition-all">
-                            <span className="text-sm font-bold uppercase tracking-widest group-hover:text-primary transition-colors">{eq.name}</span>
-                            <span className="text-xs font-black text-white/20 uppercase">{eq.quantity || 'Pro'} Units</span>
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     <div className="space-y-6">
+                        <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-3"><Dumbbell className="text-primary" size={18} /> Machines</h4>
+                        {gym.equipment?.map((eq: any, idx: number) => (
+                          <div key={idx} className="glass-card p-4 flex justify-between items-center text-[10px] font-black uppercase">
+                            <span className="text-white/60">{eq.name}</span>
+                            <span className="text-primary">x{eq.quantity || 'Pro'}</span>
                           </div>
                         ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <h4 className="text-xl font-black italic uppercase tracking-tight flex items-center gap-3">
-                        <Zap className="text-primary" size={24} /> Training Zones
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {(gym.facilities?.length > 0 ? gym.facilities : [
-                          { name: 'Crossfit Area' },
-                          { name: 'Yoga & Pilates Studio' },
-                          { name: 'Steam & Sauna' },
-                          { name: 'Nutrition Bar' }
-                        ]).map((fac: any, idx: number) => (
-                          <div key={idx} className="glass-card p-5 flex items-center gap-4 group hover:border-primary/30 transition-all">
-                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-primary transition-colors">
-                              <CheckCircle2 size={18} />
-                            </div>
-                            <span className="text-sm font-bold uppercase tracking-widest">{fac.name}</span>
-                          </div>
+                     </div>
+                     <div className="space-y-6">
+                        <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-3"><Zap className="text-primary" size={18} /> Zones</h4>
+                        {gym.facilities?.map((f: any, idx: number) => (
+                           <div key={idx} className="glass-card p-4 flex items-center gap-3 text-[10px] font-black uppercase">
+                             <CheckCircle2 size={14} className="text-primary" />
+                             <span className="text-white/60">{f.name}</span>
+                           </div>
                         ))}
-                      </div>
-                    </div>
+                     </div>
                   </motion.div>
                 )}
 
                 {activeTab === 'amenities' && (
-                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="grid grid-cols-2 lg:grid-cols-3 gap-4"
-                  >
-                    {[...(gym.amenities || []), { name: 'Complimentary WiFi' }, { name: 'Premium Lockers' }, { name: 'Showers' }].map((amenity: any, idx: number) => (
-                      <div key={idx} className="glass-card p-6 flex flex-col items-center justify-center text-center gap-4 hover:bg-white/5 transition-colors group">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover:text-primary transition-colors">
-                          <Wifi size={24} />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest">{amenity.name}</span>
+                   <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {gym.amenities?.map((a: any, idx: number) => (
+                      <div key={idx} className="glass-card p-6 flex flex-col items-center gap-3 hover:bg-white/5 transition-all text-center">
+                        <Wifi size={24} className="text-primary/40" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{a.name}</span>
                       </div>
                     ))}
                   </motion.div>
@@ -566,159 +625,76 @@ const GymProfile = () => {
           </div>
         </div>
 
-        {/* Right Column: Info Sidebar */}
+        {/* Info Sidebar */}
         <div className="space-y-8">
            <div className="glass-card p-6 sm:p-8 space-y-8">
               <div className="space-y-6">
                  <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20">Connect & Locate</h3>
+                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20">Location</h3>
                     {distance !== null && (
-                      <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-                        <MapPin size={10} className="text-primary" />
-                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">
-                          {distance < 1000 ? `${Math.round(distance)}m` : `${(distance/1000).toFixed(1)}km`} away
-                        </span>
+                      <div className="px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-[10px] font-black text-primary uppercase">
+                        {distance < 1000 ? `${Math.round(distance)}m` : `${(distance/1000).toFixed(1)}km`} away
                       </div>
                     )}
                  </div>
                  <div className="space-y-4">
-                  <a 
-                    href={getGoogleMapsUrl(`${gym.addresses?.[0]?.address_line1}, ${gym.city}, ${gym.state}, ${gym.addresses?.[0]?.pincode}`, gym.addresses?.[0]?.latitude, gym.addresses?.[0]?.longitude)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex gap-4 group hover:text-primary transition-colors"
-                  >
-                    <MapPin className="text-primary shrink-0 group-hover:scale-110 transition-transform" size={20} />
-                    <p className="text-sm text-white/60 leading-relaxed font-medium group-hover:text-white transition-colors">
-                      {gym.addresses?.[0]?.address_line1}, {gym.city}, {gym.state}, {gym.addresses?.[0]?.pincode}
-                    </p>
-                  </a>
+                    <a 
+                      href={getGoogleMapsUrl(`${gym.addresses?.[0]?.address_line1}, ${gym.city}`, gym.addresses?.[0]?.latitude, gym.addresses?.[0]?.longitude)} 
+                      target="_blank" rel="noopener noreferrer" 
+                      className="flex gap-4 group hover:text-primary transition-colors"
+                    >
+                      <MapPin className="text-primary shrink-0 transition-transform group-hover:scale-110" size={20} />
+                      <p className="text-sm text-white/60 leading-relaxed font-bold uppercase tracking-tight group-hover:text-white underline underline-offset-4 decoration-white/10">
+                        {gym.addresses?.[0]?.address_line1}, {gym.city}, {gym.state}
+                      </p>
+                    </a>
                     {gym.contact_phone && (
-                       <a href={`tel:${gym.contact_phone}`} className="flex items-center gap-4 hover:text-primary transition-colors group">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
-                            <Phone size={16} />
-                          </div>
-                          <span className="text-sm text-white/60 font-medium group-hover:text-white transition-colors">{gym.contact_phone}</span>
-                       </a>
-                    )}
-                    {gym.contact_email && (
-                       <a href={`mailto:${gym.contact_email}`} className="flex items-center gap-4 hover:text-primary transition-colors group">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
-                            <Mail size={16} />
-                          </div>
-                          <span className="text-sm text-white/60 font-medium truncate group-hover:text-white transition-colors">{gym.contact_email}</span>
-                       </a>
-                    )}
-                    {gym.website_url && (
-                       <a href={gym.website_url.startsWith('http') ? gym.website_url : `https://${gym.website_url}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 hover:text-primary transition-colors group">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-black transition-all">
-                            <Globe size={16} />
-                          </div>
-                          <span className="text-sm text-white/60 font-medium truncate underline underline-offset-4 group-hover:text-white transition-colors">{gym.website_url}</span>
+                       <a href={`tel:${gym.contact_phone}`} className="flex items-center gap-4 hover:text-primary transition-colors group p-3 bg-white/5 rounded-xl border border-white/5">
+                          <Phone size={14} className="text-primary" />
+                          <span className="text-xs font-bold text-white uppercase tracking-wider">{gym.contact_phone}</span>
                        </a>
                     )}
                  </div>
               </div>
 
               <div className="space-y-6">
-                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20 border-b border-white/5 pb-4">Elite Windows</h3>
+                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white/20 border-b border-white/5 pb-4">Timing</h3>
                  <div className="space-y-3">
                     {gym.operating_hours?.map((h: any) => (
-                       <div key={h.day_of_week} className="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest">
-                          <span className={clsx(new Date().getDay() - 1 === h.day_of_week ? "text-primary" : "text-white/40")}>
+                       <div key={h.day_of_week} className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                          <span className={clsx(new Date().getDay() - 1 === h.day_of_week ? "text-primary" : "text-white/20")}>
                             {h.day_name.slice(0, 3)}
                           </span>
-                          <span className="text-white/60">
-                             {h.is_closed ? 'Closed' : `${h.open_time} - ${h.close_time}`}
-                          </span>
+                          <span className="text-white/60">{h.is_closed ? 'Closed' : `${h.open_time} - ${h.close_time}`}</span>
                        </div>
                     ))}
                  </div>
               </div>
            </div>
 
-           <div 
-              onClick={() => {
-                setActiveTab('plans');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="p-8 rounded-[2rem] bg-primary relative overflow-hidden group cursor-pointer shadow-2xl shadow-primary/20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
-              <div className="relative z-10 space-y-4">
-                 <div className="flex flex-col">
-                    <span className="text-black/60 text-[10px] font-black uppercase tracking-widest">Next Step</span>
-                    <h4 className="text-2xl font-display font-black italic text-black leading-tight">JOIN THE ELITE PORTAL</h4>
-                 </div>
-                 <div className="flex items-center justify-between text-black">
-                    <span className="text-xs font-black uppercase tracking-widest">Verify & Access</span>
-                    <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
-                 </div>
-              </div>
-           </div>
+           {activeTab !== 'plans' && (
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => { setActiveTab('plans'); window.scrollTo({ top: 600, behavior: 'smooth' }); }} className="p-8 rounded-[2rem] bg-primary relative overflow-hidden group cursor-pointer shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+                <div className="relative z-10 flex items-center justify-between text-black">
+                   <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Start Today</span>
+                      <h4 className="text-xl font-display font-black italic">BOOK SLOT</h4>
+                   </div>
+                   <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                </div>
+             </motion.div>
+           )}
         </div>
       </div>
       
-      {/* Application Modal */}
-      <AnimatePresence>
-        {applyingPlan && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-            onClick={() => setApplyingPlan(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              onClick={e => e.stopPropagation()}
-              className="glass-card w-full max-w-md p-6 space-y-6 overflow-hidden relative"
-            >
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-transparent" />
-              
-              <div className="space-y-2">
-                 <h2 className="text-2xl font-display font-black italic">CONFIRM APPLICATION</h2>
-                 <p className="text-sm text-white/40">You are about to submit a membership application to <span className="text-white font-bold">{gym.name}</span>.</p>
-              </div>
-              
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
-                 <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-sm text-white/60">Selected Plan</span>
-                    <span className="text-sm font-bold">{applyingPlan.name}</span>
-                 </div>
-                 <div className="flex justify-between items-center pb-3 border-b border-white/5">
-                    <span className="text-sm text-white/60">Duration</span>
-                    <span className="text-sm font-bold">{applyingPlan.duration_days ? `${applyingPlan.duration_days} days` : '1 month'}</span>
-                 </div>
-                 <div className="flex justify-between items-center">
-                    <span className="text-sm text-white/60">Amount</span>
-                    <span className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded uppercase tracking-widest font-black">Pay at Gym (₹{applyingPlan.discounted_price || applyingPlan.price})</span>
-                 </div>
-              </div>
-              
-              <div className="pt-2 flex gap-3">
-                 <button 
-                  onClick={() => setApplyingPlan(null)}
-                  disabled={isSubmittingApplication}
-                  className="flex-1 py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-colors disabled:opacity-50"
-                 >
-                    Cancel
-                 </button>
-                 <button 
-                  onClick={handleApplyMembership}
-                  disabled={isSubmittingApplication}
-                  className="flex-1 py-3 rounded-xl bg-primary text-black text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group disabled:opacity-50"
-                 >
-                    {isSubmittingApplication ? <Loader2 size={16} className="animate-spin" /> : 'Submit Request'}
-                    {!isSubmittingApplication && <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />}
-                 </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Map Implementation (Same as original but premium feel) */}
+      <div className="h-64 rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl relative grayscale hover:grayscale-0 transition-all duration-700">
+         {isLoaded && gym.addresses?.[0]?.latitude ? (
+           <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={{ lat: gym.addresses[0].latitude, lng: gym.addresses[0].longitude }} zoom={15} options={{ styles: darkMapStyles, disableDefaultUI: true, zoomControl: true }}>
+             <MarkerF position={{ lat: gym.addresses[0].latitude, lng: gym.addresses[0].longitude }} icon={{ path: google.maps.SymbolPath.CIRCLE, fillColor: '#ff4d00', fillOpacity: 1, strokeWeight: 2, strokeColor: '#ffffff', scale: 8 }} />
+           </GoogleMap>
+         ) : <div className="absolute inset-0 bg-black/20 backdrop-blur-xl flex items-center justify-center font-black uppercase text-[10px] text-white/20 tracking-[0.3em]">Initializing Elite Grid...</div>}
+      </div>
     </div>
   );
 };

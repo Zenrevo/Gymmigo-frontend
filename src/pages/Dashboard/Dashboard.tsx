@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
@@ -90,10 +90,36 @@ const UserDashboardView = ({ data }: { data: any }) => {
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
 
+  const groupedMemberships = useMemo(() => {
+    if (!data?.memberships) return [];
+    
+    const groups: Record<string, any> = {};
+    data.memberships.forEach((m: any) => {
+      const gymId = m.gym_id;
+      if (!groups[gymId]) {
+        groups[gymId] = {
+          gym_id: gymId,
+          gym_name: m.gym_name,
+          gym_logo_url: m.gym_logo_url,
+          current_occupancy: m.current_occupancy,
+          max_capacity: m.max_capacity,
+          // Derive overall status: 'active' if ANY plan is active
+          status: m.status, 
+          memberships: []
+        };
+      }
+      groups[gymId].memberships.push(m);
+      if (m.status === 'active') {
+        groups[gymId].status = 'active'; // upgrade group status to active if one plan is active
+      }
+    });
+    return Object.values(groups);
+  }, [data?.memberships]);
+
   if (selectedMembership) {
     return (
       <div className="md:col-span-3">
-        <MembershipDetailView membership={selectedMembership} onBack={() => setSelectedMembership(null)} />
+        <MembershipDetailView gymGroup={selectedMembership} onBack={() => setSelectedMembership(null)} />
       </div>
     );
   }
@@ -115,29 +141,33 @@ const UserDashboardView = ({ data }: { data: any }) => {
             <ScanLine size={16} /> Scan to Check In
           </button>
         </div>
-        {data?.memberships?.length ? data.memberships.map((m: any, index: number) => (
+        {groupedMemberships.length ? groupedMemberships.map((group: any, index: number) => (
           <motion.div 
-            key={m.id || index} 
+            key={group.gym_id || index} 
             whileHover={{ scale: 1.01 }} 
-            onClick={() => setSelectedMembership(m)}
+            onClick={() => setSelectedMembership(group)}
             className="glass-card p-6 flex items-center justify-between group overflow-hidden cursor-pointer hover:border-primary/50 transition-all border border-transparent"
           >
              <div className="flex items-center gap-6">
-               <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all">
-                 <Building2 size={32} />
+               <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden relative">
+                 {group.gym_logo_url ? (
+                   <img src={group.gym_logo_url} alt="logo" className="w-full h-full object-cover" />
+                 ) : (
+                   <Building2 size={32} />
+                 )}
                </div>
                <div>
-                 <h4 className="text-xl font-bold group-hover:text-primary transition-colors">{m.gym_name}</h4>
+                 <h4 className="text-xl font-bold group-hover:text-primary transition-colors">{group.gym_name}</h4>
                  <div className="flex items-center gap-3 mt-1">
-                   <p className="text-white/40 text-sm">{m.plan_name} • Expires {new Date(m.end_date).toLocaleDateString()}</p>
+                   <p className="text-white/40 text-sm">{group.memberships.length} Enrolled Plan{group.memberships.length !== 1 && 's'}</p>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-all">
                       <Activity size={12} className={clsx(
                         "animate-pulse",
-                        (m.current_occupancy / (m.max_capacity || 100)) > 0.8 ? "text-red-500" : 
-                        (m.current_occupancy / (m.max_capacity || 100)) > 0.5 ? "text-orange-500" : "text-emerald-500"
+                        (group.current_occupancy / (group.max_capacity || 100)) > 0.8 ? "text-red-500" : 
+                        (group.current_occupancy / (group.max_capacity || 100)) > 0.5 ? "text-orange-500" : "text-emerald-500"
                       )} />
                       <span className="text-[11px] font-black uppercase tracking-tighter text-white">
-                        {m.current_occupancy} <span className="text-white/40 font-bold">LIVE</span>
+                        {group.current_occupancy} / {group.max_capacity || 100} <span className="text-white/40 font-bold">LIVE</span>
                       </span>
                     </div>
 
@@ -146,10 +176,9 @@ const UserDashboardView = ({ data }: { data: any }) => {
              </div>
              <div className="text-right flex items-center gap-4">
                <div className="flex flex-col items-end gap-2">
-                 <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${m.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/20 text-red-500 border border-red-500/20'}`}>
-                   {m.status}
+                 <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${group.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/20 text-red-500 border border-red-500/20'}`}>
+                   {group.status}
                  </span>
-                 <p className="text-white/20 text-[10px] font-mono">{m.id?.slice(0, 8)}</p>
                </div>
                <div className="text-white/20 group-hover:text-primary transition-colors ml-2">
                  <ArrowRight size={20} />

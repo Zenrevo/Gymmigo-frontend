@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
-import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle, Phone, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { getGoogleMapsUrl } from '../../utils/navigation';
 
 interface MembershipDetailProps {
-  membership: any;
+  gymGroup: any;
   onBack: () => void;
 }
 
-const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => {
+const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
   const { showNotification } = useNotification();
   const [gymDetail, setGymDetail] = useState<any>(null);
   const [attendance, setAttendance] = useState<any>(null);
@@ -24,10 +24,10 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
       setLoading(true);
       try {
         // Fetch Gym info (public discovery endpoint)
-        const gymRes = axios.get(`${API_URL}/gyms/${membership.gym_id}`);
+        const gymRes = axios.get(`${API_URL}/gyms/${gymGroup.gym_id}`);
         // Fetch Attendance (history for this gym)
         const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-        const attendanceRes = axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${membership.gym_id}`, { headers: authHeader });
+        const attendanceRes = axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`, { headers: authHeader });
 
         const [gymData, attData] = await Promise.all([gymRes, attendanceRes]);
         setGymDetail(gymData.data.data ? gymData.data.data : gymData.data);
@@ -39,7 +39,7 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
       }
     };
     fetchData();
-  }, [membership]);
+  }, [gymGroup]);
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -58,7 +58,7 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
       await axios.post(`${API_URL}/memberships/check-out/${activeSession.id}`, {}, { headers: authHeader });
 
       // Re-fetch attendance after checkout
-      const checkinRes = await axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${membership.gym_id}`, { headers: authHeader });
+      const checkinRes = await axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`, { headers: authHeader });
       setAttendance(checkinRes.data.data);
       showNotification('Successfully checked out!', 'success');
     } catch (err) {
@@ -79,7 +79,7 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
   }
 
   // Analytics derivation
-  const totalVisits = attendance?.total || membership.total_check_ins || 0;
+  const totalVisits = attendance?.total || gymGroup.memberships.reduce((acc: number, m: any) => acc + (m.total_check_ins || 0), 0) || 0;
 
   // Calculate avg duration
   const validCheckins = attendance?.check_ins?.filter((c: any) => c.duration_minutes != null) || [];
@@ -87,11 +87,8 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
     ? Math.round(validCheckins.reduce((acc: number, c: any) => acc + c.duration_minutes, 0) / validCheckins.length)
     : 0;
 
-  // Days remaining
-  const daysRemaining = Math.max(0, Math.ceil((new Date(membership.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-
-  const curOccupancy = gymDetail?.current_occupancy ?? membership.current_occupancy ?? 0;
-  const maxCap = gymDetail?.max_capacity ?? membership.max_capacity ?? 100;
+  const curOccupancy = gymDetail?.current_occupancy ?? gymGroup.current_occupancy ?? 0;
+  const maxCap = gymDetail?.max_capacity ?? gymGroup.max_capacity ?? 100;
   const occupancyRatio = curOccupancy / maxCap;
 
   return (
@@ -175,22 +172,33 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
               <ShieldCheck size={18} className="text-blue-400" /> Plan Status
             </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                <span className="text-sm text-white/60">Status</span>
-                <span className="text-xs font-bold px-3 py-1 bg-emerald-500/20 text-emerald-400 uppercase tracking-widest rounded-full">{membership.status}</span>
-              </div>
-              <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                <span className="text-sm text-white/60">Plan</span>
-                <span className="text-sm font-bold truncate max-w-[120px]">{membership.plan_name}</span>
-              </div>
-              <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
-                <span className="text-sm text-white/60">Expires</span>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-amber-400">{daysRemaining} days</p>
-                  <p className="text-[10px] text-white/40">{formatDate(membership.end_date)}</p>
-                </div>
-              </div>
+            <div className="space-y-4">
+              {gymGroup.memberships.map((m: any, idx: number) => {
+                 const daysRemaining = Math.max(0, Math.ceil((new Date(m.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+                 return (
+                   <div key={idx} className="bg-white/5 border border-white/5 rounded-xl p-4 space-y-3">
+                     <div className="flex justify-between items-center">
+                       <span className="text-sm font-bold truncate">{m.plan_name}</span>
+                       <span className={`text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest rounded-full ${m.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/40'}`}>{m.status}</span>
+                     </div>
+                     <div className="flex justify-between items-end text-xs text-white/40">
+                       <div>Expires in <span className="text-amber-400 font-bold">{daysRemaining} days</span></div>
+                       <div>{formatDate(m.end_date)}</div>
+                     </div>
+                     {m.selected_addons?.length > 0 && (
+                       <div className="pt-3 border-t border-white/10 space-y-2 mt-3">
+                         <h4 className="text-[9px] font-black uppercase tracking-widest text-white/40">Active Add-ons</h4>
+                         {m.selected_addons.map((addon: any, i: number) => (
+                           <div key={i} className="flex justify-between items-center bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
+                             <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                             <span className="text-[10px] font-bold text-emerald-500">₹{addon.price}</span>
+                           </div>
+                         ))}
+                       </div>
+                     )}
+                   </div>
+                 );
+              })}
             </div>
           </div>
         </div>
@@ -201,8 +209,8 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
           {/* Gym Header Profile */}
           <div className="glass-card overflow-hidden">
             <div className="h-32 bg-white/5 relative border-b border-white/10">
-              {gymDetail?.cover_image && (
-                <img src={gymDetail.cover_image} alt="cover" className="w-full h-full object-cover opacity-50" />
+              {gymDetail?.cover_image_url && (
+                <img src={gymDetail.cover_image_url} alt="cover" className="w-full h-full object-cover opacity-50" />
               )}
             </div>
             <div className="p-6 relative">
@@ -215,23 +223,71 @@ const MembershipDetailView = ({ membership, onBack }: MembershipDetailProps) => 
               </div>
 
               <div className="ml-24">
-                <h3 className="text-2xl font-black">{gymDetail?.name || membership.gym_name}</h3>
+                <h3 className="text-2xl font-black">{gymDetail?.name || gymGroup.gym_name}</h3>
                 <p className="text-white/60 text-sm mt-1">{gymDetail?.description || 'A premium fitness experience.'}</p>
               </div>
 
               {gymDetail?.addresses?.[0] && (
-                <div className="mt-6 flex flex-col gap-4">
+                <div className="mt-6 flex flex-col sm:flex-row gap-4">
                   <a 
                     href={getGoogleMapsUrl(`${gymDetail.addresses[0].address_line1}, ${gymDetail.addresses[0].city}, ${gymDetail.addresses[0].state}`, gymDetail.addresses[0].latitude, gymDetail.addresses[0].longitude)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-start gap-3 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                    className="flex-1 flex items-start gap-3 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all group"
                   >
                     <MapPin size={16} className="text-white/40 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
                     <p className="text-sm leading-relaxed text-white/80 group-hover:text-white transition-colors">
                       {gymDetail.addresses[0].address_line1}, {gymDetail.addresses[0].city}, {gymDetail.addresses[0].state}
                     </p>
                   </a>
+                  {(gymDetail?.contact_phone || gymDetail?.contact_email) && (
+                    <div className="flex-1 flex flex-col gap-2 justify-center p-4 bg-white/5 rounded-xl border border-white/5">
+                      {gymDetail.contact_phone && (
+                        <div className="flex items-center gap-3 text-sm text-white/80">
+                          <Phone size={14} className="text-white/40" /> {gymDetail.contact_phone}
+                        </div>
+                      )}
+                      {gymDetail.contact_email && (
+                        <div className="flex items-center gap-3 text-sm text-white/80">
+                          <Building2 size={14} className="text-white/40" /> {gymDetail.contact_email}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Amenities & Facilities */}
+              {(gymDetail?.amenities?.length > 0 || gymDetail?.facilities?.length > 0) && (
+                <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {gymDetail?.amenities?.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2">
+                        <Star size={12} className="text-primary" /> Included Amenities
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {gymDetail.amenities.map((am: any, i: number) => (
+                          <span key={i} className="text-xs bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                            {am.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {gymDetail?.facilities?.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2">
+                        <Activity size={12} className="text-emerald-400" /> Facility Zones
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {gymDetail.facilities.map((fac: any, i: number) => (
+                          <span key={i} className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                            {fac.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

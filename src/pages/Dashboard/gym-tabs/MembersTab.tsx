@@ -4,6 +4,7 @@ import { useNotification } from '../../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import clsx from 'clsx';
 import Modal from '../../../components/Modal';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import {
@@ -15,23 +16,32 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
-interface Member {
+export interface MembershipItem {
   membership_id: string;
-  user_id: string;
-  user_name: string | null;
-  user_phone: string;
-  avatar_url: string | null;
   plan_name: string | null;
   plan_id: string | null;
   start_date: string;
   end_date: string;
   status: string;
-  total_check_ins: number;
   remaining_visits: number | null;
   amount_paid: number;
+  selected_addons: { id: string; name: string; price: number }[] | null;
   is_currently_checked_in: boolean;
   active_check_in_id: string | null;
-  last_check_in: string | null;
+  qr_code?: string;
+  auto_renew?: boolean;
+  created_at: string;
+}
+
+interface Member {
+  user_id: string;
+  user_name: string | null;
+  user_phone: string;
+  avatar_url: string | null;
+  total_check_ins: number;
+  memberships: MembershipItem[];
+  is_currently_checked_in: boolean;
+  active_status: string;
   created_at: string;
 }
 
@@ -48,10 +58,9 @@ interface AttendanceEntry {
 }
 
 interface MemberDetail extends Member {
-  qr_code: string;
-  auto_renew: boolean;
   check_in_history: {
     id: string;
+    membership_id: string;
     check_in_time: string;
     check_out_time: string | null;
     duration_minutes: number | null;
@@ -90,11 +99,11 @@ const MembersTab = () => {
 
   // Enroll modal state
   const [showEnrollModal, setShowEnrollModal] = useState(false);
-  const [enrollForm, setEnrollForm] = useState({ phone: '', full_name: '', plan_id: '', payment_method: 'cash', amount_paid: '', start_date: '', end_date: '' });
+  const [enrollForm, setEnrollForm] = useState({ phone: '', full_name: '', plan_id: '', payment_method: 'cash', amount_paid: '', start_date: '', end_date: '', selected_addons: [] as any[] });
   const [enrolling, setEnrolling] = useState(false);
 
   // Confirm dialog
-  const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; confirmLabel?: string; isDangerous?: boolean; onConfirm: () => void } | null>(null);
 
   // Loading state for actions
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -105,7 +114,7 @@ const MembersTab = () => {
 
   // Edit member modal state
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editingMember, setEditingMember] = useState<MembershipItem | null>(null);
   const [editForm, setEditForm] = useState({ 
     full_name: '', 
     plan_id: '', 
@@ -179,7 +188,7 @@ const MembersTab = () => {
     const handleLiveUpdate = () => {
       fetchMembers();
       if (selectedMember) {
-         fetchMemberDetail(selectedMember.membership_id);
+         fetchMemberDetail(selectedMember.user_id);
       }
     };
     
@@ -187,7 +196,7 @@ const MembersTab = () => {
     return () => {
       window.removeEventListener('gym_live_update_fetch', handleLiveUpdate);
     };
-  }, [fetchMembers, selectedMember?.membership_id]);
+  }, [fetchMembers, selectedMember?.user_id]);
 
   // ── Quick Check-in Search ──────────────────────────────────────────────────
   useEffect(() => {
@@ -231,9 +240,9 @@ const MembersTab = () => {
   }, [viewMode, fetchAttendance]);
 
   // ── Fetch Member Detail ────────────────────────────────────────────────────
-  const fetchMemberDetail = async (membershipId: string) => {
+  const fetchMemberDetail = async (userId: string) => {
     try {
-      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}`);
+      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/members/${userId}`);
       setSelectedMember(res.data.data);
     } catch (err) {
       console.error('Failed to fetch member detail:', err);
@@ -241,17 +250,19 @@ const MembersTab = () => {
   };
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  const handleCheckIn = (membershipId: string, memberName?: string | null) => {
+  const handleCheckIn = (userId: string, memberName?: string | null) => {
     setConfirmAction({
       title: 'Manual Check-in',
       message: `Are you sure you want to manually check in ${memberName || 'this member'}?`,
+      confirmLabel: 'Confirm Check-in',
+      isDangerous: false,
       onConfirm: async () => {
-        setActionLoading(membershipId);
+        setActionLoading(userId);
         try {
-          await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/check-in`);
+          await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/users/${userId}/check-in`);
           showNotification('Member checked in successfully', 'success');
           fetchMembers();
-          if (selectedMember?.membership_id === membershipId) fetchMemberDetail(membershipId);
+          if (selectedMember) fetchMemberDetail(selectedMember.user_id);
         } catch (err: any) {
           // Global interceptor handles this
         } finally {
@@ -262,13 +273,13 @@ const MembersTab = () => {
     });
   };
 
-  const handleCheckOut = async (membershipId: string) => {
-    setActionLoading(membershipId);
+  const handleCheckOut = async (userId: string) => {
+    setActionLoading(userId);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/check-out`);
+      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/users/${userId}/check-out`);
       showNotification('Member checked out successfully', 'success');
       fetchMembers();
-      if (selectedMember?.membership_id === membershipId) fetchMemberDetail(membershipId);
+      if (selectedMember) fetchMemberDetail(selectedMember.user_id);
     } catch (err: any) {
       // Global interceptor handles this
     } finally {
@@ -280,14 +291,18 @@ const MembersTab = () => {
     setConfirmAction({
       title: 'Cancel Membership',
       message: `Are you sure you want to cancel ${memberName || 'this member'}'s membership? This action cannot be undone.`,
+      confirmLabel: 'Yes, Cancel',
+      isDangerous: true,
       onConfirm: async () => {
         setActionLoading(membershipId);
         try {
           await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/cancel`);
           showNotification('Membership cancelled', 'success');
           fetchMembers();
-          if (selectedMember?.membership_id === membershipId) {
-            setSelectedMember(null);
+          if (selectedMember) {
+            // Need to check if it was their last membership, but fetching detail again is safer 
+            // since detail view now supports multiple.
+            fetchMemberDetail(selectedMember.user_id);
           }
         } catch (err: any) {
           // Global interceptor handles this
@@ -336,6 +351,7 @@ const MembersTab = () => {
         plan_id: enrollForm.plan_id,
         payment_method: enrollForm.payment_method,
         amount_paid: enrollForm.amount_paid ? parseInt(enrollForm.amount_paid) : undefined,
+        selected_addons: enrollForm.selected_addons.map(a => ({ id: a.id, name: a.name, price: a.price }))
       };
       if (enrollForm.start_date) {
         payload.start_date = enrollForm.start_date;
@@ -343,7 +359,7 @@ const MembersTab = () => {
       await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/enroll`, payload);
       showNotification('Member enrolled successfully!', 'success');
       setShowEnrollModal(false);
-      setEnrollForm({ phone: '', full_name: '', plan_id: '', payment_method: 'cash', amount_paid: '', start_date: '', end_date: '' });
+      setEnrollForm({ phone: '', full_name: '', plan_id: '', payment_method: 'cash', amount_paid: '', start_date: '', end_date: '', selected_addons: [] });
       fetchMembers();
     } catch (err: any) {
       // Global interceptor handles this
@@ -352,14 +368,14 @@ const MembersTab = () => {
     }
   };
 
-  const openEditModal = (member: Member) => {
-    setEditingMember(member);
+  const openEditModal = (member: Member, membership: MembershipItem) => {
+    setEditingMember(membership);
     setEditForm({
       full_name: member.user_name || '',
-      plan_id: member.plan_id || '',
-      start_date: member.start_date.split('T')[0], // format for date input
-      end_date: member.end_date.split('T')[0],
-      status: member.status
+      plan_id: membership.plan_id || '',
+      start_date: membership.start_date.split('T')[0], // format for date input
+      end_date: membership.end_date.split('T')[0],
+      status: membership.status
     });
     setShowEditModal(true);
   };
@@ -380,6 +396,7 @@ const MembersTab = () => {
       showNotification('Member updated successfully', 'success');
       setShowEditModal(false);
       fetchMembers();
+      if(selectedMember) fetchMemberDetail(selectedMember.user_id);
     } catch (err: any) {
       // Global interceptor handles this
     } finally {
@@ -416,7 +433,7 @@ const MembersTab = () => {
         </button>
 
         <div className="glass-card p-8">
-          <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center text-primary text-2xl font-black">
                 {(selectedMember.user_name || 'U')[0].toUpperCase()}
@@ -426,99 +443,147 @@ const MembersTab = () => {
                 <div className="flex items-center gap-3 text-white/40 text-sm mt-1">
                   <span className="flex items-center gap-1"><Phone size={13} />{selectedMember.user_phone}</span>
                   <span>•</span>
-                  {statusBadge(selectedMember.status)}
                   {selectedMember.is_currently_checked_in && (
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-widest animate-pulse">IN GYM</span>
                   )}
+                  <span className="flex items-center gap-1"><LogIn size={13} />{selectedMember.total_check_ins} Total Check-ins</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2 flex-wrap">
-              {selectedMember.status === 'active' && !selectedMember.is_currently_checked_in && (
-                <button onClick={() => handleCheckIn(selectedMember.membership_id, selectedMember.user_name)} disabled={actionLoading === selectedMember.membership_id}
-                  className="btn-primary py-2 px-4 text-sm flex items-center gap-2">
-                  {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={14} />} Check In
-                </button>
-              )}
-              {selectedMember.status === 'active' && selectedMember.is_currently_checked_in && (
-                <button onClick={() => handleCheckOut(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
-                  className="py-2 px-4 text-sm flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl hover:bg-amber-500/30 transition-all">
-                  {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={14} />} Check Out
-                </button>
-              )}
-              {selectedMember.status === 'active' && (
-                <button onClick={() => handleCancel(selectedMember.membership_id, selectedMember.user_name || '')}
-                  className="py-2 px-4 text-sm flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500/20 transition-all">
-                  <Ban size={14} /> Cancel
-                </button>
-              )}
-              {selectedMember.status === 'pending' && (
-                <>
-                  <button onClick={() => handleAcceptRequest(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
-                    className="btn-primary py-2 px-4 text-sm flex items-center gap-2 w-full md:w-auto justify-center">
-                    {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Accept
-                  </button>
-                  <button onClick={() => handleRejectRequest(selectedMember.membership_id)} disabled={actionLoading === selectedMember.membership_id}
-                    className="py-2 px-4 text-sm flex items-center gap-2 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl hover:bg-rose-500/20 transition-all w-full md:w-auto justify-center">
-                    {actionLoading === selectedMember.membership_id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />} Reject
-                  </button>
-                </>
-              )}
+            <div className="flex gap-2">
+               {selectedMember.active_status === 'active' && !selectedMember.is_currently_checked_in && (
+                 <button onClick={() => handleCheckIn(selectedMember.user_id, selectedMember.user_name)} disabled={actionLoading === selectedMember.user_id}
+                   className="btn-primary py-2 px-5 text-sm flex items-center gap-2 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/20 hover:-translate-y-0.5 transition-all font-bold">
+                   {actionLoading === selectedMember.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />} 
+                   Check In
+                 </button>
+               )}
+               {selectedMember.is_currently_checked_in && (
+                 <button onClick={() => handleCheckOut(selectedMember.user_id)} disabled={actionLoading === selectedMember.user_id}
+                   className="py-2 px-5 text-sm flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl hover:bg-amber-500/30 hover:-translate-y-0.5 transition-all font-bold">
+                   {actionLoading === selectedMember.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />} 
+                   Check Out
+                 </button>
+               )}
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-8">
-            {[
-              { label: 'Plan', value: selectedMember.plan_name || 'N/A', icon: CreditCard },
-              { label: 'Period', value: `${formatDate(selectedMember.start_date)} — ${formatDate(selectedMember.end_date)}`, icon: Calendar },
-              { label: 'Total Check-ins', value: selectedMember.total_check_ins, icon: LogIn },
-              { label: 'Remaining Visits', value: selectedMember.remaining_visits ?? 'Unlimited', icon: Hash },
-              { label: 'Amount Paid', value: `₹${selectedMember.amount_paid}`, icon: CreditCard },
-            ].map((s, i) => (
-              <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/5">
-                <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-wider mb-1">
-                  <s.icon size={12} />{s.label}
+          <div className="space-y-6">
+            <h3 className="text-sm font-bold text-white/50 uppercase tracking-widest">Active & Past Subscriptions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {selectedMember.memberships.map((membership, idx) => (
+                <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-4">
+                    {statusBadge(membership.status)}
+                  </div>
+                  
+                  <div className="mb-4 pr-20">
+                    <h4 className="font-bold text-lg mb-1">{membership.plan_name || 'N/A'}</h4>
+                    <p className="text-xs text-white/40">₹{membership.amount_paid} • {membership.remaining_visits ?? 'Unlimited'} visits left</p>
+                  </div>
+                  
+                  <div className="space-y-2 text-xs text-white/60 mb-6 font-mono">
+                    <div className="flex justify-between">
+                      <span>Start: {formatDate(membership.start_date)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>End: {formatDate(membership.end_date)}</span>
+                    </div>
+                  </div>
+
+                  {membership.selected_addons && membership.selected_addons.length > 0 && (
+                    <div className="mb-6 space-y-2">
+                      <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Add-ons</p>
+                      <div className="flex flex-wrap gap-2">
+                        {membership.selected_addons.map((addon, aIdx) => (
+                          <span key={aIdx} className="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
+                            {addon.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                    {membership.status === 'active' && (
+                      <button onClick={() => handleCancel(membership.membership_id, selectedMember.user_name || '')}
+                        className="p-1.5 px-3 flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all font-bold group-hover:scale-100" title="Cancel Subscription">
+                        Cancel
+                      </button>
+                    )}
+                    
+                    {membership.status === 'pending' && (
+                      <>
+                        <button onClick={() => handleAcceptRequest(membership.membership_id)} disabled={actionLoading === membership.membership_id}
+                          className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center rounded-lg">
+                          {actionLoading === membership.membership_id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Accept
+                        </button>
+                        <button onClick={() => handleRejectRequest(membership.membership_id)} disabled={actionLoading === membership.membership_id}
+                          className="py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all">
+                          {actionLoading === membership.membership_id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Reject
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => openEditModal({} as unknown as Member, membership)} className="p-1.5 px-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors" title="Edit Membership">
+                      Edit
+                    </button>
+                  </div>
                 </div>
-                <p className="text-lg font-bold truncate">{s.value}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Check-in History */}
         <div className="glass-card overflow-hidden">
           <div className="p-6 border-b border-white/5">
-            <h3 className="text-lg font-bold flex items-center gap-2"><Clock size={18} className="text-primary" /> Check-in History</h3>
+            <h3 className="text-lg font-bold flex items-center gap-2"><Clock size={18} className="text-primary" /> Combined Check-in History</h3>
           </div>
           {selectedMember.check_in_history?.length ? (
             <div className="divide-y divide-white/5">
-              {selectedMember.check_in_history.map((ci, i) => (
-                <div key={i} className="p-4 px-6 flex items-center justify-between text-sm hover:bg-white/[0.02] transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
-                    <span>{formatDate(ci.check_in_time)}</span>
-                    <span className="text-white/40">{formatTime(ci.check_in_time)}</span>
+              {selectedMember.check_in_history.map((ci, i) => {
+                 const relatedMembership = selectedMember.memberships.find(m => m.membership_id === ci.membership_id);
+                 return (
+                  <div key={i} className="p-4 px-6 flex items-center justify-between text-sm hover:bg-white/[0.02] transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
+                      <span>{formatDate(ci.check_in_time)}</span>
+                      <span className="text-white/40">{formatTime(ci.check_in_time)}</span>
+                      <span className="ml-3 px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50">{relatedMembership?.plan_name || 'Unknown Plan'}</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-white/40">
+                      {ci.check_out_time ? (
+                        <>
+                          <span>→ {formatTime(ci.check_out_time)}</span>
+                          <span className="text-white/60 font-mono text-xs bg-white/5 px-2 py-0.5 rounded">{ci.duration_minutes} min</span>
+                        </>
+                      ) : (
+                        <span className="text-green-400 text-xs font-bold uppercase tracking-widest">Active</span>
+                      )}
+                      <span className="text-[10px] uppercase tracking-widest">{ci.method}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-4 text-white/40">
-                    {ci.check_out_time ? (
-                      <>
-                        <span>→ {formatTime(ci.check_out_time)}</span>
-                        <span className="text-white/60 font-mono text-xs bg-white/5 px-2 py-0.5 rounded">{ci.duration_minutes} min</span>
-                      </>
-                    ) : (
-                      <span className="text-green-400 text-xs font-bold uppercase tracking-widest">Active</span>
-                    )}
-                    <span className="text-[10px] uppercase tracking-widest">{ci.method}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="p-12 text-center text-white/20">No check-in history yet.</div>
           )}
         </div>
+
+        {/* ── Confirm Dialog for Detail View ──────────────────────────────────────── */}
+        {confirmAction && (
+          <ConfirmDialog
+            isOpen={!!confirmAction}
+            onClose={() => setConfirmAction(null)}
+            title={confirmAction.title}
+            message={confirmAction.message}
+            onConfirm={confirmAction.onConfirm}
+            confirmLabel={confirmAction.confirmLabel || "Confirm"}
+            isDangerous={confirmAction.isDangerous}
+          />
+        )}
       </div>
     );
   }
@@ -577,8 +642,8 @@ const MembersTab = () => {
                       No active member found for "{quickSearch}"
                     </div>
                   ) : (
-                    quickResults.map(m => (
-                      <motion.div key={m.membership_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                    quickResults.map((m) => (
+                      <motion.div key={m.user_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                         className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl border border-white/5 hover:border-green-500/20 transition-all">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm">
@@ -591,22 +656,22 @@ const MembersTab = () => {
                                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-widest animate-pulse">IN GYM</span>
                               )}
                             </div>
-                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone} • {m.plan_name}</p>
+                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {m.is_currently_checked_in ? (
-                            <button onClick={() => { handleCheckOut(m.membership_id); setQuickSearch(''); setQuickResults([]); }}
-                              disabled={actionLoading === m.membership_id}
+                            <button onClick={() => { handleCheckOut(m.user_id); setQuickSearch(''); setQuickResults([]); }}
+                              disabled={actionLoading === m.user_id}
                               className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all">
-                              {actionLoading === m.membership_id ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                              {actionLoading === m.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
                               Check Out
                             </button>
                           ) : (
-                            <button onClick={() => { handleCheckIn(m.membership_id, m.user_name); setQuickSearch(''); setQuickResults([]); }}
-                              disabled={actionLoading === m.membership_id}
+                            <button onClick={() => { handleCheckIn(m.user_id, m.user_name); setQuickSearch(''); setQuickResults([]); }}
+                              disabled={actionLoading === m.user_id}
                               className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-all">
-                              {actionLoading === m.membership_id ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
+                              {actionLoading === m.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
                               Check In
                             </button>
                           )}
@@ -700,21 +765,20 @@ const MembersTab = () => {
             ) : (
               <>
                 {/* Table Header (Desktop Only) */}
-                <div className="hidden md:grid grid-cols-[1fr_120px_100px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
+                <div className="hidden md:grid grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
                   <span>Member</span>
-                  <span>Plan</span>
+                  <span>Active Plans</span>
                   <span>Status</span>
-                  <span>Check-ins</span>
-                  <span>Expires</span>
+                  <span>Total Visits</span>
                   <span></span>
                 </div>
 
                 {/* Rows */}
                 <div className="divide-y divide-white/5">
                   {members.map((m, i) => (
-                    <motion.div key={m.membership_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_100px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
-                      onClick={() => fetchMemberDetail(m.membership_id)}>
+                    <motion.div key={m.user_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                      onClick={() => fetchMemberDetail(m.user_id)}>
                       
                       {/* -- Header Row: Avatar, Name, Phone, Status (Mobile Optimized) -- */}
                       <div className="flex items-start justify-between w-full md:w-auto">
@@ -733,24 +797,25 @@ const MembersTab = () => {
                           </div>
                         </div>
                         <div className="md:hidden">
-                           {statusBadge(m.status)}
+                           {statusBadge(m.active_status)}
                         </div>
                       </div>
 
                       {/* -- Details Grid (Mobile: 2x2 Grid, Desktop: Columns) -- */}
                       <div className="grid grid-cols-2 md:contents gap-3 p-3 md:p-0 bg-white/[0.03] md:bg-transparent rounded-xl border border-white/5 md:border-0">
                         <div className="flex flex-col md:block">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">PLAN</span>
-                           <span className="text-xs md:text-sm text-white/60 truncate font-medium">{m.plan_name || '—'}</span>
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">PLANS</span>
+                           <span className="text-xs md:text-sm text-white/60 truncate font-medium flex flex-col gap-1">
+                             {m.memberships.length > 0 
+                              ? m.memberships.slice(0,2).map((sub, sIdx) => <span key={sIdx} className="bg-white/5 px-2 py-0.5 rounded text-[10px]">{sub.plan_name}</span>)
+                              : 'None'}
+                              {m.memberships.length > 2 && <span className="text-[10px] text-white/40">+{m.memberships.length - 2} more</span>}
+                           </span>
                         </div>
-                        <div className="hidden md:block">{statusBadge(m.status)}</div>
+                        <div className="hidden md:block">{statusBadge(m.active_status)}</div>
                         <div className="flex flex-col md:block">
                            <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">VISITS</span>
                            <span className="text-xs md:text-sm font-mono text-white/80">{m.total_check_ins} Check-ins</span>
-                        </div>
-                        <div className="flex flex-col md:block">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">EXPIRES</span>
-                           <span className="text-xs text-white/40">{formatDate(m.end_date)}</span>
                         </div>
                         <div className="md:hidden flex flex-col justify-center">
                            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">GYM STATUS</span>
@@ -763,44 +828,6 @@ const MembersTab = () => {
                       {/* -- Actions Row (Mobile: Full Width, Desktop: Inline) -- */}
                       <div className="flex items-center justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t border-white/5 md:border-0 overflow-x-auto">
                         <div className="flex items-center gap-2">
-                          {m.status === 'active' && (
-                            m.is_currently_checked_in ? (
-                              <button onClick={e => { e.stopPropagation(); handleCheckOut(m.membership_id); }}
-                                disabled={actionLoading === m.membership_id}
-                                className="p-2.5 md:p-2 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-all border border-amber-500/20 flex items-center gap-2" title="Check Out">
-                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={16} />}
-                                <span className="md:hidden text-xs font-bold uppercase transition-all">OUT</span>
-                              </button>
-                            ) : (
-                              <button onClick={e => { e.stopPropagation(); handleCheckIn(m.membership_id, m.user_name); }}
-                                disabled={actionLoading === m.membership_id}
-                                className="p-2.5 md:p-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 flex items-center gap-2" title="Check In">
-                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={16} />}
-                                <span className="md:hidden text-xs font-bold uppercase transition-all">IN</span>
-                              </button>
-                            )
-                          )}
-                          {m.status === 'pending' && (
-                            <>
-                              <button onClick={e => { e.stopPropagation(); handleAcceptRequest(m.membership_id); }}
-                                disabled={actionLoading === m.membership_id}
-                                className="p-2.5 md:p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-all border border-primary/20 flex items-center gap-2" title="Accept Request">
-                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={16} />}
-                                <span className="md:hidden text-xs font-bold uppercase transition-all">Accept</span>
-                              </button>
-                              <button onClick={e => { e.stopPropagation(); handleRejectRequest(m.membership_id); }}
-                                disabled={actionLoading === m.membership_id}
-                                className="p-2.5 md:p-2 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all border border-rose-500/20 flex items-center gap-2" title="Reject Request">
-                                {actionLoading === m.membership_id ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={16} />}
-                                <span className="md:hidden text-xs font-bold uppercase transition-all">Reject</span>
-                              </button>
-                            </>
-                          )}
-                          <button onClick={e => { e.stopPropagation(); openEditModal(m); }}
-                            className="p-2.5 md:p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all border border-blue-500/20 flex items-center gap-2" title="Edit Info">
-                            <Edit2 size={16} />
-                            <span className="md:hidden text-xs font-bold uppercase transition-all">EDIT</span>
-                          </button>
                           <button onClick={e => { 
                               e.stopPropagation(); 
                               navigate('../finance', { 
@@ -813,7 +840,7 @@ const MembersTab = () => {
                             }}
                             className="p-2.5 md:p-2 rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-all border border-orange-500/20 flex items-center gap-2" title="Create Invoice">
                             <CreditCard size={16} />
-                            <span className="md:hidden text-xs font-bold uppercase transition-all">BILL</span>
+                            <span className="text-xs font-bold uppercase transition-all">BILL</span>
                           </button>
                         </div>
                         <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors shrink-0" />
@@ -1005,6 +1032,40 @@ const MembersTab = () => {
             </div>
           </div>
 
+          {/* Add-ons Selection */}
+          {gym?.addons && gym.addons.length > 0 && (
+            <div className="space-y-3">
+               <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Available Add-ons</label>
+               <div className="grid grid-cols-1 gap-2">
+                  {gym.addons.map((addon: any) => (
+                    <div 
+                      key={addon.id} 
+                      onClick={() => {
+                        const isSelected = enrollForm.selected_addons.find(a => a.id === addon.id);
+                        if (isSelected) {
+                          setEnrollForm({ ...enrollForm, selected_addons: enrollForm.selected_addons.filter(a => a.id !== addon.id) });
+                        } else {
+                          setEnrollForm({ ...enrollForm, selected_addons: [...enrollForm.selected_addons, addon] });
+                        }
+                      }}
+                      className={clsx(
+                        "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
+                        enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                      )}
+                    >
+                       <div className="flex items-center gap-3">
+                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                            {enrollForm.selected_addons.find(a => a.id === addon.id) && <CheckCircle2 size={10} />}
+                          </div>
+                          <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                       </div>
+                       <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
+                    </div>
+                  ))}
+               </div>
+            </div>
+          )}
+
           <button type="submit" disabled={enrolling || !enrollForm.plan_id}
             className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
             {enrolling ? <><Loader2 size={16} className="animate-spin" /> Enrolling...</> : <><UserPlus size={16} /> Enroll Member</>}
@@ -1020,8 +1081,8 @@ const MembersTab = () => {
           title={confirmAction.title}
           message={confirmAction.message}
           onConfirm={confirmAction.onConfirm}
-          confirmLabel="Yes, Cancel"
-          isDangerous={true}
+          confirmLabel={confirmAction.confirmLabel || "Yes, Cancel"}
+          isDangerous={confirmAction.isDangerous !== undefined ? confirmAction.isDangerous : true}
         />
       )}
 

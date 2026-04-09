@@ -27,14 +27,13 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
   }, []);
 
   const showNotification = useCallback((message: string, type: NotificationType = 'info', duration = 4000) => {
-    const id = nextId.toString();
+    const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setNotifications(prev => [...prev, { id, message, type }]);
-    setNextId(prev => prev + 1);
 
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, duration);
-  }, [nextId]);
+  }, []);
 
   // Global Axios Response Interceptor for Error Notifications
   useEffect(() => {

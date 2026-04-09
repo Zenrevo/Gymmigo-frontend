@@ -4,26 +4,19 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export const uploadToR2 = async (file: File): Promise<string> => {
   try {
-    // 1. Get presigned URL from backend
-    const { data } = await axios.get(`${API_URL}/storage/presigned-url`, {
-      params: {
-        file_name: file.name,
-        file_type: file.type
-      }
-    });
+    // Upload through the backend proxy to avoid browser SSL issues with R2's S3 endpoint.
+    const formData = new FormData();
+    formData.append('file', file);
 
-    const { upload_url, final_url } = data;
-
-    // 2. Perform the actual upload to R2
-    // We MUST use a clean axios instance to avoid global Authorization headers 
-    // that the backend interceptor might have added.
-    await axios.create().put(upload_url, file, {
+    const authHeader = localStorage.getItem('access_token');
+    const { data } = await axios.post(`${API_URL}/storage/upload`, formData, {
       headers: {
-        'Content-Type': file.type
-      }
+        'Content-Type': 'multipart/form-data',
+        ...(authHeader ? { Authorization: `Bearer ${authHeader}` } : {}),
+      },
     });
 
-    return final_url;
+    return data.url;
   } catch (error: any) {
     console.error('R2 upload error:', error.response?.data || error.message);
     throw new Error('Failed to upload to Cloudflare R2.');
