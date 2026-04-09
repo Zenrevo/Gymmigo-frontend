@@ -193,10 +193,6 @@ const GymProfile = () => {
     return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
   };
 
-  const renderTimeSlots = (plan: any) => {
-    const slots = getTimeSlotsFromPlan(plan);
-    return slots.map(s => `${fmtTime(s.start)}-${fmtTime(s.end)}`).join('  •  ');
-  };
 
   // Cart helpers
   const togglePlanInCart = (slotName: string, plan: any) => {

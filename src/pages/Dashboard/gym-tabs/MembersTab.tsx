@@ -8,10 +8,10 @@ import clsx from 'clsx';
 import Modal from '../../../components/Modal';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import {
-  Users, UserPlus, Search, Filter, LogIn, LogOut, Ban,
+  Users, UserPlus, Search, Filter, LogIn, LogOut,
   Phone, Clock, ChevronRight, Activity, CheckCircle2,
-  XCircle, AlertTriangle, Loader2, ArrowLeft, Calendar,
-  CreditCard, Hash, RefreshCw, Zap, ScanLine, Edit2
+  XCircle, AlertTriangle, Loader2, ArrowLeft,
+  CreditCard, RefreshCw, Zap, ScanLine
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';

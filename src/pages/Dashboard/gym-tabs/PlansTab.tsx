@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
-import { CreditCard, Plus, CheckCircle2, MoreVertical, Edit3, Trash2, Clock, Package, Sparkles, X } from 'lucide-react';
+import { CreditCard, Plus, CheckCircle2, MoreVertical, Edit3, Trash2, Clock, Package, X } from 'lucide-react';
 import axios from 'axios';
 import { useNotification } from '../../../context/NotificationContext';
 import Modal from '../../../components/Modal';
@@ -83,11 +83,6 @@ const PlansTab = () => {
     return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
   };
 
-  // Helper: render time slots display string
-  const renderTimeSlots = (plan: any) => {
-    const slots = getTimeSlotsFromPlan(plan);
-    return slots.map(s => `${formatTime(s.start)}-${formatTime(s.end)}`).join('  •  ');
-  };
 
   // Addon Form State
   const [addonFormData, setAddonFormData] = useState({
