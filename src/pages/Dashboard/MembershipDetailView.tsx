@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
-import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle, Phone, Star, MessageSquare, Send, X } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle, Phone, Star, MessageSquare, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { getGoogleMapsUrl } from '../../utils/navigation';
@@ -22,7 +22,6 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
   const [newReviewTitle, setNewReviewTitle] = useState('');
   const [newReviewText, setNewReviewText] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -89,7 +88,6 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
       }, { headers: authHeader });
 
       showNotification('Review submitted successfully!', 'success');
-      setShowReviewForm(false);
       setNewReviewText('');
       setNewReviewTitle('');
       setNewRating(5);

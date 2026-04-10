@@ -7,7 +7,7 @@ import {
   CheckCircle2, Clock, Phone, ShoppingCart, Package, X,
   Activity, Wifi, Dumbbell, 
   Zap, Info, Loader2, TrendingUp, Image as ImageIcon,
-  ChevronRight, Check, MessageSquare, ThumbsUp, Reply, Send
+  ChevronRight, Check, MessageSquare, Reply, Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
