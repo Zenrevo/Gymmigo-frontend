@@ -6,6 +6,8 @@ interface User {
   phone: string;
   roles: any[];
   active_role: string;
+  full_name?: string;
+  avatar_url?: string;
   onboarding_complete?: boolean;
 }
 

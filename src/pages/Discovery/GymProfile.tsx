@@ -7,7 +7,7 @@ import {
   CheckCircle2, Clock, Phone, ShoppingCart, Package, X,
   Activity, Wifi, Dumbbell, 
   Zap, Info, Loader2, TrendingUp, Image as ImageIcon,
-  ChevronRight, Check
+  ChevronRight, Check, MessageSquare, ThumbsUp, Reply, Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -104,9 +104,19 @@ const GymProfile = () => {
     libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'details' | 'amenities'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'details' | 'amenities' | 'reviews'>('overview');
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
   const { showNotification } = useNotification();
+
+  // Review Form State
+  const [newRating, setNewRating] = useState(5);
+  const [newReviewTitle, setNewReviewTitle] = useState('');
+  const [newReviewText, setNewReviewText] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   // Cart-based Selection State: one plan per category
   const [cart, setCart] = useState<Record<string, any>>({});  // { slotName: plan }
@@ -120,7 +130,8 @@ const GymProfile = () => {
     const fetchGym = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${API_URL}/gyms/${gymId}`);
+        const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+        const res = await axios.get(`${API_URL}/gyms/${gymId}`, { headers: authHeader });
         setGym(res.data);
       } catch (err) {
         console.error('Failed to fetch gym details:', err);
@@ -130,6 +141,24 @@ const GymProfile = () => {
     };
     if (gymId) fetchGym();
   }, [gymId]);
+
+  useEffect(() => {
+    if (activeTab === 'reviews') {
+      const fetchReviews = async () => {
+        try {
+          setLoadingReviews(true);
+          const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+          const res = await axios.get(`${API_URL}/memberships/reviews/${gymId}`, { headers: authHeader });
+          setReviews(res.data.data.reviews || []);
+        } catch (err) {
+          console.error('Failed to fetch reviews:', err);
+        } finally {
+          setLoadingReviews(false);
+        }
+      };
+      fetchReviews();
+    }
+  }, [activeTab, gymId]);
 
   if (loading) return <PageLoader message="Opening elite facility portal..." />;
   if (!gym) return (
@@ -166,6 +195,38 @@ const GymProfile = () => {
       showNotification(err.response?.data?.detail || 'Failed to submit application. Please try again.', 'error');
     } finally {
       setIsSubmittingApplication(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!newReviewText.trim()) return;
+    try {
+      setIsSubmittingReview(true);
+      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+      await axios.post(`${API_URL}/memberships/reviews`, {
+        gym_id: gymId,
+        rating: newRating,
+        title: newReviewTitle || "Review",
+        review: newReviewText,
+      }, { headers: authHeader });
+
+      showNotification('Review submitted successfully!', 'success');
+      setShowReviewForm(false);
+      setNewReviewText('');
+      setNewReviewTitle('');
+      setNewRating(5);
+      
+      // Refresh reviews
+      const revRes = await axios.get(`${API_URL}/memberships/reviews/${gymId}`);
+      setReviews(revRes.data.data.reviews || []);
+      
+      // Update local gym data to hide the review button (can_review becomes false)
+      setGym((prev: any) => ({ ...prev, can_review: false }));
+    } catch (err: any) {
+      console.error('Failed to submit review:', err);
+      showNotification(err.response?.data?.detail || 'Failed to submit review.', 'error');
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -224,13 +285,21 @@ const GymProfile = () => {
 
       {/* Hero Section */}
       <div className="relative h-64 sm:h-80 md:h-[450px] rounded-[2rem] overflow-hidden group shadow-2xl border border-white/5 mx-[-1rem] sm:mx-0">
-        {gym.cover_image_url ? (
-          <img src={gym.cover_image_url} alt={gym.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-        ) : (
-          <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center text-white/5">
-             <Building2 size={160} />
-          </div>
-        )}
+        {(() => {
+          const coverUrl = gym.cover_image_url || 
+                          (gym.images?.find((img: any) => img.is_primary)?.image_url || gym.images?.find((img: any) => img.is_primary)?.url) || 
+                          (gym.images?.[0]?.image_url || gym.images?.[0]?.url) ||
+                          gym.logo_url;
+          
+          if (coverUrl) {
+            return <img src={coverUrl} alt={gym.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />;
+          }
+          return (
+            <div className="absolute inset-0 bg-neutral-900 flex items-center justify-center text-white/5">
+               <Building2 size={160} />
+            </div>
+          );
+        })()}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -307,7 +376,7 @@ const GymProfile = () => {
           {/* Navigation Tabs */}
           <div className="space-y-8">
             <div className="flex items-center gap-6 md:gap-8 border-b border-white/5 overflow-x-auto no-scrollbar pb-1">
-              {(['overview', 'plans', 'gallery', 'details', 'amenities'] as const).map(tab => (
+              {(['overview', 'plans', 'reviews', 'gallery', 'details', 'amenities'] as const).map(tab => (
                 <button 
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -576,8 +645,12 @@ const GymProfile = () => {
                 {activeTab === 'gallery' && (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {(gym.images || []).map((img: any, idx: number) => (
-                      <div key={idx} className="aspect-square rounded-2xl overflow-hidden glass-card border-none group cursor-pointer">
-                        <img src={img.url} alt="gym" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div 
+                        key={idx} 
+                        onClick={() => setSelectedImage(img.image_url || img.url)}
+                        className="aspect-square rounded-2xl overflow-hidden glass-card border-none group cursor-pointer"
+                      >
+                        <img src={img.image_url || img.url} alt="gym" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                     ))}
                   </motion.div>
@@ -614,6 +687,159 @@ const GymProfile = () => {
                         <span className="text-[10px] font-black uppercase tracking-[0.2em]">{a.name}</span>
                       </div>
                     ))}
+                   </motion.div>
+                )}
+
+                {activeTab === 'reviews' && (
+                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex flex-col items-center justify-center">
+                              <span className="text-2xl font-black text-primary italic leading-none">{gym.rating_avg?.toFixed(1) || '0.0'}</span>
+                              <span className="text-[8px] font-black opacity-30 uppercase tracking-widest mt-1">Score</span>
+                           </div>
+                           <div className="space-y-1">
+                              <div className="flex gap-1">
+                                {[1,2,3,4,5].map(i => <Star key={i} size={10} className={clsx(i <= Math.round(gym.rating_avg || 0) ? "text-primary fill-primary" : "text-white/10")} />)}
+                              </div>
+                              <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">{gym.rating_count || 0} Platform Reviews</p>
+                           </div>
+                        </div>
+
+                        {gym.can_review && !showReviewForm && (
+                           <button 
+                             onClick={() => setShowReviewForm(true)}
+                             className="btn-primary px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                           >
+                              <Star size={14} fill="black" /> Write a Review
+                           </button>
+                        )}
+                     </div>
+
+                     {showReviewForm && (
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.95 }} 
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="glass-card p-8 border-primary/20 space-y-6 bg-gradient-to-br from-primary/5 to-transparent shadow-2xl"
+                        >
+                           <div className="flex items-center justify-between">
+                              <h4 className="text-sm font-black italic uppercase tracking-widest">Submit Your Feedback</h4>
+                              <button onClick={() => setShowReviewForm(false)} className="text-white/20 hover:text-white transition-colors">
+                                 <X size={18} />
+                              </button>
+                           </div>
+
+                           <div className="flex flex-col sm:flex-row gap-8 items-center py-4">
+                              <div className="flex flex-col items-center gap-2">
+                                 <div className="flex gap-2">
+                                    {[1,2,3,4,5].map(i => (
+                                       <button 
+                                          key={i} 
+                                          onClick={() => setNewRating(i)}
+                                          className="hover:scale-110 active:scale-95 transition-transform"
+                                       >
+                                          <Star 
+                                             size={32} 
+                                             className={clsx(i <= newRating ? "text-primary fill-primary" : "text-white/10")} 
+                                          />
+                                       </button>
+                                    ))}
+                                 </div>
+                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
+                                    {newRating === 5 ? 'Excellent' : newRating === 4 ? 'Great' : newRating === 3 ? 'Good' : newRating === 2 ? 'Fair' : 'Poor'}
+                                 </span>
+                              </div>
+
+                              <div className="flex-1 w-full space-y-4">
+                                 <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Review Title</label>
+                                    <input 
+                                       type="text" 
+                                       placeholder="e.g. Best facility in the city!"
+                                       className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all"
+                                       value={newReviewTitle}
+                                       onChange={(e) => setNewReviewTitle(e.target.value)}
+                                    />
+                                 </div>
+                                 <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Details</label>
+                                    <textarea 
+                                       rows={3}
+                                       placeholder="Share your experience with the community..."
+                                       className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all resize-none"
+                                       value={newReviewText}
+                                       onChange={(e) => setNewReviewText(e.target.value)}
+                                    />
+                                 </div>
+                                 <div className="flex justify-end gap-3 pt-2">
+                                    <button 
+                                       onClick={() => setShowReviewForm(false)}
+                                       className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors"
+                                    >
+                                       Cancel
+                                    </button>
+                                    <button 
+                                       onClick={handleSubmitReview}
+                                       disabled={isSubmittingReview || !newReviewText.trim()}
+                                       className="btn-primary px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-primary/20"
+                                    >
+                                       {isSubmittingReview ? <Loader2 className="animate-spin" size={14} /> : (
+                                          <><Send size={14} /> Submit Feedback</>
+                                       )}
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                        </motion.div>
+                     )}
+
+                     <div className="space-y-4">
+                        {loadingReviews ? (
+                           <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
+                        ) : reviews.length > 0 ? reviews.map(rev => (
+                           <div key={rev.id} className="glass-card p-6 space-y-4 group hover:border-white/10 transition-all">
+                              <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
+                                       {rev.avatar_url ? <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" /> : <Building2 size={14} className="text-white/20" />}
+                                    </div>
+                                    <div className="flex flex-col">
+                                       <span className="text-xs font-black uppercase tracking-tight">{rev.user_name || 'Anonymous Member'}</span>
+                                       <div className="flex items-center gap-2">
+                                          <div className="flex gap-0.5">
+                                             {[1,2,3,4,5].map(i => <Star key={i} size={8} className={clsx(i <= rev.rating ? "text-primary fill-primary" : "text-white/10")} />)}
+                                          </div>
+                                          {rev.is_verified_member && (
+                                            <span className="flex items-center gap-1 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                               <CheckCircle2 size={8} /> Verified Member
+                                            </span>
+                                          )}
+                                       </div>
+                                    </div>
+                                 </div>
+                                 <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{new Date(rev.created_at).toLocaleDateString()}</span>
+                              </div>
+                              <div className="space-y-2">
+                                 <h5 className="text-sm font-black italic uppercase tracking-tight text-white/90">"{rev.title}"</h5>
+                                 <p className="text-sm text-white/50 leading-relaxed">{rev.review}</p>
+                              </div>
+                              {rev.owner_response && (
+                                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex gap-4">
+                                    <Reply size={16} className="text-primary shrink-0" />
+                                    <div className="space-y-1">
+                                       <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Gym Response</p>
+                                       <p className="text-xs text-white/70 italic leading-relaxed">"{rev.owner_response}"</p>
+                                    </div>
+                                 </div>
+                              )}
+                           </div>
+                        )) : (
+                           <div className="py-20 flex flex-col items-center justify-center gap-4 text-center opacity-20">
+                              <MessageSquare size={40} />
+                              <p className="text-[10px] font-black uppercase tracking-widest">No community feedback yet</p>
+                           </div>
+                        )}
+                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -691,6 +917,34 @@ const GymProfile = () => {
            </GoogleMap>
          ) : <div className="absolute inset-0 bg-black/20 backdrop-blur-xl flex items-center justify-center font-black uppercase text-[10px] text-white/20 tracking-[0.3em]">Initializing Elite Grid...</div>}
       </div>
+
+      {/* Lightbox Overlay */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-20 cursor-zoom-out"
+          >
+            <motion.img
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              src={selectedImage}
+              alt="Fullscreen Preview"
+              className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl pointer-events-none border border-white/5"
+            />
+            <button 
+              onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+              className="absolute top-10 right-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center transition-all group"
+            >
+              <X className="group-hover:rotate-90 transition-transform duration-500 text-white" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -76,7 +76,7 @@ const Profile = () => {
               <ImageUpload 
                 initialUrl={profile?.avatar_url}
                 onUploadComplete={(url) => setProfile({...profile, avatar_url: url})}
-                className="shrink-0"
+                className="w-32 md:w-48 shrink-0"
               />
               <div className="space-y-1">
                 <h3 className="text-2xl font-black italic tracking-tight">{profile?.full_name || 'SET YOUR NAME'}</h3>

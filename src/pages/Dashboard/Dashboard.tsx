@@ -4,7 +4,8 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
   Users, Dumbbell, Building2, 
-  TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine, Activity
+  TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine, Activity,
+  MessageCircle, User
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,6 +17,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const Dashboard = () => {
   const { user } = useAuth();
   const [data, setData] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,6 +39,11 @@ const Dashboard = () => {
         if (endpoint) {
           const res = await axios.get(`${API_URL}${endpoint}`, { timeout: 10000 });
           setData(res.data.data);
+          
+          if (user.active_role === 'gym_owner') {
+            const revRes = await axios.get(`${API_URL}/gym-owner/gyms/reviews`);
+            setReviews(revRes.data.data.reviews?.slice(0, 5) || []);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
@@ -61,8 +68,8 @@ const Dashboard = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 text-xs font-bold uppercase tracking-widest">
             {user?.active_role?.replace('_', ' ')} MODE
           </div>
-          <h1 className="text-3xl md:text-5xl font-display font-black tracking-tighter">
-            HELLO, {user?.phone?.slice(-4) || 'MEMBER'}
+          <h1 className="text-3xl md:text-4xl font-display font-black tracking-tighter uppercase italic">
+            HELLO, {user?.full_name?.split(' ')[0] || user?.phone?.slice(-4) || 'MEMBER'}
           </h1>
           <p className="text-white/40 max-w-md">
             Welcome to your Gymmigo dashboard. Here is what is happening today.
@@ -77,7 +84,7 @@ const Dashboard = () => {
         ) : user?.active_role === 'trainer' ? (
           <TrainerDashboardView data={data} />
         ) : (
-          <OwnerDashboardView data={data} />
+          <OwnerDashboardView data={data} reviews={reviews} />
         )}
       </div>
     </div>
@@ -247,7 +254,7 @@ const TrainerDashboardView = ({ data: _data }: { data: any }) => {
   );
 };
 
-const OwnerDashboardView = ({ data }: { data: any }) => {
+const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) => {
   const totalGyms = data?.length || 0;
   const totalMembers = data?.reduce((acc: number, item: any) => acc + (item.metrics?.active_members || 0), 0) || 0;
   const totalRevenue = data?.reduce((acc: number, item: any) => acc + (item.metrics?.monthly_revenue || 0), 0) || 0;
@@ -309,6 +316,59 @@ const OwnerDashboardView = ({ data }: { data: any }) => {
         )) : (
           <div className="glass-card p-12 text-center text-white/20">No gyms listed. Start growing your fitness empire!</div>
         )}
+
+        {/* Global Recent Reviews */}
+        <div className="space-y-6 pt-6">
+           <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                 <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                    <MessageCircle size={18} />
+                 </div>
+                 Recent Feedback
+              </h3>
+           </div>
+           
+           <div className="grid grid-cols-1 gap-4">
+              {reviews.length > 0 ? reviews.map((rev) => (
+                 <div key={rev.id} className="glass-card p-5 space-y-3 group hover:border-white/10 transition-all">
+                    <div className="flex items-start justify-between">
+                       <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center overflow-hidden border border-white/10">
+                             {rev.avatar_url ? <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" /> : <User size={14} className="text-white/20" />}
+                          </div>
+                          <div>
+                             <h5 className="text-xs font-bold text-white">{rev.user_name}</h5>
+                             <div className="flex items-center gap-1 mt-0.5">
+                                {[1,2,3,4,5].map(i => <Star key={i} size={8} className={clsx(i <= rev.rating ? "text-primary fill-primary" : "text-white/10")} />)}
+                                <span className="text-[8px] text-white/20 ml-1 uppercase font-bold tracking-tighter">on {rev.gym_name}</span>
+                             </div>
+                          </div>
+                       </div>
+                       <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">{new Date(rev.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div>
+                       <h6 className="text-[10px] font-bold italic text-white/80 uppercase tracking-tight flex items-center gap-1.5">
+                         {rev.title}
+                         {rev.owner_response && <CheckCircle2 size={10} className="text-emerald-500" />}
+                       </h6>
+                       <p className="text-[11px] text-white/40 line-clamp-2 mt-1">{rev.review}</p>
+                    </div>
+                    {!rev.owner_response && (
+                       <Link 
+                          to={`/app/gym-owner/gyms/${rev.gym_id}/reviews`}
+                          className="inline-flex items-center gap-1.5 text-[9px] font-black text-primary uppercase tracking-widest hover:translate-x-1 transition-transform"
+                       >
+                          Reply Now <ArrowRight size={10} />
+                       </Link>
+                    )}
+                 </div>
+              )) : (
+                 <div className="glass-card p-10 text-center border-dashed text-white/10 text-[10px] uppercase font-bold tracking-[0.2em]">
+                    No feedback received yet
+                 </div>
+              )}
+           </div>
+        </div>
       </div>
       <div className="space-y-8">
         <h3 className="text-xl font-bold">Portfolio Overview</h3>

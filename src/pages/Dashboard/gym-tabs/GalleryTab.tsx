@@ -74,7 +74,7 @@ const GalleryTab = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {gym?.images?.map((img: any) => (
              <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-white/5 border border-white/10">
-                <img src={img.image_url} alt="Gym" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={img.image_url || img.url} alt="Gym" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
                    <div className="flex justify-end">
                      <button onClick={() => handleDeleteImage(img.id)} disabled={isSubmitting} className="p-2 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-colors disabled:opacity-50">

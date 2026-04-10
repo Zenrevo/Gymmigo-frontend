@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
-import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle, Phone, Star } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle, Phone, Star, MessageSquare, Send, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { getGoogleMapsUrl } from '../../utils/navigation';
@@ -17,16 +17,23 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
   const [attendance, setAttendance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // Review State
+  const [newRating, setNewRating] = useState(5);
+  const [newReviewTitle, setNewReviewTitle] = useState('');
+  const [newReviewText, setNewReviewText] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch Gym info (public discovery endpoint)
-        const gymRes = axios.get(`${API_URL}/gyms/${gymGroup.gym_id}`);
-        // Fetch Attendance (history for this gym)
         const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+        // Fetch Gym info (public discovery endpoint, now with auth for can_review flag)
+        const gymRes = axios.get(`${API_URL}/gyms/${gymGroup.gym_id}`, { headers: authHeader });
+        // Fetch Attendance (history for this gym)
         const attendanceRes = axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`, { headers: authHeader });
 
         const [gymData, attData] = await Promise.all([gymRes, attendanceRes]);
@@ -66,6 +73,34 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
       showNotification('Failed to check out. Please try scanning again.', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!newReviewText.trim()) return;
+    try {
+      setIsSubmittingReview(true);
+      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+      await axios.post(`${API_URL}/memberships/reviews`, {
+        gym_id: gymGroup.gym_id,
+        rating: newRating,
+        title: newReviewTitle || "Review",
+        review: newReviewText,
+      }, { headers: authHeader });
+
+      showNotification('Review submitted successfully!', 'success');
+      setShowReviewForm(false);
+      setNewReviewText('');
+      setNewReviewTitle('');
+      setNewRating(5);
+      
+      // Update local gym detail to hide the review button
+      setGymDetail((prev: any) => ({ ...prev, can_review: false }));
+    } catch (err: any) {
+      console.error('Failed to submit review:', err);
+      showNotification(err.response?.data?.detail || 'Failed to submit review.', 'error');
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -226,6 +261,78 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                 <h3 className="text-2xl font-black">{gymDetail?.name || gymGroup.gym_name}</h3>
                 <p className="text-white/60 text-sm mt-1">{gymDetail?.description || 'A premium fitness experience.'}</p>
               </div>
+
+              {gymDetail?.can_review && (
+                 <motion.div 
+                    initial={{ opacity: 0, y: 20 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-8 mx-6 glass-card p-8 border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-transparent space-y-6 relative overflow-hidden"
+                 >
+                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                       <MessageSquare size={120} className="text-primary" />
+                    </div>
+                    
+                    <div className="relative z-10">
+                       <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+                             <Star size={20} fill="currentColor" />
+                          </div>
+                          <div>
+                             <h4 className="text-lg font-black italic uppercase tracking-tighter">Share Your Feedback</h4>
+                             <p className="text-[10px] text-white/40 uppercase tracking-[0.2em]">Help the community grow</p>
+                          </div>
+                       </div>
+
+                       <div className="flex flex-col lg:flex-row gap-8 items-start">
+                          <div className="flex flex-col items-center gap-3 px-6 py-4 bg-white/5 rounded-2xl border border-white/5 min-w-[200px]">
+                             <div className="flex gap-2">
+                                {[1,2,3,4,5].map(i => (
+                                   <button 
+                                      key={i} 
+                                      onClick={() => setNewRating(i)} 
+                                      className="hover:scale-110 active:scale-95 transition-transform"
+                                   >
+                                      <Star 
+                                         size={28} 
+                                         className={clsx(i <= newRating ? "text-primary fill-primary" : "text-white/10")} 
+                                      />
+                                   </button>
+                                ))}
+                             </div>
+                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
+                                {newRating === 5 ? 'Elite Experience' : newRating === 4 ? 'Great Service' : newRating === 3 ? 'Good Workout' : newRating === 2 ? 'Fair' : 'Poor'}
+                             </span>
+                          </div>
+
+                          <div className="flex-1 w-full space-y-4">
+                             <input 
+                                type="text" 
+                                placeholder="Review Title (e.g. Amazing facility!)"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all placeholder:text-white/20"
+                                value={newReviewTitle}
+                                onChange={(e) => setNewReviewTitle(e.target.value)}
+                             />
+                             <textarea 
+                                rows={3}
+                                placeholder="What did you love most about your experience? (Staff, Equipment, Vibe...)"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all resize-none placeholder:text-white/20"
+                                value={newReviewText}
+                                onChange={(e) => setNewReviewText(e.target.value)}
+                             />
+                             <div className="flex justify-end pt-2">
+                                <button 
+                                   onClick={handleSubmitReview}
+                                   disabled={isSubmittingReview || !newReviewText.trim()}
+                                   className="btn-primary px-10 py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-2xl shadow-primary/30"
+                                >
+                                   {isSubmittingReview ? <Loader2 size={16} className="animate-spin" /> : <><Send size={16} /> Submit Review</>}
+                                </button>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </motion.div>
+              )}
 
               {gymDetail?.addresses?.[0] && (
                 <div className="mt-6 flex flex-col sm:flex-row gap-4">

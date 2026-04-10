@@ -179,9 +179,9 @@ const Discovery = () => {
             >
               <div className="h-40 md:h-48 relative overflow-hidden bg-white/5 shrink-0">
                 {activeTab === 'gyms' ? (
-                  item.logo_url ? (
+                  (item.cover_image_url || item.logo_url) ? (
                     <img
-                      src={item.logo_url}
+                      src={item.cover_image_url || item.logo_url}
                       alt={item.name}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />

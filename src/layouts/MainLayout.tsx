@@ -124,8 +124,14 @@ const MainLayout = () => {
     }
   };
 
-  const getInitials = (phone: string) => {
-    return phone.slice(-2);
+  const getInitials = () => {
+    const name = user?.full_name || '';
+    if (name.trim()) {
+      const parts = name.split(' ');
+      if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      return name[0].toUpperCase();
+    }
+    return user?.phone?.slice(-2) || '??';
   };
 
   const roleColors: Record<string, string> = {
@@ -235,7 +241,7 @@ const MainLayout = () => {
                 className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group"
               >
                 <div className="flex flex-col items-end hidden md:flex">
-                  <span className="text-xs font-bold">{user?.phone}</span>
+                  <span className="text-xs font-bold truncate max-w-[120px]">{user?.full_name || user?.phone}</span>
                   <span className={clsx(
                     "text-[10px] uppercase font-black tracking-wider px-1.5 rounded-sm",
                     roleColors[user?.active_role || 'user']
@@ -243,8 +249,12 @@ const MainLayout = () => {
                     {user?.active_role?.replace('_', ' ')}
                   </span>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-xs font-bold border-2 border-white/10 group-hover:border-primary/50 transition-all shadow-lg">
-                  {getInitials(user?.phone || '00')}
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-xs font-bold border-2 border-white/10 group-hover:border-primary/50 transition-all shadow-lg overflow-hidden">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    getInitials()
+                  )}
                 </div>
                 <ChevronDown size={14} className={clsx("text-white/40 transition-transform duration-300", isProfileOpen && "rotate-180")} />
               </button>
