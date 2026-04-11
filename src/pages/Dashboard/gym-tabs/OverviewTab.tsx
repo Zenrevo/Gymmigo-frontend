@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
-import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock, Activity, Dumbbell } from 'lucide-react';
+import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock } from 'lucide-react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import Modal from '../../../components/Modal';
-import { motion } from 'framer-motion';
 import clsx from 'clsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';

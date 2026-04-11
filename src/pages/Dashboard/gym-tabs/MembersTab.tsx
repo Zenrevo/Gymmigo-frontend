@@ -66,6 +66,7 @@ interface MemberDetail extends Member {
     check_out_time: string | null;
     duration_minutes: number | null;
     method: string;
+    workout_type?: string | null;
   }[];
 }
 
