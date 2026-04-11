@@ -14,7 +14,7 @@ interface GymContextType {
 
 const GymContext = createContext<GymContextType | undefined>(undefined);
 
-export const GymProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const GymProvider = ({ children }: { children: ReactNode }) => {
   const { gymId } = useParams();
   const [gym, setGym] = useState<any>(null);
   const [loading, setLoading] = useState(true);

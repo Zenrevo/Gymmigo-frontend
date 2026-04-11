@@ -19,6 +19,7 @@ const Discovery = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isNearMe, setIsNearMe] = useState(true); // Default to near me if location exists
+  const [radius, setRadius] = useState(2); // Default 2km
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const fetchItems = useCallback(async () => {
@@ -35,7 +36,7 @@ const Discovery = () => {
         params.lat = selectedLocation.latitude;
         params.lng = selectedLocation.longitude;
         if (isNearMe) {
-          params.radius = 5; // explicitly set to 5km radius as requested
+          params.radius = radius;
         }
       }
 
@@ -46,7 +47,7 @@ const Discovery = () => {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, search, isNearMe, selectedLocation]);
+  }, [activeTab, search, isNearMe, selectedLocation, radius]);
 
   useEffect(() => {
     fetchItems();
@@ -113,6 +114,35 @@ const Discovery = () => {
               </button>
             </div>
           </div>
+
+          <AnimatePresence>
+            {isNearMe && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center gap-2 mt-4 ml-2"
+              >
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 mr-2">Radius</span>
+                <div className="flex items-center gap-1.5 pointer-events-auto">
+                  {[1, 2, 5, 10].map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setRadius(r)}
+                      className={clsx(
+                        "px-3 py-1.5 rounded-lg text-[10px] font-black transition-all border",
+                        radius === r 
+                          ? "bg-primary/10 border-primary/30 text-primary shadow-[0_0_20px_rgba(241,130,44,0.1)]" 
+                          : "bg-white/5 border-white/5 text-white/30 hover:text-white hover:bg-white/10"
+                      )}
+                    >
+                      {r}KM
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Tab Switcher */}
@@ -283,7 +313,7 @@ const Discovery = () => {
         isOpen={isInfoModalOpen}
         onClose={() => setIsInfoModalOpen(false)}
         title="Nearest Gyms"
-        description="We're currently showing gyms within a 5km radius of your location, sorted by proximity to give you the most convenient options."
+        description={`We're currently showing gyms within a ${radius}km radius of your location, sorted by proximity to give you the most convenient options.`}
         icon={Sparkles}
         storageKey="hideDiscoveryNearMeInfo"
       />

@@ -55,6 +55,7 @@ interface AttendanceEntry {
   check_out_time: string | null;
   duration_minutes: number | null;
   method: string;
+  workout_type?: string | null;
 }
 
 interface MemberDetail extends Member {
@@ -549,8 +550,11 @@ const MembersTab = () => {
                     <div className="flex items-center gap-3">
                       <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
                       <span>{formatDate(ci.check_in_time)}</span>
-                      <span className="text-white/40">{formatTime(ci.check_in_time)}</span>
+                      <span>{formatTime(ci.check_in_time)}</span>
                       <span className="ml-3 px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50">{relatedMembership?.plan_name || 'Unknown Plan'}</span>
+                      {ci.workout_type && (
+                        <span className="ml-2 px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 text-[10px] uppercase font-bold tracking-wider">{ci.workout_type}</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-4 text-white/40">
                       {ci.check_out_time ? (
@@ -882,6 +886,7 @@ const MembersTab = () => {
                   <span>Member</span>
                   <span>Check In</span>
                   <span>Check Out</span>
+                  <span>Focus</span>
                   <span>Duration</span>
                   <span>Method</span>
                 </div>
@@ -916,6 +921,14 @@ const MembersTab = () => {
                           ) : (
                             <span className="text-green-400 text-xs font-bold uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded">Active</span>
                           )}
+                        </div>
+                        <div className="flex flex-col">
+                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">FOCUS</span>
+                           {a.workout_type ? (
+                             <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded uppercase tracking-wider text-center">{a.workout_type}</span>
+                           ) : (
+                             <span className="text-[10px] text-white/20 uppercase tracking-widest text-center">—</span>
+                           )}
                         </div>
                         <div className="flex flex-col">
                            <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">DURATION</span>

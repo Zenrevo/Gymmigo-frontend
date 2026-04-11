@@ -39,7 +39,8 @@ const SettingsTab = () => {
 
   const [capacity, setCapacity] = useState({
     max_capacity: gym?.gym?.max_capacity || '',
-    is_24_hours: gym?.gym?.is_24_hours || false
+    is_24_hours: gym?.gym?.is_24_hours || false,
+    show_stats: gym?.gym?.show_stats ?? true
   });
 
   const [media, setMedia] = useState({
@@ -259,11 +260,22 @@ const SettingsTab = () => {
              <div className="bg-white/5 p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
                 <div>
                    <label className="block font-bold mb-1">24/7 Operations</label>
-                   <p className="text-xs text-white/40 mb-4">Toggle if your gym is open 24 hours a day, 7 days a week. This overrides manual schedule settings.</p>
+                   <p className="text-xs text-white/40 mb-4">Toggle if your gym is open 24 hours a day, 7 days a week.</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={capacity.is_24_hours} onChange={e => setCapacity({...capacity, is_24_hours: e.target.checked})} className="w-6 h-6 accent-emerald-500 cursor-pointer" />
                   <span className="font-bold text-emerald-400">Yes, Gym is 24/7</span>
+                </label>
+             </div>
+
+             <div className="bg-white/5 p-6 rounded-2xl border border-white/5 flex flex-col justify-between border-primary/20 bg-primary/5">
+                <div>
+                   <label className="block font-bold mb-1">Performance Stats</label>
+                   <p className="text-xs text-white/40 mb-4">Show or hide revenue and member count statistics on your dashboard.</p>
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={capacity.show_stats} onChange={e => setCapacity({...capacity, show_stats: e.target.checked})} className="w-6 h-6 accent-primary cursor-pointer" />
+                  <span className="font-bold text-primary">Show Dashboard Stats</span>
                 </label>
              </div>
 

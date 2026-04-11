@@ -433,6 +433,12 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                             ) : (
                               <span className="text-green-400 animate-pulse font-bold">Active now</span>
                             )}
+                            {entry.workout_type && (
+                              <>
+                                <span className="text-white/10">•</span>
+                                <span className="text-primary font-black">{entry.workout_type}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>

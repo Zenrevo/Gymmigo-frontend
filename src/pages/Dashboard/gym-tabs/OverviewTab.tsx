@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
-import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock } from 'lucide-react';
+import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock, Activity, Dumbbell } from 'lucide-react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import Modal from '../../../components/Modal';
+import { motion } from 'framer-motion';
+import clsx from 'clsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -80,7 +82,7 @@ const OverviewTab = () => {
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Live Monitor
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight italic">LIVE OCCUPANCY</h2>
+            <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight italic uppercase">Total Occupancy</h2>
           </div>
           
           <div className="flex items-center gap-8 pr-4">
@@ -93,45 +95,81 @@ const OverviewTab = () => {
           </div>
         </div>
 
-        <div className="mt-8 space-y-3 relative z-10">
-          <div className="flex justify-between items-end">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-              Total Capacity: {gym?.gym?.max_capacity || 100}
-            </p>
-            <p className="text-[10px] font-bold text-primary">{occupancyPercent}% Full</p>
+        <div className="mt-8 space-y-6 relative z-10">
+          <div className="space-y-3">
+            <div className="flex justify-between items-end">
+              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                Capacity Limit: {gym?.gym?.max_capacity || 100}
+              </p>
+              <p className="text-[10px] font-bold text-primary">{occupancyPercent}% Load</p>
+            </div>
+            <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+              <div 
+                className="h-full bg-primary transition-all duration-700 ease-out relative" 
+                style={{ width: `${Math.min(100, occupancyPercent)}%` }} 
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+            </div>
           </div>
-          <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <div 
-              className="h-full bg-primary transition-all duration-500 ease-out" 
-              style={{ width: `${Math.min(100, occupancyPercent)}%` }} 
-            />
-          </div>
+
+          {/* Integrated Activity Breakdown */}
+          {(gym?.gym?.show_stats && gym?.metrics?.workout_distribution && gym.metrics.workout_distribution.length > 0) && (
+            <div className="pt-6 border-t border-white/5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {gym.metrics.workout_distribution.map((item: any, idx: number) => {
+                  const colors = ['text-red-400', 'text-blue-400', 'text-emerald-400', 'text-amber-400', 'text-violet-400', 'text-pink-400'];
+                  const colorClass = colors[idx % colors.length];
+                  return (
+                    <div key={idx} className="flex flex-col gap-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-white/70 uppercase tracking-wide truncate pr-2">{item.workout}</span>
+                        <span className={clsx("font-black italic shrink-0", colorClass)}>{item.count} members</span>
+                      </div>
+                      <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                         <div 
+                            className={clsx("h-full transition-all duration-500", colorClass.replace('text-', 'bg-'))}
+                            style={{ width: `${Math.min(100, (item.count / (gym?.gym?.current_occupancy || 1)) * 100)}%` }}
+                         />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="glass-card p-6 border-b-2 border-b-emerald-500/50 hover:bg-white/5 transition-colors group">
-          <TrendingUp className="text-emerald-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-          <h4 className="text-3xl font-black italic">{gym?.gym?.rating_count || 0}</h4>
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Total Reviews</p>
+      {gym?.gym?.show_stats ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="glass-card p-6 border-b-2 border-b-emerald-500/50 hover:bg-white/5 transition-colors group">
+            <TrendingUp className="text-emerald-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
+            <h4 className="text-3xl font-black italic">{gym?.gym?.rating_count || 0}</h4>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Total Reviews</p>
+          </div>
+          <div className="glass-card p-6 border-b-2 border-b-blue-500/50 hover:bg-white/5 transition-colors group">
+            <Shield className="text-blue-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
+            <h4 className="text-3xl font-black italic">{gym?.membership_plans?.length || 0}</h4>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Active Plans</p>
+          </div>
+          <div className="glass-card p-6 border-b-2 border-b-primary/50 hover:bg-white/5 transition-colors group">
+            <Building2 className="text-primary mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
+            <h4 className="text-3xl font-black italic">{gym?.equipment?.length || 0}</h4>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Equipment Types</p>
+          </div>
+          <div className="glass-card p-6 border-b-2 border-b-yellow-500/50 hover:bg-white/5 transition-colors group">
+            <Star className="text-yellow-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
+            <h4 className="text-3xl font-black italic">{gym?.gym?.rating_avg ? gym.gym.rating_avg.toFixed(1) : 'N/A'}</h4>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Avg Rating</p>
+          </div>
         </div>
-        <div className="glass-card p-6 border-b-2 border-b-blue-500/50 hover:bg-white/5 transition-colors group">
-          <Shield className="text-blue-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-          <h4 className="text-3xl font-black italic">{gym?.membership_plans?.length || 0}</h4>
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Active Plans</p>
+      ) : (
+        <div className="glass-card p-4 text-center border-dashed text-white/10 text-[10px] uppercase font-bold tracking-[0.2em]">
+          Portfolio statistics hidden
         </div>
-        <div className="glass-card p-6 border-b-2 border-b-primary/50 hover:bg-white/5 transition-colors group">
-          <Building2 className="text-primary mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-          <h4 className="text-3xl font-black italic">{gym?.equipment?.length || 0}</h4>
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Equipment Types</p>
-        </div>
-        <div className="glass-card p-6 border-b-2 border-b-yellow-500/50 hover:bg-white/5 transition-colors group">
-          <Star className="text-yellow-500 mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-          <h4 className="text-3xl font-black italic">{gym?.gym?.rating_avg ? gym.gym.rating_avg.toFixed(1) : 'N/A'}</h4>
-          <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-1">Avg Rating</p>
-        </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* ── Daily QR Card ──────────────────────────────────── */}

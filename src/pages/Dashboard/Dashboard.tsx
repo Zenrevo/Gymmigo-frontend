@@ -302,14 +302,18 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
                   <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Active Users</p>
                   <Users size={14} className="text-primary/60" />
                 </div>
-                <p className="text-2xl font-black text-white">{item.metrics?.active_members || 0}</p>
+                <p className="text-2xl font-black text-white">
+                  {item.gym?.show_stats ? (item.metrics?.active_members || 0) : '•••'}
+                </p>
               </div>
               <div className="bg-white/5 rounded-xl p-3 flex flex-col justify-end relative overflow-hidden">
                 <TrendingUp size={60} className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors" />
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">MTD Revenue</p>
                 </div>
-                <p className="text-2xl font-black text-white">₹{(item.metrics?.monthly_revenue || 0).toLocaleString()}</p>
+                <p className="text-2xl font-black text-white">
+                  {item.gym?.show_stats ? `₹${(item.metrics?.monthly_revenue || 0).toLocaleString()}` : '₹ •••••'}
+                </p>
               </div>
             </div>
           </Link>
@@ -381,12 +385,16 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
           <div className="glass-card p-6 border-b-2 border-b-emerald-500/50 relative overflow-hidden group hover:border-white/10 transition-colors">
              <Users size={80} className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-all transform group-hover:scale-110" />
              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><Users size={14} className="text-emerald-500"/> Total Active Members</h4>
-             <p className="text-3xl font-black">{totalMembers}</p>
+             <p className="text-3xl font-black">
+               {data?.every((item: any) => item.gym.show_stats) ? totalMembers : '•••'}
+             </p>
           </div>
           <div className="glass-card p-6 border-b-2 border-b-green-500/50 relative overflow-hidden group hover:border-white/10 transition-colors">
              <TrendingUp size={80} className="absolute -right-4 -bottom-4 text-green-500/5 group-hover:text-green-500/10 transition-all transform group-hover:scale-110" />
              <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><TrendingUp size={14} className="text-green-500"/> Combined MTD Revenue</h4>
-             <p className="text-3xl font-black">₹{totalRevenue.toLocaleString()}</p>
+             <p className="text-3xl font-black">
+               {data?.every((item: any) => item.gym.show_stats) ? `₹${totalRevenue.toLocaleString()}` : '₹ •••••'}
+             </p>
           </div>
         </div>
       </div>
