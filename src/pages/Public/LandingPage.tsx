@@ -3,7 +3,7 @@ import {
   QrCode, Smartphone, 
   ArrowRight, CheckCircle2, Menu, X, Mail, 
   Globe, Shield, 
-  Zap, BarChart3, Rocket, Plus, Minus
+  Zap, BarChart3, Rocket, Plus, Minus, Download
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -25,8 +25,8 @@ const LandingPage = () => {
   const features = [
     {
       icon: <Smartphone className="text-primary" size={24} />,
-      title: "No App Store Friction",
-      desc: "Instant PWA installation. Members just scan a QR to add Gymmigo to their home screen. Zero downloads required."
+      title: "Mobile App & PWA",
+      desc: "Instant PWA installation or download our full Android APK (109MB). Members just scan a QR or click to install. Zero friction."
     },
     {
       icon: <QrCode className="text-primary" size={24} />,
@@ -188,7 +188,21 @@ const LandingPage = () => {
                 Start Accelerating
                 <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
               </Link>
-              <a href="#how-it-works" className="text-xs font-black uppercase tracking-[0.3em] text-white/40 hover:text-white transition-all">Watch the Process</a>
+              <a 
+                href="https://pub-8e1c5b44358d4cbe9d970ba48ca56b89.r2.dev/gymmigo/app-v1.0.4.apk" 
+                download 
+                className="flex flex-col items-center sm:items-start group"
+              >
+                <div className="flex items-center gap-4 px-8 py-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/30 transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                    <Download size={20} />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-black uppercase tracking-widest text-primary">Get the App</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase">Android APK • 109MB</p>
+                  </div>
+                </div>
+              </a>
             </div>
           </motion.div>
 
