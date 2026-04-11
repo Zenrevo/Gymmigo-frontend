@@ -97,6 +97,11 @@ const LoginPage = () => {
                 ? 'Enter your phone number to sign in'
                 : `We've sent a code to +91 ${phone}`}
             </p>
+            {step === 'otp' && (
+              <p className="text-primary/60 text-[10px] font-bold uppercase tracking-[0.2em] mt-2 animate-pulse">
+                OTP is sent on WhatsApp by Zenrevo!
+              </p>
+            )}
           </div>
 
           <AnimatePresence mode="wait">
@@ -155,6 +160,11 @@ const LoginPage = () => {
                     </>
                   )}
                 </button>
+                <div className="flex items-center justify-center gap-2 text-primary/60">
+                    <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse">
+                      OTP is sent on WhatsApp by Zenrevo!
+                    </span>
+                </div>
               </motion.form>
             ) : (
               <motion.form
