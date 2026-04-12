@@ -189,7 +189,7 @@ const LandingPage = () => {
                 <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
               </Link>
               <a 
-                href="https://pub-8e1c5b44358d4cbe9d970ba48ca56b89.r2.dev/gymmigo/app-v1.0.2.apk" 
+                href="https://pub-8e1c5b44358d4cbe9d970ba48ca56b89.r2.dev/gymmigo/app-v1.0.6.apk" 
                 download 
                 className="flex flex-col items-center sm:items-start group"
               >
