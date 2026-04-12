@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Shield, ArrowLeft, Lock, Eye, Smartphone, User, History, CreditCard, Globe, Share2, Trash2 } from 'lucide-react';
+import { Shield, ArrowLeft, Lock, Eye, Smartphone, User, History, Globe, Share2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -25,7 +25,7 @@ const PrivacyPolicy = () => {
             </div>
             <div>
               <h1 className="text-4xl font-display font-black italic uppercase tracking-tighter">Privacy Policy</h1>
-              <p className="text-white/40 text-sm mt-1 uppercase tracking-widest font-bold">Last Updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p className="text-white/40 text-sm mt-1 uppercase tracking-widest font-bold">Last Updated: 13 April 2026</p>
             </div>
           </div>
 
