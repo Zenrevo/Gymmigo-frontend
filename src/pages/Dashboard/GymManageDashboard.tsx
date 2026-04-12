@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   Building2, ArrowLeft, Users, Dumbbell, 
   TrendingUp, Star, Settings, Image as ImageIcon,
-  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle
+  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle, Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLoader from '../../components/PageLoader';
@@ -23,6 +23,7 @@ const navItems = [
   { id: 'gallery', name: 'Gallery', icon: ImageIcon },
   { id: 'reviews', name: 'Reviews', icon: Star },
   { id: 'finance', name: 'Finance', icon: TrendingUp },
+  { id: 'stats', name: 'Stats', icon: Activity },
   { id: 'settings', name: 'Settings', icon: Settings },
 ];
 

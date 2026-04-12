@@ -110,6 +110,11 @@ const GymProfile = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
   const { showNotification } = useNotification();
+  
+  // Analytics
+  const [workoutStats, setWorkoutStats] = useState<any>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [activeStatDay, setActiveStatDay] = useState('Monday');
 
   // Review Form State
   const [newRating, setNewRating] = useState(5);
@@ -140,6 +145,22 @@ const GymProfile = () => {
       }
     };
     if (gymId) fetchGym();
+  }, [gymId]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoadingStats(true);
+        const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
+        const res = await axios.get(`${API_URL}/gyms/${gymId}/workout-stats`, { headers: authHeader });
+        setWorkoutStats(res.data);
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+    if (gymId) fetchStats();
   }, [gymId]);
 
   useEffect(() => {
@@ -428,27 +449,88 @@ const GymProfile = () => {
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="glass-card p-6 space-y-6">
                            <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                             <TrendingUp size={16} className="text-secondary" /> Historical Trends
+                             <TrendingUp size={16} className="text-secondary" /> Weekly Check-in Activity
                            </h4>
-                           <div className="h-40 flex items-end justify-between gap-1 pt-4">
-                              {(gym.occupancy_trend || []).length > 0 ? gym.occupancy_trend.map((item: any, idx: number) => (
-                                <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                                   <div className={clsx("w-full rounded-t relative", item.peak > 80 ? "bg-red-500/60" : "bg-emerald-500/60")} style={{ height: `${item.peak}%` }} />
-                                   <span className="text-[6px] font-black text-white/20">{item.day}</span>
-                                </div>
-                              )) : <div className="w-full text-center text-white/10 text-[10px] uppercase font-bold">Patterns Loading...</div>}
-                           </div>
+                           
+                           {loadingStats ? (
+                              <div className="h-40 flex items-center justify-center">
+                                <Loader2 className="animate-spin text-primary" size={24} />
+                              </div>
+                           ) : !workoutStats ? (
+                              <div className="h-40 flex items-center justify-center text-white/20 text-xs font-black uppercase tracking-widest">
+                                 No Data Available
+                              </div>
+                           ) : (
+                              <div className="h-40 flex items-end justify-between gap-2 pt-4 overflow-x-auto no-scrollbar">
+                                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
+                                   const vals = Object.values(workoutStats?.weekly_stats || {}) as number[];
+                                   const maxCount = Math.max(1, ...(vals.length > 0 ? vals : [1]));
+                                   const count = workoutStats?.weekly_stats?.[day] || 0;
+                                   const heightPct = Math.max(5, (count / maxCount) * 100);
+                                   const isActive = activeStatDay === day;
+                                   
+                                   return (
+                                     <button 
+                                       key={day} 
+                                       onClick={() => setActiveStatDay(day)}
+                                       className="flex-1 flex flex-col items-center gap-2 group min-w-[32px]"
+                                     >
+                                        <div className="w-full h-full flex items-end bg-white/[0.03] rounded-t-xl overflow-hidden hover:bg-white/5 transition-colors">
+                                          <div 
+                                            className={clsx("w-full transition-all duration-500", isActive ? "bg-primary" : "bg-white/10")} 
+                                            style={{ height: `${heightPct}%` }} 
+                                          />
+                                        </div>
+                                        <span className={clsx("text-[8px] font-black uppercase transition-colors", isActive ? "text-primary" : "text-white/20 group-hover:text-white/40")}>
+                                          {day.substring(0,3)}
+                                        </span>
+                                     </button>
+                                   );
+                                 })}
+                              </div>
+                           )}
                         </div>
-                        <div className="glass-card p-6 border-secondary/20 flex flex-col justify-center gap-4">
-                           <div className="space-y-1">
-                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Optimal Window</p>
-                              <h4 className="text-xl font-black italic uppercase tracking-tighter">
-                                {gym.best_time_suggestion?.time_range || "Loading Analysis..."}
-                              </h4>
+                        
+                        <div className="glass-card p-6 flex flex-col justify-center gap-6 relative overflow-hidden">
+                           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                             <Zap size={100} className="text-green-500" />
                            </div>
-                           <p className="text-[10px] text-white/40 leading-relaxed uppercase font-bold tracking-tight">
-                             {gym.best_time_suggestion?.message || "Analyzing facility data for best visit times..."}
-                           </p>
+                           
+                           <div className="flex items-center gap-4 bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
+                             <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                               <Zap size={20} />
+                             </div>
+                             <div>
+                               <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest">Lowest Capacity Period</p>
+                               <h4 className="text-lg font-black italic uppercase tracking-tighter text-white">
+                                 {workoutStats?.hourly_distribution?.[activeStatDay]?.best_time || "Loading..."}
+                               </h4>
+                             </div>
+                           </div>
+                           
+                           <div className="space-y-3 z-10 max-h-40 overflow-y-auto no-scrollbar pr-2">
+                             {Object.entries(workoutStats?.hourly_distribution?.[activeStatDay] || {})
+                               .filter(([k]) => k !== 'best_time')
+                               .map(([timeRange, count]: [string, any]) => {
+                                  const isBest = timeRange === workoutStats?.hourly_distribution?.[activeStatDay]?.best_time;
+                                  const hourlyVals = Object.entries(workoutStats?.hourly_distribution?.[activeStatDay] || {}).filter(([k]) => k !== 'best_time').map(([_, v]) => v as number);
+                                  const hourlyMax = Math.max(1, ...(hourlyVals.length > 0 ? hourlyVals : [1]));
+                                  const widthPct = Math.max(2, (count / hourlyMax) * 100);
+                                  
+                                  return (
+                                    <div key={timeRange} className="flex items-center gap-3">
+                                      <span className="w-20 text-[10px] font-bold text-white/50">{timeRange}</span>
+                                      <div className="flex-1 h-5 bg-white/[0.03] rounded-full overflow-hidden">
+                                        <div 
+                                          className={clsx("h-full rounded-full transition-all duration-500", isBest ? "bg-emerald-500" : "bg-white/10")} 
+                                          style={{ width: `${widthPct}%` }}
+                                        />
+                                      </div>
+                                      <span className="w-10 text-right text-[10px] font-black uppercase tracking-tight text-white/30">{count > 0 ? count + ' ck' : ''}</span>
+                                    </div>
+                                  );
+                               })}
+                           </div>
                         </div>
                      </div>
                   </motion.div>

@@ -532,8 +532,20 @@ const PlansTab = () => {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Duration (Days)</label>
-              <input type="number" value={planFormData.duration_days} onChange={e => setPlanFormData({...planFormData, duration_days: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none" placeholder="30" />
+              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Duration (Days) *</label>
+              <select 
+                required 
+                value={planFormData.duration_days} 
+                onChange={e => setPlanFormData({...planFormData, duration_days: e.target.value})} 
+                className="w-full bg-[#111] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-primary"
+              >
+                <option value="">Select Days</option>
+                <option value="1">1 Day</option>
+                <option value="7">7 Days (1 Week)</option>
+                <option value="30">30 Days (1 Month)</option>
+                <option value="180">180 Days (6 Months)</option>
+                <option value="360">360 Days (1 Year)</option>
+              </select>
             </div>
           </div>
 

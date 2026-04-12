@@ -509,7 +509,7 @@ const MembersTab = () => {
 
                   <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
                     {membership.status === 'active' && (
-                      <button onClick={() => handleCancel(membership.membership_id, selectedMember.user_name || '')}
+                      <button onClick={() => handleCancel(membership.membership_id || (membership as any).id, selectedMember.user_name || '')}
                         className="p-1.5 px-3 flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all font-bold group-hover:scale-100" title="Cancel Subscription">
                         Cancel
                       </button>
@@ -517,13 +517,15 @@ const MembersTab = () => {
                     
                     {membership.status === 'pending' && (
                       <>
-                        <button onClick={() => handleAcceptRequest(membership.membership_id)} disabled={actionLoading === membership.membership_id}
+                        <button onClick={() => handleAcceptRequest(membership.membership_id || (membership as any).id)} 
+                          disabled={actionLoading === (membership.membership_id || (membership as any).id)}
                           className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center rounded-lg">
-                          {actionLoading === membership.membership_id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Accept
+                          {actionLoading === (membership.membership_id || (membership as any).id) ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Accept
                         </button>
-                        <button onClick={() => handleRejectRequest(membership.membership_id)} disabled={actionLoading === membership.membership_id}
+                        <button onClick={() => handleRejectRequest(membership.membership_id || (membership as any).id)} 
+                          disabled={actionLoading === (membership.membership_id || (membership as any).id)}
                           className="py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all">
-                          {actionLoading === membership.membership_id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Reject
+                          {actionLoading === (membership.membership_id || (membership as any).id) ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Reject
                         </button>
                       </>
                     )}
