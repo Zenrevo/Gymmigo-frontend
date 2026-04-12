@@ -41,14 +41,15 @@ const PrivacyPolicy = () => {
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic underline decoration-primary/30 underline-offset-8">
                 2. Information We Collect & How We Handle It
               </h2>
+              <p className="text-sm text-white/70 leading-relaxed">To provide our services, Gymmigo requires access to certain personal and device information. Below is a comprehensive list of what we collect, why we collect it, and how it is secured.</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-3 text-primary">
                     <Smartphone size={20} />
-                    <h3 className="font-bold">Authentication Data</h3>
+                    <h3 className="font-bold">Authentication & Contact Data</h3>
                   </div>
-                  <p className="text-sm">We collect your <span className="text-white font-bold">Phone Number</span> and Firebase Authentication tokens to secure your account. This data is handled by Google Firebase under their strict security protocols.</p>
+                  <p className="text-sm">We collect your <span className="text-white font-bold">Phone Number</span> to secure your account and deliver One-Time Passwords (OTPs) via our authorized partner, MSG91 (via WhatsApp or SMS). We do not use your phone number for unsolicited marketing.</p>
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
@@ -56,15 +57,27 @@ const PrivacyPolicy = () => {
                     <Globe size={20} />
                     <h3 className="font-bold">Google OAuth</h3>
                   </div>
-                  <p className="text-sm">We use <span className="text-white font-bold">Google OAuth</span> to authenticate users. We only access basic profile information such as name, email, and profile picture. This data is used solely for identity verification and account personalization.</p>
+                  <p className="text-sm">We use <span className="text-white font-bold">Google OAuth</span> for secure login. We strictly access fundamental profile data (name, email, and profile picture) solely for identity verification and in-app personalization.</p>
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-3 text-emerald-400">
                     <User size={20} />
-                    <h3 className="font-bold">Profile Information</h3>
+                    <h3 className="font-bold">Personal Profile Information</h3>
                   </div>
-                  <p className="text-sm">We collect your <span className="text-white font-bold">Name, Age, Gender, Height, and Weight</span> to personalize your fitness journey and calculate accurate metrics. This is stored securely on our infrastructure.</p>
+                  <p className="text-sm">We collect user-provided physical details such as <span className="text-white font-bold">Age, Gender, Height, and Weight</span> to personalize fitness goals and calculate physiological metrics in the app.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-primary/20 bg-primary/5">
+                  <div className="flex items-center gap-3 text-primary">
+                    <Globe size={20} />
+                    <h3 className="font-bold uppercase tracking-tight">Mobile Device Permissions</h3>
+                  </div>
+                  <ul className="text-[13px] space-y-3 text-white/70 leading-relaxed">
+                    <li><span className="text-white font-bold">Location Data (Precise & Coarse):</span> Dynamically accessed only when the app is in use. This powers our 'Near Me' feature to compute distance to nearby gyms. We do not track location in the background or share it for ads.</li>
+                    <li><span className="text-white font-bold">Camera Access:</span> Queried with explicit consent to allow scanning of gym check-in QR codes, capturing user avatars, or taking photos of your gym.</li>
+                    <li><span className="text-white font-bold">Storage/Media Access:</span> Used locally on your device to let you select existing images for profile customization.</li>
+                  </ul>
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
@@ -72,24 +85,16 @@ const PrivacyPolicy = () => {
                     <History size={20} />
                     <h3 className="font-bold">Activity Logs</h3>
                   </div>
-                  <p className="text-sm">We track your <span className="text-white font-bold">Gym Check-ins and Attendance History</span>. This data is shared exclusively with your affiliated gym to manage memberships and occupancy.</p>
-                </div>
-
-                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
-                  <div className="flex items-center gap-3 text-yellow-400">
-                    <CreditCard size={20} />
-                    <h3 className="font-bold">Payment Data</h3>
-                  </div>
-                  <p className="text-sm">Payment transactions (CC/UPI/Net Banking) are processed by <span className="text-white font-bold">PCI-compliant 3rd parties</span>. Gymmigo does not store your card or bank credentials on its servers.</p>
+                  <p className="text-sm">We securely track your <span className="text-white font-bold">Gym Check-ins and Attendance</span>. This data is shared strictly with the specific gym owners where you hold a membership to validate occupancy.</p>
                 </div>
 
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-3 text-red-400">
                     <Share2 size={20} />
-                    <h3 className="font-bold">Third Parties</h3>
+                    <h3 className="font-bold">Third-Party Data Sharing</h3>
                   </div>
-                  <p className="text-sm italic text-white/50 underline decoration-red-400/30 font-display font-black tracking-wide">"Your personal profile data is NOT shared with third parties."</p>
-                  <p className="text-xs text-white/40">We strictly follow Google's User Data Policy regarding the limited use of OAuth-fetched profile information.</p>
+                  <p className="text-sm italic text-white/50 underline decoration-red-400/30 font-display font-black tracking-wide">"Your personal profile data is NEVER sold to third parties."</p>
+                  <p className="text-xs text-white/60">We share only the required OTP delivery info with MSG91 and utilize industry-standard payment processors. We strictly obey Google's User Data Policy regarding data limitations.</p>
                 </div>
               </div>
             </section>
@@ -114,12 +119,22 @@ const PrivacyPolicy = () => {
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 4. Data Retention & Deletion
+                <div className="w-1 h-6 bg-primary" /> 4. Data Retention & Deletion Policy
               </h2>
               <div className="p-6 bg-white/5 rounded-2xl border border-white/5 flex gap-4 items-start">
-                <Trash2 className="text-primary shrink-0" size={20} />
-                <div className="space-y-2">
-                  <p className="text-sm">We retain your data as long as your account is active. You can request account deletion by emailing us directly. Upon deletion, all your personal profile data, including Google OAuth-fetched information, is wiped from our active databases within 30 days.</p>
+                <Trash2 className="text-primary shrink-0 mt-1" size={24} />
+                <div className="space-y-4">
+                  <p className="text-sm text-white/80 leading-relaxed">We retain your data only as long as your account is active. Users have the right to request the complete deletion of their account and associated metadata at any time.</p>
+                  
+                  <div className="bg-black/50 p-5 rounded-xl border border-white/10 space-y-3">
+                    <h4 className="font-bold text-white uppercase tracking-wider text-xs">How to request data deletion:</h4>
+                    <ol className="list-decimal pl-4 space-y-2 text-sm text-white/70">
+                      <li><strong className="text-primary mr-1">In-App Deletion:</strong> Navigate to <span className="italic">Profile &gt; Settings &gt; Delete Account</span> inside the Gymmigo mobile application to immediately and permanently wipe your account.</li>
+                      <li><strong className="text-primary mr-1">Email Request:</strong> Send an email to <a href="mailto:support@gymmigo.in" className="text-white font-bold underline">support@gymmigo.in</a> with the subject line "Data Deletion Request". State your registered phone number. We will manually wipe your data within 7 days.</li>
+                    </ol>
+                  </div>
+                  
+                  <p className="text-xs text-white/40 italic">Upon deletion, all your personal profile data, check-in history, and Google OAuth-fetched information is irreversibly destroyed from our active databases.</p>
                 </div>
               </div>
             </section>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { FileText, ArrowLeft, Scale, Globe, UserCheck, AlertCircle } from 'lucide-react';
+import { FileText, ArrowLeft, Scale, Globe, UserCheck, AlertCircle, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -39,10 +39,26 @@ const TermsConditions = () => {
 
             <section className="space-y-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic underline decoration-primary/30 underline-offset-8">
-                2. Use of Service & Authentication
+                2. Service Scope & Authentication
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-primary">
+                    <Smartphone size={20} />
+                    <h3 className="font-bold">Mobile Application</h3>
+                  </div>
+                  <p className="text-sm">The Gymmigo mobile application is provided for gym discovery, check-ins, and membership management. Access to certain features may require active memberships with affiliated gyms.</p>
+                </div>
+
+                <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3 text-blue-500">
+                    <UserCheck size={20} />
+                    <h3 className="font-bold">Membership Plans</h3>
+                  </div>
+                  <p className="text-sm">Gym memberships purchased via Gymmigo are subject to the specific terms and conditions of the respective gym facility. Payments are handled via secure third-party gateways.</p>
+                </div>
+
                 <div className="space-y-4 p-6 bg-white/5 rounded-2xl border border-white/5">
                   <div className="flex items-center gap-3 text-primary">
                     <UserCheck size={20} />
@@ -72,15 +88,20 @@ const TermsConditions = () => {
 
             <section className="space-y-4">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3 italic">
-                <div className="w-1 h-6 bg-primary" /> 4. Prohibited Behavior
+                <div className="w-1 h-6 bg-primary" /> 4. User Conduct & Prohibited Behavior
               </h2>
-              <p>Under this legal agreement, users are explicitly prohibited from:</p>
-              <ul className="list-disc pl-6 space-y-3 font-bold text-white/60">
-                <li>Sharing your personal check-in QR code or account access with others;</li>
-                <li>Engaging in fraudulent check-ins or manipulating attendance data;</li>
-                <li>Attempting to decompile or reverse engineer any platform software;</li>
-                <li>Removing any copyright or other proprietary notations.</li>
+              <p className="text-sm text-white/70">By utilizing our platform, particularly the Gymmigo Mobile app on Google Play, users are strictly bound to respectful use. You are legally prohibited from:</p>
+              <ul className="list-disc pl-6 space-y-3 text-sm font-medium text-white/60">
+                <li><strong className="text-white/80">Offensive Content:</strong> Uploading, posting, or transmitting any content (such as profile pictures or gym gallery images) that is offensive, sexually explicit, defamatory, or violates any third-party rights.</li>
+                <li><strong className="text-white/80">Account Sharing:</strong> Sharing your personal QR code or granting unauthorized individuals access to associated gym facilities.</li>
+                <li><strong className="text-white/80">Fraud:</strong> Generating fabricated check-ins, spoofing GPS location, or manipulating attendance parameters.</li>
+                <li><strong className="text-white/80">Malicious Misuse:</strong> Employing the application to disseminate spam, malicious code, or to unlawfully scrape platform data.</li>
+                <li><strong className="text-white/80">Reverse Engineering:</strong> Attempting to decompile or reverse-engineer the proprietary platform infrastructure.</li>
               </ul>
+              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-4">
+                <AlertCircle className="text-red-400 shrink-0" size={20} />
+                <p className="text-xs text-red-200">Violation of these terms, or any Google Play Store policies, will result in instantaneous account termination and potential legal liabilities without compensation or refund.</p>
+              </div>
             </section>
 
             <section className="space-y-4">
