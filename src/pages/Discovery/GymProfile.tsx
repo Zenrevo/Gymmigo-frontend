@@ -275,6 +275,10 @@ const GymProfile = () => {
     return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
   };
 
+  const isQualifyingPlan = (plan: any) => {
+    return ["month", "quarter", "half_year", "year"].includes(plan.duration_type) || plan.duration_days >= 30;
+  };
+
 
   // Cart helpers
   const togglePlanInCart = (slotName: string, plan: any) => {
@@ -290,8 +294,9 @@ const GymProfile = () => {
   };
 
   const cartPlans = Object.entries(cart); // [[slotName, plan], ...]
+  const totalEntryFee = gym?.is_new_member ? cartPlans.reduce((sum, [, p]) => sum + (isQualifyingPlan(p) ? (p.entry_fee || 0) : 0), 0) : 0;
   const cartTotal = cartPlans.reduce((sum, [, p]) => sum + (p.discounted_price || p.price || 0), 0) +
-                    selectedAddons.reduce((sum, a) => sum + a.price, 0);
+                    totalEntryFee + selectedAddons.reduce((sum, a) => sum + a.price, 0);
 
   return (
     <div className="space-y-8 pb-12">
@@ -589,6 +594,11 @@ const GymProfile = () => {
                                       <span className={clsx("text-2xl font-black", isSelected ? "text-primary" : "text-white")}>{plan.discounted_price || plan.price}</span>
                                     </div>
                                     <span className="text-[8px] font-bold text-primary uppercase tracking-widest">{plan.duration_days} Days</span>
+                                    {plan.entry_fee > 0 && gym?.is_new_member && isQualifyingPlan(plan) && (
+                                       <div className="text-[8px] text-white/50 uppercase tracking-widest font-black">
+                                         + ₹{plan.entry_fee} Entry <span className="text-[7px] text-primary">(New)</span>
+                                       </div>
+                                    )}
                                     {/* Time slots */}
                                     <div className="flex flex-wrap justify-center gap-1 mt-1">
                                        {getTimeSlotsFromPlan(plan).map((s: any, i: number) => (
@@ -678,6 +688,9 @@ const GymProfile = () => {
                                           </span>
                                         ))}
                                         <span className="text-[8px] text-white/20 ml-1">• {plan.duration_days}d</span>
+                                        {plan.entry_fee > 0 && gym?.is_new_member && isQualifyingPlan(plan) && (
+                                          <span className="text-[8px] text-primary/60 font-black ml-1">+ ₹{plan.entry_fee} Entry</span>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-3">
@@ -695,6 +708,12 @@ const GymProfile = () => {
                                  <div className="flex items-center justify-between py-2 border-b border-white/5">
                                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Add-ons ({selectedAddons.length})</span>
                                    <span className="text-sm font-black text-emerald-500">+₹{selectedAddons.reduce((s: number, a: any) => s + a.price, 0).toLocaleString()}</span>
+                                 </div>
+                               )}
+                               {gym?.is_new_member && totalEntryFee > 0 && (
+                                 <div className="flex items-center justify-between py-2 border-b border-white/5">
+                                   <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">Entry Fee (One time)</span>
+                                   <span className="text-sm font-black text-primary/60">+₹{totalEntryFee.toLocaleString()}</span>
                                  </div>
                                )}
                              </div>

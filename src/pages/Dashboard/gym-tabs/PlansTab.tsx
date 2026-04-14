@@ -34,6 +34,7 @@ const PlansTab = () => {
     duration_days: '30',
     price: '',
     discounted_price: '',
+    entry_fee: '',
     description: '',
     benefits: '',
     is_popular: false,
@@ -95,7 +96,7 @@ const PlansTab = () => {
   // --- Plan Logic ---
   const openAddPlanModal = () => {
     setPlanFormData({
-      name: '', slot_name: 'Full Access', duration_type: 'month', duration_days: '30', price: '', discounted_price: '', description: '', benefits: '', is_popular: false,
+      name: '', slot_name: 'Full Access', duration_type: 'month', duration_days: '30', price: '', discounted_price: '', entry_fee: '', description: '', benefits: '', is_popular: false,
     });
     setTimeSlots([{ start: '06:00', end: '22:00' }]);
     setSelectedPlan(null);
@@ -110,6 +111,7 @@ const PlansTab = () => {
       duration_days: plan.duration_days ? plan.duration_days.toString() : '',
       price: plan.price.toString(),
       discounted_price: plan.discounted_price ? plan.discounted_price.toString() : '',
+      entry_fee: plan.entry_fee ? plan.entry_fee.toString() : '',
       description: plan.description || '',
       benefits: plan.benefits ? (Array.isArray(plan.benefits) ? plan.benefits.join(', ') : '') : '',
       is_popular: plan.is_popular,
@@ -126,6 +128,7 @@ const PlansTab = () => {
       ...planFormData,
       price: parseInt(planFormData.price),
       discounted_price: planFormData.discounted_price ? parseInt(planFormData.discounted_price) : null,
+      entry_fee: planFormData.entry_fee ? parseInt(planFormData.entry_fee) : 0,
       duration_days: planFormData.duration_days ? parseInt(planFormData.duration_days) : null,
       benefits: planFormData.benefits.split(',').map(b => b.trim()).filter(b => b.length > 0),
       access_time_slots: timeSlots.filter(s => s.start && s.end),
@@ -330,6 +333,12 @@ const PlansTab = () => {
                             <span className="text-white/20 line-through text-xs ml-2">₹{plan.price}</span>
                           )}
                         </div>
+                        
+                        {plan.entry_fee > 0 && (
+                          <div className="text-[10px] text-white/50 font-bold uppercase tracking-tight -mt-2">
+                            + ₹{plan.entry_fee} Entry Fee <span className="text-primary/70 scale-90 inline-block">(New Members)</span>
+                          </div>
+                        )}
 
                         {plan.description && (
                           <p className="text-xs text-white/60 line-clamp-2">{plan.description}</p>
@@ -549,14 +558,18 @@ const PlansTab = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Reg. Price (₹) *</label>
-              <input required type="number" value={planFormData.price} onChange={e => setPlanFormData({...planFormData, price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm" placeholder="1500" />
+              <input required type="number" value={planFormData.price} onChange={e => setPlanFormData({...planFormData, price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-primary" placeholder="1500" />
             </div>
             <div>
               <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Discount Price (₹)</label>
-              <input type="number" value={planFormData.discounted_price} onChange={e => setPlanFormData({...planFormData, discounted_price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm" placeholder="Optional" />
+              <input type="number" value={planFormData.discounted_price} onChange={e => setPlanFormData({...planFormData, discounted_price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-primary" placeholder="Optional" />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Entry Fee (₹)</label>
+              <input type="number" value={planFormData.entry_fee} onChange={e => setPlanFormData({...planFormData, entry_fee: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-primary" placeholder="Optional" />
             </div>
           </div>
 
