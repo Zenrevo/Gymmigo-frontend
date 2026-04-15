@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   Building2, ArrowLeft, Users, Dumbbell, 
   TrendingUp, Star, Settings, Image as ImageIcon,
-  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle, Activity
+  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle, Activity, Shield, AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLoader from '../../components/PageLoader';
@@ -24,6 +24,7 @@ const navItems = [
   { id: 'reviews', name: 'Reviews', icon: Star },
   { id: 'finance', name: 'Finance', icon: TrendingUp },
   { id: 'stats', name: 'Stats', icon: Activity },
+  { id: 'team', name: 'Team', icon: Users },
   { id: 'settings', name: 'Settings', icon: Settings },
 ];
 
@@ -136,6 +137,22 @@ const GymManageDashboard = () => {
             <div className="min-w-0">
               <h1 className="text-xl font-display font-black tracking-tighter truncate italic uppercase">{gym.gym.name}</h1>
               <p className="text-[10px] text-white/40 uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
+              <div className="flex items-center gap-2 mt-2">
+                {gym.gym.is_verified ? (
+                  <span className="text-blue-400 text-[8px] font-bold bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20 uppercase tracking-widest flex items-center gap-1">
+                    <Shield size={8} /> Verified
+                  </span>
+                ) : (
+                  <span className="text-amber-400 text-[8px] font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 uppercase tracking-widest flex items-center gap-1">
+                    <AlertTriangle size={8} /> Unverified
+                  </span>
+                )}
+                {gym.gym.is_active ? (
+                  <span className="text-emerald-500 text-[8px] font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-widest">Active</span>
+                ) : (
+                  <span className="text-red-500 text-[8px] font-bold bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20 uppercase tracking-widest">Inactive</span>
+                )}
+              </div>
             </div>
           </div>
         </div>

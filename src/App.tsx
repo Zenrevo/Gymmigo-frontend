@@ -24,6 +24,7 @@ import ReviewsTab from './pages/Dashboard/gym-tabs/ReviewsTab';
 import SettingsTab from './pages/Dashboard/gym-tabs/SettingsTab';
 import FinanceTab from './pages/Dashboard/gym-tabs/FinanceTab';
 import StatsTab from './pages/Dashboard/gym-tabs/StatsTab';
+import TeamTab from './pages/Dashboard/gym-tabs/TeamTab';
 import MainLayout from './layouts/MainLayout';
 import { NotificationProvider } from './context/NotificationContext';
 import { LocationProvider } from './context/LocationContext';
@@ -82,6 +83,7 @@ const AppRoutes = () => {
           <Route path="settings" element={<SettingsTab />} />
           <Route path="finance" element={<FinanceTab />} />
           <Route path="stats" element={<StatsTab />} />
+          <Route path="team" element={<TeamTab />} />
           <Route path="coming-soon" element={<ComingSoon />} />
         </Route>
       </Route>

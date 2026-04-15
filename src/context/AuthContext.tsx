@@ -37,11 +37,23 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// ─── Refresh Mutex ───────────────────────────────────────────────────────────
+let isRefreshing = false;
+let refreshSubscribers: ((newAccessToken: string) => void)[] = [];
+
+const onRefreshed = (newAccessToken: string) => {
+  refreshSubscribers.forEach((cb) => cb(newAccessToken));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (cb: (newAccessToken: string) => void) => {
+  refreshSubscribers.push(cb);
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
   const [isLoading, setIsLoading] = useState(true);
-
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
@@ -49,10 +61,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('refresh_token', refreshToken);
     setToken(accessToken);
     setUser(userData);
-    setIsLoading(false); // Crucial: manual login satisfies the loading state
+    setIsLoading(false);
   };
 
-  const logout = () => {
+  const attemptTokenRefresh = async (): Promise<string | null> => {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) return null;
+
+    try {
+      const response = await axios.post(`${API_URL}/auth/refresh-token`, { 
+        refresh_token: refreshToken 
+      }, { timeout: 15000 });
+      
+      if (response.data.success) {
+        const { access_token } = response.data.data;
+        localStorage.setItem('access_token', access_token);
+        setToken(access_token);
+        return access_token;
+      }
+    } catch (error: any) {
+      console.error('Failed to refresh token:', error);
+      return null;
+    }
+    return null;
+  };
+
+  const logout = async () => {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (refreshToken) {
+      try {
+        await axios.post(`${API_URL}/auth/logout`, { refresh_token: refreshToken }, { timeout: 5000 });
+      } catch (e) {
+        console.warn('Logout request failed', e);
+      }
+    }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setToken(null);
@@ -72,12 +114,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.data.success) {
         setUser(response.data.data);
       } else {
-        // Only logout if we don't have a user state already (prevent race condition with login)
+        // If /me fails with success=false, try a refresh first before giving up
+        const newToken = await attemptTokenRefresh();
+        if (newToken) {
+          await refreshUser();
+        } else {
+          if (!user) logout();
+        }
+      }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        const newToken = await attemptTokenRefresh();
+        if (newToken) {
+          await refreshUser();
+        } else {
+          if (!user) logout();
+        }
+      } else {
+        console.error('Failed to fetch user:', error);
         if (!user) logout();
       }
-    } catch (error) {
-      console.error('Failed to fetch user:', error);
-      if (!user) logout();
     } finally {
       setIsLoading(false);
     }
@@ -103,11 +159,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Response interceptor for 401 (Unauthorized)
     const interceptor = axios.interceptors.response.use(
       (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          console.warn('Unauthorized request. Logging out...');
-          logout();
-          window.location.href = '/'; // Simple redirect to root/login
+      async (error) => {
+        const originalRequest = error.config;
+        
+        // Prevent infinite loops and ignore auth endpoints
+        const isAuthEndpoint = originalRequest.url?.includes('/auth/send-otp') || 
+                               originalRequest.url?.includes('/auth/verify-otp') ||
+                               originalRequest.url?.includes('/auth/refresh-token');
+
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+          originalRequest._retry = true;
+
+          if (isRefreshing) {
+            return new Promise((resolve) => {
+              addRefreshSubscriber((newToken: string) => {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                resolve(axios(originalRequest));
+              });
+            });
+          }
+
+          isRefreshing = true;
+          const newToken = await attemptTokenRefresh();
+          
+          if (newToken) {
+            isRefreshing = false;
+            onRefreshed(newToken);
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return axios(originalRequest);
+          } else {
+            isRefreshing = false;
+            console.warn('Refresh token failed. Logging out...');
+            logout();
+            window.location.href = '/'; 
+          }
         }
         return Promise.reject(error);
       }

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   Users, Dumbbell, Building2, 
   TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine, Activity,
-  MessageCircle, User, CheckCircle2
+  MessageCircle, User, CheckCircle2, Shield, AlertTriangle
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link, useNavigate } from 'react-router-dom';
@@ -34,13 +34,13 @@ const Dashboard = () => {
         let endpoint = '';
         if (user.active_role === 'user') endpoint = '/memberships/my';
         else if (user.active_role === 'trainer') endpoint = '/trainer/full';
-        else if (user.active_role === 'gym_owner') endpoint = '/gym-owner/gyms';
+        else if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') endpoint = '/gym-owner/gyms';
 
         if (endpoint) {
           const res = await axios.get(`${API_URL}${endpoint}`, { timeout: 10000 });
           setData(res.data.data);
           
-          if (user.active_role === 'gym_owner') {
+          if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') {
             const revRes = await axios.get(`${API_URL}/gym-owner/gyms/reviews`);
             setReviews(revRes.data.data.reviews?.slice(0, 5) || []);
           }
@@ -255,9 +255,9 @@ const TrainerDashboardView = ({ data: _data }: { data: any }) => {
 };
 
 const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) => {
-  const totalGyms = data?.length || 0;
-  const totalMembers = data?.reduce((acc: number, item: any) => acc + (item.metrics?.active_members || 0), 0) || 0;
-  const totalRevenue = data?.reduce((acc: number, item: any) => acc + (item.metrics?.monthly_revenue || 0), 0) || 0;
+  const totalGyms = Array.isArray(data) ? data.length : 0;
+  const totalMembers = Array.isArray(data) ? data.reduce((acc: number, item: any) => acc + (item.metrics?.active_members || 0), 0) : 0;
+  const totalRevenue = Array.isArray(data) ? data.reduce((acc: number, item: any) => acc + (item.metrics?.monthly_revenue || 0), 0) : 0;
 
   return (
     <>
@@ -277,9 +277,38 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
             to={`/app/gym-owner/gyms/${item.gym?.id}`}
             className="glass-card p-6 flex flex-col gap-4 group hover:border-primary/50 transition-all active:scale-98 relative"
           >
-            <div className="absolute top-6 right-6">
-              <span className="text-emerald-500 text-[10px] font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest">ACTIVE</span>
+            <div className="absolute top-6 right-6 flex items-center gap-2">
+              {item.gym?.is_verified ? (
+                <span className="text-blue-400 text-[10px] font-bold bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 uppercase tracking-widest flex items-center gap-1">
+                  <Shield size={10} /> Verified
+                </span>
+              ) : (
+                <span className="text-amber-400 text-[10px] font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 uppercase tracking-widest flex items-center gap-1">
+                  <AlertTriangle size={10} /> Unverified
+                </span>
+              )}
+              {item.gym?.is_active ? (
+                <span className="text-emerald-500 text-[10px] font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest">Active</span>
+              ) : (
+                <span className="text-red-500 text-[10px] font-bold bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 uppercase tracking-widest">Inactive</span>
+              )}
             </div>
+            
+            {/* Status Banner */}
+            {(!item.gym?.is_verified || !item.gym?.is_active) && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 flex items-start gap-3 mb-2">
+                <AlertTriangle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-bold text-amber-400">
+                    {!item.gym?.is_verified && !item.gym?.is_active
+                      ? 'Your gym is not verified and inactive — it won\'t appear in explore.'
+                      : !item.gym?.is_verified
+                      ? 'Your gym is pending verification — it won\'t appear in explore until approved.'
+                      : 'Your gym is currently inactive — members cannot discover it.'}
+                  </p>
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center gap-4 pr-16">
               <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden shrink-0">
