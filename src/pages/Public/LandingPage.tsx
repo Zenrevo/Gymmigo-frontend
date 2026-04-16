@@ -26,7 +26,7 @@ const LandingPage = () => {
     {
       icon: <Smartphone className="text-primary" size={24} />,
       title: "Mobile App & PWA",
-      desc: "Instant PWA installation or download our full Android APK (113MB). Members just scan a QR or click to install. Zero friction."
+      desc: "Instant PWA installation or download our full Android APK (118MB). Members just scan a QR or click to install. Zero friction."
     },
     {
       icon: <QrCode className="text-primary" size={24} />,
@@ -199,7 +199,7 @@ const LandingPage = () => {
                   </div>
                   <div className="text-left">
                     <p className="text-xs font-black uppercase tracking-widest text-primary">Get the App</p>
-                    <p className="text-[10px] font-bold text-white/40 uppercase">Android APK • 113MB</p>
+                    <p className="text-[10px] font-bold text-white/40 uppercase">Android APK • 118MB</p>
                   </div>
                 </div>
               </a>
