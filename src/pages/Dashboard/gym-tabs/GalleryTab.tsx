@@ -33,7 +33,9 @@ const GalleryTab = () => {
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
   };
 
-  const handleDeleteImage = async (id: string) => {
+  const handleDeleteImage = async (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this photo?")) return;
     setIsSubmitting(true);
     try {
       await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/images/${id}`);
@@ -52,7 +54,8 @@ const GalleryTab = () => {
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
   };
 
-  const handleDeleteVideo = async (id: string) => {
+  const handleDeleteVideo = async (id: string, title: string) => {
+    if (!window.confirm(`Are you sure you want to delete the video "${title}"?`)) return;
     setIsSubmitting(true);
     try {
       await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/videos/${id}`);
@@ -77,9 +80,9 @@ const GalleryTab = () => {
                 <img src={img.image_url || img.url} alt="Gym" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
                    <div className="flex justify-end">
-                     <button onClick={() => handleDeleteImage(img.id)} disabled={isSubmitting} className="p-2 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-colors disabled:opacity-50">
-                       <Trash2 size={16} />
-                     </button>
+                      <button onClick={(e) => handleDeleteImage(img.id, e)} disabled={isSubmitting} className="p-2 bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-full backdrop-blur-md transition-colors disabled:opacity-50">
+                        <Trash2 size={16} />
+                      </button>
                    </div>
                    {img.is_primary && (
                      <div className="flex items-center gap-1 text-yellow-500 bg-black/60 w-fit px-2 py-1 rounded-md border border-white/10 backdrop-blur-md">
@@ -126,9 +129,9 @@ const GalleryTab = () => {
                </div>
                <div className="p-5 flex items-center justify-between">
                  <h5 className="font-bold truncate pr-4">{vid.title}</h5>
-                 <button onClick={() => handleDeleteVideo(vid.id)} disabled={isSubmitting} className="text-white/40 hover:text-red-500 transition-colors p-2 shrink-0 disabled:opacity-50">
-                    <Trash2 size={18} />
-                 </button>
+                  <button onClick={() => handleDeleteVideo(vid.id, vid.title)} disabled={isSubmitting} className="text-white/40 hover:text-red-500 transition-colors p-2 shrink-0 disabled:opacity-50">
+                     <Trash2 size={18} />
+                  </button>
                </div>
              </div>
            ))}

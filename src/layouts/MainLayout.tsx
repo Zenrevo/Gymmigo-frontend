@@ -96,6 +96,7 @@ const MainLayout = () => {
       navItems = [
         { name: 'Home', path: '/app/dashboard', icon: Home },
         { name: 'Members', path: `/app/gym-owner/gyms/${activeGymId}/members`, icon: Users },
+        { name: 'Team', path: `/app/gym-owner/gyms/${activeGymId}/team`, icon: Shield },
         { name: 'Settings', path: `/app/gym-owner/gyms/${activeGymId}/settings`, icon: Settings },
       ];
     } else {

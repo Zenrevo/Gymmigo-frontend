@@ -34,8 +34,9 @@ const AmenitiesTab = () => {
     }
   };
 
-  const removeAmenity = async (id: string, e: React.MouseEvent) => {
+  const removeAmenity = async (id: string, name: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!window.confirm(`Are you sure you want to remove "${name}"?`)) return;
     setIsSubmitting(true);
     try {
       await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/amenities/${id}`);
@@ -67,7 +68,7 @@ const AmenitiesTab = () => {
                <div key={amenity.id} className="flex items-center gap-2 pl-4 pr-1 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary group">
                  <span className="font-bold text-sm tracking-wide">{amenity.name}</span>
                  <button 
-                  onClick={(e) => removeAmenity(amenity.id, e)}
+                  onClick={(e) => removeAmenity(amenity.id, amenity.name, e)}
                   disabled={isSubmitting}
                   className="p-1 rounded-full hover:bg-primary/20 text-primary/60 hover:text-primary transition-colors disabled:opacity-50"
                  >
