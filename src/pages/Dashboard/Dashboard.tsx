@@ -8,7 +8,7 @@ import {
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar
 } from 'lucide-react';
 import clsx from 'clsx';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import QRScannerModal from '../../components/QRScannerModal';
 import PageLoader from '../../components/PageLoader';
 import TrainerDashboard from './TrainerDashboard';
@@ -114,7 +114,6 @@ const Dashboard = () => {
 import MembershipDetailView from './MembershipDetailView';
 
 const UserDashboardView = ({ data }: { data: any }) => {
-  const navigate = useNavigate();
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
