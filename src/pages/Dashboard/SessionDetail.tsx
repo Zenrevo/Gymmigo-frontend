@@ -9,7 +9,9 @@ import {
 } from 'lucide-react';
 import PageLoader from '../../components/PageLoader';
 import { useAuth } from '../../context/AuthContext';
+import { useNotification } from '../../context/NotificationContext';
 import clsx from 'clsx';
+import Modal from '../../components/Modal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -18,8 +20,11 @@ const SessionDetail = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showNotification } = useNotification();
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -66,6 +71,26 @@ const SessionDetail = () => {
     if (!sessionData.latitude || !sessionData.longitude) return;
     const url = `https://www.google.com/maps/dir/?api=1&destination=${sessionData.latitude},${sessionData.longitude}`;
     window.open(url, '_blank');
+  };
+
+  const handleCancelSession = async () => {
+    setIsCancelling(true);
+    try {
+      await axios.post(`${API_URL}/trainer-bookings/sessions/${sessionId}/cancel`, {}, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
+      });
+      showNotification('Session cancelled successfully.', 'success');
+      setIsCancelModalOpen(false);
+      
+      // refresh session data
+      const res = await axios.get(`${API_URL}/trainer-bookings/sessions/${sessionId}`);
+      setSessionData(res.data.data);
+    } catch (err: any) {
+      console.error('Failed to cancel session:', err);
+      // useNotification already intercepts common errors, but we can explicitly show one if we want
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   return (
@@ -194,7 +219,9 @@ const SessionDetail = () => {
               </button>
             )}
             {sessionData.status === 'scheduled' && (
-              <button className="w-full py-3 rounded-xl font-bold tracking-widest uppercase text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all">
+              <button 
+                onClick={() => setIsCancelModalOpen(true)}
+                className="w-full py-3 rounded-xl font-bold tracking-widest uppercase text-[10px] bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all">
                 Cancel Session
               </button>
             )}
@@ -213,6 +240,34 @@ const SessionDetail = () => {
           </div>
         </div>
       </div>
+      
+      <Modal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} title="Cancel Session" maxWidth="max-w-md">
+        <div className="space-y-6">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle size={32} className="text-red-400" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Cancel Session?</h3>
+            <p className="text-white/60 text-sm">Are you sure you want to cancel this session? This action cannot be undone.</p>
+          </div>
+          
+          <div className="flex gap-3 mt-6">
+            <button 
+              onClick={() => setIsCancelModalOpen(false)}
+              className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all"
+            >
+              No, Keep It
+            </button>
+            <button 
+              onClick={handleCancelSession}
+              disabled={isCancelling}
+              className="flex-1 py-3 px-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm font-bold hover:bg-red-500/20 transition-all disabled:opacity-50 flex items-center justify-center"
+            >
+              {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </motion.div>
   );
 };

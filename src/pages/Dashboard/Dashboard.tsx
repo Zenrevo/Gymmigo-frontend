@@ -13,6 +13,8 @@ import QRScannerModal from '../../components/QRScannerModal';
 import PageLoader from '../../components/PageLoader';
 import TrainerDashboard from './TrainerDashboard';
 import BookingDetailModal from '../../components/BookingDetailModal';
+import GymOwnerInsights from '../../components/GymOwnerInsights';
+import MemberInsights from '../../components/MemberInsights';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -78,25 +80,6 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-12">
-      {/* Welcome Header */}
-      <div className="p-6 md:p-10 relative overflow-hidden glass-card">
-        <div className="absolute top-0 right-0 p-4 md:p-8 opacity-10 animate-float select-none pointer-events-none">
-          {user?.active_role === 'user' ? <Dumbbell size={120} className="md:w-[160px] md:h-[160px]" /> : 
-           user?.active_role === 'trainer' ? <Users size={120} className="md:w-[160px] md:h-[160px]" /> : <Building2 size={120} className="md:w-[160px] md:h-[160px]" />}
-        </div>
-        <div className="relative z-10 space-y-3 md:space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/20 text-[10px] md:text-xs font-bold uppercase tracking-widest">
-            {user?.active_role?.replace('_', ' ')} MODE
-          </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-black tracking-tighter uppercase italic leading-none">
-            HELLO, {user?.full_name?.split(' ')[0] || user?.phone?.slice(-4) || 'MEMBER'}
-          </h1>
-          <p className="text-white/40 text-xs md:text-sm max-w-md">
-            Welcome to your Gymmigo hub. Here is what is happening today.
-          </p>
-        </div>
-      </div>
-
       {/* Grid Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {user?.active_role === 'user' ? (
@@ -298,19 +281,7 @@ const UserDashboardView = ({ data }: { data: any }) => {
           )}
         </div>
       </div>
-
-      <div className="space-y-8">
-        <h3 className="text-xl font-bold">Quick Stats</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="glass-card p-6 space-y-2 hover:bg-primary/5 transition-colors group">
-            <p className="text-white/40 text-xs font-bold uppercase group-hover:text-primary/60 transition-colors">Visits</p>
-            <p className="text-3xl font-black group-hover:text-primary transition-colors">{data?.total ?? 0}</p>
-          </div>
-          <div className="glass-card p-6 space-y-2 hover:bg-primary/5 transition-colors group border-primary/20">
-            <p className="text-white/40 text-xs font-bold uppercase group-hover:text-primary/60 transition-colors">Rank</p>
-            <p className="text-3xl font-black text-primary italic">#14</p>
-          </div>
-        </div>
+      <div className="space-y-8 md:col-span-1">
         <div className="space-y-4">
           <h4 className="font-bold">Upcoming Sessions</h4>
           {data?.upcoming_sessions && data.upcoming_sessions.length > 0 ? (
@@ -341,6 +312,11 @@ const UserDashboardView = ({ data }: { data: any }) => {
           )}
           <Link to="/app/trainers" className="w-full btn-primary py-3 inline-block text-center mt-2">Find a Trainer</Link>
         </div>
+      </div>
+
+      {/* Member Insights (Gamification & Utility) */}
+      <div className="md:col-span-3 pt-6 border-t border-white/10 mt-6">
+        <MemberInsights />
       </div>
 
       <QRScannerModal 
@@ -465,6 +441,9 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
         )) : (
           <div className="glass-card p-12 text-center text-white/20">No gyms listed. Start growing your fitness empire!</div>
         )}
+
+        {/* Gym Owner Insights / Analytics & CRM */}
+        <GymOwnerInsights />
 
         {/* Global Recent Reviews */}
         <div className="space-y-6 pt-6">

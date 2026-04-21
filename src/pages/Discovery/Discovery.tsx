@@ -167,7 +167,20 @@ const Discovery = () => {
       {/* Results Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         <AnimatePresence mode="popLayout">
-         {loading ? (
+         {activeTab === 'trainers' ? (
+           <motion.div 
+             initial={{ opacity: 0, scale: 0.9 }}
+             animate={{ opacity: 1, scale: 1 }}
+             exit={{ opacity: 0, scale: 0.9 }}
+             className="col-span-full py-24 text-center glass-card border-dashed"
+           >
+             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
+                <Sparkles size={32} className="text-primary" />
+             </div>
+             <p className="text-white/20 font-display text-4xl mb-4 italic">COMING SOON</p>
+             <p className="text-white/40 max-w-md mx-auto">Trainer discovery and booking workflows are currently under active development. Check back soon for updates!</p>
+           </motion.div>
+         ) : loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="glass-card h-80 animate-pulse bg-white/5" />
             ))

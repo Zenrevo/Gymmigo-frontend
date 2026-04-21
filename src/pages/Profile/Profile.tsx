@@ -13,7 +13,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingSection, setSavingSection] = useState<string | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const { showNotification } = useNotification();
 
@@ -36,9 +36,9 @@ const Profile = () => {
     fetchProfileData();
   }, []);
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateProfile = async (section: string, e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
+    setSavingSection(section);
     try {
       // Ensure date_of_birth is in YYYY-MM-DD format if present
       const payload = {
@@ -48,12 +48,12 @@ const Profile = () => {
       };
       await axios.patch(`${API_URL}/profile/me`, payload);
       await refreshUser();
-      showNotification('Profile updated successfully', 'success');
+      showNotification(`${section} updated successfully`, 'success');
     } catch (err: any) {
       console.error('Update failed:', err);
-      showNotification(err.response?.data?.error?.message || 'Failed to update profile', 'error');
+      showNotification(err.response?.data?.error?.message || `Failed to update ${section}`, 'error');
     } finally {
-      setSaving(false);
+      setSavingSection(null);
     }
   };
 
@@ -71,7 +71,7 @@ const Profile = () => {
       <div className="grid md:grid-cols-3 gap-12">
         {/* Personal Details */}
         <div className="md:col-span-2 space-y-8">
-          <form onSubmit={handleUpdateProfile} className="glass-card p-10 space-y-8">
+          <form onSubmit={(e) => handleUpdateProfile('Basic Details', e)} className="glass-card p-10 space-y-8">
             <div className="flex items-center gap-8">
               <ImageUpload 
                 initialUrl={profile?.avatar_url}
@@ -160,6 +160,12 @@ const Profile = () => {
               </div>
             </div>
 
+            <button type="submit" disabled={savingSection === 'Basic Details'} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">
+              {savingSection === 'Basic Details' ? 'SAVING...' : <><Save size={18} /> Update Basic Details</>}
+            </button>
+          </form>
+
+          <form onSubmit={(e) => handleUpdateProfile('Profile Bio', e)} className="glass-card p-10 space-y-8">
             <div className="space-y-2">
               <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Profile Bio</label>
               <textarea 
@@ -171,8 +177,8 @@ const Profile = () => {
               />
             </div>
 
-            <button type="submit" disabled={saving} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">
-              {saving ? 'SAVING...' : <><Save size={18} /> Update Profile</>}
+            <button type="submit" disabled={savingSection === 'Profile Bio'} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">
+              {savingSection === 'Profile Bio' ? 'SAVING...' : <><Save size={18} /> Save Bio</>}
             </button>
           </form>
 

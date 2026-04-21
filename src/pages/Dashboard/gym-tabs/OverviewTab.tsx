@@ -260,7 +260,7 @@ const OverviewTab = () => {
                </div>
                <h3 className="font-bold">Member Database</h3>
                <p className="text-xs text-white/40">Access and manage all gym members, view attendance history, and analyze demographics.</p>
-               <Link to="/contact" className="text-primary text-xs font-bold hover:underline py-2">View Members →</Link>
+               <Link to="members" className="text-primary text-xs font-bold hover:underline py-2">View Members →</Link>
           </div>
         </div>
       </div>

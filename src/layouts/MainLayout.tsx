@@ -138,7 +138,7 @@ const MainLayout = () => {
       if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
       return name[0].toUpperCase();
     }
-    return user?.phone?.slice(-2) || '??';
+    return 'U';
   };
 
   const roleColors: Record<string, string> = {
@@ -170,7 +170,8 @@ const MainLayout = () => {
             </Link>
 
             {/* Desktop Location Selector */}
-            <div className="hidden lg:flex items-center gap-2">
+            {user?.active_role !== 'gym_owner' && (
+              <div className="hidden lg:flex items-center gap-2">
               <div className="h-4 w-[1px] bg-white/10 mx-2" />
               <button 
                 onClick={() => setIsMapOpen(true)}
@@ -215,7 +216,8 @@ const MainLayout = () => {
                   </motion.div>
                 )}
               </button>
-            </div>
+              </div>
+            )}
           </div>
 
           <nav className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
@@ -248,7 +250,7 @@ const MainLayout = () => {
                 className="flex items-center gap-3 pl-3 pr-2 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group"
               >
                 <div className="flex flex-col items-end hidden md:flex">
-                  <span className="text-xs font-bold truncate max-w-[120px]">{user?.full_name || user?.phone}</span>
+                  <span className="text-xs font-bold truncate max-w-[120px]">{user?.full_name || 'Gymmigo User'}</span>
                   <span className={clsx(
                     "text-[10px] uppercase font-black tracking-wider px-1.5 rounded-sm",
                     roleColors[user?.active_role || 'user']
@@ -345,7 +347,8 @@ const MainLayout = () => {
         </div>
 
         {/* Mobile Location Selector Row */}
-        <div className="flex lg:hidden items-center w-full min-w-0">
+        {user?.active_role !== 'gym_owner' && (
+          <div className="flex lg:hidden items-center w-full min-w-0">
           <button 
             onClick={() => setIsMapOpen(true)}
             className={clsx(
@@ -367,7 +370,8 @@ const MainLayout = () => {
             )}
             <ChevronDown size={12} className="ml-auto opacity-40 shrink-0" />
           </button>
-        </div>
+          </div>
+        )}
       </header>
 
       {/* Map Modal */}

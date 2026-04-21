@@ -20,7 +20,110 @@
     <meta name="description" content="Gymmigo - The ultimate fitness management platform powered by Zenrevo. Find gyms, book trainers, and manage your fitness journey." />
   </head>
   <body class="bg-black">
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        .splash-screen {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: #000000;
+          color: #ffffff;
+          font-family: 'Outfit', sans-serif;
+          z-index: 9999;
+          gap: 2rem;
+        }
+        .splash-logo-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .splash-pulse-outer {
+          position: absolute;
+          inset: 0;
+          background-color: rgba(241, 130, 44, 0.2);
+          border-radius: 50%;
+          filter: blur(24px);
+          animation: pulse-outer 3s ease-in-out infinite;
+        }
+        .splash-pulse-inner {
+          position: absolute;
+          inset: 0;
+          background-color: rgba(241, 130, 44, 0.3);
+          border-radius: 50%;
+          filter: blur(16px);
+          animation: pulse-inner 2s ease-in-out infinite 0.5s;
+        }
+        .splash-logo {
+          position: relative;
+          z-index: 10;
+          width: 80px;
+          height: 80px;
+          animation: logo-bounce 2s ease-in-out infinite;
+        }
+        .splash-text {
+          font-size: 1.5rem;
+          font-weight: 900;
+          letter-spacing: -0.05em;
+          font-style: italic;
+          opacity: 0;
+          animation: fade-in 0.5s forwards 0.5s;
+        }
+        .splash-text-primary {
+          color: #F1822C;
+        }
+        .splash-loading-text {
+          font-family: 'Inter', sans-serif;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.3em;
+          color: rgba(241, 130, 44, 0.8);
+          animation: fade-pulse 2s linear infinite;
+        }
+        
+        @keyframes pulse-outer {
+          0%, 100% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.4); opacity: 0.1; }
+        }
+        @keyframes pulse-inner {
+          0%, 100% { transform: scale(1); opacity: 0.5; }
+          50% { transform: scale(1.2); opacity: 0.2; }
+        }
+        @keyframes logo-bounce {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes fade-in {
+          to { opacity: 1; }
+        }
+        @keyframes fade-pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
+        }
+      </style>
+      <div class="splash-screen">
+        <div class="splash-logo-container">
+          <div class="splash-pulse-outer"></div>
+          <div class="splash-pulse-inner"></div>
+          <svg class="splash-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Simplified abstract logo representing the brand -->
+            <path d="M50 10C27.9 10 10 27.9 10 50C10 72.1 27.9 90 50 90C72.1 90 90 72.1 90 50C90 27.9 72.1 10 50 10ZM70 55H55V70H45V55H30V45H45V30H55V45H70V55Z" fill="#F1822C"/>
+          </svg>
+        </div>
+        <div style="text-align: center;">
+          <div class="splash-text">
+            GYM<span class="splash-text-primary">MIGO</span>
+          </div>
+          <div class="splash-loading-text" style="margin-top: 1rem;">
+            LOADING AWESOMENESS...
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
