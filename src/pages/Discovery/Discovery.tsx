@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Search, MapPin, Star, Filter, ArrowRight, Building2, User, LocateFixed, Loader2, Lock, Sparkles } from 'lucide-react';
+import { Search, MapPin, Star, Filter, ArrowRight, Building2, User, LocateFixed, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
@@ -24,19 +24,23 @@ const Discovery = () => {
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
+    setItems([]); // Clear previous items to prevent showing stale data on error or tab switch
     try {
       const endpoint = activeTab === 'gyms' ? '/gyms/' : '/trainers/';
+      const sortValue = isNearMe && activeTab === 'gyms' ? 'distance' : 'rating';
       const params: any = {
         search,
         page_size: 20,
-        sort_by: isNearMe ? 'distance' : 'rating'
+        sort_by: sortValue
       };
 
       if (selectedLocation) {
-        params.lat = selectedLocation.latitude;
-        params.lng = selectedLocation.longitude;
-        if (isNearMe) {
-          params.radius = radius;
+        if (activeTab === 'gyms') {
+          params.lat = selectedLocation.latitude;
+          params.lng = selectedLocation.longitude;
+          if (isNearMe) {
+            params.radius = radius;
+          }
         }
       }
 
@@ -155,11 +159,6 @@ const Discovery = () => {
                 }`}
             >
               {tab}
-              {tab === 'trainers' && (
-                <span className="text-[8px] bg-white/10 text-white/40 px-1.5 py-0.5 rounded-full border border-white/5 tracking-tighter">
-                  SOON
-                </span>
-              )}
             </button>
           ))}
         </div>
@@ -168,29 +167,7 @@ const Discovery = () => {
       {/* Results Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         <AnimatePresence mode="popLayout">
-          {activeTab === 'trainers' ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="col-span-full py-24 flex flex-col items-center justify-center text-center space-y-6"
-            >
-              <div className="w-24 h-24 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary relative">
-                <div className="absolute inset-0 bg-primary blur-2xl opacity-20" />
-                <Lock size={40} className="relative z-10" />
-              </div>
-              <div className="space-y-2 max-w-sm">
-                <div className="flex items-center justify-center gap-2 text-primary">
-                  <Sparkles size={16} />
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">Coming Soon</span>
-                  <Sparkles size={16} />
-                </div>
-                <h2 className="text-3xl font-display font-black italic tracking-tight">EXPERT MENTORS ARE ARRIVING</h2>
-                <p className="text-white/40 text-sm leading-relaxed px-4">
-                  We're currently vetting the elite trainers in your city to ensure you get only the best guidance. Check back soon!
-                </p>
-              </div>
-            </motion.div>
-          ) : loading ? (
+         {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="glass-card h-80 animate-pulse bg-white/5" />
             ))
@@ -220,6 +197,12 @@ const Discovery = () => {
                       <Building2 size={100} />
                     </div>
                   )
+                ) : item.avatar_url ? (
+                  <img
+                    src={item.avatar_url}
+                    alt={item.full_name}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center text-white/10 group-hover:scale-110 transition-transform duration-700">
                     <User size={100} />
@@ -260,10 +243,27 @@ const Discovery = () => {
                   <h3 className="text-lg md:text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
                     {activeTab === 'gyms' ? item.name : item.full_name || 'Pro Trainer'}
                   </h3>
-                  {activeTab === 'gyms' && item.description && (
-                    <p className="text-[11px] md:text-xs text-white/30 line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
+                  {activeTab === 'gyms' ? (
+                    item.description && (
+                      <p className="text-[11px] md:text-xs text-white/30 line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+                    )
+                  ) : (
+                    item.specializations && item.specializations.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-1 mb-1">
+                        {item.specializations.slice(0, 3).map((spec: string, idx: number) => (
+                          <span key={idx} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-white/60">
+                            {spec}
+                          </span>
+                        ))}
+                        {item.specializations.length > 3 && (
+                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-white/60">
+                            +{item.specializations.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )
                   )}
                   <div 
                     role="button"

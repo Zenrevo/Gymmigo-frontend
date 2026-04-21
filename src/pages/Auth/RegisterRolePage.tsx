@@ -3,11 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase, FileText, Mail, UserCircle, MapPin } from 'lucide-react';
+import {
+  User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase,
+  FileText, Mail, UserCircle, MapPin, DollarSign, Clock, Upload,
+  Award, Globe, Home as HomeIcon, Wifi, X, Plus, Star
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../components/BrandLogo';
 import { clsx } from 'clsx';
 import MapPickerModal from '../../components/MapPickerModal';
+
+const SPECIALIZATION_OPTIONS = [
+  'weight_loss', 'muscle_gain', 'bodybuilding', 'crossfit', 'yoga',
+  'pilates', 'cardio', 'strength_training', 'hiit', 'functional_training',
+  'sports_specific', 'rehab', 'martial_arts', 'zumba', 'nutrition',
+  'prenatal', 'postnatal', 'senior_fitness', 'kids_fitness', 'flexibility'
+];
 const roles = [
   {
     id: 'user',
@@ -44,12 +55,24 @@ const RegisterRolePage = () => {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
+    bio: '',
     business_name: '',
     gstin: '',
     pan_number: '',
     experience_years: '',
     specializations: '',
-    // Address Fields (Primarily for Member onboarding)
+    // Trainer-specific
+    selected_specializations: [] as string[],
+    hourly_rate: '',
+    monthly_charges: '',
+    session_duration_mins: '60',
+    is_available_online: false,
+    is_available_offline: true,
+    accepts_home_visits: false,
+    certifications: [] as { name: string; issued_by: string; certificate_url: string }[],
+    cert_name: '',
+    cert_issued_by: '',
+    // Address Fields
     address_line1: '',
     landmark: '',
     city: '',
@@ -57,7 +80,9 @@ const RegisterRolePage = () => {
     pincode: '',
     latitude: undefined as number | undefined,
     longitude: undefined as number | undefined,
+    location_address: '',
   });
+  const [uploadingCert, setUploadingCert] = useState(false);
 
   const { user, login, switchRole, refreshUser } = useAuth();
   const { showNotification } = useNotification();
@@ -74,6 +99,7 @@ const RegisterRolePage = () => {
       pincode: result.pincode,
       latitude: result.latitude,
       longitude: result.longitude,
+      location_address: result.address_line1,
     }));
     setIsMapOpen(false);
   };
@@ -160,13 +186,25 @@ const RegisterRolePage = () => {
           await axios.post(`${API_URL}/profile/me/addresses`, addressPayload);
         }
       } else if (selectedRole === 'trainer') {
-        // Backend TrainerProfileCreate requires expertises list
         endpoint = '/trainer/profile/create';
         payload = {
           full_name: formData.full_name,
-          bio: `Professional trainer with ${formData.experience_years} years experience.`,
+          email: formData.email || undefined,
+          bio: formData.bio || `Professional trainer with ${formData.experience_years} years experience.`,
           experience_years: parseInt(formData.experience_years) || 0,
-          expertises: formData.specializations.split(',').map(s => s.trim()).filter(s => s)
+          expertises: formData.selected_specializations.length > 0
+            ? formData.selected_specializations
+            : formData.specializations.split(',').map((s: string) => s.trim()).filter((s: string) => s),
+          hourly_rate: formData.hourly_rate ? parseInt(formData.hourly_rate) : undefined,
+          monthly_charges: formData.monthly_charges ? parseInt(formData.monthly_charges) : undefined,
+          session_duration_mins: parseInt(formData.session_duration_mins) || 60,
+          is_available_online: formData.is_available_online,
+          is_available_offline: formData.is_available_offline,
+          accepts_home_visits: formData.accepts_home_visits,
+          certifications: formData.certifications.length > 0 ? formData.certifications : undefined,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
+          location_address: formData.location_address || formData.address_line1,
         };
         await axios.post(`${API_URL}${endpoint}`, payload);
       } else if (selectedRole === 'gym_owner') {
@@ -438,38 +476,256 @@ const RegisterRolePage = () => {
 
                 {/* ── ROLE SPECIFIC FIELDS ── */}
                 {selectedRole === 'trainer' && (
-                  <div className="space-y-4">
+                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                    {/* ── Section: Professional Info ── */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <Briefcase className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Professional Info</h3>
+                    </div>
+
                     <div className="space-y-2">
-                      <label className="text-sm text-white/60 ml-1">Years of Experience</label>
-                      <div className="relative">
-                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                        <input
-                          type="number"
-                          placeholder="5"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
-                          value={formData.experience_years}
-                          onChange={(e) => setFormData({ ...formData, experience_years: e.target.value })}
-                          required
-                        />
+                      <label className="text-sm text-white/60 ml-1">Bio / About You</label>
+                      <textarea
+                        placeholder="Tell clients about your training philosophy, approach, and what makes you unique..."
+                        rows={3}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all resize-none"
+                        value={formData.bio}
+                        onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">Years of Experience *</label>
+                        <div className="relative">
+                          <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="5"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                            value={formData.experience_years}
+                            onChange={(e) => setFormData({ ...formData, experience_years: e.target.value })}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">Session Duration (mins)</label>
+                        <div className="relative">
+                          <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <select
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all appearance-none"
+                            value={formData.session_duration_mins}
+                            onChange={(e) => setFormData({ ...formData, session_duration_mins: e.target.value })}
+                          >
+                            <option value="30">30 mins</option>
+                            <option value="45">45 mins</option>
+                            <option value="60">60 mins</option>
+                            <option value="90">90 mins</option>
+                            <option value="120">120 mins</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm text-white/60 ml-1">Specializations (comma separated)</label>
-                      <div className="relative">
-                        <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-                        <input
-                          type="text"
-                          placeholder="weight_loss, muscle_gain, cardio"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
-                          value={formData.specializations}
-                          onChange={(e) => setFormData({ ...formData, specializations: e.target.value })}
-                          required
-                        />
-                        <p className="text-[10px] text-white/20 mt-1 ml-1 uppercase tracking-wider font-bold">
-                          Options: yoga, crossfit, bodybuilding, cardio, strength...
-                        </p>
+
+                    {/* ── Section: Specializations ── */}
+                    <div className="flex items-center gap-2 mt-4 mb-2">
+                      <Star className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Specializations *</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {SPECIALIZATION_OPTIONS.map(spec => {
+                        const isSelected = formData.selected_specializations.includes(spec);
+                        return (
+                          <button
+                            key={spec}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                selected_specializations: isSelected
+                                  ? prev.selected_specializations.filter(s => s !== spec)
+                                  : [...prev.selected_specializations, spec]
+                              }));
+                            }}
+                            className={clsx(
+                              "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize",
+                              isSelected
+                                ? "bg-primary/20 border-primary text-primary"
+                                : "bg-white/5 border-white/10 text-white/40 hover:border-white/30 hover:text-white/70"
+                            )}
+                          >
+                            {spec.replace(/_/g, ' ')}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {formData.selected_specializations.length === 0 && (
+                      <p className="text-[10px] text-white/20 mt-1 ml-1 uppercase tracking-wider font-bold">Select at least 1 specialization</p>
+                    )}
+
+                    <div className="w-full h-px bg-white/5 my-2" />
+
+                    {/* ── Section: Pricing ── */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <DollarSign className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Pricing</h3>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">Hourly Rate (₹)</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="500"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                            value={formData.hourly_rate}
+                            onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm text-white/60 ml-1">Monthly Package (₹)</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <input
+                            type="number"
+                            min="0"
+                            placeholder="5000"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                            value={formData.monthly_charges}
+                            onChange={(e) => setFormData({ ...formData, monthly_charges: e.target.value })}
+                          />
+                        </div>
                       </div>
                     </div>
+
+                    <div className="w-full h-px bg-white/5 my-2" />
+
+                    {/* ── Section: Availability ── */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Availability Mode</h3>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { key: 'is_available_online', label: 'Online', icon: Wifi, desc: 'Virtual sessions' },
+                        { key: 'is_available_offline', label: 'In-Person', icon: Dumbbell, desc: 'At gym/studio' },
+                        { key: 'accepts_home_visits', label: 'Home Visits', icon: HomeIcon, desc: 'At client\'s place' },
+                      ].map(mode => {
+                        const isActive = formData[mode.key as keyof typeof formData] as boolean;
+                        return (
+                          <button
+                            key={mode.key}
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, [mode.key]: !isActive }))}
+                            className={clsx(
+                              "flex flex-col items-center gap-2 p-4 rounded-xl border transition-all text-center",
+                              isActive
+                                ? "bg-primary/10 border-primary text-primary"
+                                : "bg-white/5 border-white/10 text-white/40 hover:border-white/20"
+                            )}
+                          >
+                            <mode.icon size={22} />
+                            <span className="text-xs font-bold">{mode.label}</span>
+                            <span className="text-[9px] opacity-50">{mode.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="w-full h-px bg-white/5 my-2" />
+
+                    {/* ── Section: Certifications ── */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <Award className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Certifications</h3>
+                    </div>
+
+                    {formData.certifications.length > 0 && (
+                      <div className="space-y-2">
+                        {formData.certifications.map((cert, idx) => (
+                          <div key={idx} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3 border border-white/10">
+                            <Award size={16} className="text-primary shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold truncate">{cert.name}</p>
+                              <p className="text-[10px] text-white/40">{cert.issued_by}</p>
+                            </div>
+                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== idx) }))} className="text-white/20 hover:text-red-400 transition-colors">
+                              <X size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="Certification name"
+                        className="bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all text-sm"
+                        value={formData.cert_name}
+                        onChange={(e) => setFormData({ ...formData, cert_name: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Issued by (e.g. ACE, NASM)"
+                        className="bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all text-sm"
+                        value={formData.cert_issued_by}
+                        onChange={(e) => setFormData({ ...formData, cert_issued_by: e.target.value })}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!formData.cert_name}
+                      onClick={() => {
+                        if (formData.cert_name) {
+                          setFormData(prev => ({
+                            ...prev,
+                            certifications: [...prev.certifications, { name: prev.cert_name, issued_by: prev.cert_issued_by || 'Self-declared', certificate_url: '' }],
+                            cert_name: '',
+                            cert_issued_by: '',
+                          }));
+                        }
+                      }}
+                      className="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <Plus size={16} /> Add Certification
+                    </button>
+
+                    <div className="w-full h-px bg-white/5 my-2" />
+
+                    {/* ── Section: Location ── */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Working Location *</h3>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsMapOpen(true)}
+                      className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-xl py-4 px-4 hover:border-primary transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                          <MapPin size={20} />
+                        </div>
+                        <div className="text-left">
+                          <span className={clsx("block text-sm font-bold", formData.location_address ? "text-white" : "text-white/20")}>
+                            {formData.location_address || 'Pin your working location on Map'}
+                          </span>
+                          {formData.location_address && (
+                            <span className="text-[10px] text-primary font-black uppercase tracking-widest">Location Set</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-primary text-xs font-bold uppercase tracking-widest px-3 py-1 bg-primary/10 rounded-lg">
+                        {formData.location_address ? 'Change' : 'Open Map'}
+                      </div>
+                    </button>
                   </div>
                 )}
 

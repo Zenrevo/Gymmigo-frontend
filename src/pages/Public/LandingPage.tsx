@@ -15,6 +15,7 @@ const LandingPage = () => {
   const [scrolled, setScrolled] = useState(false);
   const { token } = useAuth();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [randomHeights] = useState(() => [1, 2, 3, 4, 5, 6].map(() => 20 + Math.random() * 40));
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -235,7 +236,7 @@ const LandingPage = () => {
                            <p className="text-xs font-bold text-emerald-400">+24 Active Now</p>
                         </div>
                         <div className="flex gap-2">
-                           {[1,2,3,4,5,6].map(i => <div key={i} className="h-12 flex-1 bg-white/5 rounded-lg group-hover:bg-primary/20 transition-all duration-700" style={{ height: `${20 + Math.random() * 40}px` }} />)}
+                           {[1,2,3,4,5,6].map((i, index) => <div key={i} className="h-12 flex-1 bg-white/5 rounded-lg group-hover:bg-primary/20 transition-all duration-700" style={{ height: `${randomHeights[index] || 20}px` }} />)}
                         </div>
                       </div>
                    </div>

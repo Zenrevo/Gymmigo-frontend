@@ -91,7 +91,13 @@ const MainLayout = () => {
     { name: 'Profile', path: '/app/profile', icon: User },
   ];
 
-  if (user?.active_role === 'gym_owner') {
+  if (user?.active_role === 'trainer') {
+    navItems = [
+      { name: 'Home', path: '/app/dashboard', icon: Home },
+      { name: 'Explore', path: '/app/discovery', icon: Search },
+      { name: 'Profile', path: '/app/profile', icon: User },
+    ];
+  } else if (user?.active_role === 'gym_owner') {
     if (activeGymId) {
       navItems = [
         { name: 'Home', path: '/app/dashboard', icon: Home },
@@ -144,7 +150,7 @@ const MainLayout = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col text-white font-sans selection:bg-primary/30">
       {/* Header */}
-      <header className="nav-blur sticky top-0 z-40 px-4 sm:px-6 py-4 flex flex-col gap-4 border-b border-white/5 bg-black/60 backdrop-blur-xl">
+      <header className="nav-blur sticky top-0 z-40 px-3 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4 border-b border-white/5 bg-black/60 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/app/dashboard" className="hover:opacity-80 transition-all flex items-center gap-3">
@@ -296,22 +302,31 @@ const MainLayout = () => {
                         <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Switch Role</p>
                         <Shield size={10} className="text-white/20" />
                       </div>
-                      {user?.roles?.map((roleInfo: any) => (
-                        <button
-                          key={roleInfo.role}
-                          disabled={user.active_role === roleInfo.role}
-                          onClick={() => handleRoleSwitch(roleInfo.role)}
-                          className={clsx(
-                            "flex items-center justify-between w-full px-4 py-2 text-sm transition-all",
-                            user.active_role === roleInfo.role
-                              ? "text-primary bg-primary/5 cursor-default"
-                              : "text-white/60 hover:text-white hover:bg-white/10"
-                          )}
-                        >
-                          <span className="capitalize">{roleInfo.role.replace('_', ' ')}</span>
-                          {user.active_role === roleInfo.role && <LucideCheck size={14} className="text-primary" />}
-                        </button>
-                      ))}
+                      {user?.roles?.map((roleInfo: any) => {
+                        const isTrainer = roleInfo.role === 'trainer';
+                        const isActive = user.active_role === roleInfo.role;
+                        return (
+                          <button
+                            key={roleInfo.role}
+                            disabled={isActive || isTrainer}
+                            onClick={() => handleRoleSwitch(roleInfo.role)}
+                            className={clsx(
+                              "flex items-center justify-between w-full px-4 py-2 text-sm transition-all",
+                              isActive
+                                ? "text-primary bg-primary/5 cursor-default"
+                                : (isTrainer ? "text-white/20 cursor-not-allowed" : "text-white/60 hover:text-white hover:bg-white/10")
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="capitalize">{roleInfo.role.replace('_', ' ')}</span>
+                              {isTrainer && (
+                                <span className="text-[8px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 uppercase tracking-tighter">Soon</span>
+                              )}
+                            </div>
+                            {isActive && <LucideCheck size={14} className="text-primary" />}
+                          </button>
+                        );
+                      })}
                     </div>
 
                     <div className="pt-2 border-t border-white/5">
@@ -334,23 +349,23 @@ const MainLayout = () => {
           <button 
             onClick={() => setIsMapOpen(true)}
             className={clsx(
-              "flex-1 flex items-center gap-2 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border transition-all relative min-w-0 overflow-hidden",
+              "flex-1 flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-3 rounded-xl border transition-all relative min-w-0 overflow-hidden",
               isMismatch 
                 ? "bg-primary/20 border-primary/50 text-primary shadow-neon-sm" 
                 : "bg-white/5 border-white/10 text-white/60"
             )}
           >
-            <MapPin size={16} className={clsx("shrink-0", isMismatch ? "text-primary" : "text-primary/50")} />
+            <MapPin size={14} className={clsx("shrink-0", isMismatch ? "text-primary" : "text-primary/50")} />
             <div className="flex flex-col items-start min-w-0">
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/30">Location</span>
-              <span className="text-xs font-bold truncate w-full">
+              <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Location</span>
+              <span className="text-[11px] font-bold truncate w-full">
                 {selectedLocation?.address_line1 || 'Set current location'}
               </span>
             </div>
             {isMismatch && (
-              <div className="ml-auto bg-primary text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase">Mismatch</div>
+              <div className="ml-auto bg-primary text-black text-[8px] font-black px-1.5 py-0.5 rounded uppercase shrink-0">Mismatch</div>
             )}
-            <ChevronDown size={14} className="ml-auto opacity-40" />
+            <ChevronDown size={12} className="ml-auto opacity-40 shrink-0" />
           </button>
         </div>
       </header>
@@ -390,17 +405,20 @@ const MainLayout = () => {
 
       {/* Mobile Navigation */}
       {navItems.length > 0 && (
-        <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/15 backdrop-blur-3xl border border-white/20 px-8 py-3 rounded-xl flex items-center gap-12 shadow-2xl z-50 w-[90%] justify-around">
+        <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-2xl border border-white/10 px-6 py-2.5 rounded-2xl flex items-center gap-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 w-[85%] justify-around">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.path}
               className={clsx(
-                "flex flex-col items-center gap-1 transition-colors",
-                location.pathname === item.path ? "text-primary scale-110" : "text-white/40 hover:text-white"
+                "flex flex-col items-center gap-1 transition-all duration-300",
+                location.pathname === item.path ? "text-primary scale-110" : "text-white/30 hover:text-white"
               )}
             >
-              <item.icon size={24} />
+              <item.icon size={22} strokeWidth={location.pathname === item.path ? 2.5 : 2} />
+              <span className={clsx("text-[9px] font-black uppercase tracking-tighter", location.pathname === item.path ? "opacity-100" : "opacity-0")}>
+                {item.name}
+              </span>
             </Link>
           ))}
         </nav>
