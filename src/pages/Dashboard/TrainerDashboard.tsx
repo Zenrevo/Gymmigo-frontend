@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Users, Clock, Star, ArrowRight, TrendingUp,
-  CheckCircle2, XCircle, Calendar, MapPin,
+  Users, Clock, Star, ArrowRight,
+  CheckCircle2, Calendar, MapPin,
   Zap, DollarSign, Activity, ChevronRight,
-  Play, User, Timer, CircleDot, Shield,
+  User, Timer, Shield,
   AlertTriangle, MessageCircle, Package,
   Settings, Award, Briefcase, Plus,
   Image as ImageIcon, Trash2, Loader2
@@ -19,7 +19,6 @@ import AddCertificationModal from '../../components/AddCertificationModal';
 import MapPickerModal from '../../components/MapPickerModal';
 import TrainerProfessionalSettingsModal from '../../components/TrainerProfessionalSettingsModal';
 import TrainerPricingSettingsModal from '../../components/TrainerPricingSettingsModal';
-import BookingDetailModal from '../../components/BookingDetailModal';
 import { useNotification } from '../../context/NotificationContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -63,7 +62,6 @@ const TrainerDashboard = () => {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [allBookings, setAllBookings] = useState<any[]>([]);
   const [bookingsLoading, setBookingsLoading] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [selectedClient, setSelectedClient] = useState<any | null>(null);
   const [sessions, setSessions] = useState<any[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
@@ -705,7 +703,7 @@ const TrainerDashboard = () => {
                       .map((booking) => (
                       <div 
                         key={booking.id} 
-                        onClick={() => setSelectedBooking(booking)}
+                        onClick={() => setSelectedClient(clients.find(c => c.user_id === booking.user_id))}
                         className="glass-card p-5 flex items-center justify-between group cursor-pointer hover:border-primary/30 transition-all border border-transparent"
                       >
                         <div className="flex items-center gap-4">
@@ -1243,7 +1241,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
   );
 };
 
-const ScheduleSection = ({ availability, onViewManage }: { availability: any[]; onViewManage: () => void }) => (
+const ScheduleSection = ({ availability, onViewManage }: { availability: any[] | undefined; onViewManage: () => void }) => (
   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
     <div className="flex items-center justify-between">
       <h3 className="text-xl font-bold">Weekly Schedule</h3>

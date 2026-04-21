@@ -3,10 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Star, MapPin, Clock, Calendar, ArrowLeft,
+  Star, Calendar, ArrowLeft,
   Shield, Award, CheckCircle2, Globe, Home,
-  Building2, User, Users, ChevronRight, Dumbbell,
-  Timer, Heart, BadgeCheck, Languages, Play,
+  Building2, User, Users, Dumbbell,
+  Timer, BadgeCheck, Languages,
   Image as ImageIcon, Package, MessageCircle
 } from 'lucide-react';
 import clsx from 'clsx';
@@ -17,16 +17,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
-};
+
 
 const TrainerProfile = () => {
   const { trainerId } = useParams();
@@ -470,16 +461,9 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState('');
-  const [slots, setSlots] = useState<any>(null);
-  const [slotsLoading, setSlotsLoading] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState('');
-  const [sessionType, setSessionType] = useState('gym');
-  const [location, setLocation] = useState('');
-  const [isMapOpen, setIsMapOpen] = useState(false);
-  const [locationObj, setLocationObj] = useState<any>(null);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [pkg, setPkg] = useState<any>(selectedPackage);
+  const pkg = selectedPackage;
 
   // Generate next 14 days
   const dates = Array.from({ length: 14 }, (_, i) => {
@@ -690,16 +674,6 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
           </div>
         </motion.div>
       </motion.div>
-      <MapPickerModal
-        isOpen={isMapOpen}
-        onClose={(e?: any) => { e?.stopPropagation(); setIsMapOpen(false); }}
-        onConfirm={(addr) => {
-          setLocationObj(addr);
-          setLocation(addr.address_line1);
-          setIsMapOpen(false);
-        }}
-        initialCenter={trainer.latitude ? { lat: trainer.latitude, lng: trainer.longitude } : undefined}
-      />
     </>
   );
 };
