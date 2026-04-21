@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Flame, Droplets, Target, Activity, ChevronRight, Zap, TrendingUp, Dumbbell } from 'lucide-react';
+import { Trophy, Flame, Droplets, Target, Activity, ChevronRight, TrendingUp, Dumbbell } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useNotification } from '../context/NotificationContext';
 

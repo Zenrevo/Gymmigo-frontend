@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
-  Users, Dumbbell, Building2, 
+  Users, Building2, 
   TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar
 } from 'lucide-react';

@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, TrendingUp, AlertTriangle, MessageCircle, Send, BellRing, Star, Zap, UserX, Clock } from 'lucide-react';
+import { TrendingUp, MessageCircle, BellRing, Star, Zap, UserX, Clock } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useNotification } from '../context/NotificationContext';
 
