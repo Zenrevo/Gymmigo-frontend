@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import {
   User, Dumbbell, Building2, Check, ArrowRight, Loader2, Briefcase,
-  FileText, Mail, UserCircle, MapPin, DollarSign, Clock, Upload,
+  Mail, UserCircle, MapPin, DollarSign, Clock,
   Award, Globe, Home as HomeIcon, Wifi, X, Plus, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -82,7 +82,7 @@ const RegisterRolePage = () => {
     longitude: undefined as number | undefined,
     location_address: '',
   });
-  const [uploadingCert, setUploadingCert] = useState(false);
+
 
   const { user, login, switchRole, refreshUser } = useAuth();
   const { showNotification } = useNotification();

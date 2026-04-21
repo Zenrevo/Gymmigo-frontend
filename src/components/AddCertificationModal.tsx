@@ -30,7 +30,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.issued_by || !formData.issue_year) {
-      showNotification('error', 'Please fill in the required fields.');
+      showNotification('Please fill in the required fields.', 'error');
       return;
     }
 
@@ -47,12 +47,12 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
       }
 
       await axios.post(`${API_URL}/trainer/certifications`, payload);
-      showNotification('success', 'Certification added successfully!');
+      showNotification('Certification added successfully!', 'success');
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error('Failed to add certification:', err);
-      showNotification('error', err.response?.data?.message || 'Failed to add certification');
+      showNotification(err.response?.data?.message || 'Failed to add certification', 'error');
     } finally {
       setLoading(false);
     }

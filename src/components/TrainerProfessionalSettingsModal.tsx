@@ -66,12 +66,12 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
       };
 
       await axios.patch(`${API_URL}/trainer`, payload);
-      showNotification('success', 'Professional details updated successfully!');
+      showNotification('Professional details updated successfully!', 'success');
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error('Failed to update professional details:', err);
-      showNotification('error', err.response?.data?.message || 'Failed to validate updates');
+      showNotification(err.response?.data?.message || 'Failed to validate updates', 'error');
     } finally {
       setSaving(false);
     }

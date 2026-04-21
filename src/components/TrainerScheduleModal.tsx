@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Calendar, Loader2, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Loader2 } from 'lucide-react';
 import Modal from './Modal';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
@@ -91,7 +91,7 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.is_available && formData.slots.length === 0) {
-      showNotification('error', 'Please add at least one time slot if available.');
+      showNotification('Please add at least one time slot if available.', 'error');
       return;
     }
 
@@ -103,12 +103,12 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
       };
 
       await axios.post(`${API_URL}/trainer/availability`, payload);
-      showNotification('success', 'Availability updated successfully!');
+      showNotification('Availability updated successfully!', 'success');
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error('Failed to update availability:', err);
-      showNotification('error', err.response?.data?.message || 'Failed to update schedule');
+      showNotification(err.response?.data?.message || 'Failed to update schedule', 'error');
     } finally {
       setLoading(false);
     }

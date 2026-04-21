@@ -12,8 +12,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const OverviewTab = () => {
   const { gym, gymId } = useGym();
 
-  // Daily QR state
-  const [qrData, setQrData] = useState<{ qr_payload: string; date: string; token: string } | null>(null);
+  // Gym QR state
+  const [qrData, setQrData] = useState<{ qr_payload: string; gym_id?: string } | null>(null);
   const [qrLoading, setQrLoading] = useState(true);
   const [qrFullscreen, setQrFullscreen] = useState(false);
 
@@ -51,9 +51,9 @@ const OverviewTab = () => {
       ctx!.fillStyle = '#000000';
       ctx!.font = 'bold 18px Inter, sans-serif';
       ctx!.textAlign = 'center';
-      ctx!.fillText(`${gym?.gym?.name || 'Gym'} — ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`, 300, 580);
+      ctx!.fillText(`${gym?.gym?.name || 'Gym'} — Check-in QR`, 300, 580);
       const link = document.createElement('a');
-      link.download = `daily-qr-${qrData?.date || 'today'}.png`;
+      link.download = `gym-qr-checkin.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     };
@@ -62,9 +62,8 @@ const OverviewTab = () => {
 
   const occupancyPercent = gym ? Math.round(((gym.gym.current_occupancy || 0) / (gym.gym.max_capacity || 100)) * 100) : 0;
 
-  const todayFormatted = new Date().toLocaleDateString('en-IN', {
-    weekday: 'long', day: 'numeric', month: 'short', year: 'numeric'
-  });
+
+
 
   return (
     <div className="space-y-8">
@@ -171,7 +170,7 @@ const OverviewTab = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* ── Daily QR Card ──────────────────────────────────── */}
+        {/* ── Check-in QR Card ──────────────────────────────────── */}
         <div className="glass-card p-6 space-y-4 overflow-hidden relative">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-emerald-400 to-blue-500" />
           
@@ -181,8 +180,8 @@ const OverviewTab = () => {
                 <QrCode size={20} />
               </div>
               <div>
-                <h3 className="font-bold">Today's Check-in QR</h3>
-                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">{todayFormatted}</p>
+                <h3 className="font-bold">Check-in QR</h3>
+                <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Permanent • Print & Display</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -220,7 +219,7 @@ const OverviewTab = () => {
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                    Refreshes at midnight
+                    Never expires — print it once
                   </p>
                 </div>
               </div>
@@ -267,11 +266,11 @@ const OverviewTab = () => {
       </div>
 
       {/* ── QR Fullscreen Modal ──────────────────────────────── */}
-      <Modal isOpen={qrFullscreen} onClose={() => setQrFullscreen(false)} title="Daily Check-in QR Code" maxWidth="max-w-md">
+      <Modal isOpen={qrFullscreen} onClose={() => setQrFullscreen(false)} title="Check-in QR Code" maxWidth="max-w-md">
         <div className="flex flex-col items-center space-y-6 py-4">
           <div className="text-center space-y-1">
             <h3 className="text-lg font-bold">{gym?.gym?.name || 'Your Gym'}</h3>
-            <p className="text-sm text-white/40">{todayFormatted}</p>
+            <p className="text-sm text-emerald-400 font-bold">Permanent Check-in Code</p>
           </div>
 
           {qrData && (
@@ -292,9 +291,9 @@ const OverviewTab = () => {
               Members scan to check in automatically.
             </p>
             <div className="flex items-center justify-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-emerald-400" />
               <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest">
-                New code every midnight
+                Permanent — works forever
               </p>
             </div>
           </div>

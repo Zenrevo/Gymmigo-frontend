@@ -69,12 +69,12 @@ export default function TrainerPricingSettingsModal({ isOpen, onClose, onSuccess
       };
 
       await axios.patch(`${API_URL}/trainer`, payload);
-      showNotification('success', 'Pricing updated successfully!');
+      showNotification('Pricing updated successfully!', 'success');
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error('Failed to update pricing:', err);
-      showNotification('error', err.response?.data?.message || 'Failed to update pricing');
+      showNotification(err.response?.data?.message || 'Failed to update pricing', 'error');
     } finally {
       setSaving(false);
     }

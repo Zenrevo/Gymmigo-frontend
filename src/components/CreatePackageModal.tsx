@@ -35,7 +35,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.price || !formData.total_sessions || !formData.validity_days) {
-      showNotification('error', 'Please fill in all required fields.');
+      showNotification('Please fill in all required fields.', 'error');
       return;
     }
 
@@ -52,12 +52,12 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
       };
 
       await axios.post(`${API_URL}/trainer/packages`, payload);
-      showNotification('success', 'Package created successfully!');
+      showNotification('Package created successfully!', 'success');
       onSuccess();
       onClose();
     } catch (err: any) {
       console.error('Failed to create package:', err);
-      showNotification('error', err.response?.data?.message || 'Failed to create package');
+      showNotification(err.response?.data?.message || 'Failed to create package', 'error');
     } finally {
       setLoading(false);
     }

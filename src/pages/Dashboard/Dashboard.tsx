@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
   Users, Dumbbell, Building2, 
-  TrendingUp, Clock, Star, Plus, ArrowRight, ScanLine, Activity,
+  TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar
 } from 'lucide-react';
 import clsx from 'clsx';

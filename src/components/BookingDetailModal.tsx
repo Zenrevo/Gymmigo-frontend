@@ -4,9 +4,9 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Calendar, Clock, MapPin, 
-  User, Package, DollarSign, Activity, Users,
-  CheckCircle2, XCircle, Phone, MessageSquare,
-  ShieldCheck, AlertCircle, Info, Timer, Globe,
+  DollarSign, Activity,
+  XCircle, Phone, MessageSquare,
+  ShieldCheck, AlertCircle, Timer, Globe,
   Loader2, ArrowRight
 } from 'lucide-react';
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
