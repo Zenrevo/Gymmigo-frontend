@@ -29,7 +29,7 @@ export default function AssistantPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const streamingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const streamingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

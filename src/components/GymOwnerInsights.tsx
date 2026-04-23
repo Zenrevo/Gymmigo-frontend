@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, MessageCircle, BellRing, Star, Zap, UserX, Clock, Building2 } from 'lucide-react';
+import { TrendingUp, MessageCircle, BellRing, Star, Zap, UserX, Clock } from 'lucide-react';
 import { clsx } from 'clsx';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
@@ -251,7 +251,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                 Top Staff
               </h3>
               <div className="space-y-4">
-                {topStaff.map((staff, i) => (
+                {topStaff.map((staff: any, i: number) => (
                   <div key={staff.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/20 to-orange-600/20 border border-primary/30 flex items-center justify-center text-xs font-bold text-primary">

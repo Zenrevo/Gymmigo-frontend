@@ -1,5 +1,5 @@
+import React from 'react';
 import { Sparkles } from 'lucide-react';
-import { clsx } from 'clsx';
 
 interface MigoAILogoProps {
   size?: number;

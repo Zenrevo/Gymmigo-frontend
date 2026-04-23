@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Flame, Target, Activity, ChevronRight, Dumbbell } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Trophy, Flame, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import axios from 'axios';
 
