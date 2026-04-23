@@ -1,0 +1,210 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { clsx } from 'clsx';
+import { Utensils, Dumbbell, Calendar, RefreshCw, X, ArrowRight } from 'lucide-react';
+import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
+export default function PersonalizationView() {
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedRec, setSelectedRec] = useState<any>(null);
+  const [regenerating, setRegenerating] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, []);
+
+  const fetchRecommendations = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/ai/recommendations`);
+      if (res.data?.data) {
+        setRecommendations(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch recommendations:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegenerate = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setRegenerating(id);
+    try {
+      const res = await axios.post(`${API_URL}/ai/recommendations/${id}/regenerate`, {}, { timeout: 30000 });
+      if (res.data?.data) {
+        fetchRecommendations();
+        if (selectedRec && selectedRec.id === id) {
+          setSelectedRec(res.data.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to regenerate:', err);
+    } finally {
+      setRegenerating(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const activeRecs = recommendations.filter(r => r.is_active);
+  const pastRecs = recommendations.filter(r => !r.is_active);
+
+  return (
+    <div className="flex-1 h-full overflow-y-auto">
+      <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-8">
+        
+        {/* Active Recommendations Section */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-lg font-black text-white uppercase tracking-wider">Current Focus</h2>
+            <div className="h-[1px] flex-1 bg-white/10 ml-4" />
+          </div>
+
+          {activeRecs.length === 0 ? (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center flex flex-col items-center">
+              <Calendar size={32} className="text-white/20 mb-3" />
+              <p className="text-white/60 text-sm">No active plans.</p>
+              <p className="text-white/40 text-xs mt-1">Ask MigoAI for a workout or diet plan to see it here.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeRecs.map((item) => (
+                <div 
+                  key={item.id}
+                  onClick={() => setSelectedRec(item)}
+                  className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 hover:bg-white/[0.05] hover:border-primary/50 transition-all cursor-pointer group"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
+                        {item.type === 'workout' ? <Dumbbell size={14} /> : <Utensils size={14} />}
+                      </div>
+                      <div>
+                        <p className="text-xs text-white/40 uppercase tracking-wider font-bold">
+                          {item.type} Plan
+                        </p>
+                        <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">
+                          {item.title}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => handleRegenerate(item.id, e)}
+                      disabled={regenerating !== null}
+                      className={clsx(
+                        "p-2 rounded-full transition-colors",
+                        regenerating === item.id 
+                          ? "bg-primary text-white" 
+                          : "bg-white/5 text-white/40 hover:text-white hover:bg-white/10"
+                      )}
+                    >
+                      <RefreshCw size={14} className={regenerating === item.id ? "animate-spin" : ""} />
+                    </button>
+                  </div>
+                  
+                  {/* Snippet */}
+                  <p className="text-xs text-white/50 line-clamp-3 leading-relaxed">
+                    {item.content.replace(/\[METER:[^\]]+\]/g, '').replace(/[#*`]/g, '')}
+                  </p>
+                  
+                  <div className="mt-4 pt-3 border-t border-white/5 flex justify-between items-center">
+                    <span className="text-[10px] text-white/30 font-bold tracking-wider">
+                      Gen: {item.generation_count} • {new Date(item.date_for).toLocaleDateString()}
+                    </span>
+                    <div className="flex items-center gap-1 text-[10px] text-primary font-bold uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                      View Full <ArrowRight size={10} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Past Recommendations */}
+        {pastRecs.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-4 mt-8">
+              <h2 className="text-sm font-bold text-white/40 uppercase tracking-wider">Past Plans</h2>
+              <div className="h-[1px] flex-1 bg-white/5 ml-4" />
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              {pastRecs.map((item) => (
+                <div 
+                  key={item.id}
+                  onClick={() => setSelectedRec(item)}
+                  className="bg-white/[0.02] border border-white/5 rounded-xl p-3 flex items-center justify-between hover:bg-white/[0.05] cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center text-white/40">
+                      {item.type === 'workout' ? <Dumbbell size={12} /> : <Utensils size={12} />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white/80">{item.title}</p>
+                      <p className="text-[10px] text-white/40 uppercase tracking-wider">
+                        {new Date(item.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight size={14} className="text-white/20" />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      {/* Detail Modal */}
+      {selectedRec && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
+                  {selectedRec.type === 'workout' ? <Dumbbell size={14} /> : <Utensils size={14} />}
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white">{selectedRec.title}</h3>
+                  <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold">
+                    Generated for {new Date(selectedRec.date_for).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedRec(null)}
+                className="p-2 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              <MarkdownRenderer content={selectedRec.content} />
+            </div>
+            
+            <div className="p-4 border-t border-white/10 bg-black flex justify-end">
+              <button
+                onClick={() => handleRegenerate(selectedRec.id)}
+                disabled={regenerating === selectedRec.id}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary/20 text-primary border border-primary/30 font-bold hover:bg-primary hover:text-white transition-colors disabled:opacity-50"
+              >
+                <RefreshCw size={16} className={regenerating === selectedRec.id ? "animate-spin" : ""} />
+                {regenerating === selectedRec.id ? 'Regenerating...' : 'Regenerate Plan'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

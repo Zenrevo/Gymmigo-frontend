@@ -443,7 +443,7 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
         )}
 
         {/* Gym Owner Insights / Analytics & CRM */}
-        <GymOwnerInsights />
+        <GymOwnerInsights gyms={data} />
 
         {/* Global Recent Reviews */}
         <div className="space-y-6 pt-6">

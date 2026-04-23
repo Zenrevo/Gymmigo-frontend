@@ -12,6 +12,7 @@ import GymProfile from './pages/Discovery/GymProfile';
 import TrainerProfile from './pages/Discovery/TrainerProfile';
 import SessionDetail from './pages/Dashboard/SessionDetail';
 import Profile from './pages/Profile/Profile';
+import AssistantPage from './pages/Assistant/AssistantPage';
 import AddGymPage from './pages/Dashboard/AddGymPage';
 import GymManageDashboard from './pages/Dashboard/GymManageDashboard';
 import { GymProvider } from './context/GymContext';
@@ -73,6 +74,7 @@ const AppRoutes = () => {
         <Route path="trainers/:trainerId" element={<TrainerProfile />} />
         <Route path="sessions/:sessionId" element={<SessionDetail />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="assistant" element={<AssistantPage />} />
         <Route path="gym-owner/add-gym" element={<AddGymPage />} />
         <Route path="gym-owner/gyms/:gymId" element={<GymProvider><GymManageDashboard /></GymProvider>}>
           <Route index element={<OverviewTab />} />

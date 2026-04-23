@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Home, Search, User, LogOut, Shield, ChevronDown,
-  Settings, Bell, Users, Check as LucideCheck
+  Settings, Bell, Users, Check as LucideCheck, Bot
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -88,6 +88,7 @@ const MainLayout = () => {
   let navItems: any[] = [
     { name: 'Home', path: '/app/dashboard', icon: Home },
     { name: 'Explore', path: '/app/discovery', icon: Search },
+    { name: 'MigoAI', path: '/app/assistant', icon: Bot },
     { name: 'Profile', path: '/app/profile', icon: User },
   ];
 
@@ -95,6 +96,7 @@ const MainLayout = () => {
     navItems = [
       { name: 'Home', path: '/app/dashboard', icon: Home },
       { name: 'Explore', path: '/app/discovery', icon: Search },
+      { name: 'MigoAI', path: '/app/assistant', icon: Bot },
       { name: 'Profile', path: '/app/profile', icon: User },
     ];
   } else if (user?.active_role === 'gym_owner') {
