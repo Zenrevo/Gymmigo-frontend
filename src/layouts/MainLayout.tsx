@@ -3,7 +3,7 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Home, Search, User, LogOut, Shield, ChevronDown,
-  Settings, Bell, Users, Check as LucideCheck, Bot
+  Settings, Bell, Users, Check as LucideCheck, Bot, Calendar
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -92,7 +92,15 @@ const MainLayout = () => {
     { name: 'Profile', path: '/app/profile', icon: User },
   ];
 
-  if (user?.active_role === 'trainer') {
+  if (user?.active_role === 'user') {
+    navItems = [
+      { name: 'Home', path: '/app/dashboard', icon: Home },
+      { name: 'Explore', path: '/app/discovery', icon: Search },
+      { name: 'Calendar', path: '/app/calendar', icon: Calendar },
+      { name: 'MigoAI', path: '/app/assistant', icon: Bot },
+      { name: 'Profile', path: '/app/profile', icon: User },
+    ];
+  } else if (user?.active_role === 'trainer') {
     navItems = [
       { name: 'Home', path: '/app/dashboard', icon: Home },
       { name: 'Explore', path: '/app/discovery', icon: Search },
