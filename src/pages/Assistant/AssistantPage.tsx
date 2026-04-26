@@ -36,12 +36,23 @@ export default function AssistantPage() {
   const [selectedImage, setSelectedImage] = useState<{ base64: string, mime: string } | null>(null);
   const streamingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const isAtBottom = useRef(true);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    // Within 100px of bottom is considered "at bottom"
+    isAtBottom.current = scrollHeight - scrollTop - clientHeight < 100;
+  };
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only auto-scroll if user is already at the bottom or if it's the very first message
+    if (isAtBottom.current || messages.length === 1) {
+      scrollToBottom(currentStreamingMessage !== null ? 'auto' : 'smooth');
+    }
   }, [messages, currentStreamingMessage]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,7 +212,10 @@ export default function AssistantPage() {
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+            <div 
+              onScroll={handleScroll}
+              className="flex-1 overflow-y-auto p-4 md:p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent scroll-smooth"
+            >
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center gap-6">
                   <MigoAILogo size={64} />
