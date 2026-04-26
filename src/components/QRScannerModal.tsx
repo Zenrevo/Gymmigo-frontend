@@ -5,6 +5,7 @@ import { Camera, Loader2, CheckCircle2, XCircle, ScanLine, Dumbbell, Bot } from 
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { clsx } from 'clsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
