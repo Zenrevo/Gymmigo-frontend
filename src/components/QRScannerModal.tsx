@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import Modal from './Modal';
-import { Camera, Loader2, CheckCircle2, XCircle, ScanLine, Dumbbell } from 'lucide-react';
+import { Camera, Loader2, CheckCircle2, XCircle, ScanLine, Dumbbell, Bot } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ interface QRScannerModalProps {
   onSuccess?: (data: any) => void;
 }
 
-type ScanState = 'scanning' | 'processing' | 'success' | 'error' | 'confirm_checkin' | 'confirm_checkout';
+type ScanState = 'scanning' | 'processing' | 'success' | 'error' | 'confirm_checkin' | 'confirm_checkout' | 'ask_update_plan';
 
 const WORKOUT_OPTIONS = [
   'Chest Day',
@@ -35,6 +35,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
   
   const [confirmData, setConfirmData] = useState<{ action: 'check_in' | 'check_out', gym_name: string, payload: any } | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
+  const [recommendedWorkout, setRecommendedWorkout] = useState<string | null>(null);
   const [customWorkout, setCustomWorkout] = useState('');
   
   const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -50,7 +51,10 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
     setResultData(null);
     setConfirmData(null);
     setSelectedWorkout(null);
+    setRecommendedWorkout(null);
     setCustomWorkout('');
+
+    fetchRecommendation();
 
     // Small delay to ensure DOM is ready
     const timeout = setTimeout(() => {
@@ -159,6 +163,24 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
     }
   };
 
+  const fetchRecommendation = async () => {
+    try {
+      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
+      const res = await axios.get(`${API_URL}/ai/recommendations`, {
+        ...authHeader,
+        params: { date: new Date().toISOString().split('T')[0] }
+      });
+      const workoutRec = res.data?.data?.find((r: any) => r.type === 'workout' && r.is_active);
+      if (workoutRec) {
+        setRecommendedWorkout(workoutRec.title);
+        // Auto-select the recommended one
+        setSelectedWorkout(workoutRec.title);
+      }
+    } catch (err) {
+      console.error('Failed to fetch recommendation for modal:', err);
+    }
+  };
+
   const performActualAction = async (isConfirmed: boolean = false) => {
     if (!confirmData) return;
     
@@ -208,6 +230,13 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
       handleClose();
       navigate(`/app/gyms/${resultData.gym_id}`);
     }
+  };
+
+  const isRecommended = (option: string) => {
+    if (!recommendedWorkout) return false;
+    const lowerOpt = option.toLowerCase();
+    const lowerRec = recommendedWorkout.toLowerCase();
+    return lowerRec.includes(lowerOpt) || lowerOpt.includes(lowerRec);
   };
 
   return (
@@ -290,22 +319,40 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
               </div>
               
               <div className="space-y-4">
-                <p className="text-primary font-bold uppercase tracking-widest text-[10px]">What are you training today?</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-primary font-bold uppercase tracking-widest text-[10px]">What are you training today?</p>
+                  {recommendedWorkout && (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-[9px] font-black text-primary uppercase tracking-tighter animate-pulse">
+                      <Bot size={10} /> MigoAI Recommends
+                    </div>
+                  )}
+                </div>
                 
                 <div className="flex flex-wrap gap-2">
-                  {WORKOUT_OPTIONS.map(option => (
-                    <button
-                      key={option}
-                      onClick={() => setSelectedWorkout(option)}
-                      className={`px-4 py-2 rounded-full border text-sm font-bold transition-all ${
-                        selectedWorkout === option 
-                          ? 'bg-primary border-primary text-black' 
-                          : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
+                  {WORKOUT_OPTIONS.map(option => {
+                    const recommended = isRecommended(option);
+                    const selected = selectedWorkout === option;
+                    
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => setSelectedWorkout(option)}
+                        className={clsx(
+                          "px-4 py-2 rounded-full border text-sm font-bold transition-all relative overflow-hidden",
+                          selected 
+                            ? "bg-primary border-primary text-black" 
+                            : recommended
+                              ? "bg-primary/10 border-primary/30 text-white hover:bg-primary/20"
+                              : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
+                        )}
+                      >
+                        {option}
+                        {recommended && !selected && (
+                          <div className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full -translate-y-1 translate-x-1" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
                 
                 {selectedWorkout === 'Other' && (
@@ -320,18 +367,60 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 )}
               </div>
 
-              <div className="flex w-full gap-3 pt-4 border-t border-white/10">
-                <button onClick={() => { setScanState('scanning'); setTimeout(startScanner, 300); }} 
-                  className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all text-white/60 uppercase tracking-widest">
-                  Cancel
-                </button>
-                <button onClick={() => performActualAction(true)} 
-                  className="flex-[2] py-3 px-4 btn-primary text-sm font-bold uppercase tracking-widest">
-                  Confirm Check-in
-                </button>
-              </div>
-            </motion.div>
-          )}
+      <div className="flex w-full gap-3 pt-4 border-t border-white/10">
+        <button onClick={() => { setScanState('scanning'); setTimeout(startScanner, 300); }} 
+          className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all text-white/60 uppercase tracking-widest">
+          Cancel
+        </button>
+        <button 
+          onClick={() => {
+            if (selectedWorkout === 'Other') {
+              setScanState('ask_update_plan');
+            } else {
+              performActualAction(true);
+            }
+          }} 
+          disabled={!selectedWorkout || (selectedWorkout === 'Other' && !customWorkout.trim())}
+          className="flex-[2] py-3 px-4 btn-primary text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+        >
+          Confirm Check-in
+        </button>
+      </div>
+    </motion.div>
+  )}
+
+  {scanState === 'ask_update_plan' && (
+    <motion.div key="ask_update_plan" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center py-8 space-y-6">
+      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+        <Bot size={40} className="text-primary" />
+      </div>
+      <div className="text-center space-y-2">
+        <h3 className="text-2xl font-black italic uppercase tracking-tighter">MigoAI Update?</h3>
+        <p className="text-white/60">
+          You're training <span className="text-primary font-bold">"{customWorkout}"</span> today.
+        </p>
+        <p className="text-white/40 text-sm">Would you like MigoAI to generate a personalized workout plan for this session?</p>
+      </div>
+      <div className="flex w-full gap-3 mt-4">
+        <button onClick={() => performActualAction(true)} 
+          className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all text-white/40 uppercase tracking-widest">
+          No, Just Check-in
+        </button>
+        <button 
+          onClick={async () => {
+            await performActualAction(true);
+            const prompt = `Create a detailed workout plan for ${customWorkout} today at the gym.`;
+            navigate(`/app/assistant?initialPrompt=${encodeURIComponent(prompt)}`);
+            handleClose();
+          }} 
+          className="flex-[2] py-3 px-4 btn-primary text-sm font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
+        >
+          Yes, Update Plan
+        </button>
+      </div>
+    </motion.div>
+  )}
 
           {scanState === 'success' && (
             <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}

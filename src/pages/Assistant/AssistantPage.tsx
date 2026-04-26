@@ -44,6 +44,17 @@ export default function AssistantPage() {
     scrollToBottom();
   }, [messages, currentStreamingMessage]);
 
+  useEffect(() => {
+    const prompt = searchParams.get('initialPrompt');
+    if (prompt && messages.length === 0 && !isLoading) {
+      sendMessage(prompt);
+      // Clean up the URL
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('initialPrompt');
+      window.history.replaceState({}, '', `${window.location.pathname}?${newSearchParams.toString()}`);
+    }
+  }, [searchParams, messages.length, isLoading, sendMessage]);
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
