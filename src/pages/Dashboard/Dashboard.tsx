@@ -6,7 +6,7 @@ import {
   Users, Building2, 
   TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar,
-  Dumbbell, RefreshCw, Zap, Flame
+  Dumbbell, Zap
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
@@ -93,7 +93,7 @@ const Dashboard = () => {
         <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs">
           {user?.active_role === 'user' && data?.ai_tagline 
             ? data.ai_tagline 
-            : ['gym_owner', 'gym_manager'].includes(user?.active_role) 
+            : ['gym_owner', 'gym_manager'].includes(user?.active_role || '') 
               ? 'Managing your fitness empire' 
               : 'Ready to crush your goals today?'}
         </p>

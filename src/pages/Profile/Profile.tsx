@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { clsx } from 'clsx';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle, Sparkles, X, ChevronRight } from 'lucide-react';
+import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle, Sparkles, X } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
 import MapPickerModal from '../../components/MapPickerModal';
@@ -40,7 +41,7 @@ const EXPERIENCE_OPTIONS = [
 
 const ALLERGY_PRESETS = ['Gluten', 'Dairy', 'Nuts', 'Soy', 'Shellfish', 'Eggs'];
 const INJURY_PRESETS = ['Lower Back', 'Knee', 'Shoulder', 'Wrist', 'Ankle', 'Neck', 'Hip'];
-const CONDITION_PRESETS = ['Diabetes', 'Hypertension', 'Thyroid', 'PCOS', 'Asthma', 'Heart Condition'];
+
 
 // ─── Sub-Components ───────────────────────────────────────────────────────────
 const PillSelector = ({ options, selected, onSelect, multi = false }: any) => (

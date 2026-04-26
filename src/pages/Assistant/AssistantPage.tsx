@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Send, Dumbbell, Apple, Flame, Moon, Bot, Layout, Image as ImageIcon, X, Paperclip } from 'lucide-react';
+import { Send, Dumbbell, Apple, Flame, Moon, Bot, Layout, Image as ImageIcon, X } from 'lucide-react';
 import axios from 'axios';
 import { MigoAILogo } from '../../components/ui/MigoAILogo';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
