@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { 
   Users, Building2, 
   TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
-  MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar
+  MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar,
+  Dumbbell, RefreshCw, Zap, Flame
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
@@ -80,6 +81,24 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-12">
+      {/* Header Greeting Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col gap-1"
+      >
+        <h1 className="text-4xl font-black tracking-tighter text-white">
+          Hey {user?.full_name?.split(' ')[0] || 'there'} <span className="animate-pulse">👋</span>
+        </h1>
+        <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs">
+          {user?.active_role === 'user' && data?.ai_tagline 
+            ? data.ai_tagline 
+            : ['gym_owner', 'gym_manager'].includes(user?.active_role) 
+              ? 'Managing your fitness empire' 
+              : 'Ready to crush your goals today?'}
+        </p>
+      </motion.div>
+
       {/* Grid Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {user?.active_role === 'user' ? (
@@ -97,9 +116,27 @@ const Dashboard = () => {
 import MembershipDetailView from './MembershipDetailView';
 
 const UserDashboardView = ({ data }: { data: any }) => {
-  const [showQRScanner, setShowQRScanner] = useState(false);
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
+  const [todaysFocus, setTodaysFocus] = useState<any>(null);
+  const [focusLoading, setFocusLoading] = useState(true);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+
+  useEffect(() => {
+    const fetchTodaysFocus = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/ai/todays-focus`);
+        if (res.data?.data) {
+          setTodaysFocus(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch todays focus:', err);
+      } finally {
+        setFocusLoading(false);
+      }
+    };
+    fetchTodaysFocus();
+  }, []);
 
   const groupedMemberships = useMemo(() => {
     if (!data?.memberships) return [];
@@ -160,8 +197,72 @@ const UserDashboardView = ({ data }: { data: any }) => {
 
   return (
     <>
-      <div className="md:col-span-2 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="md:col-span-2 space-y-8">
+        {/* Today's Focus Card */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black text-white flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
+                <Zap size={18} fill="currentColor" />
+              </div>
+              Today's Focus
+            </h3>
+          </div>
+          
+          <Link to="/app/assistant?tab=personalization" className="block group">
+            <div className="glass-card p-6 md:p-8 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent border-orange-500/20 relative overflow-hidden group-hover:border-orange-500/50 transition-all">
+              <div className="absolute -right-6 -bottom-6 text-orange-500/5 group-hover:text-orange-500/10 transition-all transform group-hover:scale-110 group-hover:-rotate-12">
+                <Dumbbell size={180} />
+              </div>
+              
+              <div className="relative z-10">
+                {focusLoading ? (
+                  <div className="flex items-center gap-3 animate-pulse">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-32 bg-white/5 rounded" />
+                      <div className="h-3 w-48 bg-white/5 rounded" />
+                    </div>
+                  </div>
+                ) : todaysFocus ? (
+                  <div className="flex items-start justify-between gap-6">
+                    <div className="flex gap-5 items-center">
+                      <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center text-3xl shadow-lg border border-orange-500/30">
+                        {todaysFocus.emoji || '💪'}
+                      </div>
+                      <div>
+                        <h4 className="text-2xl font-black text-white group-hover:text-orange-500 transition-colors">
+                          {todaysFocus.focus}
+                        </h4>
+                        <p className="text-white/60 text-sm mt-1 max-w-md">
+                          {todaysFocus.description}
+                        </p>
+                        {todaysFocus.is_completed && (
+                          <div className="flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
+                            <CheckCircle2 size={12} className="text-emerald-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Session Logged</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="hidden sm:flex flex-col items-end gap-2">
+                      <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl flex items-center gap-2 group-hover:bg-white/10 transition-colors">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">View Plan</span>
+                        <ArrowRight size={14} className="text-orange-500 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-white/40 text-sm font-bold uppercase tracking-widest text-center py-4">
+                    Complete your fitness profile to get personalized daily goals
+                  </div>
+                )}
+              </div>
+            </div>
+          </Link>
+        </section>
+
+        <div className="flex items-center justify-between pt-4">
           <h3 className="text-xl font-bold flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
               <Star size={18} />

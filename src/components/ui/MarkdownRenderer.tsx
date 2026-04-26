@@ -90,12 +90,12 @@ export const FitnessMeter = ({ score, label, compact = false }: FitnessMeterProp
 // ─── Rich Markdown Renderer ─────────────────────────────────────────────────────
 
 const renderInlineFormatting = (text: string): React.ReactNode => {
-  const parts = text.split(/(\*\*[^*]+\*\*|\[METER:\s*\d+\/10:\s*[^\]]+\])/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|(?:\*\*)?\[METER:\s*\d+\/10:\s*[^\]]+\](?:\*\*|(?!\*\*)))/g);
   return parts.map((part, idx) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return <strong key={idx} className="font-bold text-white/90">{part.slice(2, -2)}</strong>;
     }
-    const inlineMeter = part.match(/^\[METER:\s*(\d+)\/10:\s*([^\]]+)\]$/);
+    const inlineMeter = part.match(/^(?:\*\*)?\[METER:\s*(\d+)\/10:\s*([^\]]+)\](?:\*\*)?$/);
     if (inlineMeter) {
       const score = parseInt(inlineMeter[1]);
       return <span key={idx} className="mx-1"><FitnessMeter score={score} label={inlineMeter[2].trim()} compact /></span>;
@@ -116,8 +116,8 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
   while (i < lines.length) {
     const line = lines[i];
 
-    // METER tag detection (standalone line)
-    const meterMatch = line.trim().match(/^\[METER:\s*(\d+)\/10:\s*([^\]]+)\]$/);
+    // METER tag detection (standalone line, allow optional bolding and spaces)
+    const meterMatch = line.trim().match(/^(?:\*\*)?\[METER:\s*(\d+)\/10:\s*([^\]]+)\](?:\*\*)?$/);
     if (meterMatch) {
       elements.push(
         <FitnessMeter key={`meter-${i}`} score={parseInt(meterMatch[1])} label={meterMatch[2].trim()} />

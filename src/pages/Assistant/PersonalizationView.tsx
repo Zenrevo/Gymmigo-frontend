@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { clsx } from 'clsx';
-import { Utensils, Dumbbell, Calendar, RefreshCw, X, ArrowRight } from 'lucide-react';
+import { Utensils, Dumbbell, Calendar, RefreshCw, X, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -11,6 +11,11 @@ export default function PersonalizationView() {
   const [loading, setLoading] = useState(true);
   const [selectedRec, setSelectedRec] = useState<any>(null);
   const [regenerating, setRegenerating] = useState<string | null>(null);
+  const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [completionModalVisible, setCompletionModalVisible] = useState(false);
+  const [completionFeedback, setCompletionFeedback] = useState('');
+  const [completing, setCompleting] = useState(false);
 
   useEffect(() => {
     fetchRecommendations();
@@ -29,21 +34,56 @@ export default function PersonalizationView() {
     }
   };
 
-  const handleRegenerate = async (id: string, e?: React.MouseEvent) => {
+  const handleRegenerateClick = (item: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    setSelectedRec(item);
+    setFeedbackModalVisible(true);
+  };
+
+  const confirmRegenerate = async () => {
+    if (!selectedRec) return;
+    const id = selectedRec.id;
     setRegenerating(id);
+    setFeedbackModalVisible(false);
     try {
-      const res = await axios.post(`${API_URL}/ai/recommendations/${id}/regenerate`, {}, { timeout: 30000 });
+      const res = await axios.post(`${API_URL}/ai/recommendations/${id}/regenerate`, {
+        feedback: feedback.trim() || undefined
+      }, { timeout: 30000 });
       if (res.data?.data) {
+        setFeedback('');
         fetchRecommendations();
-        if (selectedRec && selectedRec.id === id) {
-          setSelectedRec(res.data.data);
-        }
+        setSelectedRec(res.data.data);
       }
     } catch (err) {
       console.error('Failed to regenerate:', err);
     } finally {
       setRegenerating(null);
+    }
+  };
+
+  const handleCompleteClick = (item: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSelectedRec(item);
+    setCompletionModalVisible(true);
+  };
+
+  const confirmComplete = async () => {
+    if (!selectedRec) return;
+    setCompleting(true);
+    try {
+      const res = await axios.post(`${API_URL}/ai/recommendations/${selectedRec.id}/complete`, {
+        feedback: completionFeedback.trim() || undefined
+      });
+      if (res.data?.data) {
+        setCompletionFeedback('');
+        setCompletionModalVisible(false);
+        fetchRecommendations();
+        setSelectedRec(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to complete:', err);
+    } finally {
+      setCompleting(false);
     }
   };
 
@@ -95,10 +135,15 @@ export default function PersonalizationView() {
                         <p className="text-sm font-bold text-white group-hover:text-primary transition-colors">
                           {item.title}
                         </p>
+                        {item.is_completed && (
+                          <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+                            <CheckCircle2 size={10} /> Completed
+                          </div>
+                        )}
                       </div>
                     </div>
                     <button
-                      onClick={(e) => handleRegenerate(item.id, e)}
+                      onClick={(e) => handleRegenerateClick(item, e)}
                       disabled={regenerating !== null}
                       className={clsx(
                         "p-2 rounded-full transition-colors",
@@ -192,14 +237,106 @@ export default function PersonalizationView() {
               <MarkdownRenderer content={selectedRec.content} />
             </div>
             
-            <div className="p-4 border-t border-white/10 bg-black flex justify-end">
-              <button
-                onClick={() => handleRegenerate(selectedRec.id)}
-                disabled={regenerating === selectedRec.id}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary/20 text-primary border border-primary/30 font-bold hover:bg-primary hover:text-white transition-colors disabled:opacity-50"
+            <div className="p-4 border-t border-white/10 bg-black flex gap-3 justify-end">
+              {selectedRec.is_completed ? (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold text-sm">
+                  <CheckCircle2 size={18} />
+                  Session Logged
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={(e) => handleRegenerateClick(selectedRec, e)}
+                    disabled={regenerating !== null}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white/5 text-white/60 border border-white/10 font-bold hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    <RefreshCw size={16} className={regenerating === selectedRec.id ? "animate-spin" : ""} />
+                    Regenerate
+                  </button>
+                  <button
+                    onClick={(e) => handleCompleteClick(selectedRec, e)}
+                    disabled={completing}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white font-bold hover:brightness-110 transition-all disabled:opacity-50"
+                  >
+                    {completing ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <CheckCircle2 size={16} />
+                    )}
+                    Finish Session
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Regeneration Feedback Modal */}
+      {feedbackModalVisible && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-black text-white mb-1">Update Plan</h3>
+            <p className="text-xs text-white/40 mb-6 font-bold uppercase tracking-widest">Help MigoAI improve this recommendation</p>
+            
+            <label className="block text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Specific Feedback (Optional)</label>
+            <textarea 
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors min-h-[120px] resize-none"
+              placeholder="e.g. Focus more on cardio, exclude nuts, more protein..."
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+            />
+            
+            <div className="flex gap-3 mt-6">
+              <button 
+                onClick={() => setFeedbackModalVisible(false)}
+                className="flex-1 px-4 py-3 rounded-xl bg-white/5 text-white/60 font-bold hover:bg-white/10 transition-colors"
               >
-                <RefreshCw size={16} className={regenerating === selectedRec.id ? "animate-spin" : ""} />
-                {regenerating === selectedRec.id ? 'Regenerating...' : 'Regenerate Plan'}
+                Cancel
+              </button>
+              <button 
+                onClick={confirmRegenerate}
+                className="flex-2 btn-primary py-3 rounded-xl"
+              >
+                Confirm & Regenerate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Completion Feedback Modal */}
+      {completionModalVisible && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-black text-white mb-1">Session Complete! 🎉</h3>
+            <p className="text-xs text-white/40 mb-6 font-bold uppercase tracking-widest">How was your workout today?</p>
+            
+            <label className="block text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Notes for tomorrow (Optional)</label>
+            <textarea 
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-colors min-h-[120px] resize-none"
+              placeholder="e.g. Too easy, could lift heavier, or had some shoulder pain..."
+              value={completionFeedback}
+              onChange={(e) => setCompletionFeedback(e.target.value)}
+            />
+            
+            <div className="flex gap-3 mt-6">
+              <button 
+                onClick={() => setCompletionModalVisible(false)}
+                className="flex-1 px-4 py-3 rounded-xl bg-white/5 text-white/60 font-bold hover:bg-white/10 transition-colors"
+              >
+                Not now
+              </button>
+              <button 
+                onClick={confirmComplete}
+                disabled={completing}
+                className="flex-2 btn-primary py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                {completing ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <CheckCircle2 size={16} />
+                )}
+                Log Session
               </button>
             </div>
           </div>

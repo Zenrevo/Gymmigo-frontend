@@ -3,7 +3,7 @@
 @theme {
   --color-primary: #f1822c;
   --color-primary-dark: #FF4D00;
-  --color-secondary: #0A0A0A;
+  --color-secondary: #0F172A;
   --color-accent: #f1822c;
   --color-glass: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.1);
@@ -12,15 +12,15 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
   }
 
   body {
-    @apply bg-black text-white font-sans antialiased;
+    @apply bg-[#0F172A] text-white font-sans antialiased;
     background-image:
-      radial-gradient(at 0% 0%, hsla(22, 100%, 15%, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(25, 100%, 10%, 0.1) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, hsla(22, 100%, 15%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(222, 47%, 11%, 1) 0px, transparent 50%);
     min-height: 100vh;
   }
 }

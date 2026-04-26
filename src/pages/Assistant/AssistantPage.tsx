@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Send, Dumbbell, Apple, Flame, Moon, Bot, Layout } from 'lucide-react';
+import { Send, Dumbbell, Apple, Flame, Moon, Bot, Layout, Image as ImageIcon, X, Paperclip } from 'lucide-react';
 import axios from 'axios';
 import { MigoAILogo } from '../../components/ui/MigoAILogo';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
@@ -23,12 +24,16 @@ const QUICK_ACTIONS = [
 ];
 
 export default function AssistantPage() {
-  const [activeTab, setActiveTab] = useState<'chat' | 'personalization'>('chat');
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as 'chat' | 'personalization') || 'chat';
+  const [activeTab, setActiveTab] = useState<'chat' | 'personalization'>(initialTab);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = useState<{ base64: string, mime: string } | null>(null);
   const streamingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scrollToBottom = () => {
@@ -39,8 +44,32 @@ export default function AssistantPage() {
     scrollToBottom();
   }, [messages, currentStreamingMessage]);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const base64 = readerEvent.target?.result as string;
+      // Remove the data:image/xxx;base64, prefix
+      const base64Data = base64.split(',')[1];
+      setSelectedImage({
+        base64: base64Data,
+        mime: file.type
+      });
+    };
+    reader.readAsDataURL(file);
+    // Reset input value to allow selecting same file again
+    e.target.value = '';
+  };
+
   const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || isLoading) return;
+    if ((!text.trim() && !selectedImage) || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
@@ -55,10 +84,19 @@ export default function AssistantPage() {
     setIsLoading(true);
 
     try {
-      const messagesPayload = updatedMessages.map(m => ({
-        role: m.role,
-        content: m.content,
-      }));
+      const messagesPayload = updatedMessages.map((m, idx) => {
+        const isLastUserMessage = idx === updatedMessages.length - 1 && m.role === 'user';
+        return {
+          role: m.role,
+          content: m.content,
+          ...(isLastUserMessage && selectedImage ? {
+            image_base64: selectedImage.base64,
+            image_mime_type: selectedImage.mime
+          } : {})
+        };
+      });
+
+      setSelectedImage(null); // Clear image after sending
 
       const response = await axios.post(`${API_URL}/ai/chat`, { messages: messagesPayload }, { timeout: 30000 });
       const fullText = response.data.message || response.data.data?.message || 'No response.';
@@ -249,31 +287,65 @@ export default function AssistantPage() {
               )}
             </div>
 
-            {/* Input Bar */}
             <div className="p-4 bg-black/60 backdrop-blur-xl border-t border-white/10">
-              <div className="max-w-4xl mx-auto relative flex items-end gap-2">
-                <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-primary/50 focus-within:bg-white/10 transition-all flex items-end">
-                  <textarea
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage(inputText);
-                      }
-                    }}
-                    placeholder="Ask MigoAI for a diet or workout plan..."
-                    className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 px-4 py-3.5 max-h-32 min-h-[48px] resize-none focus:outline-none"
-                    rows={Math.min(5, inputText.split('\n').length)}
-                  />
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                onChange={handleImageSelect}
+              />
+
+              <div className="max-w-4xl mx-auto relative flex flex-col gap-2">
+                {/* Image Preview */}
+                {selectedImage && (
+                  <div className="flex px-4 py-2">
+                    <div className="relative">
+                      <img 
+                        src={`data:${selectedImage.mime};base64,${selectedImage.base64}`} 
+                        alt="Preview" 
+                        className="w-20 h-20 object-cover rounded-xl border border-white/20 shadow-lg"
+                      />
+                      <button 
+                        onClick={() => setSelectedImage(null)}
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="relative flex items-end gap-2">
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-12 w-12 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
+                  >
+                    <ImageIcon size={20} />
+                  </button>
+                  <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl overflow-hidden focus-within:border-primary/50 focus-within:bg-white/10 transition-all flex items-end">
+                    <textarea
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage(inputText);
+                        }
+                      }}
+                      placeholder={selectedImage ? "Add a caption or send..." : "Ask MigoAI for a diet or workout plan..."}
+                      className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 px-4 py-3.5 max-h-32 min-h-[48px] resize-none focus:outline-none"
+                      rows={Math.min(5, inputText.split('\n').length)}
+                    />
+                  </div>
+                  <button
+                    onClick={() => sendMessage(inputText)}
+                    disabled={(!inputText.trim() && !selectedImage) || isLoading}
+                    className="h-12 w-12 shrink-0 rounded-2xl bg-primary flex items-center justify-center text-white disabled:opacity-50 disabled:bg-white/10 disabled:text-white/30 transition-all hover:bg-[#ff6b00]"
+                  >
+                    <Send size={18} className={(inputText.trim() || selectedImage) && !isLoading ? "ml-1" : ""} />
+                  </button>
                 </div>
-                <button
-                  onClick={() => sendMessage(inputText)}
-                  disabled={!inputText.trim() || isLoading}
-                  className="h-12 w-12 shrink-0 rounded-2xl bg-primary flex items-center justify-center text-white disabled:opacity-50 disabled:bg-white/10 disabled:text-white/30 transition-all hover:bg-[#ff6b00]"
-                >
-                  <Send size={18} className={inputText.trim() && !isLoading ? "ml-1" : ""} />
-                </button>
               </div>
               <p className="text-center text-[10px] text-white/30 font-bold uppercase tracking-widest mt-3">
                 MigoAI can make mistakes. Consider verifying medical advice.

@@ -1,12 +1,118 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle } from 'lucide-react';
+import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle, Sparkles, X, ChevronRight } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
 import MapPickerModal from '../../components/MapPickerModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
+// ─── AI Personalization Constants ─────────────────────────────────────────────
+const DIET_OPTIONS = [
+  { key: 'veg', label: '🥦 Veg' },
+  { key: 'non_veg', label: '🍗 Non-Veg' },
+  { key: 'eggetarian', label: '🥚 Eggetarian' },
+  { key: 'vegan', label: '🌱 Vegan' },
+];
+
+const GOAL_OPTIONS = [
+  { key: 'weight_loss', label: 'Weight Loss' },
+  { key: 'muscle_gain', label: 'Muscle Gain' },
+  { key: 'endurance', label: 'Endurance' },
+  { key: 'flexibility', label: 'Flexibility' },
+  { key: 'general_fitness', label: 'General Fitness' },
+];
+
+const ACTIVITY_LEVEL_OPTIONS = [
+  { key: 'sedentary', label: 'Sedentary' },
+  { key: 'lightly_active', label: 'Lightly Active' },
+  { key: 'moderately_active', label: 'Moderately Active' },
+  { key: 'very_active', label: 'Very Active' },
+  { key: 'extra_active', label: 'Extra Active' },
+];
+
+const EXPERIENCE_OPTIONS = [
+  { key: 'beginner', label: 'Beginner' },
+  { key: 'intermediate', label: 'Intermediate' },
+  { key: 'advanced', label: 'Advanced' },
+];
+
+const ALLERGY_PRESETS = ['Gluten', 'Dairy', 'Nuts', 'Soy', 'Shellfish', 'Eggs'];
+const INJURY_PRESETS = ['Lower Back', 'Knee', 'Shoulder', 'Wrist', 'Ankle', 'Neck', 'Hip'];
+const CONDITION_PRESETS = ['Diabetes', 'Hypertension', 'Thyroid', 'PCOS', 'Asthma', 'Heart Condition'];
+
+// ─── Sub-Components ───────────────────────────────────────────────────────────
+const PillSelector = ({ options, selected, onSelect, multi = false }: any) => (
+  <div className="flex flex-wrap gap-2">
+    {options.map((opt: any) => {
+      const isActive = multi
+        ? (selected || []).includes(opt.key)
+        : selected === opt.key;
+      return (
+        <button
+          key={opt.key}
+          type="button"
+          onClick={() => onSelect(opt.key)}
+          className={clsx(
+            "px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap",
+            isActive 
+              ? "bg-primary/20 border-primary text-primary" 
+              : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+          )}
+        >
+          {opt.label}
+        </button>
+      );
+    })}
+  </div>
+);
+
+const ChipMultiSelect = ({ presets, selected, onChange, placeholder }: any) => {
+  const [customText, setCustomText] = useState('');
+  const toggle = (item: string) => {
+    if (selected.includes(item)) onChange(selected.filter((s: string) => s !== item));
+    else onChange([...selected, item]);
+  };
+  const addCustom = () => {
+    if (customText.trim() && !selected.includes(customText.trim())) {
+      onChange([...selected, customText.trim()]);
+      setCustomText('');
+    }
+  };
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        {presets.map((p: string) => (
+          <button
+            key={p} type="button" onClick={() => toggle(p)}
+            className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all",
+              selected.includes(p) ? "bg-primary/10 border-primary text-primary" : "bg-white/5 border-white/5 text-white/20")}>
+            {p} {selected.includes(p) && <X size={10} />}
+          </button>
+        ))}
+        {selected.filter((s: any) => !presets.includes(s)).map((s: string) => (
+          <button
+            key={s} type="button" onClick={() => toggle(s)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border bg-primary/10 border-primary text-primary">
+            {s} <X size={10} />
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input 
+          type="text" value={customText} onChange={e => setCustomText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom())}
+          placeholder={placeholder}
+          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-primary/50 transition-colors"
+        />
+        <button type="button" onClick={addCustom} className="p-2 rounded-xl bg-white/5 border border-white/10 text-primary hover:bg-white/10">
+          <Plus size={16} />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Profile = () => {
   const { user, refreshUser } = useAuth();
@@ -15,16 +121,35 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [savingSection, setSavingSection] = useState<string | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [fitnessProfile, setFitnessProfile] = useState<any>({
+    primary_goal: null,
+    activity_level: null,
+    experience_level: null,
+    height: null,
+    current_weight: null,
+    target_weight: null,
+    dietary_preference: null,
+    food_allergies: [],
+    injuries: [],
+    medical_conditions: [],
+    preferred_workout_duration: null,
+    workout_days_per_week: null,
+    notes_for_agent: '',
+  });
   const { showNotification } = useNotification();
 
   const fetchProfileData = async () => {
     try {
-      const [profRes, addrRes] = await Promise.all([
+      const [profRes, addrRes, fitRes] = await Promise.all([
         axios.get(`${API_URL}/profile/me`),
         axios.get(`${API_URL}/profile/me/addresses`),
+        axios.get(`${API_URL}/profile/fitness`),
       ]);
       setProfile(profRes.data.data);
       setAddresses(addrRes.data.data);
+      if (fitRes.data?.data) {
+        setFitnessProfile((prev: any) => ({ ...prev, ...fitRes.data.data }));
+      }
     } catch (err) {
       console.error('Failed to fetch profile:', err);
     } finally {
@@ -35,6 +160,34 @@ const Profile = () => {
   useEffect(() => {
     fetchProfileData();
   }, []);
+
+  const handleUpdateFitnessProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSection('AI Personalization');
+    try {
+      const payload: any = {};
+      const fields = [
+        'primary_goal', 'activity_level', 'experience_level',
+        'height', 'current_weight', 'target_weight',
+        'dietary_preference', 'food_allergies', 'injuries',
+        'medical_conditions', 'preferred_workout_duration', 'workout_days_per_week',
+        'notes_for_agent',
+      ];
+      fields.forEach((f) => {
+        const val = fitnessProfile[f];
+        if (val !== null && val !== undefined) {
+          payload[f] = val;
+        }
+      });
+      await axios.post(`${API_URL}/profile/fitness`, payload);
+      showNotification('AI preferences saved! 🎯', 'success');
+    } catch (err: any) {
+      console.error('Update failed:', err);
+      showNotification('Failed to update AI preferences', 'error');
+    } finally {
+      setSavingSection(null);
+    }
+  };
 
   const handleUpdateProfile = async (section: string, e: React.FormEvent) => {
     e.preventDefault();
@@ -162,6 +315,122 @@ const Profile = () => {
 
             <button type="submit" disabled={savingSection === 'Basic Details'} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">
               {savingSection === 'Basic Details' ? 'SAVING...' : <><Save size={18} /> Update Basic Details</>}
+            </button>
+          </form>
+
+          <form onSubmit={handleUpdateFitnessProfile} className="glass-card p-10 space-y-10">
+            <div className="flex items-center gap-3 border-b border-white/5 pb-6">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
+                <Sparkles size={20} fill="currentColor" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black italic tracking-tight">HELP AI KNOW YOU BETTER</h3>
+                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Personalize your MigoAI coach</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-10">
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Primary Goal</label>
+                <PillSelector 
+                  options={GOAL_OPTIONS} 
+                  selected={fitnessProfile.primary_goal} 
+                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, primary_goal: key})}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Activity Level</label>
+                <PillSelector 
+                  options={ACTIVITY_LEVEL_OPTIONS} 
+                  selected={fitnessProfile.activity_level} 
+                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, activity_level: key})}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Dietary Preference</label>
+                <PillSelector 
+                  options={DIET_OPTIONS} 
+                  selected={fitnessProfile.dietary_preference} 
+                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, dietary_preference: key})}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Experience Level</label>
+                <PillSelector 
+                  options={EXPERIENCE_OPTIONS} 
+                  selected={fitnessProfile.experience_level} 
+                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, experience_level: key})}
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 pt-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Height (cm)</label>
+                <input 
+                  type="number" placeholder="170"
+                  value={fitnessProfile.height || ''} 
+                  onChange={(e) => setFitnessProfile({...fitnessProfile, height: e.target.value ? parseInt(e.target.value) : null})}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:border-primary outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Weight (kg)</label>
+                <input 
+                  type="number" placeholder="70"
+                  value={fitnessProfile.current_weight || ''} 
+                  onChange={(e) => setFitnessProfile({...fitnessProfile, current_weight: e.target.value ? parseInt(e.target.value) : null})}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:border-primary outline-none transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Target (kg)</label>
+                <input 
+                  type="number" placeholder="65"
+                  value={fitnessProfile.target_weight || ''} 
+                  onChange={(e) => setFitnessProfile({...fitnessProfile, target_weight: e.target.value ? parseInt(e.target.value) : null})}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:border-primary outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Food Allergies</label>
+                <ChipMultiSelect 
+                  presets={ALLERGY_PRESETS} 
+                  selected={fitnessProfile.food_allergies || []}
+                  onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, food_allergies: items})}
+                  placeholder="e.g. Lactose, Peanuts..."
+                />
+              </div>
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Injuries / Limitations</label>
+                <ChipMultiSelect 
+                  presets={INJURY_PRESETS} 
+                  selected={fitnessProfile.injuries || []}
+                  onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, injuries: items})}
+                  placeholder="e.g. ACL tear, Sciatica..."
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-4">
+              <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Additional Notes for AI</label>
+              <textarea 
+                rows={3}
+                placeholder="Anything else MigoAI should know?"
+                value={fitnessProfile.notes_for_agent || ''} 
+                onChange={(e) => setFitnessProfile({...fitnessProfile, notes_for_agent: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-white/20 custom-scrollbar"
+              />
+            </div>
+
+            <button type="submit" disabled={savingSection === 'AI Personalization'} className="btn-primary w-fit min-w-[220px] flex items-center justify-center gap-3">
+              {savingSection === 'AI Personalization' ? 'SAVING...' : <><Sparkles size={18} fill="currentColor" /> Save AI Preferences</>}
             </button>
           </form>
 
