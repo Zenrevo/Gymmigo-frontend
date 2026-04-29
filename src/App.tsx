@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/Auth/LoginPage';
@@ -34,7 +35,6 @@ import { NotificationProvider } from './context/NotificationContext';
 import { LocationProvider } from './context/LocationContext';
 import { NotificationContainer } from './components/Toast';
 import PageLoader from './components/PageLoader';
-import NavigationLoader from './components/NavigationLoader';
 import ComingSoon from './components/ComingSoon';
 import './index.css';
 
