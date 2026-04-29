@@ -222,6 +222,159 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* AI Personalization Featured Card */}
+      {user?.active_role === 'user' && (
+        <form onSubmit={handleUpdateFitnessProfile} className="glass-card p-12 space-y-12 border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-transparent relative overflow-hidden group">
+          <div className="absolute -right-40 -top-40 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-700">
+            <Sparkles size={500} className="text-primary" />
+          </div>
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-10 relative z-10">
+            <div className="flex items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black shadow-2xl shadow-primary/30 transform group-hover:scale-110 transition-transform duration-500">
+                <Sparkles size={32} fill="currentColor" />
+              </div>
+              <div>
+                <h3 className="text-4xl font-black italic tracking-tighter text-white">INTELLIGENCE PROFILE</h3>
+                <p className="text-xs text-white/40 font-bold uppercase tracking-[0.2em] mt-1">Powering your personalized MigoAI experience</p>
+              </div>
+            </div>
+            <div className="hidden md:block text-right">
+              <div className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">MigoAI Core Engine</div>
+              <div className="text-2xl font-display font-black text-white/10">v2.4.0</div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary" /> Primary Goal
+              </label>
+              <PillSelector 
+                options={GOAL_OPTIONS} 
+                selected={fitnessProfile.primary_goal} 
+                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, primary_goal: key})}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary" /> Activity Level
+              </label>
+              <PillSelector 
+                options={ACTIVITY_LEVEL_OPTIONS} 
+                selected={fitnessProfile.activity_level} 
+                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, activity_level: key})}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary" /> Diet Preference
+              </label>
+              <PillSelector 
+                options={DIET_OPTIONS} 
+                selected={fitnessProfile.dietary_preference} 
+                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, dietary_preference: key})}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary" /> Experience
+              </label>
+              <PillSelector 
+                options={EXPERIENCE_OPTIONS} 
+                selected={fitnessProfile.experience_level} 
+                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, experience_level: key})}
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 pt-4 relative z-10">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Height (cm)</label>
+              <input 
+                type="number" placeholder="170"
+                value={fitnessProfile.height || ''} 
+                onChange={(e) => setFitnessProfile({...fitnessProfile, height: e.target.value ? parseInt(e.target.value) : null})}
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all font-display font-bold text-xl"
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Current Weight (kg)</label>
+              <input 
+                type="number" placeholder="70"
+                value={fitnessProfile.current_weight || ''} 
+                onChange={(e) => setFitnessProfile({...fitnessProfile, current_weight: e.target.value ? parseInt(e.target.value) : null})}
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all font-display font-bold text-xl"
+              />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Target Weight (kg)</label>
+              <input 
+                type="number" placeholder="65"
+                value={fitnessProfile.target_weight || ''} 
+                onChange={(e) => setFitnessProfile({...fitnessProfile, target_weight: e.target.value ? parseInt(e.target.value) : null})}
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all font-display font-bold text-xl"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-10 relative z-10">
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Food Allergies & Restrictions</label>
+              <ChipMultiSelect 
+                presets={ALLERGY_PRESETS} 
+                selected={fitnessProfile.food_allergies || []}
+                onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, food_allergies: items})}
+                placeholder="e.g. Lactose, Peanuts..."
+              />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Injuries / Physical Limitations</label>
+              <ChipMultiSelect 
+                presets={INJURY_PRESETS} 
+                selected={fitnessProfile.injuries || []}
+                onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, injuries: items})}
+                placeholder="e.g. ACL tear, Sciatica..."
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4 pt-4 relative z-10">
+            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Additional Context for MigoAI</label>
+            <textarea 
+              rows={4}
+              placeholder="Tell us anything else that will help MigoAI tailor your journey..."
+              value={fitnessProfile.notes_for_agent || ''} 
+              onChange={(e) => setFitnessProfile({...fitnessProfile, notes_for_agent: e.target.value})}
+              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all placeholder:text-white/10 custom-scrollbar text-sm leading-relaxed"
+            />
+          </div>
+
+          <div className="flex justify-center pt-4 relative z-10">
+            <button 
+              type="submit" 
+              disabled={savingSection === 'AI Personalization'} 
+              className="group/btn relative px-10 py-5 rounded-2xl bg-primary text-black font-display font-black italic uppercase tracking-tighter hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl shadow-primary/40 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+              <span className="relative flex items-center gap-3">
+                {savingSection === 'AI Personalization' ? (
+                  <>SYNCING INTELLIGENCE...</>
+                ) : (
+                  <>
+                    <Sparkles size={20} fill="currentColor" /> 
+                    Update AI Intelligence
+                  </>
+                )}
+              </span>
+            </button>
+          </div>
+        </form>
+      )}
+
       <div className="grid md:grid-cols-3 gap-12">
         {/* Personal Details */}
         <div className="md:col-span-2 space-y-8">
@@ -319,121 +472,7 @@ const Profile = () => {
             </button>
           </form>
 
-          <form onSubmit={handleUpdateFitnessProfile} className="glass-card p-10 space-y-10">
-            <div className="flex items-center gap-3 border-b border-white/5 pb-6">
-              <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
-                <Sparkles size={20} fill="currentColor" />
-              </div>
-              <div>
-                <h3 className="text-xl font-black italic tracking-tight">HELP AI KNOW YOU BETTER</h3>
-                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Personalize your MigoAI coach</p>
-              </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-10">
-              <div className="space-y-4">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Primary Goal</label>
-                <PillSelector 
-                  options={GOAL_OPTIONS} 
-                  selected={fitnessProfile.primary_goal} 
-                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, primary_goal: key})}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Activity Level</label>
-                <PillSelector 
-                  options={ACTIVITY_LEVEL_OPTIONS} 
-                  selected={fitnessProfile.activity_level} 
-                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, activity_level: key})}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Dietary Preference</label>
-                <PillSelector 
-                  options={DIET_OPTIONS} 
-                  selected={fitnessProfile.dietary_preference} 
-                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, dietary_preference: key})}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Experience Level</label>
-                <PillSelector 
-                  options={EXPERIENCE_OPTIONS} 
-                  selected={fitnessProfile.experience_level} 
-                  onSelect={(key: string) => setFitnessProfile({...fitnessProfile, experience_level: key})}
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 pt-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Height (cm)</label>
-                <input 
-                  type="number" placeholder="170"
-                  value={fitnessProfile.height || ''} 
-                  onChange={(e) => setFitnessProfile({...fitnessProfile, height: e.target.value ? parseInt(e.target.value) : null})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:border-primary outline-none transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Weight (kg)</label>
-                <input 
-                  type="number" placeholder="70"
-                  value={fitnessProfile.current_weight || ''} 
-                  onChange={(e) => setFitnessProfile({...fitnessProfile, current_weight: e.target.value ? parseInt(e.target.value) : null})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:border-primary outline-none transition-all"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Target (kg)</label>
-                <input 
-                  type="number" placeholder="65"
-                  value={fitnessProfile.target_weight || ''} 
-                  onChange={(e) => setFitnessProfile({...fitnessProfile, target_weight: e.target.value ? parseInt(e.target.value) : null})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 focus:border-primary outline-none transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-8">
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Food Allergies</label>
-                <ChipMultiSelect 
-                  presets={ALLERGY_PRESETS} 
-                  selected={fitnessProfile.food_allergies || []}
-                  onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, food_allergies: items})}
-                  placeholder="e.g. Lactose, Peanuts..."
-                />
-              </div>
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Injuries / Limitations</label>
-                <ChipMultiSelect 
-                  presets={INJURY_PRESETS} 
-                  selected={fitnessProfile.injuries || []}
-                  onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, injuries: items})}
-                  placeholder="e.g. ACL tear, Sciatica..."
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-4">
-              <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Additional Notes for AI</label>
-              <textarea 
-                rows={3}
-                placeholder="Anything else MigoAI should know?"
-                value={fitnessProfile.notes_for_agent || ''} 
-                onChange={(e) => setFitnessProfile({...fitnessProfile, notes_for_agent: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-white/20 custom-scrollbar"
-              />
-            </div>
-
-            <button type="submit" disabled={savingSection === 'AI Personalization'} className="btn-primary w-fit min-w-[220px] flex items-center justify-center gap-3">
-              {savingSection === 'AI Personalization' ? 'SAVING...' : <><Sparkles size={18} fill="currentColor" /> Save AI Preferences</>}
-            </button>
-          </form>
 
           <form onSubmit={(e) => handleUpdateProfile('Profile Bio', e)} className="glass-card p-10 space-y-8">
             <div className="space-y-2">

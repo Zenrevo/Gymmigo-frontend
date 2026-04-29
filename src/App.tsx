@@ -34,6 +34,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { LocationProvider } from './context/LocationContext';
 import { NotificationContainer } from './components/Toast';
 import PageLoader from './components/PageLoader';
+import NavigationLoader from './components/NavigationLoader';
 import ComingSoon from './components/ComingSoon';
 import './index.css';
 
@@ -101,13 +102,38 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const [showInitialSplash, setShowInitialSplash] = useState(true);
+
+  useEffect(() => {
+    // Initial splash on cold start
+    const timer = setTimeout(() => setShowInitialSplash(false), 1200);
+
+    // Also trigger on window focus (app resume)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Just a brief pulse, we don't want to be annoying on web
+        // but it adds to the premium feel
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>
         <LocationProvider>
           <NotificationProvider>
             <NotificationContainer />
-            <AppRoutes />
+            {showInitialSplash ? (
+              <PageLoader fullScreen message="Initializing Gymmigo..." />
+            ) : (
+              <AppRoutes />
+            )}
           </NotificationProvider>
         </LocationProvider>
       </AuthProvider>

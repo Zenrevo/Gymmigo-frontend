@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Flame, Activity } from 'lucide-react';
+import { Trophy, Flame, Activity, Dumbbell, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export default function MemberInsights() {
   const [data, setData] = useState<any>(null);
+  const [todaysPlan, setTodaysPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,6 +18,10 @@ export default function MemberInsights() {
         const res = await axios.get(`${API_URL}/memberships/dashboard-analytics`);
         if (res.data?.data) {
           setData(res.data.data);
+        }
+        const planRes = await axios.get(`${API_URL}/ai/todays-focus/detail?generate=true`);
+        if (planRes.data?.data) {
+          setTodaysPlan(planRes.data.data);
         }
       } catch (err) {
         console.error('Failed to fetch member analytics', err);
@@ -37,9 +43,73 @@ export default function MemberInsights() {
   if (!data) return null;
 
   const { streak, current_level, next_level, progress_percent, remaining_to_next, heatmap } = data;
+  const planData = todaysPlan?.structured_data || {};
+  const exercises = Array.isArray(planData.exercises) ? planData.exercises.slice(0, 4) : [];
 
   return (
     <div className="space-y-6">
+      {todaysPlan && (
+        <div className="glass-card p-6 md:p-8 bg-gradient-to-br from-orange-500/10 via-white/[0.02] to-transparent border-orange-500/20 relative overflow-hidden">
+          <div className="absolute -right-8 -bottom-8 text-orange-500/5 pointer-events-none">
+            <Dumbbell size={170} />
+          </div>
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+            <div className="space-y-4 min-w-0">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-orange-400">
+                  <Dumbbell size={22} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300/80">Today's Workout Plan</p>
+                  <h3 className="text-xl md:text-2xl font-black text-white tracking-tight truncate">{todaysPlan.title}</h3>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {planData.duration && (
+                  <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/50">
+                    {planData.duration} min
+                  </span>
+                )}
+                {planData.intensity && (
+                  <span className="px-3 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-[10px] font-black uppercase tracking-widest text-orange-300">
+                    {planData.intensity}
+                  </span>
+                )}
+                {todaysPlan.is_completed && (
+                  <span className="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle2 size={12} /> Logged
+                  </span>
+                )}
+              </div>
+
+              {exercises.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {exercises.map((exercise: any, index: number) => (
+                    <div key={`${exercise.name}-${index}`} className="bg-white/5 border border-white/5 rounded-lg px-3 py-2 min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{exercise.name}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-white/35">
+                        {exercise.sets} x {exercise.reps}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-white/50 max-w-2xl line-clamp-3">
+                  {todaysPlan.content?.replace(/\[METER:[^\]]+\]/g, '').replace(/[#*`]/g, '')}
+                </p>
+              )}
+            </div>
+
+            <Link
+              to="/app/calendar"
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/10 transition-all"
+            >
+              Open Calendar <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
       
       {/* Gamification Row: Milestone & Streak */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -133,4 +203,3 @@ export default function MemberInsights() {
     </div>
   );
 }
-

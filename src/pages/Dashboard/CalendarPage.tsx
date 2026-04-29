@@ -56,15 +56,19 @@ const CalendarPage = () => {
   }, [currentMonth]);
 
   useEffect(() => {
-    fetchPlans(selectedDate);
-  }, [selectedDate]);
+    if (calendarDays.length > 0) {
+      fetchPlansForRange(calendarDays[0], calendarDays[calendarDays.length - 1]);
+    }
+  }, [calendarDays]);
 
-  const fetchPlans = async (date: Date) => {
+  const fetchPlansForRange = async (start: Date, end: Date) => {
     setLoading(true);
     try {
-      const formattedDate = format(date, 'yyyy-MM-dd');
       const res = await axios.get(`${API_URL}/ai/recommendations`, {
-        params: { date: formattedDate }
+        params: {
+          start_date: format(start, 'yyyy-MM-dd'),
+          end_date: format(end, 'yyyy-MM-dd')
+        }
       });
       if (res.data?.data) {
         setPlans(res.data.data);
@@ -75,6 +79,23 @@ const CalendarPage = () => {
       setLoading(false);
     }
   };
+
+  const refreshVisiblePlans = () => {
+    if (calendarDays.length > 0) {
+      fetchPlansForRange(calendarDays[0], calendarDays[calendarDays.length - 1]);
+    }
+  };
+
+  const plansByDate = useMemo(() => {
+    return plans.reduce((acc: Record<string, any[]>, plan) => {
+      const key = plan.date_for;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(plan);
+      return acc;
+    }, {});
+  }, [plans]);
+
+  const selectedDatePlans = plansByDate[format(selectedDate, 'yyyy-MM-dd')] || [];
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -89,7 +110,7 @@ const CalendarPage = () => {
       });
       if (res.data?.data) {
         setFeedback('');
-        fetchPlans(selectedDate);
+        refreshVisiblePlans();
         setSelectedPlan(res.data.data);
       }
     } catch (err) {
@@ -103,9 +124,11 @@ const CalendarPage = () => {
     if (!selectedPlan) return;
     setCompleting(true);
     try {
-      const res = await axios.post(`${API_URL}/ai/recommendations/${selectedPlan.id}/complete`);
+      const res = await axios.post(`${API_URL}/ai/recommendations/${selectedPlan.id}/complete`, {
+        feedback: undefined
+      });
       if (res.data?.data) {
-        fetchPlans(selectedDate);
+        refreshVisiblePlans();
         setSelectedPlan(res.data.data);
       }
     } catch (err) {
@@ -118,15 +141,28 @@ const CalendarPage = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pb-24 md:pb-12">
       {/* Header */}
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-white">FITNESS CALENDAR</h1>
-        <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs">Track and plan your sessions with MigoAI</p>
-      </div>
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="relative py-8 px-10 rounded-[2rem] bg-gradient-to-br from-white/[0.02] to-transparent border border-white/[0.05] overflow-hidden shadow-2xl"
+      >
+        <div className="absolute -right-10 -top-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-[1px] w-8 bg-primary/50" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Schedule Management</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white italic">FITNESS CALENDAR</h1>
+          <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mt-1">Precision scheduling with MigoAI</p>
+        </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Calendar Card */}
-        <div className="lg:col-span-8 space-y-6 w-full">
-          <div className="glass-card p-4 md:p-8 bg-white/[0.02] border-white/10 w-full overflow-hidden">
+        <div className="lg:col-span-8 space-y-8 w-full">
+          <div className="glass-card p-4 md:p-10 bg-white/[0.01] border-white/10 w-full overflow-hidden shadow-2xl relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-30" />
             {/* Calendar Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
               <h2 className="text-2xl font-black text-white italic tracking-tight">
@@ -179,19 +215,20 @@ const CalendarPage = () => {
                 const isSelected = isSameDay(day, selectedDate);
                 const isCurrentMonth = isSameMonth(day, currentMonth);
                 const isTodayDate = isToday(day);
+                const dayPlans = plansByDate[format(day, 'yyyy-MM-dd')] || [];
                 
                 return (
                   <button
                     key={idx}
                     onClick={() => setSelectedDate(day)}
                     className={clsx(
-                      "relative aspect-square rounded-lg md:rounded-2xl border p-1 md:p-2 transition-all flex flex-col items-center justify-center md:items-start md:justify-start group min-h-[40px] md:min-h-[80px]",
-                      !isCurrentMonth ? "opacity-10 pointer-events-none" : "opacity-100",
+                      "relative aspect-square rounded-xl md:rounded-[2rem] border p-1 md:p-2 transition-all duration-500 flex flex-col items-center justify-center md:items-start md:justify-start group min-h-[45px] md:min-h-[90px]",
+                      !isCurrentMonth ? "opacity-10 pointer-events-none scale-90" : "opacity-100",
                       isSelected 
-                        ? "bg-primary border-primary shadow-lg shadow-primary/20 z-10" 
+                        ? "bg-primary border-primary shadow-[0_0_30px_rgba(255,107,0,0.3)] z-10 scale-105" 
                         : isTodayDate 
-                          ? "bg-primary/10 border-primary/30 text-primary" 
-                          : "bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/[0.08]"
+                          ? "bg-primary/10 border-primary/40 text-primary shadow-inner" 
+                          : "bg-white/[0.03] border-white/5 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.02]"
                     )}
                   >
                     <span className={clsx(
@@ -203,6 +240,43 @@ const CalendarPage = () => {
                     
                     {isTodayDate && !isSelected && (
                       <div className="absolute top-1 right-1 md:top-2 md:right-2 w-1 md:w-1.5 h-1 md:h-1.5 bg-primary rounded-full animate-pulse" />
+                    )}
+
+                    {dayPlans.length > 0 && (
+                      <div className="absolute left-1 right-1 bottom-1 md:left-2 md:right-2 md:bottom-2 space-y-1 pointer-events-none">
+                        <div className="flex justify-center md:justify-start gap-1 md:hidden">
+                          {dayPlans.slice(0, 3).map((plan) => (
+                            <span
+                              key={plan.id}
+                              className={clsx(
+                                "w-1.5 h-1.5 rounded-full",
+                                plan.type === 'workout' ? "bg-orange-400" : "bg-emerald-400"
+                              )}
+                            />
+                          ))}
+                        </div>
+                        <div className="hidden md:flex md:flex-col gap-1">
+                          {dayPlans.slice(0, 2).map((plan) => (
+                            <span
+                              key={plan.id}
+                              className={clsx(
+                                "truncate rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-tight border",
+                                plan.type === 'workout'
+                                  ? "bg-orange-500/15 text-orange-300 border-orange-500/20"
+                                  : "bg-emerald-500/15 text-emerald-300 border-emerald-500/20"
+                              )}
+                              title={plan.structured_data?.calendar_tag || plan.title}
+                            >
+                              {plan.structured_data?.calendar_tag || plan.title}
+                            </span>
+                          ))}
+                          {dayPlans.length > 2 && (
+                            <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">
+                              +{dayPlans.length - 2} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     )}
                   </button>
                 );
@@ -230,7 +304,7 @@ const CalendarPage = () => {
               PLANS FOR {format(selectedDate, 'MMM dd').toUpperCase()}
             </h3>
             <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40">
-              {loading ? 'Updating...' : `${plans.length} Found`}
+              {loading ? 'Updating...' : `${selectedDatePlans.length} Found`}
             </div>
           </div>
 
@@ -249,8 +323,8 @@ const CalendarPage = () => {
                   </div>
                 ))}
               </div>
-            ) : plans.length > 0 ? (
-              plans.map((plan) => (
+            ) : selectedDatePlans.length > 0 ? (
+              selectedDatePlans.map((plan) => (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}

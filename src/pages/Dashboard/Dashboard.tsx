@@ -83,20 +83,29 @@ const Dashboard = () => {
     <div className="space-y-12">
       {/* Header Greeting Section */}
       <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col gap-1"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="relative py-10 px-8 rounded-[2.5rem] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] overflow-hidden shadow-2xl"
       >
-        <h1 className="text-4xl font-black tracking-tighter text-white">
-          Hey {user?.full_name?.split(' ')[0] || 'there'} <span className="animate-pulse">👋</span>
-        </h1>
-        <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs">
-          {user?.active_role === 'user' && data?.ai_tagline 
-            ? data.ai_tagline 
-            : ['gym_owner', 'gym_manager'].includes(user?.active_role || '') 
-              ? 'Managing your fitness empire' 
-              : 'Ready to crush your goals today?'}
-        </p>
+        <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+        
+        <div className="relative z-10 space-y-2">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-[1px] w-8 bg-primary/50" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Intelligence Hub</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-white italic">
+            WELCOME BACK, {user?.full_name?.split(' ')[0] || 'CHAMP'} <span className="not-italic">⚡️</span>
+          </h1>
+          <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-xs md:text-sm max-w-2xl leading-relaxed">
+            {user?.active_role === 'user' && data?.ai_tagline 
+              ? data.ai_tagline 
+              : ['gym_owner', 'gym_manager'].includes(user?.active_role || '') 
+                ? 'Managing your fitness empire with precision data' 
+                : 'Ready to crush your coaching goals today?'}
+          </p>
+        </div>
       </motion.div>
 
       {/* Grid Content */}
@@ -199,62 +208,68 @@ const UserDashboardView = ({ data }: { data: any }) => {
     <>
       <div className="md:col-span-2 space-y-8">
         {/* Today's Focus Card */}
-        <section className="space-y-4">
+        <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-black text-white flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-500">
-                <Zap size={18} fill="currentColor" />
+            <h3 className="text-2xl font-black text-white flex items-center gap-3 italic tracking-tighter">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/5">
+                <Zap size={22} fill="currentColor" />
               </div>
-              Today's Focus
+              TODAY'S FOCUS
             </h3>
           </div>
           
           <Link to="/app/assistant?tab=personalization" className="block group">
-            <div className="glass-card p-6 md:p-8 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent border-orange-500/20 relative overflow-hidden group-hover:border-orange-500/50 transition-all">
-              <div className="absolute -right-6 -bottom-6 text-orange-500/5 group-hover:text-orange-500/10 transition-all transform group-hover:scale-110 group-hover:-rotate-12">
-                <Dumbbell size={180} />
+            <div className="glass-card p-10 md:p-12 bg-gradient-to-br from-primary/20 via-transparent to-transparent border-primary/20 relative overflow-hidden group-hover:border-primary/50 transition-all shadow-2xl">
+              <div className="absolute -right-10 -bottom-10 text-primary/5 group-hover:text-primary/10 transition-all transform group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
+                <Dumbbell size={280} />
               </div>
               
-              <div className="relative z-10">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                 {focusLoading ? (
-                  <div className="flex items-center gap-3 animate-pulse">
-                    <div className="w-12 h-12 rounded-2xl bg-white/5" />
-                    <div className="space-y-2">
-                      <div className="h-4 w-32 bg-white/5 rounded" />
-                      <div className="h-3 w-48 bg-white/5 rounded" />
+                  <div className="flex items-center gap-6 animate-pulse">
+                    <div className="w-20 h-20 rounded-3xl bg-white/5" />
+                    <div className="space-y-3">
+                      <div className="h-6 w-48 bg-white/5 rounded" />
+                      <div className="h-4 w-72 bg-white/5 rounded" />
                     </div>
                   </div>
                 ) : todaysFocus ? (
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex gap-5 items-center">
-                      <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center text-3xl shadow-lg border border-orange-500/30">
+                  <>
+                    <div className="flex items-center gap-8">
+                      <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-5xl shadow-2xl shadow-primary/30 border-2 border-white/10 group-hover:scale-105 transition-transform duration-500">
                         {todaysFocus.emoji || '💪'}
                       </div>
-                      <div>
-                        <h4 className="text-2xl font-black text-white group-hover:text-orange-500 transition-colors">
+                      <div className="space-y-2">
+                        <h4 className="text-4xl font-black text-white group-hover:text-primary transition-colors italic tracking-tighter leading-none">
                           {todaysFocus.focus}
                         </h4>
-                        <p className="text-white/60 text-sm mt-1 max-w-md">
+                        <p className="text-white/60 text-lg font-medium max-w-xl leading-relaxed">
                           {todaysFocus.description}
                         </p>
                         {todaysFocus.is_completed && (
-                          <div className="flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
-                            <CheckCircle2 size={12} className="text-emerald-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Session Logged</span>
+                          <div className="flex items-center gap-2 mt-4 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
+                            <CheckCircle2 size={14} className="text-emerald-500" />
+                            <span className="text-xs font-black uppercase tracking-widest text-emerald-500">Session Completed & Logged</span>
                           </div>
                         )}
                       </div>
                     </div>
-                    <div className="hidden sm:flex flex-col items-end gap-2">
-                      <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl flex items-center gap-2 group-hover:bg-white/10 transition-colors">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">View Plan</span>
-                        <ArrowRight size={14} className="text-orange-500 group-hover:translate-x-1 transition-transform" />
+                    <div className="flex flex-col items-end gap-3">
+                      <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3 group-hover:bg-primary group-hover:border-primary group-hover:text-black transition-all duration-300">
+                        <span className="text-xs font-black uppercase tracking-widest">Update Plan</span>
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                       </div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Generated by MigoAI</p>
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <div className="text-white/40 text-sm font-bold uppercase tracking-widest text-center py-4">
-                    Complete your fitness profile to get personalized daily goals
+                  <div className="w-full text-center py-8">
+                    <p className="text-white/40 text-sm font-bold uppercase tracking-widest">
+                      Complete your fitness profile to get personalized daily goals
+                    </p>
+                    <div className="mt-4 inline-flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest">
+                      Set up Profile <ArrowRight size={14} />
+                    </div>
                   </div>
                 )}
               </div>
