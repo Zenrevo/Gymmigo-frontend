@@ -5,6 +5,7 @@ import { Send, Dumbbell, Apple, Flame, Moon, Bot, Layout, Image as ImageIcon, X 
 import axios from 'axios';
 import { MigoAILogo } from '../../components/ui/MigoAILogo';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
+import { WorkoutExerciseMediaGrid, type WorkoutExerciseMedia } from '../../components/WorkoutExerciseMediaGrid';
 import PersonalizationView from './PersonalizationView';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -14,6 +15,9 @@ interface ChatMessage {
   role: 'user' | 'model';
   content: string;
   timestamp: Date;
+  workoutMedia?: {
+    exercises?: WorkoutExerciseMedia[];
+  };
 }
 
 const QUICK_ACTIONS = [
@@ -111,6 +115,7 @@ export default function AssistantPage() {
 
       const response = await axios.post(`${API_URL}/ai/chat`, { messages: messagesPayload }, { timeout: 30000 });
       const fullText = response.data.message || response.data.data?.message || 'No response.';
+      const workoutMedia = response.data.workout_media || response.data.data?.workout_media;
 
       // Typewriter animation
       const words = fullText.split(' ');
@@ -131,6 +136,7 @@ export default function AssistantPage() {
             role: 'model',
             content: fullText,
             timestamp: new Date(),
+            workoutMedia,
           };
           setMessages(prev => [...prev, botMessage]);
           setCurrentStreamingMessage(null);
@@ -271,7 +277,15 @@ export default function AssistantPage() {
                         {msg.role === 'user' ? (
                           <p className="text-sm font-medium">{msg.content}</p>
                         ) : (
-                          <MarkdownRenderer content={msg.content} />
+                          <>
+                            <MarkdownRenderer content={msg.content} />
+                            {msg.workoutMedia?.exercises?.length ? (
+                              <div className="mt-4 border-t border-white/10 pt-4">
+                                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-orange-300/80">Exercise Demos</p>
+                                <WorkoutExerciseMediaGrid exercises={msg.workoutMedia.exercises} compact />
+                              </div>
+                            ) : null}
+                          </>
                         )}
                         <span className="text-[9px] font-bold uppercase tracking-widest opacity-50 block mt-2">
                           {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

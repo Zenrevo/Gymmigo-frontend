@@ -3,6 +3,7 @@ import axios from 'axios';
 import { clsx } from 'clsx';
 import { Utensils, Dumbbell, Calendar, RefreshCw, X, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
+import { WorkoutExerciseMediaGrid } from '../../components/WorkoutExerciseMediaGrid';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -97,6 +98,9 @@ export default function PersonalizationView() {
 
   const activeRecs = recommendations.filter(r => r.is_active);
   const pastRecs = recommendations.filter(r => !r.is_active);
+  const selectedRecExercises = Array.isArray(selectedRec?.structured_data?.exercises)
+    ? selectedRec.structured_data.exercises
+    : [];
 
   return (
     <div className="flex-1 h-full overflow-y-auto">
@@ -234,6 +238,12 @@ export default function PersonalizationView() {
             </div>
             
             <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              {selectedRec.type === 'workout' && selectedRecExercises.length > 0 && (
+                <div className="mb-6">
+                  <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-orange-300/80">Exercise Demos</p>
+                  <WorkoutExerciseMediaGrid exercises={selectedRecExercises} />
+                </div>
+              )}
               <MarkdownRenderer content={selectedRec.content} />
             </div>
             

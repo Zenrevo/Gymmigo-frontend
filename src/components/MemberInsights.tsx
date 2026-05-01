@@ -4,6 +4,7 @@ import { Trophy, Flame, Activity, Dumbbell, ArrowRight, CheckCircle2, Zap, Globe
 import { clsx } from 'clsx';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { WorkoutExerciseMediaGrid, type WorkoutExerciseMedia } from './WorkoutExerciseMediaGrid';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -39,12 +40,6 @@ type MemberAnalytics = {
   };
 };
 
-type WorkoutExercise = {
-  name: string;
-  sets?: string | number;
-  reps?: string | number;
-};
-
 type TodaysPlan = {
   title: string;
   content?: string;
@@ -52,7 +47,7 @@ type TodaysPlan = {
   structured_data?: {
     duration?: string | number;
     intensity?: string;
-    exercises?: WorkoutExercise[];
+    exercises?: WorkoutExerciseMedia[];
   };
 };
 
@@ -227,16 +222,7 @@ export default function MemberInsights() {
               </div>
 
               {exercises.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {exercises.map((exercise, index) => (
-                    <div key={`${exercise.name}-${index}`} className="bg-white/5 border border-white/5 rounded-lg px-3 py-2 min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{exercise.name}</p>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/35">
-                        {exercise.sets} x {exercise.reps}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <WorkoutExerciseMediaGrid exercises={exercises} compact />
               ) : (
                 <p className="text-sm text-white/50 max-w-2xl line-clamp-3">
                   {todaysPlan.content?.replace(/\[METER:[^\]]+\]/g, '').replace(/[#*`]/g, '')}

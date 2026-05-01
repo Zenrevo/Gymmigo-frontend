@@ -28,6 +28,7 @@ import {
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
+import { WorkoutExerciseMediaGrid } from '../../components/WorkoutExerciseMediaGrid';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -137,6 +138,10 @@ const CalendarPage = () => {
       setCompleting(false);
     }
   };
+
+  const selectedPlanExercises = Array.isArray(selectedPlan?.structured_data?.exercises)
+    ? selectedPlan.structured_data.exercises
+    : [];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pb-24 md:pb-12">
@@ -455,6 +460,12 @@ const CalendarPage = () => {
               </div>
               
               <div className="flex-1 overflow-y-auto p-8 relative z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                {selectedPlan.type === 'workout' && selectedPlanExercises.length > 0 && (
+                  <div className="mb-8">
+                    <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-orange-300/80">Exercise Demos</p>
+                    <WorkoutExerciseMediaGrid exercises={selectedPlanExercises} />
+                  </div>
+                )}
                 <div className="prose prose-invert max-w-none">
                   <MarkdownRenderer content={selectedPlan.content} />
                 </div>
