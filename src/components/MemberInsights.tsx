@@ -1,15 +1,64 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Flame, Activity, Dumbbell, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Trophy, Flame, Activity, Dumbbell, ArrowRight, CheckCircle2, Zap, Globe2, Target } from 'lucide-react';
 import { clsx } from 'clsx';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
+type ScoreComponents = {
+  check_in?: number;
+  workout_completion?: number;
+  consistency?: number;
+  nutrition?: number;
+  goal_alignment?: number;
+};
+
+type HeatmapDay = {
+  date: string;
+  intensity: number;
+};
+
+type MemberAnalytics = {
+  streak: number;
+  current_level?: string;
+  next_level?: string;
+  progress_percent?: number;
+  remaining_to_next?: number;
+  heatmap?: HeatmapDay[];
+  today_score?: number;
+  global_rank?: number;
+  global_rank_total?: number;
+  week_active_days?: number;
+  weekly_target_days?: number;
+  daily_score?: {
+    score?: number;
+    coach_nudge?: string;
+    components?: ScoreComponents;
+  };
+};
+
+type WorkoutExercise = {
+  name: string;
+  sets?: string | number;
+  reps?: string | number;
+};
+
+type TodaysPlan = {
+  title: string;
+  content?: string;
+  is_completed?: boolean;
+  structured_data?: {
+    duration?: string | number;
+    intensity?: string;
+    exercises?: WorkoutExercise[];
+  };
+};
+
 export default function MemberInsights() {
-  const [data, setData] = useState<any>(null);
-  const [todaysPlan, setTodaysPlan] = useState<any>(null);
+  const [data, setData] = useState<MemberAnalytics | null>(null);
+  const [todaysPlan, setTodaysPlan] = useState<TodaysPlan | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,12 +91,106 @@ export default function MemberInsights() {
 
   if (!data) return null;
 
-  const { streak, current_level, next_level, progress_percent, remaining_to_next, heatmap } = data;
+  const {
+    streak,
+    current_level = 'Bronze Tier',
+    next_level = 'Silver Tier',
+    progress_percent = 0,
+    remaining_to_next = 0,
+    heatmap = [],
+  } = data;
+  const dailyScore = data.daily_score?.score ?? data.today_score ?? 0;
+  const scoreComponents = data.daily_score?.components ?? {};
+  const coachNudge = data.daily_score?.coach_nudge ?? 'Log an activity today to move your score.';
+  const globalRank = data.global_rank;
+  const globalRankTotal = data.global_rank_total;
+  const weekActiveDays = data.week_active_days ?? 0;
+  const weeklyTargetDays = data.weekly_target_days ?? 4;
+  const scoreTone =
+    dailyScore >= 80
+      ? { text: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10' }
+      : dailyScore >= 50
+        ? { text: 'text-primary', border: 'border-primary/30', bg: 'bg-primary/10' }
+        : { text: 'text-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' };
   const planData = todaysPlan?.structured_data || {};
   const exercises = Array.isArray(planData.exercises) ? planData.exercises.slice(0, 4) : [];
 
   return (
     <div className="space-y-6">
+      <div className={clsx("glass-card p-6 md:p-8 border relative overflow-hidden", scoreTone.border)}>
+        <div className="absolute -right-12 -bottom-14 opacity-5 pointer-events-none">
+          <Zap size={220} />
+        </div>
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 items-center">
+          <div className="flex items-center justify-center">
+            <div className={clsx("w-40 h-40 rounded-full border-4 flex flex-col items-center justify-center bg-white/[0.03]", scoreTone.border)}>
+              <span className={clsx("text-6xl font-black tracking-tighter leading-none", scoreTone.text)}>{dailyScore}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">out of 100</span>
+            </div>
+          </div>
+
+          <div className="space-y-5 min-w-0">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className={clsx("w-11 h-11 rounded-xl border flex items-center justify-center", scoreTone.bg, scoreTone.border, scoreTone.text)}>
+                    <Zap size={22} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/35">Migo AI</p>
+                    <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">Daily Fitness Score</h3>
+                  </div>
+                </div>
+                <p className="text-sm md:text-base text-white/55 max-w-3xl leading-relaxed">{coachNudge}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 shrink-0">
+                <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                  <div className="flex items-center gap-2 text-sky-300 mb-1">
+                    <Globe2 size={14} />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Global Rank</span>
+                  </div>
+                  <p className="text-2xl font-black">
+                    {globalRank ? `#${globalRank}` : '--'}
+                    {globalRankTotal ? <span className="text-xs text-white/30 font-bold"> / {globalRankTotal}</span> : null}
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                  <div className="flex items-center gap-2 text-violet-300 mb-1">
+                    <Target size={14} />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Week Goal</span>
+                  </div>
+                  <p className="text-2xl font-black">{weekActiveDays}<span className="text-xs text-white/30 font-bold"> / {weeklyTargetDays}</span></p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+              {[
+                ['Check-in', scoreComponents.check_in ?? 0, 40],
+                ['Workout', scoreComponents.workout_completion ?? 0, 25],
+                ['Consistency', scoreComponents.consistency ?? 0, 20],
+                ['Nutrition', scoreComponents.nutrition ?? 0, 10],
+                ['Goal', scoreComponents.goal_alignment ?? 0, 10],
+              ].map(([label, value, max]) => (
+                <div key={String(label)} className="rounded-xl bg-white/5 border border-white/10 p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/35 truncate">{label}</span>
+                    <span className="text-[10px] font-black text-white/60">{String(value)}/{String(max)}</span>
+                  </div>
+                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div
+                      className={clsx("h-full rounded-full", dailyScore >= 80 ? 'bg-emerald-400' : dailyScore >= 50 ? 'bg-primary' : 'bg-rose-400')}
+                      style={{ width: `${Math.min(100, (Number(value) / Number(max)) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {todaysPlan && (
         <div className="glass-card p-6 md:p-8 bg-gradient-to-br from-orange-500/10 via-white/[0.02] to-transparent border-orange-500/20 relative overflow-hidden">
           <div className="absolute -right-8 -bottom-8 text-orange-500/5 pointer-events-none">
@@ -85,7 +228,7 @@ export default function MemberInsights() {
 
               {exercises.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {exercises.map((exercise: any, index: number) => (
+                  {exercises.map((exercise, index) => (
                     <div key={`${exercise.name}-${index}`} className="bg-white/5 border border-white/5 rounded-lg px-3 py-2 min-w-0">
                       <p className="text-sm font-bold text-white truncate">{exercise.name}</p>
                       <p className="text-[10px] font-black uppercase tracking-widest text-white/35">
@@ -175,7 +318,7 @@ export default function MemberInsights() {
           </div>
 
           <div className="flex flex-wrap gap-1.5 mt-4">
-            {heatmap?.map((day: any, i: number) => (
+            {heatmap?.map((day, i) => (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

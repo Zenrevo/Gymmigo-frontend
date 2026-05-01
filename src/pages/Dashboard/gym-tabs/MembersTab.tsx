@@ -11,7 +11,7 @@ import {
   Users, UserPlus, Search, Filter, LogIn, LogOut,
   Phone, Clock, ChevronRight, Activity, CheckCircle2,
   XCircle, AlertTriangle, Loader2, ArrowLeft,
-  CreditCard, RefreshCw, Zap, ScanLine
+  CreditCard, RefreshCw, Zap, ScanLine, Trophy, Flame, Target
 } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
@@ -39,6 +39,18 @@ interface Member {
   user_phone: string;
   avatar_url: string | null;
   total_check_ins: number;
+  fitness_score?: {
+    today_score?: number;
+    streak?: number;
+    global_rank?: number;
+    global_rank_total?: number;
+    weekly_target_days?: number;
+    week_active_days?: number;
+    daily_score?: {
+      coach_nudge?: string;
+      risk_level?: string;
+    };
+  } | null;
   memberships: MembershipItem[];
   is_currently_checked_in: boolean;
   active_status: string;
@@ -471,6 +483,47 @@ const MembersTab = () => {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+            <div className="rounded-2xl bg-primary/10 border border-primary/20 p-4">
+              <div className="flex items-center gap-2 text-primary mb-2">
+                <Target size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Today Score</span>
+              </div>
+              <p className="text-3xl font-black">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-white/30 font-bold"> / 100</span></p>
+            </div>
+            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4">
+              <div className="flex items-center gap-2 text-amber-400 mb-2">
+                <Flame size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Streak</span>
+              </div>
+              <p className="text-3xl font-black">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-white/30 font-bold"> days</span></p>
+            </div>
+            <div className="rounded-2xl bg-sky-500/10 border border-sky-500/20 p-4">
+              <div className="flex items-center gap-2 text-sky-300 mb-2">
+                <Trophy size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Global Rank</span>
+              </div>
+              <p className="text-3xl font-black">
+                {selectedMember.fitness_score?.global_rank ? `#${selectedMember.fitness_score.global_rank}` : '--'}
+                {selectedMember.fitness_score?.global_rank_total ? <span className="text-xs text-white/30 font-bold"> / {selectedMember.fitness_score.global_rank_total}</span> : null}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-violet-500/10 border border-violet-500/20 p-4">
+              <div className="flex items-center gap-2 text-violet-300 mb-2">
+                <Activity size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Week Goal</span>
+              </div>
+              <p className="text-3xl font-black">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-white/30 font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
+            </div>
+          </div>
+
+          {selectedMember.fitness_score?.daily_score?.coach_nudge && (
+            <div className="mb-8 rounded-2xl bg-orange-500/10 border border-orange-500/20 p-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300/80 mb-1">Migo AI retention nudge</p>
+              <p className="text-sm text-white/65 leading-relaxed">{selectedMember.fitness_score.daily_score.coach_nudge}</p>
+            </div>
+          )}
+
           <div className="space-y-6">
             <h3 className="text-sm font-bold text-white/50 uppercase tracking-widest">Active & Past Subscriptions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -822,7 +875,19 @@ const MembersTab = () => {
                         <div className="hidden md:block">{statusBadge(m.active_status)}</div>
                         <div className="flex flex-col md:block">
                            <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">VISITS</span>
-                           <span className="text-xs md:text-sm font-mono text-white/80">{m.total_check_ins} Check-ins</span>
+                           <div className="space-y-1">
+                             <span className="text-xs md:text-sm font-mono text-white/80">{m.total_check_ins} Check-ins</span>
+                             {m.fitness_score && (
+                               <div className="flex flex-wrap gap-1.5">
+                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] font-black text-primary">
+                                   <Target size={10} /> {m.fitness_score.today_score ?? 0}/100
+                                 </span>
+                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-400">
+                                   <Flame size={10} /> {m.fitness_score.streak ?? 0}d
+                                 </span>
+                               </div>
+                             )}
+                           </div>
                         </div>
                         <div className="md:hidden flex flex-col justify-center">
                            <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">GYM STATUS</span>
