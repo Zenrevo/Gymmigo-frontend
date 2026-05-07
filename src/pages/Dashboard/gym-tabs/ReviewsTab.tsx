@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Star, MessageCircle, Reply, CheckCircle2, User, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../utils/api';
 import EmptyState from '../../../components/EmptyState';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const ReviewsTab = () => {
   const { gymId } = useGym();
@@ -24,7 +22,7 @@ const ReviewsTab = () => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}/memberships/reviews/${gymId}?sort_by=newest&page=1&page_size=50`);
+      const res = await api.get(`/memberships/reviews/${gymId}?sort_by=newest&page=1&page_size=50`);
       if (res.data.success) {
         setReviews(res.data.data.reviews || []);
         setTotalReviews(res.data.data.total || 0);
@@ -43,7 +41,7 @@ const ReviewsTab = () => {
     
     setSubmittingReplyId(reviewId);
     try {
-      await axios.post(`${API_URL}/memberships/reviews/${reviewId}/respond`, { response: text });
+      await api.post(`/memberships/reviews/${reviewId}/respond`, { response: text });
       setReplyText({ ...replyText, [reviewId]: '' });
       await fetchReviews(); // Refresh
     } catch (err) {

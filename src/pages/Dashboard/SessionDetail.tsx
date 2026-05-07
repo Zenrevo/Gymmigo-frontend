@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, MapPin, 
@@ -13,7 +13,6 @@ import { useNotification } from '../../context/NotificationContext';
 import clsx from 'clsx';
 import Modal from '../../components/Modal';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
 const SessionDetail = () => {
@@ -29,7 +28,7 @@ const SessionDetail = () => {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const res = await axios.get(`${API_URL}/trainer-bookings/sessions/${sessionId}`);
+        const res = await api.get(`/trainer-bookings/sessions/${sessionId}`);
         setSessionData(res.data.data);
       } catch (err) {
         console.error('Failed to fetch session details:', err);
@@ -76,14 +75,14 @@ const SessionDetail = () => {
   const handleCancelSession = async () => {
     setIsCancelling(true);
     try {
-      await axios.post(`${API_URL}/trainer-bookings/sessions/${sessionId}/cancel`, {}, {
+      await api.post(`/trainer-bookings/sessions/${sessionId}/cancel`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` }
       });
       showNotification('Session cancelled successfully.', 'success');
       setIsCancelModalOpen(false);
       
       // refresh session data
-      const res = await axios.get(`${API_URL}/trainer-bookings/sessions/${sessionId}`);
+      const res = await api.get(`/trainer-bookings/sessions/${sessionId}`);
       setSessionData(res.data.data);
     } catch (err: any) {
       console.error('Failed to cancel session:', err);

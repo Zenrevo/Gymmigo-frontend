@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
 import { ArrowLeft, Building2, MapPin, Calendar, Loader2, PlayCircle, ShieldCheck, Activity, CheckCircle, Phone, Star, MessageSquare, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { getGoogleMapsUrl } from '../../utils/navigation';
+import api, { getApiErrorMessage } from '../../utils/api';
 
 interface MembershipDetailProps {
   gymGroup: any;
@@ -23,17 +23,14 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
   const [newReviewText, setNewReviewText] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
         // Fetch Gym info (public discovery endpoint, now with auth for can_review flag)
-        const gymRes = axios.get(`${API_URL}/gyms/${gymGroup.gym_id}`, { headers: authHeader });
+        const gymRes = api.get(`/gyms/${gymGroup.gym_id}`);
         // Fetch Attendance (history for this gym)
-        const attendanceRes = axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`, { headers: authHeader });
+        const attendanceRes = api.get(`/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`);
 
         const [gymData, attData] = await Promise.all([gymRes, attendanceRes]);
         setGymDetail(gymData.data.data ? gymData.data.data : gymData.data);
@@ -60,11 +57,10 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
     if (!activeSession) return;
     try {
       setLoading(true);
-      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-      await axios.post(`${API_URL}/memberships/check-out/${activeSession.id}`, {}, { headers: authHeader });
+      await api.post(`/memberships/check-out/${activeSession.id}`, {});
 
       // Re-fetch attendance after checkout
-      const checkinRes = await axios.get(`${API_URL}/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`, { headers: authHeader });
+      const checkinRes = await api.get(`/memberships/check-ins/history?gym_id=${gymGroup.gym_id}`);
       setAttendance(checkinRes.data.data);
       showNotification('Successfully checked out!', 'success');
     } catch (err) {
@@ -79,13 +75,12 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
     if (!newReviewText.trim()) return;
     try {
       setIsSubmittingReview(true);
-      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-      await axios.post(`${API_URL}/memberships/reviews`, {
+      await api.post('/memberships/reviews', {
         gym_id: gymGroup.gym_id,
         rating: newRating,
         title: newReviewTitle || "Review",
         review: newReviewText,
-      }, { headers: authHeader });
+      });
 
       showNotification('Review submitted successfully!', 'success');
       setNewReviewText('');
@@ -96,7 +91,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
       setGymDetail((prev: any) => ({ ...prev, can_review: false }));
     } catch (err: any) {
       console.error('Failed to submit review:', err);
-      showNotification(err.response?.data?.detail || 'Failed to submit review.', 'error');
+      showNotification(getApiErrorMessage(err), 'error');
     } finally {
       setIsSubmittingReview(false);
     }

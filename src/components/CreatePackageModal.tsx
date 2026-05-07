@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Package, Loader2 } from 'lucide-react';
 import Modal from './Modal';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface CreatePackageModalProps {
   isOpen: boolean;
@@ -51,7 +49,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         description: formData.description,
       };
 
-      await axios.post(`${API_URL}/trainer/packages`, payload);
+      await api.post(`/trainer/packages`, payload);
       showNotification('Package created successfully!', 'success');
       onSuccess();
       onClose();

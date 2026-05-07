@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import Modal from '../../../components/Modal';
 import clsx from 'clsx';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
 
 const OverviewTab = () => {
   const { gym, gymId } = useGym();
@@ -23,7 +23,7 @@ const OverviewTab = () => {
       if (!gymId) return;
       setQrLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/daily-qr`);
+        const res = await api.get(`/gym-owner/gyms/${gymId}/daily-qr`);
         setQrData(res.data.data);
       } catch (err) {
         console.error('Failed to fetch daily QR:', err);

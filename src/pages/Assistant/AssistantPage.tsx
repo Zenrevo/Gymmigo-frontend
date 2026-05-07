@@ -2,13 +2,13 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { Send, Dumbbell, Apple, Flame, Moon, Bot, Layout, Image as ImageIcon, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { MigoAILogo } from '../../components/ui/MigoAILogo';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
 import { WorkoutExerciseMediaGrid, type WorkoutExerciseMedia } from '../../components/WorkoutExerciseMediaGrid';
 import PersonalizationView from './PersonalizationView';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+
 
 interface ChatMessage {
   id: string;
@@ -113,7 +113,7 @@ export default function AssistantPage() {
 
       setSelectedImage(null); // Clear image after sending
 
-      const response = await axios.post(`${API_URL}/ai/chat`, { messages: messagesPayload }, { timeout: 30000 });
+      const response = await api.post('/ai/chat', { messages: messagesPayload }, { timeout: 30000 });
       const fullText = response.data.message || response.data.data?.message || 'No response.';
       const workoutMedia = response.data.workout_media || response.data.data?.workout_media;
 

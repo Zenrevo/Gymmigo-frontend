@@ -1,3 +1,7 @@
+import { useState } from 'react';
+import { X } from 'lucide-react';
+import { clsx } from 'clsx';
+
 type ExerciseDbMedia = {
   gif_url?: string;
   image_url?: string;
@@ -45,6 +49,8 @@ type Props = {
 };
 
 export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = false }: Props) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const visibleExercises = typeof limit === 'number' ? exercises.slice(0, limit) : exercises;
   if (!visibleExercises.length) return null;
 
@@ -64,8 +70,12 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
               <img
                 src={mediaUrl}
                 alt={`${exercise.name || 'Exercise'} demonstration`}
-                className={compact ? "h-24 w-full object-cover bg-black/40" : "h-44 w-full object-cover bg-black/40"}
+                className={clsx(
+                  "w-full object-cover bg-black/40 cursor-pointer hover:opacity-90 transition-opacity",
+                  compact ? "h-24" : "h-44"
+                )}
                 loading="lazy"
+                onClick={() => setSelectedImage(mediaUrl)}
               />
             ) : (
               <div className={compact ? "h-20 w-full bg-white/[0.03] flex items-center justify-center" : "h-32 w-full bg-white/[0.03] flex items-center justify-center"}>
@@ -100,6 +110,26 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
           </div>
         );
       })}
+
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+            onClick={() => setSelectedImage(null)}
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Full size demonstration" 
+            className="max-w-full max-h-[85vh] rounded-xl object-contain border border-white/20"
+            onClick={(e) => e.stopPropagation()} 
+          />
+        </div>
+      )}
     </div>
   );
 }

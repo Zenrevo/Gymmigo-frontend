@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api, { getApiErrorMessage } from '../utils/api';
 
 interface User {
   id: string;
@@ -23,38 +23,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Axios Global Configuration
-axios.defaults.timeout = 10000; // 10 second global timeout
-
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// ─── Refresh Mutex ───────────────────────────────────────────────────────────
-let isRefreshing = false;
-let refreshSubscribers: ((newAccessToken: string) => void)[] = [];
-
-const onRefreshed = (newAccessToken: string) => {
-  refreshSubscribers.forEach((cb) => cb(newAccessToken));
-  refreshSubscribers = [];
-};
-
-const addRefreshSubscriber = (cb: (newAccessToken: string) => void) => {
-  refreshSubscribers.push(cb);
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('access_token'));
   const [isLoading, setIsLoading] = useState(true);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
     localStorage.setItem('access_token', accessToken);
@@ -69,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!refreshToken) return null;
 
     try {
-      const response = await axios.post(`${API_URL}/auth/refresh-token`, { 
+      const response = await api.post('/auth/refresh-token', { 
         refresh_token: refreshToken 
       }, { timeout: 15000 });
       
@@ -90,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const refreshToken = localStorage.getItem('refresh_token');
     if (refreshToken) {
       try {
-        await axios.post(`${API_URL}/auth/logout`, { refresh_token: refreshToken }, { timeout: 5000 });
+        await api.post('/auth/logout', { refresh_token: refreshToken }, { timeout: 5000 });
       } catch (e) {
         console.warn('Logout request failed', e);
       }
@@ -110,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const response = await axios.get(`${API_URL}/auth/me`, { timeout: 10000 });
+      const response = await api.get('/auth/me');
       if (response.data.success) {
         setUser(response.data.data);
       } else {
@@ -131,8 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (!user) logout();
         }
       } else {
-        console.error('Failed to fetch user:', error);
-        if (!user) logout();
+        console.error('Failed to fetch user:', getApiErrorMessage(error), error);
       }
     } finally {
       setIsLoading(false);
@@ -141,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const switchRole = async (role: string) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/switch-role`, { role }, { timeout: 10000 });
+      const response = await api.post('/auth/switch-role', { role });
       if (response.data.success) {
         const { user: userData, tokens } = response.data.data;
         const { access_token, refresh_token } = tokens;
@@ -155,50 +126,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     refreshUser();
-
-    // Response interceptor for 401 (Unauthorized)
-    const interceptor = axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-        
-        // Prevent infinite loops and ignore auth endpoints
-        const isAuthEndpoint = originalRequest.url?.includes('/auth/send-otp') || 
-                               originalRequest.url?.includes('/auth/verify-otp') ||
-                               originalRequest.url?.includes('/auth/refresh-token');
-
-        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-          originalRequest._retry = true;
-
-          if (isRefreshing) {
-            return new Promise((resolve) => {
-              addRefreshSubscriber((newToken: string) => {
-                originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                resolve(axios(originalRequest));
-              });
-            });
-          }
-
-          isRefreshing = true;
-          const newToken = await attemptTokenRefresh();
-          
-          if (newToken) {
-            isRefreshing = false;
-            onRefreshed(newToken);
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-            return axios(originalRequest);
-          } else {
-            isRefreshing = false;
-            console.warn('Refresh token failed. Logging out...');
-            logout();
-            window.location.href = '/'; 
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    return () => axios.interceptors.response.eject(interceptor);
   }, []);
 
   return (

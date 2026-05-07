@@ -1,12 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { Search, MapPin, Star, Filter, ArrowRight, Building2, User, LocateFixed, Loader2, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
+import { motion, AnimatePresence } from 'framer-motion';
 import InfoModal from '../../components/InfoModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 import { useGeoLocation } from '../../context/LocationContext';
 import { openInMap } from '../../utils/navigation';
@@ -44,7 +42,7 @@ const Discovery = () => {
         }
       }
 
-      const response = await axios.get(`${API_URL}${endpoint}`, { params });
+      const response = await api.get(endpoint, { params });
       setItems(response.data.results || []);
     } catch (err) {
       console.error('Failed to fetch items:', err);

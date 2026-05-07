@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import type { ReactNode } from 'react';
 
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
@@ -36,7 +36,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Global Axios Response Interceptor for Error Notifications
   useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
+    const interceptor = api.interceptors.response.use(
       (response) => response,
       (error) => {
         // Only show notification if it's not a 401 (Auth handles that) 
@@ -54,7 +54,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     );
 
     return () => {
-      axios.interceptors.response.eject(interceptor);
+      api.interceptors.response.eject(interceptor);
     };
   }, [showNotification]);
 

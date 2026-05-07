@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { TrendingUp, Zap, Loader2, Activity } from 'lucide-react';
 import clsx from 'clsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const StatsTab = () => {
   const { gymId } = useParams();
@@ -17,7 +15,7 @@ const StatsTab = () => {
       try {
         setLoadingStats(true);
         const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-        const res = await axios.get(`${API_URL}/gyms/${gymId}/workout-stats`, { headers: authHeader });
+        const res = await api.get(`/gyms/${gymId}/workout-stats`, { headers: authHeader });
         setWorkoutStats(res.data);
       } catch (err) {
         console.error('Failed to fetch stats:', err);

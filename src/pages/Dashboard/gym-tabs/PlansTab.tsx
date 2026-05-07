@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { CreditCard, Plus, CheckCircle2, MoreVertical, Edit3, Trash2, Clock, Package, X } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
 import Modal from '../../../components/Modal';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import EmptyState from '../../../components/EmptyState';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const PlansTab = () => {
   const { gym, refetch, gymId } = useGym();
@@ -138,10 +136,10 @@ const PlansTab = () => {
     };
     try {
       if (selectedPlan) {
-        await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/plans/${selectedPlan.id}`, payload);
+        await api.patch(`/gym-owner/gyms/${gymId}/plans/${selectedPlan.id}`, payload);
         showNotification('Plan updated successfully', 'success');
       } else {
-        await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/plans`, payload);
+        await api.post(`/gym-owner/gyms/${gymId}/plans`, payload);
         showNotification('Plan created successfully', 'success');
       }
       await refetch();
@@ -157,7 +155,7 @@ const PlansTab = () => {
     if (!selectedPlan) return;
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/plans/${selectedPlan.id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/plans/${selectedPlan.id}`);
       showNotification('Plan deleted', 'success');
       await refetch();
       setIsPlanConfirmOpen(false);
@@ -195,10 +193,10 @@ const PlansTab = () => {
     };
     try {
       if (selectedAddon) {
-        await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/addons/${selectedAddon.id}`, payload);
+        await api.patch(`/gym-owner/gyms/${gymId}/addons/${selectedAddon.id}`, payload);
         showNotification('Add-on updated successfully', 'success');
       } else {
-        await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/addons`, payload);
+        await api.post(`/gym-owner/gyms/${gymId}/addons`, payload);
         showNotification('Add-on created successfully', 'success');
       }
       await refetch();
@@ -214,7 +212,7 @@ const PlansTab = () => {
     if (!selectedAddon) return;
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/addons/${selectedAddon.id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/addons/${selectedAddon.id}`);
       showNotification('Add-on deleted', 'success');
       await refetch();
       setIsAddonConfirmOpen(false);

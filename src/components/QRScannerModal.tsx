@@ -1,21 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import Modal from './Modal';
 import { Camera, Loader2, CheckCircle2, XCircle, ScanLine, Dumbbell, Bot } from 'lucide-react';
-import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-
 interface QRScannerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: ScannerSuccessData) => void;
 }
 
 type ScanState = 'scanning' | 'processing' | 'success' | 'error' | 'confirm_checkin' | 'confirm_checkout' | 'ask_update_plan';
+type CheckInAction = 'check_in' | 'check_out';
+type CheckInPayload = { qr_payload: string };
+type ScannerSuccessData = Record<string, unknown> & {
+  gym_id?: string;
+  gym_name?: string;
+  check_in_time?: string;
+  type?: string;
+};
+type ScannerErrorPayload = {
+  code?: string;
+  gym_name?: string;
+  gym_id?: string;
+  message?: string;
+};
+type ApiErrorLike = {
+  response?: {
+    data?: {
+      error?: ScannerErrorPayload;
+      detail?: { error?: { message?: string } };
+    };
+    error?: ScannerErrorPayload;
+  };
+  data?: { error?: ScannerErrorPayload };
+  message?: string;
+};
+type Recommendation = {
+  type?: string;
+  is_active?: boolean;
+  title?: string;
+};
 
 const WORKOUT_OPTIONS = [
   'Chest Day',
@@ -32,21 +60,138 @@ const WORKOUT_OPTIONS = [
 const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => {
   const [scanState, setScanState] = useState<ScanState>('scanning');
   const [resultMessage, setResultMessage] = useState('');
-  const [resultData, setResultData] = useState<any>(null);
+  const [resultData, setResultData] = useState<ScannerSuccessData | null>(null);
   
-  const [confirmData, setConfirmData] = useState<{ action: 'check_in' | 'check_out', gym_name: string, payload: any } | null>(null);
+  const [confirmData, setConfirmData] = useState<{ action: CheckInAction, gym_name: string, payload: CheckInPayload } | null>(null);
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
   const [recommendedWorkout, setRecommendedWorkout] = useState<string | null>(null);
   const [customWorkout, setCustomWorkout] = useState('');
   
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const containerRef = useRef<string>('qr-reader-' + Math.random().toString(36).slice(2));
+  const reactId = useId();
+  const containerId = useMemo(() => `qr-reader-${reactId.replace(/:/g, '')}`, [reactId]);
   const navigate = useNavigate();
+
+  const stopScanner = useCallback(async () => {
+    try {
+      if (scannerRef.current?.isScanning) {
+        await scannerRef.current.stop();
+      }
+      scannerRef.current = null;
+    } catch {
+      // ignore cleanup errors
+    }
+  }, []);
+
+  const handleError = useCallback((error: unknown) => {
+    setScanState('error');
+    const errorLike = error as ApiErrorLike;
+    const errData = errorLike.response?.data?.error || errorLike.response?.error || errorLike.data?.error || (error as ScannerErrorPayload);
+    
+    if (errData?.code === 'NO_MEMBERSHIP') {
+      setResultMessage(`You don't have an active membership at ${errData?.gym_name || 'this gym'}.`);
+      setResultData({ type: 'NO_MEMBERSHIP', gym_id: errData?.gym_id });
+      return;
+    }
+
+    if (errData?.code === 'BEYOND_PLAN_TIMING') {
+      setResultMessage(errData.message || 'Your plan is not active for this time slot.');
+      setResultData({ type: 'BEYOND_PLAN_TIMING' });
+      return;
+    }
+
+    const errMsg = errorLike.response?.data?.detail?.error?.message
+      || errorLike.response?.data?.error?.message
+      || errData?.message
+      || errorLike.message
+      || 'Check-in failed. Please try again.';
+    setResultMessage(errMsg);
+  }, []);
+
+  const fetchRecommendation = useCallback(async () => {
+    try {
+      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
+      const res = await api.get(`/ai/recommendations`, {
+        ...authHeader,
+        params: { date: new Date().toISOString().split('T')[0] }
+      });
+      const workoutRec = (res.data?.data as Recommendation[] | undefined)?.find((r) => r.type === 'workout' && r.is_active);
+      if (workoutRec?.title) {
+        setRecommendedWorkout(workoutRec.title);
+        setSelectedWorkout(workoutRec.title);
+      }
+    } catch (err) {
+      console.error('Failed to fetch recommendation for modal:', err);
+    }
+  }, []);
+
+  const onScanSuccess = useCallback(async (decodedText: string) => {
+    // Only process gymmigo QR codes
+    if (!decodedText.startsWith('gymmigo:checkin:')) {
+      return; // ignore non-gymmigo QR codes, keep scanning
+    }
+
+    // Stop scanner immediately
+    await stopScanner();
+    setScanState('processing');
+
+    try {
+      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
+      
+      const payload = { qr_payload: decodedText };
+      
+      const previewRes = await api.post(`/memberships/check-in`, {
+        ...payload,
+        preview: true
+      }, authHeader);
+
+      if (!previewRes.data.success) {
+        handleError(previewRes.data.error || previewRes.data);
+        return;
+      }
+
+      const { action, gym_name } = previewRes.data.data as { action: CheckInAction; gym_name: string };
+      
+      setConfirmData({ action, gym_name, payload });
+      
+      if (action === 'check_out') {
+        setScanState('confirm_checkout');
+      } else {
+        setScanState('confirm_checkin');
+      }
+
+    } catch (err) {
+      handleError(err);
+    }
+  }, [handleError, stopScanner]);
+
+  const startScanner = useCallback(async () => {
+    try {
+      const element = document.getElementById(containerId);
+      if (!element) return;
+
+      scannerRef.current = new Html5Qrcode(containerId);
+      await scannerRef.current.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        onScanSuccess,
+        () => {} // ignore scan failures (no QR detected yet)
+      );
+    } catch (err) {
+      console.error('Camera start failed:', err);
+      setScanState('error');
+      setResultMessage('Camera access denied. Please allow camera permissions and try again.');
+    }
+  }, [containerId, onScanSuccess]);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    // Reset state
+    // Reset state when the modal opens so each scan starts clean.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setScanState('scanning');
     setResultMessage('');
     setResultData(null);
@@ -66,121 +211,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
       clearTimeout(timeout);
       stopScanner();
     };
-  }, [isOpen]);
-
-  const startScanner = async () => {
-    try {
-      const element = document.getElementById(containerRef.current);
-      if (!element) return;
-
-      scannerRef.current = new Html5Qrcode(containerRef.current);
-      await scannerRef.current.start(
-        { facingMode: 'environment' },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        onScanSuccess,
-        () => {} // ignore scan failures (no QR detected yet)
-      );
-    } catch (err) {
-      console.error('Camera start failed:', err);
-      setScanState('error');
-      setResultMessage('Camera access denied. Please allow camera permissions and try again.');
-    }
-  };
-
-  const stopScanner = async () => {
-    try {
-      if (scannerRef.current?.isScanning) {
-        await scannerRef.current.stop();
-      }
-      scannerRef.current = null;
-    } catch {
-      // ignore cleanup errors
-    }
-  };
-
-  const handleError = (error: any) => {
-    setScanState('error');
-    const errData = error.response?.data?.error || error.response?.error || error.data?.error || error;
-    
-    if (errData?.code === 'NO_MEMBERSHIP') {
-      setResultMessage(`You don't have an active membership at ${errData?.gym_name || 'this gym'}.`);
-      setResultData({ type: 'NO_MEMBERSHIP', gym_id: errData?.gym_id });
-      return;
-    }
-
-    if (errData?.code === 'BEYOND_PLAN_TIMING') {
-      setResultMessage(errData.message);
-      setResultData({ type: 'BEYOND_PLAN_TIMING' });
-      return;
-    }
-
-    const errMsg = error.response?.data?.detail?.error?.message
-      || error.response?.data?.error?.message
-      || errData?.message
-      || 'Check-in failed. Please try again.';
-    setResultMessage(errMsg);
-  };
-
-  const onScanSuccess = async (decodedText: string) => {
-    // Only process gymmigo QR codes
-    if (!decodedText.startsWith('gymmigo:checkin:')) {
-      return; // ignore non-gymmigo QR codes, keep scanning
-    }
-
-    // Stop scanner immediately
-    await stopScanner();
-    setScanState('processing');
-
-    try {
-      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
-      
-      const payload = { qr_payload: decodedText };
-      
-      const previewRes = await axios.post(`${API_URL}/memberships/check-in`, {
-        ...payload,
-        preview: true
-      }, authHeader);
-
-      if (!previewRes.data.success) {
-        handleError(previewRes.data.error || previewRes.data);
-        return;
-      }
-
-      const { action, gym_name } = previewRes.data.data;
-      
-      setConfirmData({ action, gym_name, payload });
-      
-      if (action === 'check_out') {
-        setScanState('confirm_checkout');
-      } else {
-        setScanState('confirm_checkin');
-      }
-
-    } catch (err: any) {
-      handleError(err);
-    }
-  };
-
-  const fetchRecommendation = async () => {
-    try {
-      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
-      const res = await axios.get(`${API_URL}/ai/recommendations`, {
-        ...authHeader,
-        params: { date: new Date().toISOString().split('T')[0] }
-      });
-      const workoutRec = res.data?.data?.find((r: any) => r.type === 'workout' && r.is_active);
-      if (workoutRec) {
-        setRecommendedWorkout(workoutRec.title);
-        // Auto-select the recommended one
-        setSelectedWorkout(workoutRec.title);
-      }
-    } catch (err) {
-      console.error('Failed to fetch recommendation for modal:', err);
-    }
-  };
+  }, [fetchRecommendation, isOpen, startScanner, stopScanner]);
 
   const performActualAction = async (isConfirmed: boolean = false) => {
     if (!confirmData) return;
@@ -192,7 +223,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
       
       const finalWorkout = selectedWorkout === 'Other' ? customWorkout : selectedWorkout;
       
-      const res = await axios.post(`${API_URL}/memberships/check-in`, {
+      const res = await api.post(`/memberships/check-in`, {
         ...confirmData.payload,
         preview: false,
         confirmed: isConfirmed,
@@ -208,7 +239,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
       } else {
         handleError(res.data.error || res.data);
       }
-    } catch (err: any) {
+    } catch (err) {
       handleError(err);
     }
   };
@@ -248,7 +279,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
             <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {/* Scanner container */}
               <div className="relative rounded-2xl overflow-hidden bg-black">
-                <div id={containerRef.current} className="w-full" />
+                <div id={containerId} className="w-full" />
                 {/* Overlay with scan indicator */}
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                   <div className="w-[250px] h-[250px] border-2 border-primary/50 rounded-2xl relative">
@@ -494,4 +525,3 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
 };
 
 export default QRScannerModal;
-

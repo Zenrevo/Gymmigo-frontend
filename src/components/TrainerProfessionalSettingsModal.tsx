@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Briefcase, Loader2 } from 'lucide-react';
 import Modal from './Modal';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface TrainerProfessionalSettingsModalProps {
   isOpen: boolean;
@@ -33,7 +31,7 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}/trainer/full`);
+      const res = await api.get(`/trainer/full`);
       const profile = res.data.data.profile;
       
       // We also need bio, which might come from profile or we use fallback
@@ -65,7 +63,7 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
         bio: formData.bio,
       };
 
-      await axios.patch(`${API_URL}/trainer`, payload);
+      await api.patch(`/trainer`, payload);
       showNotification('Professional details updated successfully!', 'success');
       onSuccess();
       onClose();

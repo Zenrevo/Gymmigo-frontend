@@ -2,10 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, MessageCircle, BellRing, Star, Zap, UserX, Clock } from 'lucide-react';
 import { clsx } from 'clsx';
-import axios from 'axios';
+import api from '../utils/api';
 import { useNotification } from '../context/NotificationContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
   const { showNotification } = useNotification();
@@ -25,7 +23,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/gym-owner/gyms/${selectedGymId}/dashboard-analytics`);
+        const res = await api.get(`/gym-owner/gyms/${selectedGymId}/dashboard-analytics`);
         if (res.data?.data) {
           setData(res.data.data);
         }

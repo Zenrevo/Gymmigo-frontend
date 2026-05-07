@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
 import { 
   format, 
   addMonths, 
@@ -23,25 +22,45 @@ import {
   X, 
   ArrowRight,
   Info,
-  Zap
+  Zap,
+  AlertCircle
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
-import { WorkoutExerciseMediaGrid } from '../../components/WorkoutExerciseMediaGrid';
+import { WorkoutExerciseMediaGrid, type WorkoutExerciseMedia } from '../../components/WorkoutExerciseMediaGrid';
+import api, { getApiErrorMessage } from '../../utils/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+type CalendarPlan = {
+  id: string;
+  type: string;
+  title: string;
+  content: string;
+  structured_data?: {
+    calendar_tag?: string;
+    exercises?: WorkoutExerciseMedia[];
+  } | null;
+  date_for: string;
+  generation_count: number;
+  is_completed: boolean;
+};
+
+const normalizePlanDate = (dateFor?: string) => {
+  if (!dateFor) return '';
+  return dateFor.slice(0, 10);
+};
 
 const CalendarPage = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [plans, setPlans] = useState<any[]>([]);
+  const [plans, setPlans] = useState<CalendarPlan[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState<CalendarPlan | null>(null);
   const [regenerating, setRegenerating] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -64,18 +83,23 @@ const CalendarPage = () => {
 
   const fetchPlansForRange = async (start: Date, end: Date) => {
     setLoading(true);
+    setErrorMessage('');
     try {
-      const res = await axios.get(`${API_URL}/ai/recommendations`, {
+      const res = await api.get('/ai/recommendations', {
         params: {
           start_date: format(start, 'yyyy-MM-dd'),
           end_date: format(end, 'yyyy-MM-dd')
         }
       });
-      if (res.data?.data) {
-        setPlans(res.data.data);
+      if (Array.isArray(res.data?.data)) {
+        setPlans(res.data.data as CalendarPlan[]);
+      } else {
+        setPlans([]);
       }
     } catch (err) {
       console.error('Failed to fetch plans:', err);
+      setErrorMessage(getApiErrorMessage(err));
+      setPlans([]);
     } finally {
       setLoading(false);
     }
@@ -88,8 +112,9 @@ const CalendarPage = () => {
   };
 
   const plansByDate = useMemo(() => {
-    return plans.reduce((acc: Record<string, any[]>, plan) => {
-      const key = plan.date_for;
+    return plans.reduce<Record<string, CalendarPlan[]>>((acc, plan) => {
+      const key = normalizePlanDate(plan.date_for);
+      if (!key) return acc;
       if (!acc[key]) acc[key] = [];
       acc[key].push(plan);
       return acc;
@@ -105,8 +130,9 @@ const CalendarPage = () => {
     if (!selectedPlan) return;
     setRegenerating(selectedPlan.id);
     setFeedbackModalVisible(false);
+    setErrorMessage('');
     try {
-      const res = await axios.post(`${API_URL}/ai/recommendations/${selectedPlan.id}/regenerate`, {
+      const res = await api.post(`/ai/recommendations/${selectedPlan.id}/regenerate`, {
         feedback: feedback.trim() || undefined
       });
       if (res.data?.data) {
@@ -116,6 +142,7 @@ const CalendarPage = () => {
       }
     } catch (err) {
       console.error('Failed to regenerate:', err);
+      setErrorMessage(getApiErrorMessage(err));
     } finally {
       setRegenerating(null);
     }
@@ -124,8 +151,9 @@ const CalendarPage = () => {
   const handleComplete = async () => {
     if (!selectedPlan) return;
     setCompleting(true);
+    setErrorMessage('');
     try {
-      const res = await axios.post(`${API_URL}/ai/recommendations/${selectedPlan.id}/complete`, {
+      const res = await api.post(`/ai/recommendations/${selectedPlan.id}/complete`, {
         feedback: undefined
       });
       if (res.data?.data) {
@@ -134,6 +162,7 @@ const CalendarPage = () => {
       }
     } catch (err) {
       console.error('Failed to complete:', err);
+      setErrorMessage(getApiErrorMessage(err));
     } finally {
       setCompleting(false);
     }
@@ -314,6 +343,16 @@ const CalendarPage = () => {
           </div>
 
           <div className="space-y-4">
+            {errorMessage && (
+              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-xs text-red-200 flex items-start gap-3">
+                <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-300" />
+                <div className="min-w-0">
+                  <p className="font-black uppercase tracking-widest text-[10px] text-red-300">Calendar sync failed</p>
+                  <p className="mt-1 text-red-100/70 leading-relaxed">{errorMessage}</p>
+                </div>
+              </div>
+            )}
+
             {loading ? (
               <div className="space-y-4">
                 {[1, 2].map(i => (

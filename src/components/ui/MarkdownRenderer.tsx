@@ -231,7 +231,7 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             <span className={clsx("text-primary/50 text-sm mt-0.5", isOrdered ? "font-bold" : "")}>
               {isOrdered ? line.trim().match(/^(\d+\.)/)?.[1] : '•'}
             </span>
-            <div className="flex-1 text-sm text-white/70 leading-relaxed">
+            <div className="flex-1 text-sm text-white/70 leading-relaxed break-words">
               {renderInlineFormatting(line.replace(/^([-*+]\s+|\d+\.\s+)/, ''))}
             </div>
           </div>
@@ -246,7 +246,7 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       elements.push(<div key={i} className="h-2" />);
     } else {
       elements.push(
-        <p key={i} className="text-sm text-white/70 leading-relaxed my-1">
+        <p key={i} className="text-sm text-white/70 leading-relaxed my-1 break-words">
           {renderInlineFormatting(line)}
         </p>
       );

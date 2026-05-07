@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { 
   ArrowLeft, ArrowRight, MapPin, Star, Building2, 
@@ -13,7 +13,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import PageLoader from '../../components/PageLoader';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
 
 import { useGeoLocation } from '../../context/LocationContext';
@@ -135,8 +134,7 @@ const GymProfile = () => {
     const fetchGym = async () => {
       try {
         setLoading(true);
-        const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-        const res = await axios.get(`${API_URL}/gyms/${gymId}`, { headers: authHeader });
+        const res = await api.get(`/gyms/${gymId}`);
         setGym(res.data);
       } catch (err) {
         console.error('Failed to fetch gym details:', err);
@@ -151,8 +149,7 @@ const GymProfile = () => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-        const res = await axios.get(`${API_URL}/gyms/${gymId}/workout-stats`, { headers: authHeader });
+        const res = await api.get(`/gyms/${gymId}/workout-stats`);
         setWorkoutStats(res.data);
       } catch (err) {
         console.error('Failed to fetch stats:', err);
@@ -168,8 +165,7 @@ const GymProfile = () => {
       const fetchReviews = async () => {
         try {
           setLoadingReviews(true);
-          const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-          const res = await axios.get(`${API_URL}/memberships/reviews/${gymId}`, { headers: authHeader });
+          const res = await api.get(`/memberships/reviews/${gymId}`);
           setReviews(res.data.data.reviews || []);
         } catch (err) {
           console.error('Failed to fetch reviews:', err);
@@ -194,7 +190,6 @@ const GymProfile = () => {
     if (cartPlans.length === 0) return;
     try {
       setIsSubmittingApplication(true);
-      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
       
       const payload = {
         gym_id: gym.id,
@@ -205,7 +200,7 @@ const GymProfile = () => {
         payment_method: 'cash',
       };
 
-      await axios.post(`${API_URL}/memberships/apply-cart`, payload, { headers: authHeader });
+      await api.post('/memberships/apply-cart', payload);
       
       showNotification(`${cartPlans.length} plan(s) submitted successfully! Waiting for gym owner approval.`, 'success');
       setCart({});
@@ -223,13 +218,12 @@ const GymProfile = () => {
     if (!newReviewText.trim()) return;
     try {
       setIsSubmittingReview(true);
-      const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-      await axios.post(`${API_URL}/memberships/reviews`, {
+      await api.post('/memberships/reviews', {
         gym_id: gymId,
         rating: newRating,
         title: newReviewTitle || "Review",
         review: newReviewText,
-      }, { headers: authHeader });
+      });
 
       showNotification('Review submitted successfully!', 'success');
       setShowReviewForm(false);
@@ -238,7 +232,7 @@ const GymProfile = () => {
       setNewRating(5);
       
       // Refresh reviews
-      const revRes = await axios.get(`${API_URL}/memberships/reviews/${gymId}`);
+      const revRes = await api.get(`/memberships/reviews/${gymId}`);
       setReviews(revRes.data.data.reviews || []);
       
       // Update local gym data to hide the review button (can_review becomes false)

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Phone, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../../components/BrandLogo';
+import api, { getApiErrorMessage } from '../../utils/api';
 
 const LoginPage = () => {
   const [phone, setPhone] = useState('');
@@ -22,7 +22,6 @@ const LoginPage = () => {
       navigate('/app/dashboard');
     }
   }, [token, navigate]);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +29,7 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API_URL}/auth/send-otp`, { phone: `+91${phone}` });
+      const response = await api.post('/auth/send-otp', { phone: `+91${phone}` });
       
       if (response.data.success) {
         setStep('otp');
@@ -39,7 +38,7 @@ const LoginPage = () => {
       }
     } catch (err: any) {
       console.error('Auth Error:', err);
-      setError('Failed to send code. Please check your internet.');
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +51,7 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API_URL}/auth/verify-otp`, { phone: `+91${phone}`, otp });
+      const response = await api.post('/auth/verify-otp', { phone: `+91${phone}`, otp });
       
       if (response.data.success) {
         const { user: userData, tokens, is_new_user } = response.data.data;
@@ -70,7 +69,7 @@ const LoginPage = () => {
       }
     } catch (err: any) {
       console.error('Login Error:', err);
-      setError('Invalid code. Please try again.');
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }

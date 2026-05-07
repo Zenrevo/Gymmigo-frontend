@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import Modal from '../../../components/Modal';
@@ -13,8 +13,6 @@ import {
   XCircle, AlertTriangle, Loader2, ArrowLeft,
   CreditCard, RefreshCw, Zap, ScanLine, Trophy, Flame, Target
 } from 'lucide-react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export interface MembershipItem {
   membership_id: string;
@@ -181,7 +179,7 @@ const MembersTab = () => {
       const params: any = { page, page_size: 20 };
       if (statusFilter) params.status = statusFilter;
       if (searchQuery) params.search = searchQuery;
-      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/members`, { params });
+      const res = await api.get(`/gym-owner/gyms/${gymId}/members`, { params });
       const data = res.data.data;
       setMembers(data.members || []);
       setTotalMembers(data.total || 0);
@@ -221,7 +219,7 @@ const MembersTab = () => {
     const timer = setTimeout(async () => {
       setQuickLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/members`, {
+        const res = await api.get(`/gym-owner/gyms/${gymId}/members`, {
           params: { search: quickSearch, status: 'active', page: 1, page_size: 5 }
         });
         setQuickResults(res.data.data.members || []);
@@ -238,7 +236,7 @@ const MembersTab = () => {
     try {
       const params: any = { page: attendancePage, page_size: 30 };
       if (attendanceDateFilter) params.date = attendanceDateFilter;
-      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/attendance`, { params });
+      const res = await api.get(`/gym-owner/gyms/${gymId}/attendance`, { params });
       const data = res.data.data;
       setAttendance(data.entries || []);
       setAttendanceTotal(data.total || 0);
@@ -256,7 +254,7 @@ const MembersTab = () => {
   // ── Fetch Member Detail ────────────────────────────────────────────────────
   const fetchMemberDetail = async (userId: string) => {
     try {
-      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/members/${userId}`);
+      const res = await api.get(`/gym-owner/gyms/${gymId}/members/${userId}`);
       setSelectedMember(res.data.data);
     } catch (err) {
       console.error('Failed to fetch member detail:', err);
@@ -273,7 +271,7 @@ const MembersTab = () => {
       onConfirm: async () => {
         setActionLoading(userId);
         try {
-          await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/users/${userId}/check-in`);
+          await api.post(`/gym-owner/gyms/${gymId}/users/${userId}/check-in`);
           showNotification('Member checked in successfully', 'success');
           fetchMembers();
           if (selectedMember) fetchMemberDetail(selectedMember.user_id);
@@ -290,7 +288,7 @@ const MembersTab = () => {
   const handleCheckOut = async (userId: string) => {
     setActionLoading(userId);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/users/${userId}/check-out`);
+      await api.post(`/gym-owner/gyms/${gymId}/users/${userId}/check-out`);
       showNotification('Member checked out successfully', 'success');
       fetchMembers();
       if (selectedMember) fetchMemberDetail(selectedMember.user_id);
@@ -310,7 +308,7 @@ const MembersTab = () => {
       onConfirm: async () => {
         setActionLoading(membershipId);
         try {
-          await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/cancel`);
+          await api.post(`/gym-owner/gyms/${gymId}/members/${membershipId}/cancel`);
           showNotification('Membership cancelled', 'success');
           fetchMembers();
           if (selectedMember) {
@@ -331,7 +329,7 @@ const MembersTab = () => {
   const handleAcceptRequest = async (membershipId: string) => {
     setActionLoading(membershipId);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/accept`);
+      await api.post(`/gym-owner/gyms/${gymId}/members/${membershipId}/accept`);
       showNotification('Request accepted successfully', 'success');
       fetchMembers();
     } catch (err: any) {
@@ -344,7 +342,7 @@ const MembersTab = () => {
   const handleRejectRequest = async (membershipId: string) => {
     setActionLoading(membershipId);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/${membershipId}/reject`);
+      await api.post(`/gym-owner/gyms/${gymId}/members/${membershipId}/reject`);
       showNotification('Request rejected', 'success');
       fetchMembers();
     } catch (err: any) {
@@ -370,7 +368,7 @@ const MembersTab = () => {
       if (enrollForm.start_date) {
         payload.start_date = enrollForm.start_date;
       }
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/members/enroll`, payload);
+      await api.post(`/gym-owner/gyms/${gymId}/members/enroll`, payload);
       showNotification('Member enrolled successfully!', 'success');
       setShowEnrollModal(false);
       setEnrollForm({ phone: '', full_name: '', plan_id: '', payment_method: 'cash', amount_paid: '', start_date: '', end_date: '', selected_addons: [] });
@@ -406,7 +404,7 @@ const MembersTab = () => {
         end_date: editForm.end_date,
         status: editForm.status
       };
-      await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/members/${editingMember.membership_id}`, payload);
+      await api.patch(`/gym-owner/gyms/${gymId}/members/${editingMember.membership_id}`, payload);
       showNotification('Member updated successfully', 'success');
       setShowEditModal(false);
       fetchMembers();

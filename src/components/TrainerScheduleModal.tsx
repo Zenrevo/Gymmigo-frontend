@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Calendar, Loader2 } from 'lucide-react';
 import Modal from './Modal';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface TrainerScheduleModalProps {
   isOpen: boolean;
@@ -33,7 +31,7 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
 
   const fetchDayAvailability = async (day: number) => {
     try {
-      const res = await axios.get(`${API_URL}/trainer/full`);
+      const res = await api.get(`/trainer/full`);
       const allAvail = res.data.availability || [];
       const daySlots = allAvail.filter((a: any) => a.day_of_week === day);
       
@@ -102,7 +100,7 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
         day_of_week: parseInt(formData.day_of_week.toString()),
       };
 
-      await axios.post(`${API_URL}/trainer/availability`, payload);
+      await api.post(`/trainer/availability`, payload);
       showNotification('Availability updated successfully!', 'success');
       onSuccess();
       onClose();

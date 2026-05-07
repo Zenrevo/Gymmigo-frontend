@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { getApiErrorMessage } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import {
@@ -87,7 +87,6 @@ const RegisterRolePage = () => {
   const { user, login, switchRole, refreshUser } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
   // Handle map confirmation
   const handleMapConfirm = (result: any) => {
@@ -133,7 +132,7 @@ const RegisterRolePage = () => {
     setError('');
     try {
       const endpoint = user?.roles?.length ? '/auth/add-role' : '/auth/register-role';
-      const response = await axios.post(`${API_URL}${endpoint}`, { role: selectedRole });
+      const response = await api.post(endpoint, { role: selectedRole });
 
       if (response.data.success) {
         const { user: userData, tokens } = response.data.data;
@@ -143,7 +142,7 @@ const RegisterRolePage = () => {
         setStep('profile');
       }
     } catch (err: any) {
-      const msg = err.response?.data?.error?.message || 'Failed to set role.';
+      const msg = getApiErrorMessage(err) || 'Failed to set role.';
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -167,7 +166,7 @@ const RegisterRolePage = () => {
           email: formData.email,
           city: formData.city || undefined
         };
-        await axios.patch(`${API_URL}${endpoint}`, payload);
+        await api.patch(endpoint, payload);
 
         // 2. Create Address
         if (formData.address_line1) {
@@ -183,7 +182,7 @@ const RegisterRolePage = () => {
             label: 'home',
             is_primary: true
           };
-          await axios.post(`${API_URL}/profile/me/addresses`, addressPayload);
+          await api.post('/profile/me/addresses', addressPayload);
         }
       } else if (selectedRole === 'trainer') {
         endpoint = '/trainer/profile/create';
@@ -206,7 +205,7 @@ const RegisterRolePage = () => {
           longitude: formData.longitude,
           location_address: formData.location_address || formData.address_line1,
         };
-        await axios.post(`${API_URL}${endpoint}`, payload);
+        await api.post(endpoint, payload);
       } else if (selectedRole === 'gym_owner') {
         // Backend GymOwnerProfileCreate requires full_name and email
         endpoint = '/gym-owner/profile/create';
@@ -217,7 +216,7 @@ const RegisterRolePage = () => {
           gstin: formData.gstin || undefined,
           pan_number: formData.pan_number || undefined
         };
-        await axios.post(`${API_URL}${endpoint}`, payload);
+        await api.post(endpoint, payload);
       }
 
       // Refresh user to sync completed state
@@ -225,7 +224,7 @@ const RegisterRolePage = () => {
       showNotification('Profile completed!', 'success');
       navigate('/app/dashboard');
     } catch (err: any) {
-      const msg = err.response?.data?.error?.message || 'Verification failed. Please check required fields.';
+      const msg = getApiErrorMessage(err) || 'Verification failed. Please check required fields.';
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -288,7 +287,7 @@ const RegisterRolePage = () => {
                         role.color,
                         isSelected || !role.comingSoon ? "opacity-10" : "opacity-0 group-hover:opacity-100"
                       )} />
-                      
+
                       {role.comingSoon && (
                         <div className="absolute top-4 right-4 bg-primary/20 text-primary text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter border border-primary/30 z-20">
                           Coming Soon
@@ -384,8 +383,8 @@ const RegisterRolePage = () => {
                 {selectedRole === 'user' && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-2 mb-2">
-                       <MapPin className="text-primary" size={18} />
-                       <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Location Details</h3>
+                      <MapPin className="text-primary" size={18} />
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Location Details</h3>
                     </div>
 
                     <div className="space-y-2">
@@ -757,14 +756,13 @@ const RegisterRolePage = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">PAN Number</label>
+                        <label className="text-sm text-white/60 ml-1">PAN Number (Optional)</label>
                         <input
                           type="text"
                           placeholder="ABCDE1234F"
                           className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.pan_number}
                           onChange={(e) => setFormData({ ...formData, pan_number: e.target.value })}
-                          required
                         />
                       </div>
                     </div>
@@ -799,10 +797,10 @@ const RegisterRolePage = () => {
           )}
         </AnimatePresence>
 
-        <MapPickerModal 
+        <MapPickerModal
           isOpen={isMapOpen}
-          initialCenter={formData.latitude !== undefined && formData.longitude !== undefined 
-            ? { lat: formData.latitude, lng: formData.longitude } 
+          initialCenter={formData.latitude !== undefined && formData.longitude !== undefined
+            ? { lat: formData.latitude, lng: formData.longitude }
             : undefined}
           onClose={() => setIsMapOpen(false)}
           onConfirm={handleMapConfirm}

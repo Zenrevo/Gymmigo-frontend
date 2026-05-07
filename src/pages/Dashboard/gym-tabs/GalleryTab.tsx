@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Image as ImageIcon, Video, Trash2, Star, Loader2 } from 'lucide-react';
 import ImageUpload from '../../../components/ImageUpload';
-import axios from 'axios';
+import api from '../../../utils/api';
 import Modal from '../../../components/Modal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const GalleryTab = () => {
   const { gym, refetch, gymId } = useGym();
@@ -26,7 +24,7 @@ const GalleryTab = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/images`, { image_url: imgUrl, is_primary: imgPrimary });
+      await api.post(`/gym-owner/gyms/${gymId}/images`, { image_url: imgUrl, is_primary: imgPrimary });
       await refetch();
       setImgModalOpen(false);
       setImgUrl(''); setImgPrimary(false);
@@ -38,7 +36,7 @@ const GalleryTab = () => {
     if (!window.confirm("Are you sure you want to delete this photo?")) return;
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/images/${id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/images/${id}`);
       await refetch();
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
   };
@@ -47,7 +45,7 @@ const GalleryTab = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/videos`, { video_url: vidUrl, thumbnail_url: vidThumb, title: vidTitle });
+      await api.post(`/gym-owner/gyms/${gymId}/videos`, { video_url: vidUrl, thumbnail_url: vidThumb, title: vidTitle });
       await refetch();
       setVidModalOpen(false);
       setVidUrl(''); setVidThumb(''); setVidTitle('');
@@ -58,7 +56,7 @@ const GalleryTab = () => {
     if (!window.confirm(`Are you sure you want to delete the video "${title}"?`)) return;
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/videos/${id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/videos/${id}`);
       await refetch();
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
   };

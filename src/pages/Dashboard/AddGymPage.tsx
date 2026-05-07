@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { 
   Building2, ArrowLeft, ArrowRight, Check, 
   MapPin, Phone, Mail, Info,
@@ -9,8 +9,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MapPickerModal from '../../components/MapPickerModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const PRESET_AMENITIES = [
   { id: 'wifi', name: 'Free WiFi', icon: Wifi },
@@ -141,7 +139,7 @@ const AddGymPage = () => {
         equipment: formData.equipment.filter(eq => eq.name)
       };
 
-      await axios.post(`${API_URL}/gym-owner/gyms`, payload);
+      await api.post(`/gym-owner/gyms`, payload);
       navigate('/app/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Failed to list gym. Please check all required fields.');

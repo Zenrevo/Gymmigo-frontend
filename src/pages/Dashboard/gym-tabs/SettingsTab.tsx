@@ -3,11 +3,9 @@ import { useGym } from '../../../context/GymContext';
 import { Settings, MapPin, Building, Loader2, Image as ImageIcon, Map as MapIcon } from 'lucide-react';
 import ImageUpload from '../../../components/ImageUpload';
 import MapPickerModal from '../../../components/MapPickerModal';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
 import { getGoogleMapsUrl } from '../../../utils/navigation';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const SettingsTab = () => {
   const { gym, refetch, gymId } = useGym();
@@ -57,7 +55,7 @@ const SettingsTab = () => {
         ...basicInfo,
         contact_phone: `+91${basicInfo.contact_phone.replace(/^\+91/, '')}`
       };
-      await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/basic-info`, payload);
+      await api.patch(`/gym-owner/gyms/${gymId}/basic-info`, payload);
       await refetch();
       showNotification('Basic info updated successfully', 'success');
     } catch (err: any) { 
@@ -70,9 +68,9 @@ const SettingsTab = () => {
     setIsSubmitting(true);
     try {
       if (primaryAddress.id) {
-        await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/addresses/${primaryAddress.id}`, address);
+        await api.patch(`/gym-owner/gyms/${gymId}/addresses/${primaryAddress.id}`, address);
       } else {
-        await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/addresses`, { ...address, is_primary: true });
+        await api.post(`/gym-owner/gyms/${gymId}/addresses`, { ...address, is_primary: true });
       }
       await refetch();
       showNotification('Location updated', 'success');
@@ -85,7 +83,7 @@ const SettingsTab = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/capacity`, capacity);
+      await api.patch(`/gym-owner/gyms/${gymId}/capacity`, capacity);
       await refetch();
       showNotification('Operations updated', 'success');
     } catch (err: any) { 
@@ -97,7 +95,7 @@ const SettingsTab = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/media`, media);
+      await api.patch(`/gym-owner/gyms/${gymId}/media`, media);
       await refetch();
       showNotification('Gym media updated', 'success');
     } catch (err: any) { 

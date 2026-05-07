@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
-import axios from 'axios';
+import api, { getApiErrorMessage } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle, Sparkles, X } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
 import MapPickerModal from '../../components/MapPickerModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 // ─── AI Personalization Constants ─────────────────────────────────────────────
 const DIET_OPTIONS = [
@@ -142,9 +140,9 @@ const Profile = () => {
   const fetchProfileData = async () => {
     try {
       const [profRes, addrRes, fitRes] = await Promise.all([
-        axios.get(`${API_URL}/profile/me`),
-        axios.get(`${API_URL}/profile/me/addresses`),
-        axios.get(`${API_URL}/profile/fitness`),
+        api.get('/profile/me'),
+        api.get('/profile/me/addresses'),
+        api.get('/profile/fitness'),
       ]);
       setProfile(profRes.data.data);
       setAddresses(addrRes.data.data);
@@ -153,6 +151,7 @@ const Profile = () => {
       }
     } catch (err) {
       console.error('Failed to fetch profile:', err);
+      showNotification(getApiErrorMessage(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -180,11 +179,11 @@ const Profile = () => {
           payload[f] = val;
         }
       });
-      await axios.post(`${API_URL}/profile/fitness`, payload);
-      showNotification('AI preferences saved! 🎯', 'success');
+      await api.post('/profile/fitness', payload);
+      showNotification('AI preferences saved!', 'success');
     } catch (err: any) {
       console.error('Update failed:', err);
-      showNotification('Failed to update AI preferences', 'error');
+      showNotification(getApiErrorMessage(err), 'error');
     } finally {
       setSavingSection(null);
     }
@@ -200,12 +199,12 @@ const Profile = () => {
          date_of_birth: profile.date_of_birth || null,
          gender: profile.gender || null,
       };
-      await axios.patch(`${API_URL}/profile/me`, payload);
+      await api.patch('/profile/me', payload);
       await refreshUser();
       showNotification(`${section} updated successfully`, 'success');
     } catch (err: any) {
       console.error('Update failed:', err);
-      showNotification(err.response?.data?.error?.message || `Failed to update ${section}`, 'error');
+      showNotification(getApiErrorMessage(err) || `Failed to update ${section}`, 'error');
     } finally {
       setSavingSection(null);
     }

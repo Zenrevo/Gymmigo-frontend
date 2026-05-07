@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Clock, Activity, Loader2 } from 'lucide-react';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+import api from '../../../utils/api';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -40,7 +38,7 @@ const ScheduleTab = () => {
   const saveHours = async (dayIndex: number) => {
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/hours`, {
+      await api.post(`/gym-owner/gyms/${gymId}/hours`, {
         day_of_week: dayIndex,
         ...hoursForm
       });
@@ -58,7 +56,7 @@ const ScheduleTab = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/busy-hours`, {
+      await api.post(`/gym-owner/gyms/${gymId}/busy-hours`, {
         day: busyDay,
         hour: parseInt(busyHour),
         occupancy_percentage: parseInt(busyOcc)

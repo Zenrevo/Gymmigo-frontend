@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, Calendar, ArrowLeft,
@@ -11,8 +11,6 @@ import {
 } from 'lucide-react';
 import clsx from 'clsx';
 import PageLoader from '../../components/PageLoader';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -31,7 +29,7 @@ const TrainerProfile = () => {
   useEffect(() => {
     const fetchTrainer = async () => {
       try {
-        const res = await axios.get(`${API_URL}/trainers/${trainerId}`);
+        const res = await api.get(`/trainers/${trainerId}`);
         setTrainer(res.data);
       } catch (err) {
         console.error('Failed to fetch trainer:', err);
@@ -44,7 +42,7 @@ const TrainerProfile = () => {
     // Fetch reviews
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`${API_URL}/trainer-bookings/reviews/${trainerId}`);
+        const res = await api.get(`/trainer-bookings/reviews/${trainerId}`);
         setReviews(res.data.data?.reviews || []);
         setReviewsMeta({
           total: res.data.data?.total || 0,
@@ -478,7 +476,7 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await axios.post(`${API_URL}/trainer-bookings/bookings`, {
+      await api.post(`/trainer-bookings/bookings`, {
         trainer_id: trainer.id,
         package_id: pkg?.id || null,
         start_date: selectedDate,

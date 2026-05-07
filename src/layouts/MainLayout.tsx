@@ -3,20 +3,18 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Home, Search, User, LogOut, Shield, ChevronDown,
-  Settings, Bell, Users, Check as LucideCheck, Bot, Calendar
+  Settings, Bell, Users, Check as LucideCheck, Bot, Calendar, Trophy, UserPlus
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../components/BrandLogo';
-import axios from 'axios';
 import { useGeoLocation } from '../context/LocationContext';
 import type { AddressResult } from '../context/LocationContext';
 import MapPickerModal from '../components/MapPickerModal';
 import InfoModal from '../components/InfoModal';
 import { Sparkles, MapPin } from 'lucide-react';
 import { getGoogleMapsUrl } from '../utils/navigation';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+import api from '../utils/api';
 
 const MainLayout = () => {
   const { user, logout, switchRole } = useAuth();
@@ -41,7 +39,7 @@ const MainLayout = () => {
     const match = location.pathname.match(/\/app\/gym-owner\/gyms\/([^\/\s]+)/);
     if (match && match[1]) {
       const gymId = match[1];
-      axios.get(`${API_URL}/gym-owner/gyms/${gymId}`)
+      api.get(`/gym-owner/gyms/${gymId}`)
         .then(res => {
           if (res.data.data?.name) {
             setGymBranding({
@@ -96,6 +94,7 @@ const MainLayout = () => {
     navItems = [
       { name: 'Home', path: '/app/dashboard', icon: Home },
       { name: 'Explore', path: '/app/discovery', icon: Search },
+      { name: 'Clubs', path: '/app/clubs', icon: Trophy },
       { name: 'Calendar', path: '/app/calendar', icon: Calendar },
       { name: 'MigoAI', path: '/app/assistant', icon: Bot },
       { name: 'Profile', path: '/app/profile', icon: User },
@@ -112,6 +111,7 @@ const MainLayout = () => {
       navItems = [
         { name: 'Home', path: '/app/dashboard', icon: Home },
         { name: 'Members', path: `/app/gym-owner/gyms/${activeGymId}/members`, icon: Users },
+        { name: 'Leads', path: `/app/gym-owner/gyms/${activeGymId}/leads`, icon: UserPlus },
         { name: 'Team', path: `/app/gym-owner/gyms/${activeGymId}/team`, icon: Shield },
         { name: 'Settings', path: `/app/gym-owner/gyms/${activeGymId}/settings`, icon: Settings },
       ];

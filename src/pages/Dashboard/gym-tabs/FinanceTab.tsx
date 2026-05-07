@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { motion } from 'framer-motion';
 import Modal from '../../../components/Modal';
 import { 
@@ -11,8 +11,6 @@ import {
 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import clsx from 'clsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface Invoice {
   id: string;
@@ -90,7 +88,7 @@ const FinanceTab = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/products`);
+      const response = await api.get(`/gym-owner/gyms/${gymId}/products`);
       setProducts(response.data.data || []);
     } catch (err) {
       console.error('Failed to fetch products', err);
@@ -108,7 +106,7 @@ const FinanceTab = () => {
     }
     setIsSearchingMembers(true);
     try {
-      const response = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/members`, {
+      const response = await api.get(`/gym-owner/gyms/${gymId}/members`, {
         params: { search: query, page_size: 5 }
       });
       setMemberSearchResults(response.data.data.members || []);
@@ -162,9 +160,9 @@ const FinanceTab = () => {
     setLoading(true);
     try {
       const [summRes, invRes, expRes] = await Promise.all([
-        axios.get(`${API_URL}/gym-owner/gyms/${gymId}/finance/summary`, { params: { month: selectedMonth } }),
-        axios.get(`${API_URL}/gym-owner/gyms/${gymId}/invoices`),
-        axios.get(`${API_URL}/gym-owner/gyms/${gymId}/expenses`)
+        api.get(`/gym-owner/gyms/${gymId}/finance/summary`, { params: { month: selectedMonth } }),
+        api.get(`/gym-owner/gyms/${gymId}/invoices`),
+        api.get(`/gym-owner/gyms/${gymId}/expenses`)
       ]);
       setSummary(summRes.data.data);
       setInvoices(invRes.data.data || []);
@@ -189,7 +187,7 @@ const FinanceTab = () => {
     try {
       const total = invoiceForm.items.reduce((sum, item) => sum + (item.rate * item.quantity), 0);
       const itemsClean = invoiceForm.items.map(({ id, ...rest }) => rest);
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/invoices`, {
+      await api.post(`/gym-owner/gyms/${gymId}/invoices`, {
         ...invoiceForm,
         amount: total,
         items: itemsClean
@@ -208,7 +206,7 @@ const FinanceTab = () => {
     e.preventDefault();
     setActionLoading('log_expense');
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/expenses`, expenseForm);
+      await api.post(`/gym-owner/gyms/${gymId}/expenses`, expenseForm);
       showNotification('Expense logged successfully', 'success');
       setShowExpenseModal(false);
       fetchData();
@@ -222,7 +220,7 @@ const FinanceTab = () => {
   const sendInvoiceEmail = async (invoiceId: string) => {
     setActionLoading(`email_${invoiceId}`);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/invoices/${invoiceId}/send-email`);
+      await api.post(`/gym-owner/gyms/${gymId}/invoices/${invoiceId}/send-email`);
       showNotification('Invoice sent to member email', 'success');
     } catch (err) {
       showNotification('Failed to send email', 'error');
@@ -234,7 +232,7 @@ const FinanceTab = () => {
   const handleStatusUpdate = async (invoiceId: string, status: string) => {
     setActionLoading(`status_${invoiceId}_${status}`);
     try {
-      await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/invoices/${invoiceId}/status`, null, {
+      await api.patch(`/gym-owner/gyms/${gymId}/invoices/${invoiceId}/status`, null, {
         params: { status }
       });
       showNotification(`Invoice marked as ${status}`, 'success');
@@ -248,8 +246,8 @@ const FinanceTab = () => {
  
   const downloadInvoice = async (invoiceId: string, invoiceNum: string) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/gym-owner/gyms/${gymId}/invoices/${invoiceId}/pdf`,
+      const response = await api.get(
+        `/gym-owner/gyms/${gymId}/invoices/${invoiceId}/pdf`,
         { responseType: 'blob' }
       );
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -270,7 +268,7 @@ const FinanceTab = () => {
     
     setActionLoading('create_product');
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/products`, newProduct);
+      await api.post(`/gym-owner/gyms/${gymId}/products`, newProduct);
       showNotification('Product created successfully', 'success');
       setIsAddingProduct(false);
       setNewProduct({ name: '', price: 0, category: 'service' });

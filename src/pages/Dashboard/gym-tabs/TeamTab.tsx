@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Users, UserPlus, Shield, Phone, Mail, Trash2, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../../context/AuthContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const TeamTab = () => {
   const { gym, gymId } = useGym();
@@ -30,7 +28,7 @@ const TeamTab = () => {
   const fetchManagers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}/managers`);
+      const res = await api.get(`/gym-owner/gyms/${gymId}/managers`);
       setManagers(res.data.data || []);
     } catch (err) {
       console.error('Failed to fetch managers', err);
@@ -51,7 +49,7 @@ const TeamTab = () => {
         ...newManager,
         phone: `+91${newManager.phone.replace(/^\+91/, '')}`
       };
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/managers`, payload);
+      await api.post(`/gym-owner/gyms/${gymId}/managers`, payload);
       showNotification('Co-owner invited successfully', 'success');
       setShowInviteModal(false);
       setNewManager({ name: '', phone: '', email: '' });
@@ -69,7 +67,7 @@ const TeamTab = () => {
     if (!window.confirm('Are you sure you want to remove this co-owner? They will lose access to this gym dashboard immediately.')) return;
     
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/managers/${userId}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/managers/${userId}`);
       showNotification('Co-owner removed', 'success');
       fetchManagers();
     } catch (err) {

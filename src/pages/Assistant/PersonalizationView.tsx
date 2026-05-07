@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { clsx } from 'clsx';
 import { Utensils, Dumbbell, Calendar, RefreshCw, X, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
 import { WorkoutExerciseMediaGrid } from '../../components/WorkoutExerciseMediaGrid';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export default function PersonalizationView() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -24,7 +22,7 @@ export default function PersonalizationView() {
 
   const fetchRecommendations = async () => {
     try {
-      const res = await axios.get(`${API_URL}/ai/recommendations`);
+      const res = await api.get(`/ai/recommendations`);
       if (res.data?.data) {
         setRecommendations(res.data.data);
       }
@@ -47,7 +45,7 @@ export default function PersonalizationView() {
     setRegenerating(id);
     setFeedbackModalVisible(false);
     try {
-      const res = await axios.post(`${API_URL}/ai/recommendations/${id}/regenerate`, {
+      const res = await api.post(`/ai/recommendations/${id}/regenerate`, {
         feedback: feedback.trim() || undefined
       }, { timeout: 30000 });
       if (res.data?.data) {
@@ -72,7 +70,7 @@ export default function PersonalizationView() {
     if (!selectedRec) return;
     setCompleting(true);
     try {
-      const res = await axios.post(`${API_URL}/ai/recommendations/${selectedRec.id}/complete`, {
+      const res = await api.post(`/ai/recommendations/${selectedRec.id}/complete`, {
         feedback: completionFeedback.trim() || undefined
       });
       if (res.data?.data) {

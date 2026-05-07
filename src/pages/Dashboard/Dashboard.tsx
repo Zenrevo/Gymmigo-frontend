@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import api from '../../utils/api';
 import { motion } from 'framer-motion';
 import { 
   Users, Building2, 
   TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar,
-  Dumbbell, Zap
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
@@ -16,8 +15,6 @@ import TrainerDashboard from './TrainerDashboard';
 import BookingDetailModal from '../../components/BookingDetailModal';
 import GymOwnerInsights from '../../components/GymOwnerInsights';
 import MemberInsights from '../../components/MemberInsights';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -42,15 +39,15 @@ const Dashboard = () => {
         else if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') endpoint = '/gym-owner/gyms';
 
         if (endpoint) {
-          const res = await axios.get(`${API_URL}${endpoint}`, { timeout: 10000 });
+          const res = await api.get(endpoint);
           let dashboardData = res.data.data;
 
           // If user, also fetch trainer bookings and upcoming sessions
           if (user.active_role === 'user') {
             try {
-              const bookingsRes = await axios.get(`${API_URL}/trainer-bookings/bookings/my?role=user`);
+              const bookingsRes = await api.get('/trainer-bookings/bookings/my?role=user');
               dashboardData.trainer_bookings = bookingsRes.data.data.bookings || [];
-              const sessionsRes = await axios.get(`${API_URL}/trainer-bookings/sessions/my?role=user`);
+              const sessionsRes = await api.get('/trainer-bookings/sessions/my?role=user');
               // Filter to only upcoming scheduled/pending sessions
               dashboardData.upcoming_sessions = (sessionsRes.data.data.sessions || [])
                 .filter((s: any) => ['pending_confirmation', 'scheduled'].includes(s.status));
@@ -64,7 +61,7 @@ const Dashboard = () => {
           setData(dashboardData);
           
           if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') {
-            const revRes = await axios.get(`${API_URL}/gym-owner/gyms/reviews`);
+            const revRes = await api.get('/gym-owner/gyms/reviews');
             setReviews(revRes.data.data.reviews?.slice(0, 5) || []);
           }
         }
@@ -124,28 +121,12 @@ const Dashboard = () => {
 
 import MembershipDetailView from './MembershipDetailView';
 
+import AITodaysFocus from '../../components/AITodaysFocus';
+
 const UserDashboardView = ({ data }: { data: any }) => {
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
-  const [todaysFocus, setTodaysFocus] = useState<any>(null);
-  const [focusLoading, setFocusLoading] = useState(true);
   const [showQRScanner, setShowQRScanner] = useState(false);
-
-  useEffect(() => {
-    const fetchTodaysFocus = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/ai/todays-focus`);
-        if (res.data?.data) {
-          setTodaysFocus(res.data.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch todays focus:', err);
-      } finally {
-        setFocusLoading(false);
-      }
-    };
-    fetchTodaysFocus();
-  }, []);
 
   const groupedMemberships = useMemo(() => {
     if (!data?.memberships) return [];
@@ -209,72 +190,7 @@ const UserDashboardView = ({ data }: { data: any }) => {
       <div className="md:col-span-2 space-y-8">
         {/* Today's Focus Card */}
         <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-black text-white flex items-center gap-3 italic tracking-tighter">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/5">
-                <Zap size={22} fill="currentColor" />
-              </div>
-              TODAY'S FOCUS
-            </h3>
-          </div>
-          
-          <Link to="/app/assistant?tab=personalization" className="block group">
-            <div className="glass-card p-10 md:p-12 bg-gradient-to-br from-primary/20 via-transparent to-transparent border-primary/20 relative overflow-hidden group-hover:border-primary/50 transition-all shadow-2xl">
-              <div className="absolute -right-10 -bottom-10 text-primary/5 group-hover:text-primary/10 transition-all transform group-hover:scale-110 group-hover:-rotate-12 pointer-events-none">
-                <Dumbbell size={280} />
-              </div>
-              
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                {focusLoading ? (
-                  <div className="flex items-center gap-6 animate-pulse">
-                    <div className="w-20 h-20 rounded-3xl bg-white/5" />
-                    <div className="space-y-3">
-                      <div className="h-6 w-48 bg-white/5 rounded" />
-                      <div className="h-4 w-72 bg-white/5 rounded" />
-                    </div>
-                  </div>
-                ) : todaysFocus ? (
-                  <>
-                    <div className="flex items-center gap-8">
-                      <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center text-5xl shadow-2xl shadow-primary/30 border-2 border-white/10 group-hover:scale-105 transition-transform duration-500">
-                        {todaysFocus.emoji || '💪'}
-                      </div>
-                      <div className="space-y-2">
-                        <h4 className="text-4xl font-black text-white group-hover:text-primary transition-colors italic tracking-tighter leading-none">
-                          {todaysFocus.focus}
-                        </h4>
-                        <p className="text-white/60 text-lg font-medium max-w-xl leading-relaxed">
-                          {todaysFocus.description}
-                        </p>
-                        {todaysFocus.is_completed && (
-                          <div className="flex items-center gap-2 mt-4 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
-                            <CheckCircle2 size={14} className="text-emerald-500" />
-                            <span className="text-xs font-black uppercase tracking-widest text-emerald-500">Session Completed & Logged</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-3">
-                      <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex items-center gap-3 group-hover:bg-primary group-hover:border-primary group-hover:text-black transition-all duration-300">
-                        <span className="text-xs font-black uppercase tracking-widest">Update Plan</span>
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                      </div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Generated by MigoAI</p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full text-center py-8">
-                    <p className="text-white/40 text-sm font-bold uppercase tracking-widest">
-                      Complete your fitness profile to get personalized daily goals
-                    </p>
-                    <div className="mt-4 inline-flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest">
-                      Set up Profile <ArrowRight size={14} />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </Link>
+          <AITodaysFocus />
         </section>
 
         <div className="flex items-center justify-between pt-4">

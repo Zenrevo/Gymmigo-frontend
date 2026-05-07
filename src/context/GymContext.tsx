@@ -1,8 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import axios from 'axios';
+import api, { getApiErrorMessage } from '../utils/api';
 import { useParams } from 'react-router-dom';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface GymContextType {
   gym: any | null;
@@ -28,10 +26,10 @@ export const GymProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get(`${API_URL}/gym-owner/gyms/${gymId}`);
+      const res = await api.get(`/gym-owner/gyms/${gymId}`);
       setGym(res.data.data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load gym details.');
+      setError(getApiErrorMessage(err) || 'Failed to load gym details.');
       console.error('Failed to fetch gym:', err);
     } finally {
       setLoading(false);

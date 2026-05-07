@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { Award, Loader2 } from 'lucide-react';
 import Modal from './Modal';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface AddCertificationModalProps {
   isOpen: boolean;
@@ -46,7 +44,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
         payload.expiry_year = parseInt(formData.expiry_year.toString());
       }
 
-      await axios.post(`${API_URL}/trainer/certifications`, payload);
+      await api.post(`/trainer/certifications`, payload);
       showNotification('Certification added successfully!', 'success');
       onSuccess();
       onClose();

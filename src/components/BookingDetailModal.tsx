@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Calendar, Clock, MapPin, 
@@ -52,8 +52,6 @@ interface BookingDetailModalProps {
   onRefresh?: () => void;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
-
 const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject, onRefresh }: BookingDetailModalProps) => {
   const navigate = useNavigate();
   const { isLoaded } = useGeoLocation();
@@ -83,7 +81,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
             setSessionsLoading(true);
             try {
                 // Fetch by trainer_id to catch all sessions for this pair
-                const res = await axios.get(`${API_URL}/trainer-bookings/sessions/my?trainer_id=${booking.trainer_id}`);
+                const res = await api.get(`/trainer-bookings/sessions/my?trainer_id=${booking.trainer_id}`);
                 setSessions(res.data.data?.sessions || []);
             } catch (err) {
                 console.error('Failed to fetch sessions:', err);
@@ -98,8 +96,8 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
   const handleCancelSession = async (sessionId: string) => {
     if (!window.confirm('Are you sure you want to cancel this session? Your balance will be refunded.')) return;
     try {
-        await axios.post(`${API_URL}/trainer-bookings/sessions/${sessionId}/cancel`);
-        const res = await axios.get(`${API_URL}/trainer-bookings/sessions/my?trainer_id=${booking?.trainer_id}`);
+        await api.post(`/trainer-bookings/sessions/${sessionId}/cancel`);
+        const res = await api.get(`/trainer-bookings/sessions/my?trainer_id=${booking?.trainer_id}`);
         setSessions(res.data.data?.sessions || []);
         onRefresh?.();
     } catch (err: any) {
@@ -111,7 +109,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
     if (!booking) return;
     setSlotsLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/trainers/${booking.trainer_id}/available-slots`, {
+      const res = await api.get(`/trainers/${booking.trainer_id}/available-slots`, {
         params: { date }
       });
       setSlots(res.data);
@@ -137,14 +135,14 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
 
     setIsSubmitting(true);
     try {
-        await axios.post(`${API_URL}/trainer-bookings/bookings/${booking?.id}/schedule-session`, {
+        await api.post(`/trainer-bookings/bookings/${booking?.id}/schedule-session`, {
             ...formData,
             scheduled_date: selectedDate,
             scheduled_time: selectedSlot,
         });
         setIsScheduling(false);
         // Refresh sessions list
-        const res = await axios.get(`${API_URL}/trainer-bookings/sessions/my?trainer_id=${booking?.trainer_id}`);
+        const res = await api.get(`/trainer-bookings/sessions/my?trainer_id=${booking?.trainer_id}`);
         setSessions(res.data.data?.sessions || []);
         onRefresh?.();
         alert('Session scheduled successfully!');

@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+import api from './api';
 
 export const uploadToR2 = async (file: File): Promise<string> => {
   try {
@@ -9,7 +7,7 @@ export const uploadToR2 = async (file: File): Promise<string> => {
     formData.append('file', file);
 
     const authHeader = localStorage.getItem('access_token');
-    const { data } = await axios.post(`${API_URL}/storage/upload`, formData, {
+    const { data } = await api.post(`/storage/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         ...(authHeader ? { Authorization: `Bearer ${authHeader}` } : {}),

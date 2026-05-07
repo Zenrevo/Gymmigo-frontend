@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import api from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Clock, Star, ArrowRight,
@@ -20,8 +20,6 @@ import MapPickerModal from '../../components/MapPickerModal';
 import TrainerProfessionalSettingsModal from '../../components/TrainerProfessionalSettingsModal';
 import TrainerPricingSettingsModal from '../../components/TrainerPricingSettingsModal';
 import { useNotification } from '../../context/NotificationContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 interface DashboardData {
   today_sessions: any[];
@@ -129,7 +127,7 @@ const TrainerDashboard = () => {
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/trainer/dashboard`);
+      const res = await api.get(`/trainer/dashboard`);
       setData(res.data.data);
     } catch (err) {
       console.error('Failed to fetch trainer dashboard:', err);
@@ -141,7 +139,7 @@ const TrainerDashboard = () => {
   const fetchSessions = useCallback(async () => {
     setSessionsLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/trainer-bookings/sessions/my?role=trainer`);
+      const res = await api.get(`/trainer-bookings/sessions/my?role=trainer`);
       setSessions(res.data.data?.sessions || []);
     } catch (err) {
       console.error('Failed to fetch sessions:', err);
@@ -153,7 +151,7 @@ const TrainerDashboard = () => {
   const fetchAllBookings = useCallback(async () => {
     setBookingsLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/trainer-bookings/bookings/my?role=trainer`);
+      const res = await api.get(`/trainer-bookings/bookings/my?role=trainer`);
       setAllBookings(res.data.data.bookings || []);
     } catch (err) {
       console.error('Failed to fetch bookings:', err);
@@ -169,7 +167,7 @@ const TrainerDashboard = () => {
   const fetchGallery = useCallback(async () => {
     setGalleryLoading(true);
     try {
-      const res = await axios.get(`${API_URL}/trainer/gallery`);
+      const res = await api.get(`/trainer/gallery`);
       setGalleryImages(res.data.data || []);
     } catch (err) {
       console.error('Failed to fetch gallery:', err);
@@ -182,10 +180,10 @@ const TrainerDashboard = () => {
     setReviewsLoading(true);
     try {
       // We need the trainer_id — get it from the full profile
-      const profileRes = await axios.get(`${API_URL}/trainer`);
+      const profileRes = await api.get(`/trainer`);
       const trainerId = profileRes.data.data?.id;
       if (trainerId) {
-        const res = await axios.get(`${API_URL}/trainer-bookings/reviews/${trainerId}`);
+        const res = await api.get(`/trainer-bookings/reviews/${trainerId}`);
         setReviews(res.data.data?.reviews || []);
         setReviewsMeta({
           total: res.data.data?.total || 0,
@@ -202,7 +200,7 @@ const TrainerDashboard = () => {
   const handleAddGalleryImage = async (url: string) => {
     if (!url) return;
     try {
-      await axios.post(`${API_URL}/trainer/gallery`, {
+      await api.post(`/trainer/gallery`, {
         image_url: url,
         caption: '',
         display_order: galleryImages.length,
@@ -218,7 +216,7 @@ const TrainerDashboard = () => {
   const handleDeleteGalleryImage = async (imgId: string) => {
     setDeletingImageId(imgId);
     try {
-      await axios.delete(`${API_URL}/trainer/gallery/${imgId}`);
+      await api.delete(`/trainer/gallery/${imgId}`);
       showNotification('Image removed', 'success');
       fetchGallery();
     } catch (err) {
@@ -247,7 +245,7 @@ const TrainerDashboard = () => {
   const handleToggleAvailability = async () => {
     setToggling(true);
     try {
-      const res = await axios.patch(`${API_URL}/trainer/toggle-availability`);
+      const res = await api.patch(`/trainer/toggle-availability`);
       if (data) {
         setData({
           ...data,
@@ -263,7 +261,7 @@ const TrainerDashboard = () => {
 
   const handleSessionAction = async (sessionId: string, action: 'accept' | 'reject') => {
     try {
-      await axios.post(`${API_URL}/trainer-bookings/sessions/${sessionId}/${action}`);
+      await api.post(`/trainer-bookings/sessions/${sessionId}/${action}`);
       await Promise.all([fetchDashboard(), fetchSessions()]);
       showNotification(
         action === 'accept' ? 'Session accepted successfully!' : 'Session rejected',
@@ -277,7 +275,7 @@ const TrainerDashboard = () => {
 
   const handleLocationUpdate = async (location: any) => {
     try {
-      await axios.patch(`${API_URL}/trainer`, {
+      await api.patch(`/trainer`, {
         latitude: location.latitude,
         longitude: location.longitude,
         location_address: location.address_line1,

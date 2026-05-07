@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Wifi, Plus, X, Search } from 'lucide-react';
-import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+import api from '../../../utils/api';
 
 // Some predefined icons mapped to amenity names
 const PRESETS = [
@@ -24,7 +22,7 @@ const AmenitiesTab = () => {
     if (!name.trim()) return;
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/amenities`, { name: name.trim() });
+      await api.post(`/gym-owner/gyms/${gymId}/amenities`, { name: name.trim() });
       await refetch();
       if (name === customName) setCustomName('');
     } catch (err) {
@@ -39,7 +37,7 @@ const AmenitiesTab = () => {
     if (!window.confirm(`Are you sure you want to remove "${name}"?`)) return;
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/amenities/${id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/amenities/${id}`);
       await refetch();
     } catch (err) {
       console.error(err);

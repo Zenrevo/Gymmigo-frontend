@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Dumbbell, Target, Plus, Trash2, Edit3 } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../utils/api';
 import Modal from '../../../components/Modal';
 import ConfirmDialog from '../../../components/ConfirmDialog';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 const EquipmentTab = () => {
   const { gym, refetch, gymId } = useGym();
@@ -44,8 +42,8 @@ const EquipmentTab = () => {
     setIsSubmitting(true);
     const payload = { ...eqFormData, quantity: parseInt(eqFormData.quantity) };
     try {
-      if (selectedEq) await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/equipment/${selectedEq.id}`, payload);
-      else await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/equipment`, payload);
+      if (selectedEq) await api.patch(`/gym-owner/gyms/${gymId}/equipment/${selectedEq.id}`, payload);
+      else await api.post(`/gym-owner/gyms/${gymId}/equipment`, payload);
       await refetch();
       setIsEqModalOpen(false);
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
@@ -54,7 +52,7 @@ const EquipmentTab = () => {
   const handleEqDelete = async () => {
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/equipment/${selectedEq.id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/equipment/${selectedEq.id}`);
       await refetch();
       setIsEqConfirmOpen(false);
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
@@ -78,8 +76,8 @@ const EquipmentTab = () => {
     setIsSubmitting(true);
     const payload = { ...facFormData, quantity: parseInt(facFormData.quantity) };
     try {
-      if (selectedFac) await axios.patch(`${API_URL}/gym-owner/gyms/${gymId}/facilities/${selectedFac.id}`, payload);
-      else await axios.post(`${API_URL}/gym-owner/gyms/${gymId}/facilities`, payload);
+      if (selectedFac) await api.patch(`/gym-owner/gyms/${gymId}/facilities/${selectedFac.id}`, payload);
+      else await api.post(`/gym-owner/gyms/${gymId}/facilities`, payload);
       await refetch();
       setIsFacModalOpen(false);
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }
@@ -88,7 +86,7 @@ const EquipmentTab = () => {
   const handleFacDelete = async () => {
     setIsSubmitting(true);
     try {
-      await axios.delete(`${API_URL}/gym-owner/gyms/${gymId}/facilities/${selectedFac.id}`);
+      await api.delete(`/gym-owner/gyms/${gymId}/facilities/${selectedFac.id}`);
       await refetch();
       setIsFacConfirmOpen(false);
     } catch (err) { console.error(err); } finally { setIsSubmitting(false); }

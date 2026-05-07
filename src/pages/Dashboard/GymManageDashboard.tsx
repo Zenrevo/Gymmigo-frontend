@@ -3,19 +3,20 @@ import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { 
   Building2, ArrowLeft, Users, Dumbbell, 
   TrendingUp, Star, Settings, Image as ImageIcon,
-  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle, Activity, Shield, AlertTriangle
+  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle, Activity, Shield, AlertTriangle, UserPlus, Trophy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLoader from '../../components/PageLoader';
 import { useGym } from '../../context/GymContext';
 import clsx from 'clsx';
 import { useNotification } from '../../context/NotificationContext';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+import { API_URL } from '../../utils/api';
 
 const navItems = [
   { id: '', name: 'Overview', icon: TrendingUp },
   { id: 'members', name: 'Members', icon: Users },
+  { id: 'clubs', name: 'Clubs', icon: Trophy },
+  { id: 'leads', name: 'Leads', icon: UserPlus },
   { id: 'plans', name: 'Plans', icon: CreditCard },
   { id: 'equipment', name: 'Equipment', icon: Dumbbell },
   { id: 'schedule', name: 'Schedule', icon: Clock },
