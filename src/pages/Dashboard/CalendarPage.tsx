@@ -23,7 +23,9 @@ import {
   ArrowRight,
   Info,
   Zap,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  Trash2
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -61,6 +63,10 @@ const CalendarPage = () => {
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [weeklyModalVisible, setWeeklyModalVisible] = useState(false);
+  const [userInstructions, setUserInstructions] = useState('');
+  const [syncingWeek, setSyncingWeek] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -168,6 +174,49 @@ const CalendarPage = () => {
     }
   };
 
+  const syncWeeklySchedule = async () => {
+    setSyncingWeek(true);
+    setWeeklyModalVisible(false);
+    setErrorMessage('');
+    try {
+      const res = await api.post('/ai/weekly-schedule', {
+        start_date: format(selectedDate, 'yyyy-MM-dd'),
+        days: 7,
+        force: false,
+        user_instructions: userInstructions.trim() || undefined,
+      }, {
+        timeout: 180000,
+      });
+      if (res.data?.data) {
+        setUserInstructions('');
+        refreshVisiblePlans();
+      }
+    } catch (err) {
+      console.error('Failed to sync weekly schedule:', err);
+      setErrorMessage(getApiErrorMessage(err));
+    } finally {
+      setSyncingWeek(false);
+    }
+  };
+
+  const resetUpcomingSchedule = async () => {
+    const confirmed = window.confirm('Reset all upcoming uncompleted workouts? This cannot be undone.');
+    if (!confirmed) return;
+
+    setResetting(true);
+    setErrorMessage('');
+    try {
+      await api.delete('/ai/recommendations/upcoming');
+      setSelectedPlan(null);
+      refreshVisiblePlans();
+    } catch (err) {
+      console.error('Failed to reset schedule:', err);
+      setErrorMessage(getApiErrorMessage(err));
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const selectedPlanExercises = Array.isArray(selectedPlan?.structured_data?.exercises)
     ? selectedPlan.structured_data.exercises
     : [];
@@ -182,13 +231,43 @@ const CalendarPage = () => {
       >
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
         
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-[1px] w-8 bg-primary/50" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Schedule Management</span>
+        <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-[1px] w-8 bg-primary/50" />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Schedule Management</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white italic">FITNESS CALENDAR</h1>
+            <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mt-1">Precision scheduling with MigoAI</p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white italic">FITNESS CALENDAR</h1>
-          <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mt-1">Precision scheduling with MigoAI</p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => setWeeklyModalVisible(true)}
+              disabled={syncingWeek || resetting}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-black transition hover:brightness-110 disabled:opacity-50"
+            >
+              {syncingWeek ? (
+                <span className="h-4 w-4 rounded-full border-2 border-black/25 border-t-black animate-spin" />
+              ) : (
+                <Sparkles size={16} />
+              )}
+              {syncingWeek ? 'Building...' : 'Build Week'}
+            </button>
+            <button
+              type="button"
+              onClick={resetUpcomingSchedule}
+              disabled={syncingWeek || resetting}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-red-300 transition hover:bg-red-500/15 disabled:opacity-50"
+            >
+              {resetting ? (
+                <span className="h-4 w-4 rounded-full border-2 border-red-300/25 border-t-red-300 animate-spin" />
+              ) : (
+                <Trash2 size={16} />
+              )}
+              {resetting ? 'Resetting...' : 'Reset'}
+            </button>
+          </div>
         </div>
       </motion.div>
 
@@ -592,6 +671,56 @@ const CalendarPage = () => {
                     Regenerate Plan
                   </button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {weeklyModalVisible && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-lg">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111] p-8 shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-black italic tracking-tight text-white">WEEKLY DROP</h3>
+                  <p className="mt-2 text-xs font-semibold leading-5 text-white/45">
+                    MigoAI will build seven days from {format(selectedDate, 'MMMM dd')}. Add any focus, injury, or time limit.
+                  </p>
+                </div>
+                <button onClick={() => setWeeklyModalVisible(false)} className="text-white/25 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <textarea
+                className="mt-6 min-h-[140px] w-full resize-none rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white outline-none transition focus:border-primary/50 placeholder:text-white/20"
+                placeholder="e.g. Focus chest and arms, keep under 40 mins, avoid heavy squats..."
+                value={userInstructions}
+                onChange={(event) => setUserInstructions(event.target.value)}
+              />
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setWeeklyModalVisible(false)}
+                  className="flex-1 rounded-2xl bg-white/5 px-5 py-4 text-xs font-black uppercase tracking-widest text-white/45 transition hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={syncWeeklySchedule}
+                  disabled={syncingWeek}
+                  className="flex-[2] rounded-2xl bg-primary px-5 py-4 text-xs font-black uppercase tracking-widest text-black transition hover:brightness-110 disabled:opacity-50"
+                >
+                  Generate Week
+                </button>
               </div>
             </motion.div>
           </div>

@@ -16,7 +16,6 @@ import SessionDetail from './pages/Dashboard/SessionDetail';
 import Profile from './pages/Profile/Profile';
 import GymmigoClubsPage from './pages/Clubs/GymmigoClubsPage';
 import CalendarPage from './pages/Dashboard/CalendarPage';
-import RankRunPage from './pages/Dashboard/RankRunPage';
 import AssistantPage from './pages/Assistant/AssistantPage';
 import AddGymPage from './pages/Dashboard/AddGymPage';
 import GymManageDashboard from './pages/Dashboard/GymManageDashboard';
@@ -84,7 +83,7 @@ const AppRoutes = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="clubs" element={<GymmigoClubsPage />} />
         <Route path="calendar" element={<CalendarPage />} />
-        <Route path="rank-run" element={<RankRunPage />} />
+        <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
         <Route path="assistant" element={<AssistantPage />} />
         <Route path="gym-owner/add-gym" element={<AddGymPage />} />
         <Route path="gym-owner/gyms/:gymId" element={<GymProvider><GymManageDashboard /></GymProvider>}>

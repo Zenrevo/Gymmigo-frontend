@@ -87,10 +87,6 @@ export default function MemberInsights() {
 
   const {
     streak,
-    current_level = 'Bronze Tier',
-    next_level = 'Silver Tier',
-    progress_percent = 0,
-    remaining_to_next = 0,
     heatmap = [],
   } = data;
   const dailyScore = data.daily_score?.score ?? data.today_score ?? 0;
@@ -108,6 +104,7 @@ export default function MemberInsights() {
         : { text: 'text-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10' };
   const planData = todaysPlan?.structured_data || {};
   const exercises = Array.isArray(planData.exercises) ? planData.exercises.slice(0, 4) : [];
+  const weeklyProgressPercent = Math.min(100, Math.round((weekActiveDays / Math.max(weeklyTargetDays, 1)) * 100));
 
   return (
     <div className="space-y-6">
@@ -242,8 +239,8 @@ export default function MemberInsights() {
       {/* Gamification Row: Milestone & Streak */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        {/* Milestone Progress */}
-        <Link to="/app/rank-run" className="block group">
+        {/* Club Road */}
+        <Link to="/app/clubs" className="block group">
           <div className="glass-card p-6 md:p-8 space-y-6 relative overflow-hidden h-full group-hover:border-primary/30 transition-all">
             <div className="absolute -right-10 -top-10 opacity-5 group-hover:opacity-10 group-hover:scale-110 transition-all duration-700 pointer-events-none">
               <Trophy size={150} />
@@ -253,9 +250,9 @@ export default function MemberInsights() {
               <div>
                 <h3 className="font-bold text-lg flex items-center gap-2 group-hover:text-primary transition-colors">
                   <Trophy size={18} className="text-amber-500" />
-                  Rank Progress
+                  Club Road
                 </h3>
-                <p className="text-xs text-white/40">Keep crushing it!</p>
+                <p className="text-xs text-white/40">Badges, FitCard, and real gym benefits.</p>
               </div>
               <div className="bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full flex items-center gap-1.5">
                 <Flame size={14} className="text-amber-500 fill-amber-500" />
@@ -264,15 +261,18 @@ export default function MemberInsights() {
             </div>
 
             <div className="space-y-3 relative z-10">
-              <div className="flex justify-between text-xs font-bold">
-                <span className="text-white/60">{current_level}</span>
-                <span className="text-primary">{next_level}</span>
+              <div className="flex flex-wrap gap-2">
+                {['Badge missions', 'Locked previews', 'Share FitCard'].map((item) => (
+                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/45">
+                    {item}
+                  </span>
+                ))}
               </div>
               
               <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
                 <motion.div 
                   initial={{ width: 0 }} 
-                  animate={{ width: `${progress_percent}%` }} 
+                  animate={{ width: `${weeklyProgressPercent}%` }} 
                   transition={{ duration: 1.5, ease: "easeOut" }}
                   className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full relative"
                 >
@@ -286,7 +286,7 @@ export default function MemberInsights() {
               </div>
               
               <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold text-center group-hover:text-white/60 transition-colors">
-                Only {remaining_to_next} more sessions to unlock {next_level}
+                Tap to preview higher locked clubs, required badges, and gym rewards.
               </p>
             </div>
           </div>

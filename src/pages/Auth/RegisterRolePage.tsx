@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api, { getApiErrorMessage } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -19,6 +19,21 @@ const SPECIALIZATION_OPTIONS = [
   'sports_specific', 'rehab', 'martial_arts', 'zumba', 'nutrition',
   'prenatal', 'postnatal', 'senior_fitness', 'kids_fitness', 'flexibility'
 ];
+
+type RoleAssignment = {
+  role: string;
+  is_completed?: boolean;
+};
+
+type MapSelectionResult = {
+  address_line1: string;
+  city: string;
+  state: string;
+  pincode: string;
+  latitude?: number;
+  longitude?: number;
+};
+
 const roles = [
   {
     id: 'user',
@@ -44,12 +59,23 @@ const roles = [
   },
 ];
 
+const getRoleLandingPath = (role: string | null) => (
+  role === 'gym_owner' ? '/app/gym-owner/add-gym' : '/app/dashboard'
+);
+
 const RegisterRolePage = () => {
+  const [searchParams] = useSearchParams();
+  const requestedRole = searchParams.get('role');
+  const initialRole = roles.some(role => role.id === requestedRole && !role.comingSoon)
+    ? requestedRole
+    : null;
+
   const [step, setStep] = useState<'role' | 'profile'>('role');
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string | null>(initialRole);
   const [isLoading, setIsLoading] = useState(false);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [error, setError] = useState('');
+  const didAutoStartRole = useRef(false);
 
   // Shared Profile Form States (Mandatory for all professional roles)
   const [formData, setFormData] = useState({
@@ -89,7 +115,7 @@ const RegisterRolePage = () => {
   const navigate = useNavigate();
 
   // Handle map confirmation
-  const handleMapConfirm = (result: any) => {
+  const handleMapConfirm = (result: MapSelectionResult) => {
     setFormData(prev => ({
       ...prev,
       address_line1: result.address_line1,
@@ -103,20 +129,21 @@ const RegisterRolePage = () => {
     setIsMapOpen(false);
   };
 
-  const handleRoleSelection = async () => {
+  const handleRoleSelection = useCallback(async () => {
     if (!selectedRole) return;
 
     // Check if user already has this role and if it's completed
-    const existingRole = user?.roles?.find((r: any) => r.role === selectedRole);
+    const existingRole = user?.roles?.find((r: RoleAssignment) => r.role === selectedRole);
 
     if (existingRole) {
       if (existingRole.is_completed) {
         setIsLoading(true);
         try {
           await switchRole(selectedRole);
-          showNotification(`Switched to ${selectedRole} mode`, 'success');
-          navigate('/app/dashboard');
-        } catch (err) {
+          const roleName = roles.find(role => role.id === selectedRole)?.name || selectedRole;
+          showNotification(`Switched to ${roleName} mode`, 'success');
+          navigate(getRoleLandingPath(selectedRole));
+        } catch {
           setError('Failed to switch role.');
         } finally {
           setIsLoading(false);
@@ -138,16 +165,24 @@ const RegisterRolePage = () => {
         const { user: userData, tokens } = response.data.data;
         const { access_token, refresh_token } = tokens;
         login(access_token, refresh_token, userData);
-        showNotification(`${selectedRole} registered!`, 'success');
+        const roleName = roles.find(role => role.id === selectedRole)?.name || selectedRole;
+        showNotification(`${roleName} registered!`, 'success');
         setStep('profile');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const msg = getApiErrorMessage(err) || 'Failed to set role.';
       setError(msg);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [login, navigate, selectedRole, showNotification, switchRole, user?.roles]);
+
+  useEffect(() => {
+    if (!initialRole || didAutoStartRole.current || selectedRole !== initialRole) return;
+
+    didAutoStartRole.current = true;
+    handleRoleSelection();
+  }, [handleRoleSelection, initialRole, selectedRole]);
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,9 +256,12 @@ const RegisterRolePage = () => {
 
       // Refresh user to sync completed state
       await refreshUser();
+      if (selectedRole === 'gym_owner') {
+        await switchRole('gym_owner');
+      }
       showNotification('Profile completed!', 'success');
-      navigate('/app/dashboard');
-    } catch (err: any) {
+      navigate(getRoleLandingPath(selectedRole));
+    } catch (err: unknown) {
       const msg = getApiErrorMessage(err) || 'Verification failed. Please check required fields.';
       setError(msg);
     } finally {

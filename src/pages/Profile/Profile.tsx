@@ -1,8 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { clsx } from 'clsx';
 import api, { getApiErrorMessage } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
-import { Phone, MapPin, Save, Plus, Trash2, Shield, Mail, Calendar, UserCircle, Sparkles, X } from 'lucide-react';
+import {
+  Phone,
+  MapPin,
+  Save,
+  Plus,
+  Trash2,
+  Shield,
+  Mail,
+  Calendar,
+  UserCircle,
+  Sparkles,
+  X,
+  User,
+  Dumbbell,
+  Building2,
+  ChevronRight,
+} from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
 import MapPickerModal from '../../components/MapPickerModal';
@@ -40,13 +57,117 @@ const EXPERIENCE_OPTIONS = [
 const ALLERGY_PRESETS = ['Gluten', 'Dairy', 'Nuts', 'Soy', 'Shellfish', 'Eggs'];
 const INJURY_PRESETS = ['Lower Back', 'Knee', 'Shoulder', 'Wrist', 'Ankle', 'Neck', 'Hip'];
 
+type SelectorOption = {
+  key: string;
+  label: string;
+};
+
+type AccountRole = {
+  role: string;
+  is_completed?: boolean;
+};
+
+type MemberProfile = {
+  avatar_url?: string;
+  full_name?: string;
+  email?: string;
+  date_of_birth?: string | null;
+  gender?: string | null;
+  city?: string;
+  bio?: string;
+  [key: string]: string | number | boolean | null | undefined;
+};
+
+type FitnessProfile = {
+  primary_goal: string | null;
+  activity_level: string | null;
+  experience_level: string | null;
+  height: number | null;
+  current_weight: number | null;
+  target_weight: number | null;
+  dietary_preference: string | null;
+  food_allergies: string[];
+  injuries: string[];
+  medical_conditions: string[];
+  preferred_workout_duration: number | null;
+  workout_days_per_week: number | null;
+  notes_for_agent: string;
+  [key: string]: string | number | string[] | null;
+};
+
+type AddressEntry = {
+  id: string;
+  label?: string;
+  city?: string;
+  state?: string;
+};
+
+const ROLE_META = {
+  user: {
+    label: 'Member',
+    description: 'Book gyms, follow plans, and build your FitCard progress.',
+    icon: User,
+    accent: 'border-blue-400/20 bg-blue-500/10 text-blue-300',
+  },
+  trainer: {
+    label: 'Trainer',
+    description: 'Coach members, manage sessions, and grow your training brand.',
+    icon: Dumbbell,
+    accent: 'border-orange-400/20 bg-orange-500/10 text-orange-300',
+  },
+  gym_owner: {
+    label: 'Gym Owner',
+    description: 'List gyms, manage members, and customize Gymmigo Clubs.',
+    icon: Building2,
+    accent: 'border-emerald-400/20 bg-emerald-500/10 text-emerald-300',
+  },
+  gym_manager: {
+    label: 'Gym Manager',
+    description: 'Operate assigned gyms and manage day-to-day workflows.',
+    icon: Shield,
+    accent: 'border-purple-400/20 bg-purple-500/10 text-purple-300',
+  },
+};
+
+const ADDABLE_ROLES = [
+  {
+    role: 'user',
+    label: 'Add Member',
+    description: 'Use the app as a gym member with plans, memberships, and clubs.',
+    icon: User,
+  },
+  {
+    role: 'gym_owner',
+    label: 'Add Gym Owner',
+    description: 'Create your owner profile and list or manage your gym.',
+    icon: Building2,
+  },
+  {
+    role: 'trainer',
+    label: 'Add Trainer',
+    description: 'Trainer onboarding is being prepared.',
+    icon: Dumbbell,
+    comingSoon: true,
+  },
+];
+
 
 // ─── Sub-Components ───────────────────────────────────────────────────────────
-const PillSelector = ({ options, selected, onSelect, multi = false }: any) => (
+const PillSelector = ({
+  options,
+  selected,
+  onSelect,
+  multi = false,
+}: {
+  options: SelectorOption[];
+  selected?: string | string[] | null;
+  onSelect: (key: string) => void;
+  multi?: boolean;
+}) => (
   <div className="flex flex-wrap gap-2">
-    {options.map((opt: any) => {
+    {options.map((opt) => {
       const isActive = multi
-        ? (selected || []).includes(opt.key)
+        ? (Array.isArray(selected) ? selected : []).includes(opt.key)
         : selected === opt.key;
       return (
         <button
@@ -67,7 +188,17 @@ const PillSelector = ({ options, selected, onSelect, multi = false }: any) => (
   </div>
 );
 
-const ChipMultiSelect = ({ presets, selected, onChange, placeholder }: any) => {
+const ChipMultiSelect = ({
+  presets,
+  selected,
+  onChange,
+  placeholder,
+}: {
+  presets: string[];
+  selected: string[];
+  onChange: (items: string[]) => void;
+  placeholder: string;
+}) => {
   const [customText, setCustomText] = useState('');
   const toggle = (item: string) => {
     if (selected.includes(item)) onChange(selected.filter((s: string) => s !== item));
@@ -90,7 +221,7 @@ const ChipMultiSelect = ({ presets, selected, onChange, placeholder }: any) => {
             {p} {selected.includes(p) && <X size={10} />}
           </button>
         ))}
-        {selected.filter((s: any) => !presets.includes(s)).map((s: string) => (
+        {selected.filter((s) => !presets.includes(s)).map((s) => (
           <button
             key={s} type="button" onClick={() => toggle(s)}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border bg-primary/10 border-primary text-primary">
@@ -115,12 +246,12 @@ const ChipMultiSelect = ({ presets, selected, onChange, placeholder }: any) => {
 
 const Profile = () => {
   const { user, refreshUser } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [profile, setProfile] = useState<MemberProfile | null>(null);
+  const [addresses, setAddresses] = useState<AddressEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingSection, setSavingSection] = useState<string | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
-  const [fitnessProfile, setFitnessProfile] = useState<any>({
+  const [fitnessProfile, setFitnessProfile] = useState<FitnessProfile>({
     primary_goal: null,
     activity_level: null,
     experience_level: null,
@@ -136,8 +267,11 @@ const Profile = () => {
     notes_for_agent: '',
   });
   const { showNotification } = useNotification();
+  const userRoles = (user?.roles || []) as AccountRole[];
+  const ownedRoleIds = new Set(userRoles.map((role) => role.role));
+  const addableRoles = ADDABLE_ROLES.filter(role => !ownedRoleIds.has(role.role));
 
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     try {
       const [profRes, addrRes, fitRes] = await Promise.all([
         api.get('/profile/me'),
@@ -147,7 +281,7 @@ const Profile = () => {
       setProfile(profRes.data.data);
       setAddresses(addrRes.data.data);
       if (fitRes.data?.data) {
-        setFitnessProfile((prev: any) => ({ ...prev, ...fitRes.data.data }));
+        setFitnessProfile((prev) => ({ ...prev, ...fitRes.data.data }));
       }
     } catch (err) {
       console.error('Failed to fetch profile:', err);
@@ -155,17 +289,17 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showNotification]);
 
   useEffect(() => {
     fetchProfileData();
-  }, []);
+  }, [fetchProfileData]);
 
   const handleUpdateFitnessProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingSection('AI Personalization');
     try {
-      const payload: any = {};
+      const payload: Record<string, unknown> = {};
       const fields = [
         'primary_goal', 'activity_level', 'experience_level',
         'height', 'current_weight', 'target_weight',
@@ -181,7 +315,7 @@ const Profile = () => {
       });
       await api.post('/profile/fitness', payload);
       showNotification('AI preferences saved!', 'success');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Update failed:', err);
       showNotification(getApiErrorMessage(err), 'error');
     } finally {
@@ -195,14 +329,14 @@ const Profile = () => {
     try {
       // Ensure date_of_birth is in YYYY-MM-DD format if present
       const payload = {
-         ...profile,
-         date_of_birth: profile.date_of_birth || null,
-         gender: profile.gender || null,
+         ...(profile || {}),
+         date_of_birth: profile?.date_of_birth || null,
+         gender: profile?.gender || null,
       };
       await api.patch('/profile/me', payload);
       await refreshUser();
       showNotification(`${section} updated successfully`, 'success');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Update failed:', err);
       showNotification(getApiErrorMessage(err) || `Failed to update ${section}`, 'error');
     } finally {
@@ -220,6 +354,90 @@ const Profile = () => {
           <Shield size={14} /> {user?.active_role} Account
         </div>
       </div>
+
+      <section className="glass-card p-8 space-y-6 border-white/10 bg-white/[0.02]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Account roles</p>
+            <h2 className="text-2xl font-black tracking-tight mt-2">Use Gymmigo your way</h2>
+            <p className="text-sm text-white/40 mt-1 max-w-2xl">
+              Add a role when you want to manage a gym or use member features from the same login.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {userRoles.map((role) => {
+              const meta = ROLE_META[role.role as keyof typeof ROLE_META] || ROLE_META.user;
+              const Icon = meta.icon;
+              const isActive = role.role === user?.active_role;
+
+              return (
+                <span
+                  key={role.role}
+                  className={clsx(
+                    'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest',
+                    meta.accent,
+                    isActive && 'ring-1 ring-primary/40'
+                  )}
+                >
+                  <Icon size={13} />
+                  {meta.label}
+                  {isActive && <span className="text-white/50">Active</span>}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          {addableRoles.length > 0 ? (
+            addableRoles.map((role) => {
+              const Icon = role.icon;
+              const cardClass = clsx(
+                'group rounded-2xl border p-5 text-left transition-all',
+                role.comingSoon
+                  ? 'border-white/5 bg-white/[0.02] opacity-50 cursor-not-allowed'
+                  : 'border-white/10 bg-white/[0.04] hover:border-primary/40 hover:bg-primary/10'
+              );
+              const content = (
+                <>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="h-11 w-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
+                      <Icon size={20} />
+                    </div>
+                    {role.comingSoon ? (
+                      <span className="rounded-full bg-white/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white/40">
+                        Soon
+                      </span>
+                    ) : (
+                      <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors" />
+                    )}
+                  </div>
+                  <h3 className="mt-5 text-base font-black tracking-tight">{role.label}</h3>
+                  <p className="mt-2 text-xs leading-relaxed text-white/40">{role.description}</p>
+                </>
+              );
+
+              if (role.comingSoon) {
+                return (
+                  <div key={role.role} className={cardClass}>
+                    {content}
+                  </div>
+                );
+              }
+
+              return (
+                <Link key={role.role} to={`/register-role?role=${role.role}`} className={cardClass}>
+                  {content}
+                </Link>
+              );
+            })
+          ) : (
+            <div className="md:col-span-3 rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-5 text-sm text-emerald-200/70">
+              All available roles are already connected to this account.
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* AI Personalization Featured Card */}
       {user?.active_role === 'user' && (
@@ -381,7 +599,7 @@ const Profile = () => {
             <div className="flex items-center gap-8">
               <ImageUpload 
                 initialUrl={profile?.avatar_url}
-                onUploadComplete={(url) => setProfile({...profile, avatar_url: url})}
+                onUploadComplete={(url) => setProfile({ ...(profile || {}), avatar_url: url })}
                 className="w-32 md:w-48 shrink-0"
               />
               <div className="space-y-1">
@@ -401,7 +619,7 @@ const Profile = () => {
                     type="text" 
                     placeholder="John Doe"
                     value={profile?.full_name || ''} 
-                    onChange={(e) => setProfile({...profile, full_name: e.target.value})}
+                    onChange={(e) => setProfile({ ...(profile || {}), full_name: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
                   />
                 </div>
@@ -414,7 +632,7 @@ const Profile = () => {
                     type="email" 
                     placeholder="john@example.com"
                     value={profile?.email || ''} 
-                    onChange={(e) => setProfile({...profile, email: e.target.value})}
+                    onChange={(e) => setProfile({ ...(profile || {}), email: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
                   />
                 </div>
@@ -429,7 +647,7 @@ const Profile = () => {
                   <input 
                     type="date" 
                     value={profile?.date_of_birth || ''} 
-                    onChange={(e) => setProfile({...profile, date_of_birth: e.target.value})}
+                    onChange={(e) => setProfile({ ...(profile || {}), date_of_birth: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all text-white/80"
                   />
                 </div>
@@ -438,7 +656,7 @@ const Profile = () => {
                 <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Gender</label>
                 <select 
                   value={profile?.gender || ''} 
-                  onChange={(e) => setProfile({...profile, gender: e.target.value})}
+                  onChange={(e) => setProfile({ ...(profile || {}), gender: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer"
                 >
                   <option value="" className="bg-black">Select Gender</option>
@@ -480,7 +698,7 @@ const Profile = () => {
                 rows={3}
                 placeholder="Tell us about yourself..."
                 value={profile?.bio || ''} 
-                onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                onChange={(e) => setProfile({ ...(profile || {}), bio: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-white/20 custom-scrollbar"
               />
             </div>
@@ -499,7 +717,7 @@ const Profile = () => {
               </button>
             </div>
             <div className="grid gap-4">
-              {addresses.map((addr: any) => (
+              {addresses.map((addr) => (
                 <div key={addr.id} className="glass-card p-6 flex items-center justify-between group">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-white/40 group-hover:text-primary transition-colors">
@@ -550,7 +768,7 @@ const Profile = () => {
         isOpen={isMapOpen}
         onClose={() => setIsMapOpen(false)}
         onConfirm={(location) => {
-          setProfile({ ...profile, city: location.city });
+          setProfile({ ...(profile || {}), city: location.city });
           setIsMapOpen(false);
         }}
       />
