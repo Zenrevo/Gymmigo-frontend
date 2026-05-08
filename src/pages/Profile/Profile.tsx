@@ -347,15 +347,15 @@ const Profile = () => {
   if (loading) return <div className="animate-pulse glass-card p-12 h-96" />;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
-      <div className="flex items-center justify-between">
-        <h1 className="text-5xl font-display font-black tracking-tighter">PROFILE</h1>
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-10 md:space-y-12">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-4xl sm:text-5xl font-display font-black tracking-tighter">PROFILE</h1>
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold font-display uppercase tracking-widest">
           <Shield size={14} /> {user?.active_role} Account
         </div>
       </div>
 
-      <section className="glass-card p-8 space-y-6 border-white/10 bg-white/[0.02]">
+      <section className="glass-card p-5 sm:p-8 space-y-6 border-white/10 bg-white/[0.02]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Account roles</p>
@@ -441,7 +441,7 @@ const Profile = () => {
 
       {/* AI Personalization Featured Card */}
       {user?.active_role === 'user' && (
-        <form onSubmit={handleUpdateFitnessProfile} className="glass-card p-12 space-y-12 border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-transparent relative overflow-hidden group">
+        <form onSubmit={handleUpdateFitnessProfile} className="glass-card p-5 sm:p-8 lg:p-12 space-y-8 sm:space-y-12 border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-transparent relative overflow-hidden group">
           <div className="absolute -right-40 -top-40 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-700">
             <Sparkles size={500} className="text-primary" />
           </div>
@@ -452,7 +452,7 @@ const Profile = () => {
                 <Sparkles size={32} fill="currentColor" />
               </div>
               <div>
-                <h3 className="text-4xl font-black italic tracking-tighter text-white">INTELLIGENCE PROFILE</h3>
+                <h3 className="text-2xl sm:text-4xl font-black italic tracking-tighter text-white">INTELLIGENCE PROFILE</h3>
                 <p className="text-xs text-white/40 font-bold uppercase tracking-[0.2em] mt-1">Powering your personalized MigoAI experience</p>
               </div>
             </div>
@@ -592,11 +592,11 @@ const Profile = () => {
         </form>
       )}
 
-      <div className="grid md:grid-cols-3 gap-12">
+      <div className="grid md:grid-cols-3 gap-6 md:gap-12">
         {/* Personal Details */}
         <div className="md:col-span-2 space-y-8">
-          <form onSubmit={(e) => handleUpdateProfile('Basic Details', e)} className="glass-card p-10 space-y-8">
-            <div className="flex items-center gap-8">
+          <form onSubmit={(e) => handleUpdateProfile('Basic Details', e)} className="glass-card p-5 sm:p-8 lg:p-10 space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
               <ImageUpload 
                 initialUrl={profile?.avatar_url}
                 onUploadComplete={(url) => setProfile({ ...(profile || {}), avatar_url: url })}
@@ -691,7 +691,7 @@ const Profile = () => {
 
 
 
-          <form onSubmit={(e) => handleUpdateProfile('Profile Bio', e)} className="glass-card p-10 space-y-8">
+          <form onSubmit={(e) => handleUpdateProfile('Profile Bio', e)} className="glass-card p-5 sm:p-8 lg:p-10 space-y-8">
             <div className="space-y-2">
               <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Profile Bio</label>
               <textarea 

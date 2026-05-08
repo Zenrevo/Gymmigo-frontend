@@ -5,6 +5,7 @@ import {
   Home, Search, User, LogOut, Shield, ChevronDown,
   Settings, Bell, Users, Check as LucideCheck, Bot, Calendar, Trophy, UserPlus
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import BrandLogo from '../components/BrandLogo';
@@ -16,6 +17,17 @@ import { Sparkles, MapPin } from 'lucide-react';
 import { getGoogleMapsUrl } from '../utils/navigation';
 import api from '../utils/api';
 
+type NavItem = {
+  name: string;
+  path: string;
+  icon: LucideIcon;
+};
+
+type UserRoleInfo = {
+  role: string;
+  is_completed?: boolean;
+};
+
 const MainLayout = () => {
   const { user, logout, switchRole } = useAuth();
   const { selectedLocation, updateSelectedLocation, isMismatch, currentGPS, isLoaded } = useGeoLocation();
@@ -24,35 +36,38 @@ const MainLayout = () => {
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [gymBranding, setGymBranding] = useState<{name: string, logo: string} | null>(null);
+  const [gymBranding, setGymBranding] = useState<{id: string; name: string; logo?: string | null} | null>(null);
 
   // Auto-sync states
   const [detectedAddr, setDetectedAddr] = useState<AddressResult | null>(null);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const syncAttempted = useRef(false);
 
-  const gymMatch = location.pathname.match(/\/app\/gym-owner\/gyms\/([^\/\s]+)/);
+  const gymMatch = location.pathname.match(/\/app\/gym-owner\/gyms\/([^/\s]+)/);
   const activeGymId = gymMatch ? gymMatch[1] : null;
+  const visibleGymBranding = gymBranding?.id === activeGymId ? gymBranding : null;
 
   // Auto-load gym branding if in a gym-specific route
   useEffect(() => {
-    const match = location.pathname.match(/\/app\/gym-owner\/gyms\/([^\/\s]+)/);
-    if (match && match[1]) {
-      const gymId = match[1];
-      api.get(`/gym-owner/gyms/${gymId}`)
-        .then(res => {
-          if (res.data.data?.name) {
-            setGymBranding({
-              name: res.data.data.name,
-              logo: res.data.data.logo_url
-            });
-          }
-        })
-        .catch(err => console.error("Sidebar branding failed", err));
-    } else {
-      setGymBranding(null);
-    }
-  }, [location.pathname]);
+    if (!activeGymId) return;
+
+    let isMounted = true;
+    api.get(`/gym-owner/gyms/${activeGymId}`)
+      .then(res => {
+        if (isMounted && res.data.data?.name) {
+          setGymBranding({
+            id: activeGymId,
+            name: res.data.data.name,
+            logo: res.data.data.logo_url
+          });
+        }
+      })
+      .catch(err => console.error("Sidebar branding failed", err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeGymId]);
 
   // Auto-Sync Location Logic
   useEffect(() => {
@@ -83,7 +98,7 @@ const MainLayout = () => {
     });
   }, [currentGPS, selectedLocation, isLoaded]);
 
-  let navItems: any[] = [
+  let navItems: NavItem[] = [
     { name: 'Home', path: '/app/dashboard', icon: Home },
     { name: 'Explore', path: '/app/discovery', icon: Search },
     { name: 'MigoAI', path: '/app/assistant', icon: Bot },
@@ -136,7 +151,7 @@ const MainLayout = () => {
       await switchRole(role);
       setIsProfileOpen(false);
       navigate('/app/dashboard');
-    } catch (error) {
+    } catch {
       console.error('Failed to switch role');
     }
   };
@@ -164,14 +179,14 @@ const MainLayout = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/app/dashboard" className="hover:opacity-80 transition-all flex items-center gap-3">
-              {gymBranding?.logo ? (
+              {visibleGymBranding?.logo ? (
                 <div className="flex items-center gap-3 group">
                   <div className="w-10 h-10 rounded-xl border border-white/10 overflow-hidden bg-white/5 shadow-neon-sm p-0.5 group-hover:border-primary/50 transition-all">
-                    <img src={gymBranding.logo} alt={gymBranding.name} className="w-full h-full object-cover rounded-[10px]" />
+                    <img src={visibleGymBranding.logo} alt={visibleGymBranding.name} className="w-full h-full object-cover rounded-[10px]" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 leading-none mb-1">Managing</span>
-                    <span className="text-sm font-display font-black tracking-tighter group-hover:text-primary transition-colors">{gymBranding.name}</span>
+                    <span className="text-sm font-display font-black tracking-tighter group-hover:text-primary transition-colors">{visibleGymBranding.name}</span>
                   </div>
                 </div>
               ) : (
@@ -314,7 +329,7 @@ const MainLayout = () => {
                         <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Switch Role</p>
                         <Shield size={10} className="text-white/20" />
                       </div>
-                      {user?.roles?.map((roleInfo: any) => {
+                      {user?.roles?.map((roleInfo: UserRoleInfo) => {
                         const isTrainer = roleInfo.role === 'trainer';
                         const isActive = user.active_role === roleInfo.role;
                         return (
@@ -413,7 +428,7 @@ const MainLayout = () => {
       />
 
       {/* Main Content */}
-      <main className="flex-1 pb-24 md:pb-6 container mx-auto px-4 py-8">
+      <main className="flex-1 pb-32 md:pb-6 container mx-auto px-3 sm:px-4 py-5 sm:py-8">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -429,18 +444,18 @@ const MainLayout = () => {
 
       {/* Mobile Navigation */}
       {navItems.length > 0 && (
-        <nav className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-2xl border border-white/10 px-6 py-2.5 rounded-2xl flex items-center gap-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 w-[85%] justify-around">
+        <nav className="md:hidden fixed bottom-3 left-3 right-3 bg-black/65 backdrop-blur-2xl border border-white/10 px-2 py-2 rounded-2xl grid shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.path}
               className={clsx(
-                "flex flex-col items-center gap-1 transition-all duration-300",
-                location.pathname === item.path ? "text-primary scale-110" : "text-white/30 hover:text-white"
+                "flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 transition-all duration-300",
+                location.pathname === item.path ? "bg-primary/15 text-primary" : "text-white/35 hover:text-white"
               )}
             >
-              <item.icon size={22} strokeWidth={location.pathname === item.path ? 2.5 : 2} />
-              <span className={clsx("text-[9px] font-black uppercase tracking-tighter", location.pathname === item.path ? "opacity-100" : "opacity-0")}>
+              <item.icon size={20} strokeWidth={location.pathname === item.path ? 2.5 : 2} />
+              <span className="max-w-full truncate text-[9px] font-black uppercase tracking-tighter">
                 {item.name}
               </span>
             </Link>

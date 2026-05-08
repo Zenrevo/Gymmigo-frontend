@@ -222,12 +222,12 @@ const CalendarPage = () => {
     : [];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pb-24 md:pb-12">
+    <div className="max-w-6xl mx-auto px-0 sm:px-4 lg:px-8 space-y-6 pb-24 md:pb-12">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="relative py-8 px-10 rounded-[2rem] bg-gradient-to-br from-white/[0.02] to-transparent border border-white/[0.05] overflow-hidden shadow-2xl"
+        className="relative rounded-3xl bg-gradient-to-br from-white/[0.02] to-transparent border border-white/[0.05] overflow-hidden shadow-2xl p-5 sm:p-8 lg:px-10"
       >
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
         
@@ -237,7 +237,7 @@ const CalendarPage = () => {
               <div className="h-[1px] w-8 bg-primary/50" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Schedule Management</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white italic">FITNESS CALENDAR</h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white italic">FITNESS CALENDAR</h1>
             <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mt-1">Precision scheduling with MigoAI</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -546,7 +546,7 @@ const CalendarPage = () => {
                 selectedPlan.type === 'workout' ? "from-orange-500 to-transparent" : "from-emerald-500 to-transparent"
               )} />
 
-              <div className="px-8 py-6 border-b border-white/10 flex justify-between items-center relative z-10 bg-black/40 backdrop-blur-md">
+              <div className="px-5 sm:px-8 py-5 sm:py-6 border-b border-white/10 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center relative z-10 bg-black/40 backdrop-blur-md">
                 <div className="flex items-center gap-4">
                   <div className={clsx(
                     "w-12 h-12 rounded-2xl flex items-center justify-center border",
@@ -577,7 +577,7 @@ const CalendarPage = () => {
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-8 relative z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-8 relative z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
                 {selectedPlan.type === 'workout' && selectedPlanExercises.length > 0 && (
                   <div className="mb-8">
                     <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-orange-300/80">Exercise Demos</p>
@@ -589,7 +589,7 @@ const CalendarPage = () => {
                 </div>
               </div>
               
-              <div className="p-6 border-t border-white/10 bg-black/80 backdrop-blur-md flex gap-4 justify-end relative z-10">
+              <div className="p-5 sm:p-6 border-t border-white/10 bg-black/80 backdrop-blur-md flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-end relative z-10">
                 {!selectedPlan.is_completed ? (
                   <>
                     <button
@@ -638,7 +638,7 @@ const CalendarPage = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#111] border border-white/10 rounded-3xl w-full max-w-md p-8 shadow-2xl relative overflow-hidden"
+              className="bg-[#111] border border-white/10 rounded-3xl w-full max-w-md p-5 sm:p-8 shadow-2xl relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-4">
                 <button onClick={() => setFeedbackModalVisible(false)} className="text-white/20 hover:text-white"><X size={20}/></button>
@@ -684,7 +684,7 @@ const CalendarPage = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111] p-8 shadow-2xl"
+              className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#111] p-5 sm:p-8 shadow-2xl"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
