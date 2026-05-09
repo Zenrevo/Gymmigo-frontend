@@ -232,7 +232,7 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <div className={clsx('inline-flex items-center gap-2 rounded-2xl border bg-black/25 px-4 py-3', scoreTone)}>
+                <div className={clsx('inline-flex items-center gap-2 rounded-2xl border bg-slate-950/25 px-4 py-3', scoreTone)}>
                   {statsLoading ? (
                     <span className="text-xs font-black uppercase tracking-widest text-white/40">Syncing</span>
                   ) : (

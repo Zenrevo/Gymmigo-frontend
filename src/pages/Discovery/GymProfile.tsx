@@ -324,7 +324,7 @@ const GymProfile = () => {
         
         <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-3xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 sm:p-4 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-3xl bg-slate-950/40 backdrop-blur-xl border border-slate-300/10 p-3 sm:p-4 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
                {gym.logo_url ? (
                  <img src={gym.logo_url} alt="logo" className="w-full h-full object-contain" />
                ) : (
@@ -337,7 +337,7 @@ const GymProfile = () => {
                 {gym.is_verified && <CheckCircle2 className="text-blue-500 shrink-0" size={18} />}
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-white/60">
-                <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-white/10">
+                <div className="flex items-center gap-1.5 bg-slate-950/40 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-slate-300/10">
                   <Star className="text-primary fill-primary" size={10} />
                   <span className="text-[10px] sm:text-sm font-bold text-white">{gym.rating_avg?.toFixed(1) || 'NEW'}</span>
                 </div>

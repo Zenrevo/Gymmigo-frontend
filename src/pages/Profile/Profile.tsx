@@ -530,15 +530,15 @@ const Profile = () => {
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-2">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-xl border border-slate-300/10 bg-slate-950/20 p-4">
               <p className="text-2xl font-black text-white">{clubCount}</p>
               <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Clubs</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-xl border border-slate-300/10 bg-slate-950/20 p-4">
               <p className="text-2xl font-black text-primary">{badgeCount}</p>
               <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Badges</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-xl border border-slate-300/10 bg-slate-950/20 p-4">
               <p className="text-2xl font-black text-emerald-400">{fitcardPoints}</p>
               <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Points</p>
             </div>

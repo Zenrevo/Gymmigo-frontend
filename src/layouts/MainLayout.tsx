@@ -172,9 +172,9 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col text-white font-sans selection:bg-primary/30">
+    <div className="min-h-screen bg-[#0F172A] flex flex-col text-white font-sans selection:bg-primary/30">
       {/* Header */}
-      <header className="nav-blur sticky top-0 z-40 px-3 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4 border-b border-white/5 bg-black/60 backdrop-blur-xl">
+      <header className="nav-blur sticky top-0 z-40 px-3 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4 border-b border-slate-300/10 bg-[#0F172A]/85 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/app/dashboard" className="hover:opacity-80 transition-all flex items-center gap-3">
@@ -298,7 +298,7 @@ const MainLayout = () => {
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                    className="absolute right-0 mt-3 w-64 glass-card bg-black/40 border-white/10 shadow-2xl py-2 overflow-hidden z-50 origin-top-right"
+                    className="absolute right-0 mt-3 w-64 glass-card bg-[#1E293B]/95 border-slate-300/10 shadow-2xl py-2 overflow-hidden z-50 origin-top-right"
                   >
                     <div className="px-4 py-3 border-b border-white/5">
                       <p className="text-xs text-white/40 font-bold uppercase tracking-widest">Active Role</p>
@@ -443,7 +443,7 @@ const MainLayout = () => {
 
       {/* Mobile Navigation */}
       {navItems.length > 0 && (
-        <nav className="md:hidden fixed bottom-3 left-3 right-3 bg-black/65 backdrop-blur-2xl border border-white/10 px-2 py-2 rounded-2xl grid shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
+        <nav className="md:hidden fixed bottom-3 left-3 right-3 bg-[#1E293B]/92 backdrop-blur-2xl border border-slate-300/10 px-2 py-2 rounded-2xl grid shadow-[0_20px_50px_rgba(15,23,42,0.42)] z-50" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
           {navItems.map((item) => (
             <Link
               key={item.name}

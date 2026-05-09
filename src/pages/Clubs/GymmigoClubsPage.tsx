@@ -375,13 +375,13 @@ const GymmigoClubsPage = () => {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-lg border border-white/10 bg-[#070707] shadow-2xl shadow-black/40">
+      <section className="relative overflow-hidden rounded-lg border border-slate-300/10 bg-[#111827] shadow-2xl shadow-slate-950/30">
         <img
           src={clubHeroImage}
           alt=""
           className="absolute inset-0 h-full w-full object-cover opacity-55"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#050505_0%,rgba(5,5,5,0.88)_46%,rgba(5,5,5,0.38)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#0F172A_0%,rgba(15,23,42,0.9)_46%,rgba(15,23,42,0.42)_100%)]" />
         <div className="relative grid gap-6 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
           <div className="max-w-3xl space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/15 px-3 py-1.5 text-xs font-black uppercase text-primary">
@@ -399,7 +399,7 @@ const GymmigoClubsPage = () => {
               {highlightedFacilities.length > 0 && (
                 <div className="flex max-w-2xl flex-wrap gap-2">
                   {highlightedFacilities.map((facility) => (
-                    <span key={facility} className="rounded-full border border-white/12 bg-black/40 px-3 py-1.5 text-[10px] font-black uppercase text-white/58">
+                    <span key={facility} className="rounded-full border border-slate-300/15 bg-slate-900/55 px-3 py-1.5 text-[10px] font-black uppercase text-white/58">
                       {facility}
                     </span>
                   ))}
@@ -436,7 +436,7 @@ const GymmigoClubsPage = () => {
             </div>
           </div>
 
-          <div className="rounded-lg border border-white/12 bg-black/55 p-4 backdrop-blur-xl">
+          <div className="rounded-lg border border-slate-300/15 bg-slate-900/70 p-4 backdrop-blur-xl">
             <div className="flex items-center gap-3">
               <ClubLogo src={selectedGymLogo} name={selectedGymName} />
               <div className="min-w-0">
@@ -469,7 +469,7 @@ const GymmigoClubsPage = () => {
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/35 bg-black/35 text-primary"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/35 bg-slate-950/35 text-primary"
                     style={{ color: nextMission.badge.color || '#f1822c' }}
                   >
                     {renderMissionIcon(nextMission.badge.icon, nextMission.mission.mission_type, 20)}
@@ -483,7 +483,7 @@ const GymmigoClubsPage = () => {
                 {nextClubFacilities.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {nextClubFacilities.map((facility) => (
-                      <span key={facility} className="rounded-full border border-white/10 bg-black/35 px-2 py-1 text-[10px] font-black text-white/55">
+                      <span key={facility} className="rounded-full border border-slate-300/10 bg-slate-950/35 px-2 py-1 text-[10px] font-black text-white/55">
                         {facility}
                       </span>
                     ))}
@@ -572,15 +572,15 @@ const GymmigoClubsPage = () => {
 
           <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
             <aside className="space-y-5">
-            <section className="overflow-hidden rounded-lg border border-white/10 bg-[#0b0b0b]">
-              <div className="border-b border-white/10 bg-white/[0.035] p-5">
+            <section className="overflow-hidden rounded-lg border border-slate-300/10 bg-slate-900/55">
+              <div className="border-b border-slate-300/10 bg-slate-800/35 p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-black uppercase text-primary">FitCard</p>
                     <h2 className="mt-2 text-2xl font-black text-white">{fitcard?.fitcard.title || 'Gymmigo Starter'}</h2>
                     <p className="mt-1 text-sm font-bold text-white/45">{selectedGymName}</p>
                   </div>
-                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-black/35 text-primary">
+                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg border border-slate-300/10 bg-slate-950/35 text-primary">
                     {fitcard?.member.avatar_url ? <img src={fitcard.member.avatar_url} alt="" className="h-full w-full object-cover" /> : <Medal size={24} />}
                   </div>
                 </div>
@@ -613,7 +613,7 @@ const GymmigoClubsPage = () => {
                         <QRCodeSVG value={fitcard.share.qr_payload || fitcard.share.share_url} size={112} fgColor="#111827" />
                       </div>
                       <div className="min-w-0 space-y-3">
-                        <div className="rounded-lg border border-white/10 bg-black/25 px-3 py-2">
+                        <div className="rounded-lg border border-slate-300/10 bg-slate-950/30 px-3 py-2">
                           <p className="truncate text-xs font-bold text-white/60">{fitcard.share.share_url}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
@@ -660,7 +660,7 @@ const GymmigoClubsPage = () => {
                       {!!club.facilities?.length && (
                         <div className="mt-3 flex flex-wrap gap-1.5">
                           {club.facilities.slice(0, 3).map((facility) => (
-                            <span key={facility} className="rounded-full border border-emerald-300/15 bg-black/25 px-2 py-1 text-[10px] font-black text-emerald-100/65">
+                            <span key={facility} className="rounded-full border border-emerald-300/15 bg-slate-950/25 px-2 py-1 text-[10px] font-black text-emerald-100/65">
                               {facility}
                             </span>
                           ))}
@@ -696,7 +696,7 @@ const GymmigoClubsPage = () => {
                       <span className="text-3xl font-black text-white">{nextMissionPercent}%</span>
                       <span className="text-xs font-black text-white/30">{nextMission.progress_value}/{nextMission.mission.target_value}</span>
                     </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/40">
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/40">
                       <div className="h-full rounded-full bg-primary" style={{ width: `${nextMissionPercent}%` }} />
                     </div>
                   </div>
@@ -736,7 +736,7 @@ const GymmigoClubsPage = () => {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4">
                           <div
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/30"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-950/30"
                             style={{ color: mission.badge.color || '#f1822c' }}
                           >
                             {renderMissionIcon(mission.badge.icon, mission.mission.mission_type)}
@@ -764,7 +764,7 @@ const GymmigoClubsPage = () => {
                           <span className="text-white/35">Progress</span>
                           <span className={mission.is_completed ? 'text-emerald-300' : 'text-white/50'}>{mission.progress_value}/{mission.mission.target_value}</span>
                         </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-black/30">
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-950/30">
                           <div
                             className={clsx('h-full rounded-full', mission.is_completed ? 'bg-emerald-400' : 'bg-primary')}
                             style={{ width: `${missionProgress}%` }}
@@ -839,12 +839,12 @@ const ClubRoadCard = ({
           ? 'border-emerald-400/35 bg-[linear-gradient(135deg,rgba(52,211,153,0.16),rgba(255,255,255,0.035))]'
           : isNext
             ? 'border-primary/45 bg-[linear-gradient(135deg,rgba(241,130,44,0.2),rgba(255,255,255,0.035))] shadow-lg shadow-primary/10'
-            : 'border-white/10 bg-black/35 hover:border-white/20 hover:bg-white/[0.045]'
+            : 'border-slate-300/10 bg-slate-900/45 hover:border-slate-300/20 hover:bg-slate-800/45'
       )}
     >
       <div className="absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_45%)]" />
       {!mission.is_completed && (
-        <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-black/55 text-white/45">
+        <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-slate-300/10 bg-slate-950/55 text-white/45">
           <LockKeyhole size={13} />
         </div>
       )}
@@ -852,15 +852,15 @@ const ClubRoadCard = ({
       <div className="relative flex items-start justify-between gap-4">
         <div
           className={clsx(
-            'relative flex h-16 w-16 items-center justify-center rounded-2xl border bg-black/45 transition-transform group-hover:scale-105',
+            'relative flex h-16 w-16 items-center justify-center rounded-2xl border bg-slate-950/45 transition-transform group-hover:scale-105',
             mission.is_completed ? 'border-emerald-400/35' : isNext ? 'border-primary/45' : 'border-white/10'
           )}
           style={{ color: mission.badge.color || '#f1822c' }}
         >
           {renderMissionIcon(mission.badge.icon, mission.mission.mission_type, 28)}
-          {!mission.is_completed && <div className="absolute inset-0 rounded-2xl bg-black/35" />}
+          {!mission.is_completed && <div className="absolute inset-0 rounded-2xl bg-slate-950/35" />}
         </div>
-        <span className="rounded-full border border-white/10 bg-black/35 px-2 py-1 text-[10px] font-black uppercase text-white/35">
+        <span className="rounded-full border border-slate-300/10 bg-slate-950/35 px-2 py-1 text-[10px] font-black uppercase text-white/35">
           Stage {stage}
         </span>
       </div>
@@ -879,7 +879,7 @@ const ClubRoadCard = ({
           >
             {status}
           </span>
-          <span className="rounded-full border border-white/10 bg-black/25 px-2 py-1 text-[10px] font-black uppercase text-white/35">
+          <span className="rounded-full border border-slate-300/10 bg-slate-950/25 px-2 py-1 text-[10px] font-black uppercase text-white/35">
             {getMissionCategory(mission)}
           </span>
         </div>
@@ -896,7 +896,7 @@ const ClubRoadCard = ({
           <span>{mission.badge.name}</span>
           <span>{missionProgress}%</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/45">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-950/45">
           <div
             className={clsx('h-full rounded-full', mission.is_completed ? 'bg-emerald-400' : 'bg-primary')}
             style={{ width: `${missionProgress}%` }}
@@ -907,7 +907,7 @@ const ClubRoadCard = ({
       {facilities.length > 0 && (
         <div className="relative mt-4 flex flex-wrap gap-1.5">
           {facilities.map((facility) => (
-            <span key={facility} className="rounded-full border border-white/10 bg-black/35 px-2 py-1 text-[10px] font-bold text-white/45">
+            <span key={facility} className="rounded-full border border-slate-300/10 bg-slate-950/35 px-2 py-1 text-[10px] font-bold text-white/45">
               {facility}
             </span>
           ))}
@@ -957,7 +957,7 @@ const ClubDetailModal = ({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/45 text-white/55 transition hover:text-white"
+          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-slate-300/10 bg-slate-950/45 text-white/55 transition hover:text-white"
           aria-label="Close club preview"
         >
           <X size={18} />
@@ -968,7 +968,7 @@ const ClubDetailModal = ({
           <div className="relative flex items-start gap-4 pr-10">
             <div
               className={clsx(
-                'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border bg-black/45',
+                'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border bg-slate-950/45',
                 mission.is_completed ? 'border-emerald-400/35' : isNext ? 'border-primary/45' : 'border-white/10'
               )}
               style={{ color: mission.badge.color || '#f1822c' }}
@@ -990,7 +990,7 @@ const ClubDetailModal = ({
                   {mission.is_completed ? 'Unlocked' : isNext ? 'Next club' : 'Locked club'}
                 </span>
                 {isLocked && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-black uppercase text-white/45">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-slate-300/10 bg-slate-950/35 px-2.5 py-1 text-[10px] font-black uppercase text-white/45">
                     <LockKeyhole size={12} /> Locked
                   </span>
                 )}
@@ -1010,7 +1010,7 @@ const ClubDetailModal = ({
             <p className="text-xs font-black uppercase text-primary">Required badge to unlock</p>
             <h4 className="mt-2 text-xl font-black text-white">{mission.badge.name}</h4>
             <p className="mt-2 text-sm font-semibold leading-6 text-white/52">{mission.mission.description}</p>
-            <p className="mt-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-xs font-black uppercase tracking-widest text-white/42">
+            <p className="mt-3 rounded-lg border border-slate-300/10 bg-slate-950/25 px-3 py-2 text-xs font-black uppercase tracking-widest text-white/42">
               Required: {getMissionRequirement(mission)}
             </p>
 
@@ -1019,7 +1019,7 @@ const ClubDetailModal = ({
                 <span>{mission.progress_value}/{mission.mission.target_value}</span>
                 <span>{missionProgress}%</span>
               </div>
-              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-black/40">
+              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-950/40">
                 <div
                   className={clsx('h-full rounded-full', mission.is_completed ? 'bg-emerald-400' : 'bg-primary')}
                   style={{ width: `${missionProgress}%` }}
@@ -1037,7 +1037,7 @@ const ClubDetailModal = ({
                 <CheckCircle2 size={16} /> {isRecording ? 'Logging...' : mission.unlocks?.action_label || 'Mark done'}
               </button>
             ) : !mission.is_completed ? (
-              <p className="mt-5 rounded-lg border border-white/10 bg-black/25 px-3 py-3 text-sm font-semibold leading-6 text-white/45">
+              <p className="mt-5 rounded-lg border border-slate-300/10 bg-slate-950/25 px-3 py-3 text-sm font-semibold leading-6 text-white/45">
                 This mission updates automatically when you scan the gym QR.
               </p>
             ) : (
@@ -1051,7 +1051,7 @@ const ClubDetailModal = ({
             <p className="text-xs font-black uppercase text-primary">Club benefits</p>
             <div className="mt-3 grid gap-2">
               {facilities.map((facility) => (
-                <div key={facility} className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2.5">
+                <div key={facility} className="flex items-center gap-3 rounded-lg border border-slate-300/10 bg-slate-950/25 px-3 py-2.5">
                   <Sparkles size={15} className="shrink-0 text-primary" />
                   <span className="text-sm font-bold text-white/65">{facility}</span>
                 </div>

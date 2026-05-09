@@ -13,7 +13,7 @@ const PageLoader: React.FC<PageLoaderProps> = ({
 }) => {
   return (
     <div className={`flex flex-col items-center justify-center gap-8 ${
-      fullScreen ? 'h-screen w-screen bg-black fixed inset-0 z-[100]' : 'min-h-[400px] w-full py-20'
+      fullScreen ? 'h-screen w-screen bg-[#0F172A] fixed inset-0 z-[100]' : 'min-h-[400px] w-full py-20'
     }`}>
       <div className="relative">
         {/* Outer pulse rings */}
