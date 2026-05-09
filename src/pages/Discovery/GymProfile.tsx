@@ -103,7 +103,7 @@ const GymProfile = () => {
     libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'details' | 'amenities' | 'reviews'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'equipment' | 'amenities' | 'reviews'>('overview');
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -396,7 +396,7 @@ const GymProfile = () => {
           {/* Navigation Tabs */}
           <div className="space-y-8">
             <div className="flex items-center gap-6 md:gap-8 border-b border-white/5 overflow-x-auto no-scrollbar pb-1">
-              {(['overview', 'plans', 'reviews', 'gallery', 'details', 'amenities'] as const).map(tab => (
+              {(['overview', 'plans', 'gallery', 'amenities', 'equipment', 'reviews'] as const).map(tab => (
                 <button 
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -751,7 +751,7 @@ const GymProfile = () => {
                   </motion.div>
                 )}
 
-                {activeTab === 'details' && (
+                {activeTab === 'equipment' && (
                   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                      <div className="space-y-6">
                         <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-3"><Dumbbell className="text-primary" size={18} /> Machines</h4>

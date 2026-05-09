@@ -109,10 +109,9 @@ const MainLayout = () => {
     navItems = [
       { name: 'Home', path: '/app/dashboard', icon: Home },
       { name: 'Explore', path: '/app/discovery', icon: Search },
+      { name: 'Schedule', path: '/app/calendar', icon: Calendar },
       { name: 'Clubs', path: '/app/clubs', icon: Trophy },
-      { name: 'Calendar', path: '/app/calendar', icon: Calendar },
-      { name: 'MigoAI', path: '/app/assistant', icon: Bot },
-      { name: 'Profile', path: '/app/profile', icon: User },
+      { name: 'Migo AI', path: '/app/assistant', icon: Bot },
     ];
   } else if (user?.active_role === 'trainer') {
     navItems = [

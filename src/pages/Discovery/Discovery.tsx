@@ -9,6 +9,21 @@ import InfoModal from '../../components/InfoModal';
 import { useGeoLocation } from '../../context/LocationContext';
 import { openInMap } from '../../utils/navigation';
 
+const CATEGORIES = ['All', 'CrossFit', 'Strength', 'Yoga', 'MMA', 'Cardio', 'HIIT'];
+
+const getPeriodText = (duration?: string | null) => {
+  if (!duration) return '/mo';
+  const lower = duration.toLowerCase();
+  if (lower.includes('day')) return '/day';
+  if (lower.includes('week')) return '/wk';
+  if (lower.includes('month')) return '/mo';
+  if (lower.includes('quarter')) return '/qtr';
+  if (lower.includes('half')) return '/6mo';
+  if (lower.includes('year')) return '/yr';
+  if (lower.includes('session')) return '/sess';
+  return `/${duration.substring(0, 3)}`;
+};
+
 const Discovery = () => {
   const navigate = useNavigate();
   const { selectedLocation, refreshGPS, isLocating } = useGeoLocation();
@@ -18,6 +33,7 @@ const Discovery = () => {
   const [search, setSearch] = useState('');
   const [isNearMe, setIsNearMe] = useState(true); // Default to near me if location exists
   const [radius, setRadius] = useState(2); // Default 2km
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
   const fetchItems = useCallback(async () => {
@@ -25,20 +41,26 @@ const Discovery = () => {
     setItems([]); // Clear previous items to prevent showing stale data on error or tab switch
     try {
       const endpoint = activeTab === 'gyms' ? '/gyms/' : '/trainers/';
-      const sortValue = isNearMe && activeTab === 'gyms' ? 'distance' : 'rating';
+      const sortValue = isNearMe ? 'distance' : 'rating';
       const params: any = {
         search,
         page_size: 20,
         sort_by: sortValue
       };
 
-      if (selectedLocation) {
+      if (selectedCategory !== 'All') {
         if (activeTab === 'gyms') {
-          params.lat = selectedLocation.latitude;
-          params.lng = selectedLocation.longitude;
-          if (isNearMe) {
-            params.radius = radius;
-          }
+          params.search = params.search ? `${params.search} ${selectedCategory}` : selectedCategory;
+        } else {
+          params.specialization = selectedCategory;
+        }
+      }
+
+      if (selectedLocation) {
+        params.lat = selectedLocation.latitude;
+        params.lng = selectedLocation.longitude;
+        if (isNearMe) {
+          params.radius = radius;
         }
       }
 
@@ -49,7 +71,7 @@ const Discovery = () => {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, search, isNearMe, selectedLocation, radius]);
+  }, [activeTab, search, isNearMe, selectedLocation, radius, selectedCategory]);
 
   useEffect(() => {
     fetchItems();
@@ -160,25 +182,37 @@ const Discovery = () => {
             </button>
           ))}
         </div>
+
+        <div className="flex max-w-full gap-2 overflow-x-auto no-scrollbar pb-1">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setSelectedCategory(category)}
+              className={clsx(
+                'shrink-0 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
+                selectedCategory === category
+                  ? 'border-primary bg-primary text-black shadow-lg shadow-primary/20'
+                  : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20 hover:text-white'
+              )}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {!loading && (
+        <div className="flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
+          <Sparkles size={14} />
+          {items.length} {activeTab === 'gyms' ? 'Gyms' : 'Trainers'} Found
+        </div>
+      )}
 
       {/* Results Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         <AnimatePresence mode="popLayout">
-         {activeTab === 'trainers' ? (
-           <motion.div 
-             initial={{ opacity: 0, scale: 0.9 }}
-             animate={{ opacity: 1, scale: 1 }}
-             exit={{ opacity: 0, scale: 0.9 }}
-             className="col-span-full py-24 text-center glass-card border-dashed"
-           >
-             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
-                <Sparkles size={32} className="text-primary" />
-             </div>
-             <p className="text-white/20 font-display text-4xl mb-4 italic">COMING SOON</p>
-             <p className="text-white/40 max-w-md mx-auto">Trainer discovery and booking workflows are currently under active development. Check back soon for updates!</p>
-           </motion.div>
-         ) : loading ? (
+         {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="glass-card h-80 animate-pulse bg-white/5" />
             ))
@@ -303,7 +337,10 @@ const Discovery = () => {
                 <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-[10px] text-white/20 uppercase font-black tracking-widest">Starting from</span>
-                    <span className="text-lg font-black text-primary">₹{activeTab === 'gyms' ? (item.starting_price?.toLocaleString() || '1,500') : (item.hourly_rate || '500')}/mo</span>
+                    <span className="text-lg font-black text-primary">
+                      ₹{activeTab === 'gyms' ? (item.starting_price?.toLocaleString() || '1,500') : ((item.hourly_rate || 500).toLocaleString?.() || item.hourly_rate || '500')}
+                      <span className="text-xs text-primary/70">{activeTab === 'gyms' ? getPeriodText(item.starting_price_duration) : '/hr'}</span>
+                    </span>
                   </div>
                   <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:translate-x-1">
                     <ArrowRight size={20} />

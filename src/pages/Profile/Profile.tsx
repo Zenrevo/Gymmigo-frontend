@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import api, { getApiErrorMessage } from '../../utils/api';
 import { useAuth } from '../../context/AuthContext';
@@ -19,6 +19,9 @@ import {
   Dumbbell,
   Building2,
   ChevronRight,
+  CheckCircle2,
+  Flame,
+  Trophy,
 } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
@@ -56,6 +59,9 @@ const EXPERIENCE_OPTIONS = [
 
 const ALLERGY_PRESETS = ['Gluten', 'Dairy', 'Nuts', 'Soy', 'Shellfish', 'Eggs'];
 const INJURY_PRESETS = ['Lower Back', 'Knee', 'Shoulder', 'Wrist', 'Ankle', 'Neck', 'Hip'];
+const CONDITION_PRESETS = ['Diabetes', 'Hypertension', 'Thyroid', 'PCOS', 'Asthma', 'Heart Condition'];
+const DURATION_OPTIONS = [30, 45, 60, 90];
+const DAYS_OPTIONS = [3, 4, 5, 6];
 
 type SelectorOption = {
   key: string;
@@ -98,8 +104,13 @@ type FitnessProfile = {
 type AddressEntry = {
   id: string;
   label?: string;
+  address_line1?: string;
   city?: string;
   state?: string;
+  pincode?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  is_primary?: boolean;
 };
 
 const ROLE_META = {
@@ -188,6 +199,39 @@ const PillSelector = ({
   </div>
 );
 
+const NumberPillSelector = ({
+  options,
+  selected,
+  onSelect,
+  suffix = '',
+}: {
+  options: number[];
+  selected?: number | null;
+  onSelect: (value: number) => void;
+  suffix?: string;
+}) => (
+  <div className="flex flex-wrap gap-2">
+    {options.map((value) => {
+      const isActive = selected === value;
+      return (
+        <button
+          key={value}
+          type="button"
+          onClick={() => onSelect(value)}
+          className={clsx(
+            "px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap",
+            isActive
+              ? "bg-primary/20 border-primary text-primary"
+              : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+          )}
+        >
+          {value}{suffix}
+        </button>
+      );
+    })}
+  </div>
+);
+
 const ChipMultiSelect = ({
   presets,
   selected,
@@ -245,12 +289,17 @@ const ChipMultiSelect = ({
 };
 
 const Profile = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, switchRole } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<MemberProfile | null>(null);
   const [addresses, setAddresses] = useState<AddressEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingSection, setSavingSection] = useState<string | null>(null);
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [mapIntent, setMapIntent] = useState<'profile_city' | 'address'>('profile_city');
+  const [switchingRole, setSwitchingRole] = useState('');
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [clubSummary, setClubSummary] = useState<any>(null);
   const [fitnessProfile, setFitnessProfile] = useState<FitnessProfile>({
     primary_goal: null,
     activity_level: null,
@@ -273,15 +322,35 @@ const Profile = () => {
 
   const fetchProfileData = useCallback(async () => {
     try {
-      const [profRes, addrRes, fitRes] = await Promise.all([
+      const [profRes, addrRes, fitRes, statsRes] = await Promise.all([
         api.get('/profile/me'),
         api.get('/profile/me/addresses'),
         api.get('/profile/fitness'),
+        api.get('/memberships/dashboard-stats').catch(() => ({ data: { data: null } })),
       ]);
       setProfile(profRes.data.data);
       setAddresses(addrRes.data.data);
       if (fitRes.data?.data) {
         setFitnessProfile((prev) => ({ ...prev, ...fitRes.data.data }));
+      }
+      setDashboardStats(statsRes.data?.data || null);
+
+      if (user?.active_role === 'user') {
+        try {
+          const membershipsRes = await api.get('/memberships/my');
+          const activeMembership = (membershipsRes.data?.data?.memberships || [])
+            .find((membership: any) => membership.status === 'active');
+          if (activeMembership?.gym_id) {
+            const fitcardRes = await api.get(`/clubs/fitcard/me?gym_id=${activeMembership.gym_id}`);
+            setClubSummary(fitcardRes.data?.data || null);
+          } else {
+            setClubSummary(null);
+          }
+        } catch {
+          setClubSummary(null);
+        }
+      } else {
+        setClubSummary(null);
       }
     } catch (err) {
       console.error('Failed to fetch profile:', err);
@@ -289,7 +358,7 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  }, [showNotification]);
+  }, [showNotification, user?.active_role]);
 
   useEffect(() => {
     fetchProfileData();
@@ -344,7 +413,84 @@ const Profile = () => {
     }
   };
 
+  const handleSwitchRole = async (role: string) => {
+    if (role === user?.active_role || switchingRole) return;
+    const isTrainer = role === 'trainer';
+    if (isTrainer) {
+      showNotification('Trainer switching is coming soon on web.', 'error');
+      return;
+    }
+
+    setSwitchingRole(role);
+    try {
+      await switchRole(role);
+      showNotification(`Switched to ${ROLE_META[role as keyof typeof ROLE_META]?.label || role}`, 'success');
+      navigate('/app/dashboard');
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
+    } finally {
+      setSwitchingRole('');
+    }
+  };
+
+  const handleMapConfirm = async (location: {
+    address_line1: string;
+    city: string;
+    state: string;
+    pincode: string;
+    latitude: number;
+    longitude: number;
+  }) => {
+    if (mapIntent === 'address') {
+      setSavingSection('Address');
+      try {
+        await api.post('/profile/me/addresses', {
+          label: addresses.length ? 'Saved location' : 'Home',
+          address_line1: location.address_line1,
+          city: location.city,
+          state: location.state,
+          pincode: location.pincode,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          is_primary: addresses.length === 0,
+          country: 'India',
+        });
+        showNotification('Address added', 'success');
+        await fetchProfileData();
+      } catch (err) {
+        showNotification(getApiErrorMessage(err), 'error');
+      } finally {
+        setSavingSection(null);
+        setIsMapOpen(false);
+      }
+      return;
+    }
+
+    setProfile({ ...(profile || {}), city: location.city });
+    setIsMapOpen(false);
+  };
+
+  const handleDeleteAddress = async (addressId: string) => {
+    if (!window.confirm('Delete this saved address?')) return;
+    setSavingSection(`delete-address-${addressId}`);
+    try {
+      await api.delete(`/profile/me/addresses/${addressId}`);
+      setAddresses((items) => items.filter((address) => address.id !== addressId));
+      showNotification('Address deleted', 'success');
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
   if (loading) return <div className="animate-pulse glass-card p-12 h-96" />;
+
+  const clubStreak = clubSummary?.fitcard?.current_streak || dashboardStats?.streak || 0;
+  const clubCount = clubSummary?.clubs?.length || 0;
+  const badgeCount = clubSummary?.badges?.length || 0;
+  const fitcardPoints = clubSummary?.fitcard?.total_points || dashboardStats?.competition?.total_points || 0;
+  const fitcardTitle = clubSummary?.clubs?.[0]?.name || clubSummary?.fitcard?.title || 'FitCard starter club';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-10 md:space-y-12">
@@ -354,6 +500,51 @@ const Profile = () => {
           <Shield size={14} /> {user?.active_role} Account
         </div>
       </div>
+
+      {user?.active_role === 'user' && (dashboardStats || clubSummary) && (
+        <Link
+          to="/app/clubs"
+          className="group block rounded-2xl border border-primary/20 bg-primary/[0.07] p-5 sm:p-6 transition-all hover:border-primary/40 hover:bg-primary/10"
+        >
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary">
+                <Trophy size={24} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-xl font-black tracking-tight text-white">Gymmigo Clubs</h2>
+                  {clubStreak > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-lg border border-amber-400/20 bg-amber-400/10 px-2 py-1 text-[10px] font-black uppercase text-amber-300">
+                      <Flame size={12} fill="currentColor" /> {clubStreak}D Streak
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-sm font-semibold text-white/48">{fitcardTitle}</p>
+                <p className="mt-3 max-w-2xl text-xs font-medium leading-5 text-white/45">
+                  Your profile now carries the same Clubs, FitCard, badges, and real gym benefits shown in the mobile app.
+                </p>
+              </div>
+            </div>
+            <ChevronRight size={20} className="hidden text-primary transition-transform group-hover:translate-x-1 sm:block" />
+          </div>
+
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-2xl font-black text-white">{clubCount}</p>
+              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Clubs</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-2xl font-black text-primary">{badgeCount}</p>
+              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Badges</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-2xl font-black text-emerald-400">{fitcardPoints}</p>
+              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Points</p>
+            </div>
+          </div>
+        </Link>
+      )}
 
       <section className="glass-card p-5 sm:p-8 space-y-6 border-white/10 bg-white/[0.02]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -369,20 +560,35 @@ const Profile = () => {
               const meta = ROLE_META[role.role as keyof typeof ROLE_META] || ROLE_META.user;
               const Icon = meta.icon;
               const isActive = role.role === user?.active_role;
+              const isTrainer = role.role === 'trainer';
+              const isSwitching = switchingRole === role.role;
 
               return (
-                <span
+                <button
                   key={role.role}
+                  type="button"
+                  onClick={() => handleSwitchRole(role.role)}
+                  disabled={isActive || isTrainer || !!switchingRole}
                   className={clsx(
-                    'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest',
+                    'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
                     meta.accent,
-                    isActive && 'ring-1 ring-primary/40'
+                    isActive && 'ring-1 ring-primary/40',
+                    isTrainer ? 'cursor-not-allowed opacity-50' : 'hover:border-primary/40',
+                    !isActive && !isTrainer && 'hover:bg-primary/10'
                   )}
                 >
                   <Icon size={13} />
                   {meta.label}
-                  {isActive && <span className="text-white/50">Active</span>}
-                </span>
+                  {isSwitching ? (
+                    <span className="text-white/50">Switching</span>
+                  ) : isActive ? (
+                    <span className="text-white/50">Active</span>
+                  ) : isTrainer ? (
+                    <span className="text-white/50">Soon</span>
+                  ) : (
+                    <ChevronRight size={12} className="text-white/35" />
+                  )}
+                </button>
               );
             })}
           </div>
@@ -538,7 +744,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-10 relative z-10">
+          <div className="grid md:grid-cols-3 gap-8 relative z-10">
             <div className="space-y-4">
               <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Food Allergies & Restrictions</label>
               <ChipMultiSelect 
@@ -555,6 +761,36 @@ const Profile = () => {
                 selected={fitnessProfile.injuries || []}
                 onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, injuries: items})}
                 placeholder="e.g. ACL tear, Sciatica..."
+              />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Medical Conditions</label>
+              <ChipMultiSelect
+                presets={CONDITION_PRESETS}
+                selected={fitnessProfile.medical_conditions || []}
+                onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, medical_conditions: items})}
+                placeholder="e.g. Arthritis, Sleep apnea..."
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 relative z-10">
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Workout Duration</label>
+              <NumberPillSelector
+                options={DURATION_OPTIONS}
+                selected={fitnessProfile.preferred_workout_duration}
+                onSelect={(value) => setFitnessProfile({...fitnessProfile, preferred_workout_duration: value})}
+                suffix=" min"
+              />
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Workout Days / Week</label>
+              <NumberPillSelector
+                options={DAYS_OPTIONS}
+                selected={fitnessProfile.workout_days_per_week}
+                onSelect={(value) => setFitnessProfile({...fitnessProfile, workout_days_per_week: value})}
+                suffix=" days"
               />
             </div>
           </div>
@@ -663,12 +899,16 @@ const Profile = () => {
                   <option value="male" className="bg-black">Male</option>
                   <option value="female" className="bg-black">Female</option>
                   <option value="other" className="bg-black">Other</option>
+                  <option value="rather not say" className="bg-black">Rather not say</option>
                 </select>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">City Location</label>
                 <div 
-                  onClick={() => setIsMapOpen(true)}
+                  onClick={() => {
+                    setMapIntent('profile_city');
+                    setIsMapOpen(true);
+                  }}
                   className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl py-3 px-4 hover:border-primary transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
@@ -712,7 +952,14 @@ const Profile = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold uppercase tracking-widest font-display">Your Addresses</h3>
-              <button className="flex items-center gap-2 text-primary text-xs font-bold px-4 py-2 hover:bg-primary/10 rounded-full transition-all">
+              <button
+                type="button"
+                onClick={() => {
+                  setMapIntent('address');
+                  setIsMapOpen(true);
+                }}
+                className="flex items-center gap-2 text-primary text-xs font-bold px-4 py-2 hover:bg-primary/10 rounded-full transition-all"
+              >
                 <Plus size={16} /> Add New
               </button>
             </div>
@@ -724,12 +971,20 @@ const Profile = () => {
                       <MapPin size={20} />
                     </div>
                     <div>
-                      <h4 className="font-bold text-sm uppercase tracking-widest">{addr.label || 'Address'}</h4>
-                      <p className="text-white/40 text-sm">{addr.city}, {addr.state}</p>
+                      <h4 className="font-bold text-sm uppercase tracking-widest">
+                        {addr.label || 'Address'} {addr.is_primary && <span className="text-primary">(Primary)</span>}
+                      </h4>
+                      <p className="text-white/40 text-sm">{addr.address_line1 || [addr.city, addr.state].filter(Boolean).join(', ')}</p>
                     </div>
                   </div>
-                  <button className="text-white/20 hover:text-red-400 p-2 transition-colors">
-                    <Trash2 size={18} />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteAddress(addr.id)}
+                    disabled={savingSection === `delete-address-${addr.id}`}
+                    className="text-white/20 hover:text-red-400 p-2 transition-colors disabled:opacity-40"
+                    title="Delete address"
+                  >
+                    {savingSection === `delete-address-${addr.id}` ? <CheckCircle2 size={18} /> : <Trash2 size={18} />}
                   </button>
                 </div>
               ))}
@@ -767,10 +1022,7 @@ const Profile = () => {
       <MapPickerModal 
         isOpen={isMapOpen}
         onClose={() => setIsMapOpen(false)}
-        onConfirm={(location) => {
-          setProfile({ ...(profile || {}), city: location.city });
-          setIsMapOpen(false);
-        }}
+        onConfirm={handleMapConfirm}
       />
     </div>
   );

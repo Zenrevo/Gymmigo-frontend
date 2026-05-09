@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 import { motion } from 'framer-motion';
@@ -6,6 +6,7 @@ import {
   Users, Building2, 
   TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar,
+  Award, Flame, Trophy,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
@@ -22,57 +23,58 @@ const Dashboard = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Guard: Don't fetch if user or active_role is missing, or if role is not completed
-      const currentRole = user?.roles?.find((r: any) => r.role === user.active_role);
-      if (!user?.active_role || !currentRole?.is_completed) {
-        setLoading(false);
-        return;
-      }
+  const fetchData = useCallback(async () => {
+    // Guard: Don't fetch if user or active_role is missing, or if role is not completed
+    const currentRole = user?.roles?.find((r: any) => r.role === user.active_role);
+    if (!user?.active_role || !currentRole?.is_completed) {
+      setLoading(false);
+      return;
+    }
 
-      try {
-        setLoading(true);
-        let endpoint = '';
-        if (user.active_role === 'user') endpoint = '/memberships/my';
-        else if (user.active_role === 'trainer') endpoint = '/trainer/full';
-        else if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') endpoint = '/gym-owner/gyms';
+    try {
+      setLoading(true);
+      let endpoint = '';
+      if (user.active_role === 'user') endpoint = '/memberships/my';
+      else if (user.active_role === 'trainer') endpoint = '/trainer/full';
+      else if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') endpoint = '/gym-owner/gyms';
 
-        if (endpoint) {
-          const res = await api.get(endpoint);
-          let dashboardData = res.data.data;
+      if (endpoint) {
+        const res = await api.get(endpoint);
+        const dashboardData = res.data.data;
 
-          // If user, also fetch trainer bookings and upcoming sessions
-          if (user.active_role === 'user') {
-            try {
-              const bookingsRes = await api.get('/trainer-bookings/bookings/my?role=user');
-              dashboardData.trainer_bookings = bookingsRes.data.data.bookings || [];
-              const sessionsRes = await api.get('/trainer-bookings/sessions/my?role=user');
-              // Filter to only upcoming scheduled/pending sessions
-              dashboardData.upcoming_sessions = (sessionsRes.data.data.sessions || [])
-                .filter((s: any) => ['pending_confirmation', 'scheduled'].includes(s.status));
-            } catch (err) {
-              console.error('Failed to fetch trainer bookings or sessions:', err);
-              dashboardData.trainer_bookings = [];
-              dashboardData.upcoming_sessions = [];
-            }
-          }
-
-          setData(dashboardData);
-          
-          if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') {
-            const revRes = await api.get('/gym-owner/gyms/reviews');
-            setReviews(revRes.data.data.reviews?.slice(0, 5) || []);
+        // If user, also fetch trainer bookings and upcoming sessions
+        if (user.active_role === 'user') {
+          try {
+            const bookingsRes = await api.get('/trainer-bookings/bookings/my?role=user');
+            dashboardData.trainer_bookings = bookingsRes.data.data.bookings || [];
+            const sessionsRes = await api.get('/trainer-bookings/sessions/my?role=user');
+            // Filter to only upcoming scheduled/pending sessions
+            dashboardData.upcoming_sessions = (sessionsRes.data.data.sessions || [])
+              .filter((s: any) => ['pending_confirmation', 'scheduled'].includes(s.status));
+          } catch (err) {
+            console.error('Failed to fetch trainer bookings or sessions:', err);
+            dashboardData.trainer_bookings = [];
+            dashboardData.upcoming_sessions = [];
           }
         }
-      } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
-      } finally {
-        setLoading(false);
+
+        setData(dashboardData);
+
+        if (user.active_role === 'gym_owner' || user.active_role === 'gym_manager') {
+          const revRes = await api.get('/gym-owner/gyms/reviews');
+          setReviews(revRes.data.data.reviews?.slice(0, 5) || []);
+        }
       }
-    };
-    fetchData();
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [user?.active_role, user?.roles]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   if (loading) return <PageLoader message="Loading your hub..." />;
 
@@ -108,7 +110,7 @@ const Dashboard = () => {
       {/* Grid Content */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {user?.active_role === 'user' ? (
-          <UserDashboardView data={data} />
+          <UserDashboardView data={data} onRefreshData={fetchData} />
         ) : user?.active_role === 'trainer' ? (
           <TrainerDashboardView data={data} />
         ) : (
@@ -123,10 +125,12 @@ import MembershipDetailView from './MembershipDetailView';
 
 import AITodaysFocus from '../../components/AITodaysFocus';
 
-const UserDashboardView = ({ data }: { data: any }) => {
+const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: () => void }) => {
   const [selectedMembership, setSelectedMembership] = useState<any>(null);
   const [selectedBooking, setSelectedBooking] = useState<any | null>(null);
   const [showQRScanner, setShowQRScanner] = useState(false);
+  const [stats, setStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const groupedMemberships = useMemo(() => {
     if (!data?.memberships) return [];
@@ -154,6 +158,11 @@ const UserDashboardView = ({ data }: { data: any }) => {
     return Object.values(groups);
   }, [data?.memberships]);
 
+  const activeMemberships = useMemo(
+    () => groupedMemberships.filter((group: any) => group.status === 'active'),
+    [groupedMemberships]
+  );
+
   const groupedTrainerBookings = useMemo(() => {
     if (!data?.trainer_bookings) return [];
     
@@ -177,6 +186,26 @@ const UserDashboardView = ({ data }: { data: any }) => {
     return Object.values(groups).filter((b: any) => b.sessions_remaining > 0);
   }, [data?.trainer_bookings]);
 
+  useEffect(() => {
+    let mounted = true;
+    const fetchStats = async () => {
+      try {
+        setStatsLoading(true);
+        const res = await api.get('/memberships/dashboard-stats');
+        if (mounted) setStats(res.data?.data || null);
+      } catch (err) {
+        console.error('Failed to fetch dashboard stats:', err);
+      } finally {
+        if (mounted) setStatsLoading(false);
+      }
+    };
+
+    fetchStats();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   if (selectedMembership) {
     return (
       <div className="md:col-span-3">
@@ -185,9 +214,95 @@ const UserDashboardView = ({ data }: { data: any }) => {
     );
   }
 
+  const isCheckedIn = Boolean(data?.current_check_in);
+  const score = stats?.daily_score?.score ?? stats?.today_score ?? 0;
+  const streak = stats?.streak ?? 0;
+  const totalPoints = stats?.competition?.total_points ?? 0;
+  const weeklyTarget = stats?.weekly_target_days ?? 4;
+  const activeDays = stats?.week_active_days ?? 0;
+  const weekProgress = Math.min(100, (activeDays / Math.max(1, weeklyTarget)) * 100);
+  const scoreTone = score >= 75 ? 'text-emerald-400 border-emerald-400/35' : score >= 45 ? 'text-primary border-primary/35' : 'text-red-400 border-red-400/35';
+  const primaryGym = activeMemberships[0];
+  const coachNudge = stats?.daily_score?.coach_nudge || data?.ai_tagline || 'Check in, train, and keep your week moving.';
+
   return (
     <>
       <div className="md:col-span-2 space-y-8">
+        <section className="glass-card overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-white/[0.03] to-transparent p-5 sm:p-7">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className={clsx('inline-flex items-center gap-2 rounded-2xl border bg-black/25 px-4 py-3', scoreTone)}>
+                  {statsLoading ? (
+                    <span className="text-xs font-black uppercase tracking-widest text-white/40">Syncing</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-black">{score}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-white/40">score</span>
+                    </>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Member Home</p>
+                  <h3 className="text-2xl font-black tracking-tight">
+                    {isCheckedIn ? 'Move in progress' : primaryGym ? "Today's Move" : 'Find Your Move'}
+                  </h3>
+                </div>
+              </div>
+              <p className="max-w-xl text-sm font-semibold leading-6 text-white/55">{coachNudge}</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowQRScanner(true)}
+              className={clsx(
+                'inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-black uppercase tracking-widest transition-all active:scale-95',
+                isCheckedIn ? 'bg-red-500 text-white hover:bg-red-400' : 'bg-primary text-black hover:brightness-110'
+              )}
+            >
+              {isCheckedIn ? <CheckCircle2 size={18} /> : <ScanLine size={18} />}
+              {isCheckedIn ? 'Workout Active' : 'Scan Check-in'}
+            </button>
+          </div>
+
+          <div className="mt-6 grid grid-cols-3 gap-2">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <Trophy size={15} className="mb-2 text-primary" />
+              <p className="text-xl font-black text-white">{activeDays}</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-white/35">Active days</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <Flame size={15} className="mb-2 text-amber-400" fill="currentColor" />
+              <p className="text-xl font-black text-amber-300">{streak}</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-white/35">Streak</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <Award size={15} className="mb-2 text-emerald-400" />
+              <p className="text-xl font-black text-emerald-300">{totalPoints}</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-white/35">Points</p>
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-2">
+            <div className="flex items-center justify-between text-xs font-black text-white/45">
+              <span>Weekly progress</span>
+              <span>{activeDays}/{weeklyTarget} active days</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-primary" style={{ width: `${weekProgress}%` }} />
+            </div>
+          </div>
+
+          <Link to="/app/clubs" className="mt-5 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-primary transition-all hover:border-primary/40 hover:bg-primary/15">
+            <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+              <Trophy size={15} /> Club Road
+            </span>
+            <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/45">
+              Badges / FitCard / gym benefits <ArrowRight size={14} className="text-primary" />
+            </span>
+          </Link>
+        </section>
+
         {/* Today's Focus Card */}
         <section className="space-y-6">
           <AITodaysFocus />
@@ -355,7 +470,7 @@ const UserDashboardView = ({ data }: { data: any }) => {
         isOpen={showQRScanner} 
         onClose={() => setShowQRScanner(false)} 
         onSuccess={() => {
-          // Could refresh stats here if needed
+          onRefreshData();
         }}
       />
       
