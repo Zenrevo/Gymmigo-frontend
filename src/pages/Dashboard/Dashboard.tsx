@@ -6,7 +6,7 @@ import {
   Users, Building2, 
   TrendingUp, Star, Plus, ArrowRight, ScanLine, Activity,
   MessageCircle, User, CheckCircle2, Shield, AlertTriangle, MapPin, Calendar,
-  Award, Flame, Trophy,
+  Award, Flame, Trophy, Package,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
@@ -131,6 +131,8 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [clubReward, setClubReward] = useState<{ pending?: any; available?: any } | null>(null);
+  const [claimingReward, setClaimingReward] = useState(false);
 
   const groupedMemberships = useMemo(() => {
     if (!data?.memberships) return [];
@@ -206,14 +208,6 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
     };
   }, []);
 
-  if (selectedMembership) {
-    return (
-      <div className="md:col-span-3">
-        <MembershipDetailView gymGroup={selectedMembership} onBack={() => setSelectedMembership(null)} />
-      </div>
-    );
-  }
-
   const isCheckedIn = Boolean(data?.current_check_in);
   const score = stats?.daily_score?.score ?? stats?.today_score ?? 0;
   const streak = stats?.streak ?? 0;
@@ -224,6 +218,60 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
   const scoreTone = score >= 75 ? 'text-emerald-400 border-emerald-400/35' : score >= 45 ? 'text-primary border-primary/35' : 'text-red-400 border-red-400/35';
   const primaryGym = activeMemberships[0];
   const coachNudge = stats?.daily_score?.coach_nudge || data?.ai_tagline || 'Check in, train, and keep your week moving.';
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchClubReward = async () => {
+      if (!primaryGym?.gym_id) {
+        setClubReward(null);
+        return;
+      }
+      try {
+        const [fitcardRes, claimsRes] = await Promise.all([
+          api.get(`/clubs/fitcard/me?gym_id=${primaryGym.gym_id}`),
+          api.get(`/clubs/reward-claims/my?gym_id=${primaryGym.gym_id}`).catch(() => ({ data: { data: { claims: [] } } })),
+        ]);
+        if (!mounted) return;
+        const clubs = fitcardRes.data?.data?.clubs || [];
+        const claims = claimsRes.data?.data?.claims || [];
+        const pending = claims.find((claim: any) => claim.status === 'claimed');
+        const available = clubs.find((club: any) => !claims.some((claim: any) => claim.club_code === club.code && claim.status !== 'cancelled'));
+        setClubReward({ pending, available });
+      } catch {
+        if (mounted) setClubReward(null);
+      }
+    };
+    fetchClubReward();
+    return () => { mounted = false; };
+  }, [primaryGym?.gym_id]);
+
+  const claimReward = async () => {
+    const available = clubReward?.available;
+    if (!primaryGym?.gym_id || !available?.code) return;
+    setClaimingReward(true);
+    try {
+      await api.post('/clubs/reward-claims', {
+        gym_id: primaryGym.gym_id,
+        club_code: available.code,
+      });
+      setClubReward({
+        pending: { club_name: available.name, reward_label: available.reward_preview || 'Reward claim sent', status: 'claimed' },
+        available: null,
+      });
+    } catch (err) {
+      console.error('Failed to claim Club reward:', err);
+    } finally {
+      setClaimingReward(false);
+    }
+  };
+
+  if (selectedMembership) {
+    return (
+      <div className="md:col-span-3">
+        <MembershipDetailView gymGroup={selectedMembership} onBack={() => setSelectedMembership(null)} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -293,14 +341,56 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
             </div>
           </div>
 
-          <Link to="/app/clubs" className="mt-5 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-primary transition-all hover:border-primary/40 hover:bg-primary/15">
-            <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-              <Trophy size={15} /> Club Road
-            </span>
-            <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/45">
-              Badges / FitCard / gym benefits <ArrowRight size={14} className="text-primary" />
-            </span>
-          </Link>
+          {primaryGym && (
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <Link to="/app/clubs" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-primary transition-all hover:border-primary/40 hover:bg-primary/15">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-black/25">
+                  <Trophy size={17} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-black uppercase tracking-widest text-white">Club Road</span>
+                  <span className="mt-1 block truncate text-[11px] font-bold text-white/45">{totalPoints} pts · {streak} day streak</span>
+                </span>
+                <ArrowRight size={15} />
+              </Link>
+              {clubReward?.available ? (
+                <button
+                  type="button"
+                  onClick={claimReward}
+                  disabled={claimingReward}
+                  className="flex min-h-[76px] items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left text-emerald-300 transition-all hover:border-emerald-400/40 hover:bg-emerald-400/15 disabled:opacity-70"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-black/25">
+                    <Package size={17} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-black uppercase tracking-widest text-white">Reward ready</span>
+                    <span className="mt-1 block truncate text-[11px] font-bold text-white/45">
+                      {claimingReward ? 'Sending claim...' : clubReward.available.reward_preview || clubReward.available.name}
+                    </span>
+                  </span>
+                </button>
+              ) : (
+                <Link
+                  to="/app/clubs"
+                  className="flex min-h-[76px] items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left text-emerald-300 transition-all hover:border-emerald-400/40 hover:bg-emerald-400/15"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-black/25">
+                    <Package size={17} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-black uppercase tracking-widest text-white">
+                      {clubReward?.pending ? 'Claim sent' : 'FitCard'}
+                    </span>
+                    <span className="mt-1 block truncate text-[11px] font-bold text-white/45">
+                      {clubReward?.pending ? clubReward.pending.reward_label || 'Show at gym desk' : 'Share and invite'}
+                    </span>
+                  </span>
+                  <ArrowRight size={15} />
+                </Link>
+              )}
+            </div>
+          )}
         </section>
 
         {/* Today's Focus Card */}
@@ -497,10 +587,157 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
   const totalGyms = Array.isArray(data) ? data.length : 0;
   const totalMembers = Array.isArray(data) ? data.reduce((acc: number, item: any) => acc + (item.metrics?.active_members || 0), 0) : 0;
   const totalRevenue = Array.isArray(data) ? data.reduce((acc: number, item: any) => acc + (item.metrics?.monthly_revenue || 0), 0) : 0;
+  const gyms = Array.isArray(data) ? data : [];
+  const [growthByGym, setGrowthByGym] = useState<Record<string, any>>({});
+  const [growthLoading, setGrowthLoading] = useState(false);
+  const growthItems = gyms.map((item: any) => growthByGym[item.gym?.id]).filter(Boolean);
+  const growthTotals = {
+    newLeads: growthItems.reduce((sum: number, item: any) => sum + (item.new_leads || 0), 0),
+    trials: growthItems.reduce((sum: number, item: any) => sum + (item.trial_booked || 0), 0),
+    rewards: growthItems.reduce((sum: number, item: any) => sum + (item.pending_reward_claims || 0), 0),
+    atRisk: growthItems.reduce((sum: number, item: any) => sum + (item.at_risk_members || 0), 0),
+    renewals: growthItems.reduce((sum: number, item: any) => sum + (item.renewals_due_7d || 0), 0),
+  };
+  const priorityGym = gyms.find((item: any) => {
+    const summary = growthByGym[item.gym?.id];
+    return summary?.new_leads || summary?.trial_booked || summary?.pending_reward_claims || summary?.at_risk_members;
+  }) || gyms[0];
+  const pickGymFor = (predicate: (summary: any) => boolean) => (
+    gyms.find((item: any) => predicate(growthByGym[item.gym?.id] || {})) || priorityGym
+  );
+  const ownerRoute = (item: any, screen?: string) => {
+    const gymId = item?.gym?.id || priorityGym?.gym?.id;
+    if (!gymId) return '/app/gym-owner/add-gym';
+    return screen ? `/app/gym-owner/gyms/${gymId}/${screen}` : `/app/gym-owner/gyms/${gymId}`;
+  };
+  const ownerPriority =
+    growthTotals.newLeads > 0
+      ? {
+          icon: MessageCircle,
+          title: `${growthTotals.newLeads} new lead${growthTotals.newLeads === 1 ? '' : 's'} waiting`,
+          copy: 'Open WhatsApp or call before interest cools down.',
+          label: 'Follow up',
+          color: 'text-primary',
+          border: 'border-primary/25 bg-primary/10',
+          button: 'bg-primary text-black',
+          route: ownerRoute(pickGymFor((summary) => (summary.new_leads || 0) > 0), 'leads'),
+        }
+      : growthTotals.rewards > 0
+      ? {
+          icon: Package,
+          title: `${growthTotals.rewards} reward claim${growthTotals.rewards === 1 ? '' : 's'} pending`,
+          copy: 'Redeem benefits fast so Clubs feel like real value.',
+          label: 'Redeem',
+          color: 'text-emerald-300',
+          border: 'border-emerald-400/25 bg-emerald-400/10',
+          button: 'bg-emerald-400 text-black',
+          route: ownerRoute(pickGymFor((summary) => (summary.pending_reward_claims || 0) > 0), 'clubs'),
+        }
+      : growthTotals.atRisk > 0
+      ? {
+          icon: AlertTriangle,
+          title: `${growthTotals.atRisk} member${growthTotals.atRisk === 1 ? '' : 's'} need attention`,
+          copy: 'Review member activity and call the most likely drop-offs.',
+          label: 'Open members',
+          color: 'text-red-300',
+          border: 'border-red-400/25 bg-red-400/10',
+          button: 'bg-red-400 text-black',
+          route: ownerRoute(pickGymFor((summary) => (summary.at_risk_members || 0) > 0), 'members'),
+        }
+      : growthTotals.renewals > 0
+      ? {
+          icon: Calendar,
+          title: `${growthTotals.renewals} renewal${growthTotals.renewals === 1 ? '' : 's'} due this week`,
+          copy: 'Secure renewal intent before expiry day pressure.',
+          label: 'Review',
+          color: 'text-amber-300',
+          border: 'border-amber-400/25 bg-amber-400/10',
+          button: 'bg-amber-300 text-black',
+          route: ownerRoute(pickGymFor((summary) => (summary.renewals_due_7d || 0) > 0), 'members'),
+        }
+      : {
+          icon: TrendingUp,
+          title: 'Growth is steady today',
+          copy: 'No urgent gaps. Review gym health or start a FitCard push.',
+          label: 'Open gym',
+          color: 'text-blue-300',
+          border: 'border-blue-400/25 bg-blue-400/10',
+          button: 'bg-blue-300 text-black',
+          route: ownerRoute(priorityGym),
+        };
+  const OwnerPriorityIcon = ownerPriority.icon;
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchGrowth = async () => {
+      if (!gyms.length) {
+        setGrowthByGym({});
+        return;
+      }
+      setGrowthLoading(true);
+      try {
+        const results = await Promise.all(
+          gyms.map((item: any) =>
+            item.gym?.id
+              ? api
+                  .get(`/clubs/gyms/${item.gym.id}/growth-summary`)
+                  .then((res) => [item.gym.id, res.data?.data])
+                  .catch(() => [item.gym.id, null])
+              : Promise.resolve([null, null])
+          )
+        );
+        if (!mounted) return;
+        const next: Record<string, any> = {};
+        results.forEach(([id, summary]) => {
+          if (id && summary) next[id as string] = summary;
+        });
+        setGrowthByGym(next);
+      } catch (err) {
+        console.error('Failed to fetch web growth summary:', err);
+      } finally {
+        if (mounted) setGrowthLoading(false);
+      }
+    };
+    fetchGrowth();
+    return () => { mounted = false; };
+  }, [data]);
 
   return (
     <>
       <div className="md:col-span-2 space-y-6">
+        <section className="rounded-[2rem] border border-primary/20 bg-white/[0.035] p-5 sm:p-6">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary">Growth Command Center</p>
+                <h3 className="mt-2 text-3xl font-black tracking-tight text-white">Do this first</h3>
+                <p className="mt-1 text-sm font-semibold text-white/45">One priority, then the numbers behind it.</p>
+              </div>
+              {growthLoading && <span className="text-xs font-black uppercase tracking-widest text-white/35">Syncing</span>}
+            </div>
+
+            <div className={clsx('flex flex-col gap-4 rounded-2xl border p-4 lg:flex-row lg:items-center', ownerPriority.border)}>
+              <div className={clsx('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border bg-black/20', ownerPriority.border, ownerPriority.color)}>
+                <OwnerPriorityIcon size={22} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-lg font-black leading-tight text-white">{ownerPriority.title}</h4>
+                <p className="mt-1 text-sm font-semibold leading-5 text-white/50">{ownerPriority.copy}</p>
+              </div>
+              <Link to={ownerPriority.route} className={clsx('inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest transition hover:brightness-110', ownerPriority.button)}>
+                {ownerPriority.label} <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <GrowthSignal label="New leads" value={growthTotals.newLeads} tone="text-primary" />
+              <GrowthSignal label="Trials" value={growthTotals.trials} tone="text-amber-300" />
+              <GrowthSignal label="Rewards" value={growthTotals.rewards} tone="text-emerald-300" />
+              <GrowthSignal label="At risk" value={growthTotals.atRisk} tone="text-red-300" />
+            </div>
+          </div>
+        </section>
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
           <h3 className="text-xl font-bold">Your Gyms</h3>
           <Link 
@@ -584,6 +821,19 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
                 </p>
               </div>
             </div>
+            {growthByGym[item.gym?.id] && (
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase text-primary">
+                  {growthByGym[item.gym.id].new_leads || 0} new leads
+                </span>
+                <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase text-emerald-200">
+                  {growthByGym[item.gym.id].pending_reward_claims || 0} rewards
+                </span>
+                <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1.5 text-[10px] font-black uppercase text-red-200">
+                  {growthByGym[item.gym.id].at_risk_members || 0} at risk
+                </span>
+              </div>
+            )}
           </Link>
         )) : (
           <div className="glass-card p-12 text-center text-white/20">No gyms listed. Start growing your fitness empire!</div>
@@ -672,5 +922,12 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
     </>
   );
 };
+
+const GrowthSignal = ({ label, value, tone }: { label: string; value: number; tone: string }) => (
+  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+    <p className={clsx('text-2xl font-black', tone)}>{value}</p>
+    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">{label}</p>
+  </div>
+);
 
 export default Dashboard;

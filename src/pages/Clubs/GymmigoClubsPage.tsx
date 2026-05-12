@@ -16,6 +16,7 @@ import {
   Crown,
   Dumbbell,
   Flame,
+  Gift,
   HeartPulse,
   ListChecks,
   LockKeyhole,
@@ -122,6 +123,42 @@ type FitCardData = {
     click_count: number;
     lead_count: number;
   } | null;
+};
+
+type RewardClaim = {
+  id: string;
+  club_code: string;
+  club_name: string;
+  reward_label: string;
+  status: 'claimed' | 'redeemed' | 'cancelled';
+  claimed_at?: string | null;
+  redeemed_at?: string | null;
+};
+
+type TransferRequest = {
+  id: string;
+  status: 'pending' | 'rejected' | 'applied' | 'cancelled';
+  admin_status: 'pending' | 'approved' | 'rejected';
+  owner_status: 'pending' | 'approved' | 'rejected';
+  max_level_reached?: number;
+  badges_count: number;
+  clubs_count: number;
+  source_gym: { id: string; name?: string | null };
+  target_gym: { id: string; name?: string | null };
+};
+
+type TransferOption = {
+  source_gym_id: string;
+  source_gym: { id: string; name: string; city?: string | null; logo_url?: string | null };
+  is_eligible: boolean;
+  eligible_level?: number | null;
+  max_level_reached: number;
+  locked_reason?: string | null;
+  badges_count: number;
+  clubs_count: number;
+  badges: Array<{ badge?: { name?: string }; mission?: { title?: string; code?: string }; stage?: number | null }>;
+  clubs: Array<{ id?: string; code?: string; name?: string; stage?: number | null }>;
+  pending_request?: TransferRequest;
 };
 
 const formatDate = (value?: string | null) => {
@@ -240,12 +277,19 @@ const GymmigoClubsPage = () => {
   const [selectedGymId, setSelectedGymId] = useState('');
   const [missions, setMissions] = useState<MissionProgress[]>([]);
   const [fitcard, setFitcard] = useState<FitCardData | null>(null);
+  const [rewardClaims, setRewardClaims] = useState<RewardClaim[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [sectionLoading, setSectionLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [recordingMissionCode, setRecordingMissionCode] = useState('');
+  const [claimingClubCode, setClaimingClubCode] = useState('');
   const [selectedClubMission, setSelectedClubMission] = useState<MissionProgress | null>(null);
+  const [transferOptions, setTransferOptions] = useState<TransferOption[]>([]);
+  const [transferRequests, setTransferRequests] = useState<TransferRequest[]>([]);
+  const [selectedTransferSourceGymId, setSelectedTransferSourceGymId] = useState('');
+  const [transferNote, setTransferNote] = useState('');
+  const [submittingTransfer, setSubmittingTransfer] = useState(false);
 
   const activeMemberships = useMemo(
     () => memberships.filter((membership) => membership.status === 'active'),
@@ -265,6 +309,22 @@ const GymmigoClubsPage = () => {
   const nextMission = useMemo(
     () => missions.find((mission) => !mission.is_completed),
     [missions]
+  );
+  const rewardClaimsByClub = useMemo(
+    () => new Map(rewardClaims.map((claim) => [claim.club_code, claim])),
+    [rewardClaims]
+  );
+  const eligibleTransferOptions = useMemo(
+    () => transferOptions.filter((option) => option.is_eligible && !option.pending_request),
+    [transferOptions]
+  );
+  const lockedTransferOption = useMemo(
+    () => transferOptions.find((option) => option.clubs_count > 0 && !option.is_eligible),
+    [transferOptions]
+  );
+  const selectedTransferOption = useMemo(
+    () => eligibleTransferOptions.find((option) => option.source_gym_id === selectedTransferSourceGymId) || eligibleTransferOptions[0],
+    [eligibleTransferOptions, selectedTransferSourceGymId]
   );
 
   const fetchMemberships = useCallback(async () => {
@@ -287,16 +347,33 @@ const GymmigoClubsPage = () => {
     setSectionLoading(true);
     setError('');
     try {
-      const [missionsRes, fitcardRes] = await Promise.all([
+      const [missionsRes, fitcardRes, claimsRes, transferOptionsRes, transferRequestsRes] = await Promise.all([
         api.get(`/clubs/missions?gym_id=${gymId}`),
         api.get(`/clubs/fitcard/me?gym_id=${gymId}`),
+        api.get(`/clubs/reward-claims/my?gym_id=${gymId}`).catch(() => ({ data: { data: { claims: [] } } })),
+        api.get(`/clubs/transfer-options?target_gym_id=${gymId}`).catch(() => ({ data: { data: { options: [] } } })),
+        api.get('/clubs/transfer-requests/my').catch(() => ({ data: { data: { requests: [] } } })),
       ]);
       setMissions(missionsRes.data?.data?.missions || []);
       setFitcard(fitcardRes.data?.data || null);
+      setRewardClaims(claimsRes.data?.data?.claims || []);
+      const options = transferOptionsRes.data?.data?.options || [];
+      setTransferOptions(options);
+      setSelectedTransferSourceGymId((current) => (
+        options.some((option: TransferOption) => option.source_gym_id === current && option.is_eligible && !option.pending_request)
+          ? current
+          : options.find((option: TransferOption) => option.is_eligible && !option.pending_request)?.source_gym_id || ''
+      ));
+      setTransferRequests((transferRequestsRes.data?.data?.requests || []).filter(
+        (request: TransferRequest) => request.target_gym.id === gymId
+      ));
     } catch (err) {
       setError(getApiErrorMessage(err));
       setMissions([]);
       setFitcard(null);
+      setRewardClaims([]);
+      setTransferOptions([]);
+      setTransferRequests([]);
     } finally {
       setSectionLoading(false);
     }
@@ -335,6 +412,42 @@ const GymmigoClubsPage = () => {
       setError(getApiErrorMessage(err));
     } finally {
       setRecordingMissionCode('');
+    }
+  };
+
+  const handleClaimReward = async (club: FitCardData['clubs'][number]) => {
+    if (!selectedGymId || !club?.code) return;
+    setClaimingClubCode(club.code);
+    setError('');
+    try {
+      await api.post('/clubs/reward-claims', {
+        gym_id: selectedGymId,
+        club_code: club.code,
+      });
+      await fetchClubData(selectedGymId);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setClaimingClubCode('');
+    }
+  };
+
+  const handleSubmitTransfer = async () => {
+    if (!selectedGymId || !selectedTransferOption) return;
+    setSubmittingTransfer(true);
+    setError('');
+    try {
+      await api.post('/clubs/transfer-requests', {
+        source_gym_id: selectedTransferOption.source_gym_id,
+        target_gym_id: selectedGymId,
+        member_note: transferNote.trim() || undefined,
+      });
+      setTransferNote('');
+      await fetchClubData(selectedGymId);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setSubmittingTransfer(false);
     }
   };
 
@@ -424,6 +537,15 @@ const GymmigoClubsPage = () => {
                   >
                     <Copy size={17} /> {copied ? 'Link copied' : 'Copy link'}
                   </button>
+                  {highlightedClub && !rewardClaimsByClub.get(highlightedClub.code) && (
+                    <button
+                      onClick={() => handleClaimReward(highlightedClub)}
+                      disabled={claimingClubCode === highlightedClub.code}
+                      className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-300/25 bg-emerald-400/15 px-5 py-3 text-sm font-black text-emerald-100 transition hover:border-emerald-300/45 hover:bg-emerald-400/20 disabled:opacity-60"
+                    >
+                      <Gift size={17} /> {claimingClubCode === highlightedClub.code ? 'Claiming' : 'Claim reward'}
+                    </button>
+                  )}
                 </>
               ) : (
                 <Link
@@ -536,6 +658,106 @@ const GymmigoClubsPage = () => {
         <PageLoader message="Syncing your Clubs..." />
       ) : (
         <div className="space-y-6">
+          {(eligibleTransferOptions.length > 0 || lockedTransferOption || transferRequests.length > 0) && (
+            <section className="rounded-lg border border-white/10 bg-white/[0.035] p-4 sm:p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/25 bg-primary/10 text-primary">
+                    <ShieldCheck size={19} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-white">Carry badges to this gym</h2>
+                    <p className="mt-1 text-sm font-semibold text-white/45">Both Gymmigo Admin and the destination gym owner must approve.</p>
+                  </div>
+                </div>
+                {lockedTransferOption && !eligibleTransferOptions.length && (
+                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-2 text-xs font-black text-primary">
+                    <LockKeyhole size={14} /> Reach Club level 5 to carry your badges to another gym.
+                  </div>
+                )}
+              </div>
+
+              {transferRequests.length > 0 && (
+                <div className="mt-4 grid gap-3 lg:grid-cols-2">
+                  {transferRequests.slice(0, 2).map((request) => (
+                    <div key={request.id} className="rounded-lg border border-white/10 bg-black/20 p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-white">{request.source_gym.name || 'Previous gym'}</p>
+                          <p className="mt-1 text-xs font-bold text-white/45">
+                            Admin {request.admin_status} · Owner {request.owner_status}
+                          </p>
+                        </div>
+                        <span className={clsx(
+                          'rounded-full px-3 py-1.5 text-[10px] font-black uppercase',
+                          request.status === 'applied' ? 'bg-emerald-400/15 text-emerald-200' :
+                            request.status === 'rejected' ? 'bg-red-500/15 text-red-200' : 'bg-amber-400/15 text-amber-200'
+                        )}>
+                          {request.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {eligibleTransferOptions.length > 0 && selectedTransferOption && (
+                <div className="mt-5 grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
+                  <div className="space-y-2">
+                    {eligibleTransferOptions.map((option) => (
+                      <button
+                        key={option.source_gym_id}
+                        type="button"
+                        onClick={() => setSelectedTransferSourceGymId(option.source_gym_id)}
+                        className={clsx(
+                          'w-full rounded-lg border p-3 text-left transition',
+                          selectedTransferOption.source_gym_id === option.source_gym_id
+                            ? 'border-primary/45 bg-primary/12 text-white'
+                            : 'border-white/10 bg-black/20 text-white/60 hover:border-white/20 hover:text-white'
+                        )}
+                      >
+                        <p className="truncate text-sm font-black">{option.source_gym.name}</p>
+                        <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/38">
+                          Level {option.eligible_level || option.max_level_reached}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-black/20 p-4">
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <StatTile label="Badges" value={selectedTransferOption.badges_count} />
+                      <StatTile label="Clubs" value={selectedTransferOption.clubs_count} tone="green" />
+                      <StatTile label="Level" value={selectedTransferOption.eligible_level || selectedTransferOption.max_level_reached} tone="orange" />
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {selectedTransferOption.clubs.slice(0, 5).map((club) => (
+                        <span key={club.id || club.code || club.name} className="rounded-full border border-emerald-300/15 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase text-emerald-100">
+                          {club.name}
+                        </span>
+                      ))}
+                    </div>
+                    <textarea
+                      value={transferNote}
+                      onChange={(event) => setTransferNote(event.target.value)}
+                      rows={3}
+                      placeholder="Optional note for approvals"
+                      className="mt-4 w-full resize-none rounded-lg border border-white/10 bg-slate-950/55 px-4 py-3 text-sm font-bold leading-6 text-white outline-none transition placeholder:text-white/25 focus:border-primary/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSubmitTransfer}
+                      disabled={submittingTransfer}
+                      className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-black text-black transition hover:brightness-110 disabled:opacity-60"
+                    >
+                      <ShieldCheck size={17} /> {submittingTransfer ? 'Sending' : 'Request transfer'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
           <section className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -645,6 +867,10 @@ const GymmigoClubsPage = () => {
                 <div className="space-y-2">
                   {fitcard.clubs.map((club) => (
                     <div key={club.id || club.code} className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-3">
+                      {(() => {
+                        const claim = rewardClaimsByClub.get(club.code);
+                        return (
+                          <>
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-400/15 text-emerald-300">
                           <Crown size={18} />
@@ -666,6 +892,28 @@ const GymmigoClubsPage = () => {
                           ))}
                         </div>
                       )}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        {claim?.status === 'redeemed' ? (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-emerald-100">
+                            <CheckCircle2 size={12} /> Reward redeemed
+                          </span>
+                        ) : claim?.status === 'claimed' ? (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-amber-100">
+                            <Gift size={12} /> Claim sent to gym desk
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => handleClaimReward(club)}
+                            disabled={claimingClubCode === club.code}
+                            className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-emerald-100 transition hover:border-emerald-300/40 disabled:opacity-60"
+                          >
+                            <Gift size={12} /> {claimingClubCode === club.code ? 'Claiming' : 'Claim reward'}
+                          </button>
+                        )}
+                      </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Award, Gift, LockKeyhole, Save, Trophy } from 'lucide-react';
+import { Award, CheckCircle2, Gift, LockKeyhole, Package, Save, ShieldCheck, Trophy, UserMinus, Users, XCircle } from 'lucide-react';
 import api, { getApiErrorMessage } from '../../../utils/api';
 import PageLoader from '../../../components/PageLoader';
 import { useGym } from '../../../context/GymContext';
@@ -32,6 +32,53 @@ type ClubConfig = {
   is_active: boolean;
 };
 
+type RewardClaim = {
+  id: string;
+  club_code: string;
+  club_name: string;
+  reward_label: string;
+  status: 'claimed' | 'redeemed' | 'cancelled';
+  claimed_at?: string | null;
+  member?: {
+    user_id: string;
+    name: string;
+    phone?: string | null;
+    avatar_url?: string | null;
+  };
+};
+
+type TransferRequest = {
+  id: string;
+  status: string;
+  admin_status: string;
+  owner_status: string;
+  max_level_reached?: number;
+  eligible_level?: number | null;
+  badges_count: number;
+  clubs_count: number;
+  source_gym: { name?: string | null };
+  member?: { name?: string | null; phone?: string | null };
+  clubs_preview?: Array<{ name?: string; stage?: number | null }>;
+};
+
+type ClubMember = {
+  id: string;
+  code: string;
+  name: string;
+  joined_at?: string | null;
+  is_active: boolean;
+  transfer?: {
+    request_id?: string | null;
+    source_gym_id?: string | null;
+    source_club_code?: string | null;
+  } | null;
+  member: {
+    user_id: string;
+    name: string;
+    phone?: string | null;
+  };
+};
+
 const toFacilitiesText = (items?: string[]) => (items || []).join('\n');
 
 const fromFacilitiesText = (value: string) => (
@@ -55,6 +102,12 @@ const ClubsTab = () => {
   const [clubs, setClubs] = useState<ClubConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingCode, setSavingCode] = useState('');
+  const [rewardClaims, setRewardClaims] = useState<RewardClaim[]>([]);
+  const [redeemingId, setRedeemingId] = useState('');
+  const [transferRequests, setTransferRequests] = useState<TransferRequest[]>([]);
+  const [clubMembers, setClubMembers] = useState<ClubMember[]>([]);
+  const [reviewingTransferId, setReviewingTransferId] = useState('');
+  const [removingClubId, setRemovingClubId] = useState('');
   const [error, setError] = useState('');
 
   const fetchClubs = useCallback(async () => {
@@ -66,8 +119,16 @@ const ClubsTab = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await api.get(`/clubs/gyms/${gymId}/club-configs`);
-      setClubs(res.data?.data?.clubs || []);
+      const [clubsRes, claimsRes, transfersRes, membersRes] = await Promise.all([
+        api.get(`/clubs/gyms/${gymId}/club-configs`),
+        api.get(`/clubs/gyms/${gymId}/reward-claims?status=claimed`).catch(() => ({ data: { data: { claims: [] } } })),
+        api.get(`/clubs/gyms/${gymId}/transfer-requests?status=pending`).catch(() => ({ data: { data: { requests: [] } } })),
+        api.get(`/clubs/gyms/${gymId}/club-memberships`).catch(() => ({ data: { data: { memberships: [] } } })),
+      ]);
+      setClubs(clubsRes.data?.data?.clubs || []);
+      setRewardClaims(claimsRes.data?.data?.claims || []);
+      setTransferRequests(transfersRes.data?.data?.requests || []);
+      setClubMembers(membersRes.data?.data?.memberships || []);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -115,6 +176,63 @@ const ClubsTab = () => {
     }
   };
 
+  const redeemClaim = async (claim: RewardClaim) => {
+    if (!gymId) return;
+    setRedeemingId(claim.id);
+    setError('');
+    try {
+      await api.patch(`/clubs/gyms/${gymId}/reward-claims/${claim.id}`, { status: 'redeemed' });
+      setRewardClaims((items) => items.filter((item) => item.id !== claim.id));
+      showNotification('Reward marked redeemed', 'success');
+    } catch (err) {
+      const message = getApiErrorMessage(err);
+      setError(message);
+      showNotification(message, 'error');
+    } finally {
+      setRedeemingId('');
+    }
+  };
+
+  const reviewTransfer = async (request: TransferRequest, ownerStatus: 'approved' | 'rejected') => {
+    if (!gymId) return;
+    setReviewingTransferId(`${request.id}:${ownerStatus}`);
+    setError('');
+    try {
+      await api.patch(`/clubs/gyms/${gymId}/transfer-requests/${request.id}`, {
+        owner_status: ownerStatus,
+        owner_note: ownerStatus === 'approved' ? 'Approved from web Clubs management' : 'Rejected from web Clubs management',
+      });
+      await fetchClubs();
+      showNotification(ownerStatus === 'approved' ? 'Transfer approved' : 'Transfer rejected', 'success');
+    } catch (err) {
+      const message = getApiErrorMessage(err);
+      setError(message);
+      showNotification(message, 'error');
+    } finally {
+      setReviewingTransferId('');
+    }
+  };
+
+  const removeClubMember = async (member: ClubMember) => {
+    if (!gymId) return;
+    setRemovingClubId(member.id);
+    setError('');
+    try {
+      await api.patch(`/clubs/gyms/${gymId}/club-memberships/${member.id}`, {
+        is_active: false,
+        removal_reason: 'Removed by gym owner from web Clubs management',
+      });
+      setClubMembers((items) => items.filter((item) => item.id !== member.id));
+      showNotification('Member removed from club', 'success');
+    } catch (err) {
+      const message = getApiErrorMessage(err);
+      setError(message);
+      showNotification(message, 'error');
+    } finally {
+      setRemovingClubId('');
+    }
+  };
+
   if (loading) return <PageLoader message="Loading Club tiers..." />;
 
   return (
@@ -135,12 +253,151 @@ const ClubsTab = () => {
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Clubs" value={clubs.length} />
             <Stat label="Active" value={clubs.filter((club) => club.is_active).length} />
-            <Stat label="Benefits" value={clubs.reduce((sum, club) => sum + club.facilities.length, 0)} />
+            <Stat label="Claims" value={rewardClaims.length} />
+            <Stat label="Transfers" value={transferRequests.length} />
           </div>
         </div>
+      </section>
+
+      {transferRequests.length > 0 && (
+        <section className="rounded-[1.5rem] border border-primary/20 bg-primary/10 p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-black/25 text-primary">
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Approval queue</p>
+                <h2 className="mt-1 text-2xl font-black text-white">Club transfer requests</h2>
+                <p className="mt-1 text-sm font-semibold text-white/50">Review carry requests from members changing into this gym.</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {transferRequests.map((request) => {
+              const approving = reviewingTransferId === `${request.id}:approved`;
+              const rejecting = reviewingTransferId === `${request.id}:rejected`;
+              return (
+                <div key={request.id} className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black text-white">{request.member?.name || 'Member'}</p>
+                      <p className="mt-1 text-xs font-bold text-white/45">
+                        From {request.source_gym?.name || 'previous gym'} · Level {request.eligible_level || request.max_level_reached || 5}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase text-white/45">{request.badges_count} badges</span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase text-white/45">{request.clubs_count} clubs</span>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-black uppercase text-white/45">Admin {request.admin_status}</span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        onClick={() => reviewTransfer(request, 'approved')}
+                        disabled={!!reviewingTransferId}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400 text-black transition hover:brightness-110 disabled:opacity-60"
+                        aria-label="Approve transfer"
+                      >
+                        {approving ? '...' : <ShieldCheck size={16} />}
+                      </button>
+                      <button
+                        onClick={() => reviewTransfer(request, 'rejected')}
+                        disabled={!!reviewingTransferId}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-red-500 text-white transition hover:brightness-110 disabled:opacity-60"
+                        aria-label="Reject transfer"
+                      >
+                        {rejecting ? '...' : <XCircle size={16} />}
+                      </button>
+                    </div>
+                  </div>
+                  {!!request.clubs_preview?.length && (
+                    <p className="mt-3 truncate text-xs font-bold text-white/38">
+                      {request.clubs_preview.map((club) => club.name).filter(Boolean).join(' · ')}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {clubMembers.length > 0 && (
+        <section className="rounded-[1.5rem] border border-white/10 bg-white/[0.035] p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Club members</p>
+              <h2 className="mt-1 text-2xl font-black text-white">Active member authority</h2>
+              <p className="mt-1 text-sm font-semibold text-white/45">Remove members from club benefits when needed.</p>
+            </div>
+            <Users className="shrink-0 text-primary" size={22} />
+          </div>
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {clubMembers.slice(0, 8).map((member) => (
+              <div key={member.id} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/25 p-4">
+                <Users className="shrink-0 text-primary" size={18} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-black text-white">{member.member.name}</p>
+                  <p className="mt-1 truncate text-xs font-bold text-white/45">{member.name}</p>
+                  {member.transfer && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">Transferred club</p>}
+                </div>
+                <button
+                  onClick={() => removeClubMember(member)}
+                  disabled={removingClubId === member.id}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500 text-white transition hover:brightness-110 disabled:opacity-60"
+                  aria-label="Remove club member"
+                >
+                  {removingClubId === member.id ? '...' : <UserMinus size={16} />}
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/25 bg-black/25 text-emerald-300">
+              <Package size={20} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-300">Reward desk</p>
+              <h2 className="mt-1 text-2xl font-black text-white">{rewardClaims.length} pending claim{rewardClaims.length === 1 ? '' : 's'}</h2>
+              <p className="mt-1 text-sm font-semibold text-white/50">Redeem Club benefits quickly so members trust the loyalty loop.</p>
+            </div>
+          </div>
+        </div>
+
+        {rewardClaims.length > 0 ? (
+          <div className="mt-5 grid gap-3 lg:grid-cols-2">
+            {rewardClaims.slice(0, 4).map((claim) => (
+              <div key={claim.id} className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-white">{claim.member?.name || 'Member'}</p>
+                    <p className="mt-1 truncate text-xs font-bold text-white/45">{claim.reward_label}</p>
+                    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">{claim.club_name}</p>
+                  </div>
+                  <button
+                    onClick={() => redeemClaim(claim)}
+                    disabled={redeemingId === claim.id}
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-black transition hover:brightness-110 disabled:opacity-60"
+                  >
+                    <CheckCircle2 size={13} /> {redeemingId === claim.id ? 'Saving' : 'Redeem'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5 rounded-2xl border border-dashed border-white/15 p-5 text-sm font-semibold text-white/45">
+            No pending reward claims right now.
+          </div>
+        )}
       </section>
 
       {error && (

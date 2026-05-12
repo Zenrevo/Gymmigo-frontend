@@ -90,11 +90,34 @@ export const FitnessMeter = ({ score, label, compact = false }: FitnessMeterProp
 // ─── Rich Markdown Renderer ─────────────────────────────────────────────────────
 
 const renderInlineFormatting = (text: string): React.ReactNode => {
-  const parts = text.split(/(\*\*[^*]+\*\*|(?:\*\*)?\[METER:\s*\d+\/10:\s*[^\]]+\](?:\*\*|(?!\*\*)))/g);
+  // Split on: bold, italic, markdown links [text](url), and METER tags
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\)|(?:\*\*)?\[METER:\s*\d+\/10:\s*[^\]]+\](?:\*\*|(?!\*\*)))/g);
   return parts.map((part, idx) => {
+    if (!part) return null;
+    // Bold
     if (part.startsWith('**') && part.endsWith('**')) {
       return <strong key={idx} className="font-bold text-white/90">{part.slice(2, -2)}</strong>;
     }
+    // Italic (single *)
+    if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) {
+      return <em key={idx} className="italic text-white/60">{part.slice(1, -1)}</em>;
+    }
+    // Markdown link [text](url)
+    const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (linkMatch) {
+      return (
+        <a
+          key={idx}
+          href={linkMatch[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:text-blue-300 underline underline-offset-2 decoration-blue-400/40 hover:decoration-blue-300 transition-colors"
+        >
+          {linkMatch[1]}
+        </a>
+      );
+    }
+    // Inline METER
     const inlineMeter = part.match(/^(?:\*\*)?\[METER:\s*(\d+)\/10:\s*([^\]]+)\](?:\*\*)?$/);
     if (inlineMeter) {
       const score = parseInt(inlineMeter[1]);
