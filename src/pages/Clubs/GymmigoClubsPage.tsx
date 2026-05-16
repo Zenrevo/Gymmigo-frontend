@@ -18,6 +18,7 @@ import {
   Flame,
   Gift,
   HeartPulse,
+  Wallet,
   ListChecks,
   LockKeyhole,
   Medal,
@@ -35,6 +36,14 @@ import api, { getApiErrorMessage } from '../../utils/api';
 import PageLoader from '../../components/PageLoader';
 import EmptyState from '../../components/EmptyState';
 import clubHeroImage from '../../assets/clubs/premium-club-hero.jpg';
+import {
+  allowsSelfServeTaskLog,
+  COMPLETION_VIA_SYSTEM_COPY,
+  getMissionTier,
+  type ClubsLadderSummary,
+  type MissionProgress,
+} from '../../types/clubs';
+import LoyaltyWalletPanel from '../../components/clubs/LoyaltyWalletPanel';
 
 type Membership = {
   id: string;
@@ -45,43 +54,6 @@ type Membership = {
   total_check_ins: number;
   current_occupancy?: number;
   max_capacity?: number;
-};
-
-type MissionProgress = {
-  mission: {
-    code: string;
-    title: string;
-    description: string;
-    mission_type: string;
-    target_value: number;
-    points: number;
-  };
-  badge: {
-    name: string;
-    icon?: string;
-    color?: string;
-  };
-  club?: {
-    code?: string;
-    name?: string;
-    definition?: string | null;
-  } | null;
-  progress_value: number;
-  progress_percent: number;
-  current_streak: number;
-  best_streak: number;
-  is_completed: boolean;
-  completed_at?: string | null;
-  fitcard_frame?: string | null;
-  unlocks?: {
-    category?: string;
-    action_label?: string;
-    facilities?: string[];
-    club_definition?: string;
-    reward_preview?: string;
-    content?: string[];
-    share_cta?: string;
-  };
 };
 
 type FitCardData = {
@@ -112,9 +84,29 @@ type FitCardData = {
     joined_at?: string | null;
     definition?: string | null;
     facilities?: string[];
+    rewards?: Array<{ label?: string; source?: string; value?: string }>;
     reward_preview?: string | null;
     share_cta?: string | null;
+    fee_discount_percent?: number | null;
+    supplement_discount_percent?: number | null;
+    protected_status?: boolean;
+    negative_marking_stops?: boolean;
+    transfer_carry_eligible?: boolean;
+    benefit_status?: {
+      status?: string;
+      benefits_paused?: boolean;
+      negative_marking_stops?: boolean;
+      days_left_to_protect_benefit?: number | null;
+      message?: string;
+      comeback_mission_available?: boolean;
+      comeback_mission?: { title?: string; description?: string } | null;
+    };
   }>;
+  membership_renewal?: {
+    end_date?: string | null;
+    days_left_to_protect_benefits?: number | null;
+    renew_now_message?: string | null;
+  };
   share?: {
     invite_code: string;
     share_url: string;
@@ -130,7 +122,8 @@ type RewardClaim = {
   club_code: string;
   club_name: string;
   reward_label: string;
-  status: 'claimed' | 'redeemed' | 'cancelled';
+  status: 'claimed' | 'redeemed' | 'cancelled' | 'credited_to_wallet';
+  wallet_credit_inr?: number | null;
   claimed_at?: string | null;
   redeemed_at?: string | null;
 };
@@ -219,13 +212,14 @@ const contentFacilityMap: Record<string, string> = {
 };
 
 const fallbackFacilitiesByMission: Record<string, string[]> = {
-  first_check_in: ['Free protein shake', 'Starter workout plan', 'Shareable QR invite', 'FitCard starter frame'],
-  three_day_streak: ['5% renewal discount', 'Habit-builder plan', 'Buddy streak challenge', 'Spark FitCard frame'],
-  workout_plan_completed: ['1 free trainer form-check session', 'Progressive workout plan', 'Workout finisher badge'],
-  seven_day_streak: ['Professional diet plan', 'Weekly workout plan', 'Priority class booking'],
-  diet_plan_followed: ['Professional diet consultation', 'Meal-prep checklist', 'Protein/supplement discount'],
-  twenty_one_day_consistency: ['10% renewal discount', '2 free personal training sessions', 'Advanced workout plans', 'Professional diet plan'],
-  mobility_reset: ['Free guided stretching session', 'Recovery plan', 'Sports massage discount'],
+  tier_01_foundation: ['You unlocked renewal savings: 5% off second month', 'Beginner workout plan from Migo AI'],
+  tier_02_rhythm: ['7% renewal discount', '5% supplement discount', '1 guest pass'],
+  tier_03_iron_program: ['10% renewal discount', '1 free trainer form check session'],
+  tier_04_anchor: ['15% renewal discount', 'Membership freeze benefit', 'Gym wall recognition'],
+  tier_05_fuel: ['18% renewal discount', 'Free diet review', 'Transformation certificate'],
+  tier_06_quarter: ['20% renewal discount', '1 free PT session per month', 'Protected status'],
+  tier_07_elite_streak: ['25% renewal discount', 'Transfer eligible', '2 free PT sessions per month'],
+  tier_08_founders: ['30% renewal discount', 'Lifetime transferable badge', 'Fully protected status'],
 };
 
 const formatContentSlug = (value: string) => {
@@ -276,8 +270,11 @@ const GymmigoClubsPage = () => {
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [selectedGymId, setSelectedGymId] = useState('');
   const [missions, setMissions] = useState<MissionProgress[]>([]);
+  const [ladderSummary, setLadderSummary] = useState<ClubsLadderSummary | null>(null);
   const [fitcard, setFitcard] = useState<FitCardData | null>(null);
   const [rewardClaims, setRewardClaims] = useState<RewardClaim[]>([]);
+  const [walletNotice, setWalletNotice] = useState('');
+  const [walletRefreshKey, setWalletRefreshKey] = useState(0);
   const [initialLoading, setInitialLoading] = useState(true);
   const [sectionLoading, setSectionLoading] = useState(false);
   const [error, setError] = useState('');
@@ -307,9 +304,11 @@ const GymmigoClubsPage = () => {
   );
 
   const nextMission = useMemo(
-    () => missions.find((mission) => !mission.is_completed),
+    () => missions.find((mission) => !mission.is_completed && !mission.is_locked),
     [missions]
   );
+  const currentTier = ladderSummary?.current_tier ?? completedMissions.length;
+  const totalTiers = ladderSummary?.total_tiers ?? (missions.length || 8);
   const rewardClaimsByClub = useMemo(
     () => new Map(rewardClaims.map((claim) => [claim.club_code, claim])),
     [rewardClaims]
@@ -331,8 +330,8 @@ const GymmigoClubsPage = () => {
     setInitialLoading(true);
     setError('');
     try {
-      const res = await api.get('/memberships/my');
-      const items = (res.data?.data?.memberships || []) as Membership[];
+      const membershipsRes = await api.get('/memberships/my');
+      const items = (membershipsRes.data?.data?.memberships || []) as Membership[];
       setMemberships(items);
       const firstActive = items.find((membership) => membership.status === 'active');
       if (firstActive) setSelectedGymId((current) => current || firstActive.gym_id);
@@ -355,6 +354,7 @@ const GymmigoClubsPage = () => {
         api.get('/clubs/transfer-requests/my').catch(() => ({ data: { data: { requests: [] } } })),
       ]);
       setMissions(missionsRes.data?.data?.missions || []);
+      setLadderSummary(missionsRes.data?.data?.ladder || null);
       setFitcard(fitcardRes.data?.data || null);
       setRewardClaims(claimsRes.data?.data?.claims || []);
       const options = transferOptionsRes.data?.data?.options || [];
@@ -370,6 +370,7 @@ const GymmigoClubsPage = () => {
     } catch (err) {
       setError(getApiErrorMessage(err));
       setMissions([]);
+      setLadderSummary(null);
       setFitcard(null);
       setRewardClaims([]);
       setTransferOptions([]);
@@ -394,7 +395,7 @@ const GymmigoClubsPage = () => {
   };
 
   const handleTaskMission = async (mission: MissionProgress) => {
-    if (!selectedGymId || mission.mission.mission_type !== 'task_completion') return;
+    if (!selectedGymId || mission.mission.mission_type !== 'task_completion' || !allowsSelfServeTaskLog(mission)) return;
     setRecordingMissionCode(mission.mission.code);
     setError('');
     try {
@@ -419,11 +420,17 @@ const GymmigoClubsPage = () => {
     if (!selectedGymId || !club?.code) return;
     setClaimingClubCode(club.code);
     setError('');
+    setWalletNotice('');
     try {
-      await api.post('/clubs/reward-claims', {
+      const res = await api.post('/clubs/reward-claims', {
         gym_id: selectedGymId,
         club_code: club.code,
       });
+      const credited = Number(res.data?.data?.wallet_credited_inr || 0);
+      if (credited > 0) {
+        setWalletNotice(`₹${credited.toLocaleString('en-IN')} added to your Gymmigo wallet`);
+      }
+      setWalletRefreshKey((key) => key + 1);
       await fetchClubData(selectedGymId);
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -485,6 +492,7 @@ const GymmigoClubsPage = () => {
   const highlightedFacilities = highlightedClub?.facilities?.length
     ? highlightedClub.facilities.slice(0, 4)
     : nextClubFacilities;
+  const highlightedBenefitStatus = highlightedClub?.benefit_status;
 
   return (
     <div className="space-y-6">
@@ -518,7 +526,64 @@ const GymmigoClubsPage = () => {
                   ))}
                 </div>
               )}
+              {highlightedBenefitStatus && (
+                <div className="space-y-2">
+                  <div className={clsx(
+                    'inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-black uppercase',
+                    highlightedBenefitStatus.benefits_paused
+                      ? 'border-amber-300/30 bg-amber-300/10 text-amber-100'
+                      : highlightedClub?.protected_status
+                        ? 'border-sky-300/30 bg-sky-300/10 text-sky-100'
+                        : 'border-emerald-300/25 bg-emerald-300/10 text-emerald-100'
+                  )}>
+                    <ShieldCheck size={14} />
+                    {highlightedBenefitStatus.benefits_paused ? 'Benefits paused' : highlightedClub?.protected_status ? 'Protected status' : highlightedBenefitStatus.message || 'Benefits active'}
+                  </div>
+                  {highlightedBenefitStatus.benefits_paused && highlightedBenefitStatus.comeback_mission?.description && (
+                    <p className="w-fit max-w-2xl rounded-lg border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-xs font-bold leading-5 text-amber-100">
+                      {highlightedBenefitStatus.comeback_mission.description}
+                    </p>
+                  )}
+                  {(highlightedClub?.negative_marking_stops || highlightedBenefitStatus.negative_marking_stops) && (
+                    <p className="w-fit rounded-lg border border-sky-300/20 bg-sky-300/10 px-3 py-2 text-xs font-bold text-sky-100">
+                      Negative marking stops while membership stays active.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
+
+            {nextMission && (
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Your club journey</p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-white/45">Current</p>
+                    <p className="text-sm font-black text-white">{highlightedClubName}</p>
+                  </div>
+                  <p className="hidden text-white/25 sm:block">→</p>
+                  <div>
+                    <p className="text-xs font-bold text-white/45">Next unlock</p>
+                    <p className="text-sm font-black text-primary">{getClubDisplayName(nextMission)}</p>
+                  </div>
+                  <div className="sm:text-right">
+                    <p className="text-xs font-bold text-white/45">Progress</p>
+                    <p className="text-sm font-black text-white">{nextMissionPercent}%</p>
+                  </div>
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${nextMissionPercent}%` }} />
+                </div>
+                {(nextMission.rewards || []).slice(0, 2).map((reward) => (
+                  <p key={reward.label} className="mt-2 text-xs font-semibold text-emerald-200/90">
+                    Locked: {reward.label}
+                  </p>
+                ))}
+                {nextMission.migo_recommendation && (
+                  <p className="mt-2 text-xs font-semibold text-white/55">Migo: {nextMission.migo_recommendation}</p>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-col gap-3 sm:flex-row">
               {fitcard?.share ? (
@@ -568,10 +633,15 @@ const GymmigoClubsPage = () => {
             </div>
 
             <div className="mt-5 grid grid-cols-3 gap-2">
-              <StatTile label="Badges" value={completedMissions.length} />
+              <StatTile label="Tier" value={`${currentTier}/${totalTiers}`} tone="orange" />
               <StatTile label="Streak" value={fitcard?.fitcard.current_streak || 0} tone="orange" />
               <StatTile label="Clubs" value={unlockedClubCount} tone="green" />
             </div>
+            {fitcard?.membership_renewal?.days_left_to_protect_benefits != null && (
+              <div className="mt-3 rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs font-black text-primary">
+                {fitcard.membership_renewal.days_left_to_protect_benefits} days left to protect benefit · Renew now
+              </div>
+            )}
 
             <div className="mt-5">
               <div className="flex items-center justify-between text-xs font-black text-white/55">
@@ -599,6 +669,9 @@ const GymmigoClubsPage = () => {
                   <div className="min-w-0 flex-1">
                     <p className="text-[10px] font-black uppercase tracking-widest text-primary">Next club glimpse</p>
                     <p className="truncate text-sm font-black text-white">{getClubDisplayName(nextMission)}</p>
+                    {nextMission.migo_recommendation && (
+                      <p className="mt-1 line-clamp-2 text-xs font-semibold text-white/45">{nextMission.migo_recommendation}</p>
+                    )}
                   </div>
                   <ArrowRight size={17} className="shrink-0 text-primary" />
                 </div>
@@ -653,6 +726,8 @@ const GymmigoClubsPage = () => {
           {error}
         </div>
       )}
+
+      <LoyaltyWalletPanel refreshKey={walletRefreshKey} notice={walletNotice} />
 
       {sectionLoading ? (
         <PageLoader message="Syncing your Clubs..." />
@@ -718,7 +793,7 @@ const GymmigoClubsPage = () => {
                       >
                         <p className="truncate text-sm font-black">{option.source_gym.name}</p>
                         <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/38">
-                          Level {option.eligible_level || option.max_level_reached}
+                          Tier {option.eligible_level || option.max_level_reached}
                         </p>
                       </button>
                     ))}
@@ -728,7 +803,7 @@ const GymmigoClubsPage = () => {
                     <div className="grid gap-3 sm:grid-cols-3">
                       <StatTile label="Badges" value={selectedTransferOption.badges_count} />
                       <StatTile label="Clubs" value={selectedTransferOption.clubs_count} tone="green" />
-                      <StatTile label="Level" value={selectedTransferOption.eligible_level || selectedTransferOption.max_level_reached} tone="orange" />
+                      <StatTile label="Tier" value={selectedTransferOption.eligible_level || selectedTransferOption.max_level_reached} tone="orange" />
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {selectedTransferOption.clubs.slice(0, 5).map((club) => (
@@ -761,14 +836,37 @@ const GymmigoClubsPage = () => {
           <section className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-2xl font-black text-white">Club road</h2>
+                <h2 className="text-2xl font-black text-white">Club ladder</h2>
                 <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-white/45">
-                  A Club is a benefit tier, not only a badge. Higher clubs stay locked but visible so members can preview the required badge and real gym benefits before chasing it.
+                  Eight competitive tiers at {selectedGymName}. Higher tiers stay visible but locked until the previous tier is complete.
+                  {ladderSummary?.estimated_full_path_weeks
+                    ? ` Full path pacing: ~${ladderSummary.estimated_full_path_weeks} weeks.`
+                    : ''}
                 </p>
               </div>
               <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-black uppercase text-primary">
-                <LockKeyhole size={14} /> Locked previews
+                <LockKeyhole size={14} /> Tier {currentTier}/{totalTiers}
               </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {roadMissions.map((mission, index) => {
+                const tier = getMissionTier(mission, index + 1);
+                const active = tier === currentTier + 1 && !mission.is_completed && !mission.is_locked;
+                return (
+                  <div
+                    key={`ladder-${mission.mission.code}`}
+                    className={clsx(
+                      'flex h-9 w-9 items-center justify-center rounded-xl border text-xs font-black',
+                      mission.is_completed && 'border-emerald-400/35 bg-emerald-400/15 text-emerald-200',
+                      mission.is_locked && 'border-white/10 bg-black/20 text-white/30',
+                      active && 'border-primary/45 bg-primary/15 text-primary'
+                    )}
+                  >
+                    {tier}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="rounded-lg border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))] p-3 sm:p-4">
@@ -778,7 +876,7 @@ const GymmigoClubsPage = () => {
                     <ClubRoadCard
                       key={mission.mission.code}
                       mission={mission}
-                      stage={index + 1}
+                      tier={getMissionTier(mission, index + 1)}
                       isNext={mission.mission.code === nextMission?.mission.code}
                       onClick={() => setSelectedClubMission(mission)}
                     />
@@ -799,6 +897,9 @@ const GymmigoClubsPage = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-black uppercase text-primary">FitCard</p>
+                    <p className="mt-2 inline-flex rounded-full border border-primary/30 bg-primary/12 px-3 py-1 text-[10px] font-black uppercase text-primary">
+                      Tier {currentTier} of {totalTiers}
+                    </p>
                     <h2 className="mt-2 text-2xl font-black text-white">{fitcard?.fitcard.title || 'Gymmigo Starter'}</h2>
                     <p className="mt-1 text-sm font-bold text-white/45">{selectedGymName}</p>
                   </div>
@@ -893,7 +994,11 @@ const GymmigoClubsPage = () => {
                         </div>
                       )}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {claim?.status === 'redeemed' ? (
+                        {claim?.status === 'credited_to_wallet' ? (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-emerald-100">
+                            <Wallet size={12} /> ₹{(claim.wallet_credit_inr || 0).toLocaleString('en-IN')} in wallet
+                          </span>
+                        ) : claim?.status === 'redeemed' ? (
                           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-emerald-100">
                             <CheckCircle2 size={12} /> Reward redeemed
                           </span>
@@ -909,6 +1014,21 @@ const GymmigoClubsPage = () => {
                           >
                             <Gift size={12} /> {claimingClubCode === club.code ? 'Claiming' : 'Claim reward'}
                           </button>
+                        )}
+                        {club.protected_status && (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-sky-300/20 bg-sky-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-sky-100">
+                            <ShieldCheck size={12} /> Protected status
+                          </span>
+                        )}
+                        {club.transfer_carry_eligible && (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase text-primary">
+                            <ArrowRight size={12} /> Transfer eligible
+                          </span>
+                        )}
+                        {club.benefit_status?.benefits_paused && (
+                          <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase text-amber-100">
+                            <Flame size={12} /> Comeback mission available
+                          </span>
                         )}
                       </div>
                           </>
@@ -937,6 +1057,11 @@ const GymmigoClubsPage = () => {
                       <p className="text-xs font-black uppercase text-primary">Next unlock</p>
                       <h3 className="text-2xl font-black text-white">{nextMission.badge.name}</h3>
                       <p className="text-sm font-semibold leading-6 text-white/55">{nextMission.mission.description}</p>
+                      {nextMission.migo_recommendation && (
+                        <p className="rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs font-bold leading-5 text-primary">
+                          {nextMission.migo_recommendation}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="min-w-[170px]">
@@ -1023,7 +1148,7 @@ const GymmigoClubsPage = () => {
                             {mission.unlocks.reward_preview}
                           </p>
                         )}
-                        {isTaskMission && !mission.is_completed && (
+                        {isTaskMission && !mission.is_completed && allowsSelfServeTaskLog(mission) && (
                           <button
                             onClick={() => handleTaskMission(mission)}
                             disabled={isRecording}
@@ -1032,9 +1157,13 @@ const GymmigoClubsPage = () => {
                             <CheckCircle2 size={15} /> {isRecording ? 'Logging...' : mission.unlocks?.action_label || 'Mark done'}
                           </button>
                         )}
-                        {!isTaskMission && !mission.is_completed && (
+                        {!mission.is_completed && (
                           <p className="pt-1 text-xs font-semibold text-white/35">
-                            Auto-updates when you scan the gym QR.
+                            {mission.is_locked
+                              ? mission.locked_reason || 'Complete the previous tier to unlock this challenge.'
+                              : isTaskMission
+                                ? COMPLETION_VIA_SYSTEM_COPY
+                                : 'Auto-updates when you scan the gym QR.'}
                           </p>
                         )}
                       </div>
@@ -1064,17 +1193,17 @@ const GymmigoClubsPage = () => {
 
 const ClubRoadCard = ({
   mission,
-  stage,
+  tier,
   isNext,
   onClick,
 }: {
   mission: MissionProgress;
-  stage: number;
+  tier: number;
   isNext: boolean;
   onClick: () => void;
 }) => {
   const missionProgress = clampPercent(mission.progress_percent);
-  const status = mission.is_completed ? 'Unlocked' : isNext ? 'Next' : 'Locked';
+  const status = mission.is_completed ? 'Unlocked' : mission.is_locked ? 'Locked' : isNext ? 'Active tier' : 'Up next';
   const facilities = getClubFacilities(mission).slice(0, 2);
 
   return (
@@ -1085,13 +1214,15 @@ const ClubRoadCard = ({
         'group relative min-h-[250px] overflow-hidden rounded-lg border p-4 text-left transition-all',
         mission.is_completed
           ? 'border-emerald-400/35 bg-[linear-gradient(135deg,rgba(52,211,153,0.16),rgba(255,255,255,0.035))]'
+          : mission.is_locked
+            ? 'border-slate-300/10 bg-slate-900/35 opacity-90'
           : isNext
             ? 'border-primary/45 bg-[linear-gradient(135deg,rgba(241,130,44,0.2),rgba(255,255,255,0.035))] shadow-lg shadow-primary/10'
             : 'border-slate-300/10 bg-slate-900/45 hover:border-slate-300/20 hover:bg-slate-800/45'
       )}
     >
       <div className="absolute inset-x-0 top-0 h-20 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_45%)]" />
-      {!mission.is_completed && (
+      {mission.is_locked && (
         <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-slate-300/10 bg-slate-950/55 text-white/45">
           <LockKeyhole size={13} />
         </div>
@@ -1109,7 +1240,7 @@ const ClubRoadCard = ({
           {!mission.is_completed && <div className="absolute inset-0 rounded-2xl bg-slate-950/35" />}
         </div>
         <span className="rounded-full border border-slate-300/10 bg-slate-950/35 px-2 py-1 text-[10px] font-black uppercase text-white/35">
-          Stage {stage}
+          Tier {tier}
         </span>
       </div>
 
@@ -1137,6 +1268,9 @@ const ClubRoadCard = ({
         <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-white/45">
           {getClubDefinition(mission)}
         </p>
+        {mission.is_locked && mission.locked_reason && (
+          <p className="mt-2 line-clamp-3 text-[11px] font-semibold leading-4 text-white/38">{mission.locked_reason}</p>
+        )}
       </div>
 
       <div className="relative mt-4 space-y-2">
@@ -1258,6 +1392,15 @@ const ClubDetailModal = ({
             <p className="text-xs font-black uppercase text-primary">Required badge to unlock</p>
             <h4 className="mt-2 text-xl font-black text-white">{mission.badge.name}</h4>
             <p className="mt-2 text-sm font-semibold leading-6 text-white/52">{mission.mission.description}</p>
+            {!!mission.tasks?.length && (
+              <div className="mt-3 space-y-1.5">
+                {mission.tasks.slice(0, 5).map((task) => (
+                  <p key={task} className="flex gap-2 text-xs font-semibold leading-5 text-white/48">
+                    <CheckCircle2 size={13} className="mt-0.5 shrink-0 text-primary" /> {task}
+                  </p>
+                ))}
+              </div>
+            )}
             <p className="mt-3 rounded-lg border border-slate-300/10 bg-slate-950/25 px-3 py-2 text-xs font-black uppercase tracking-widest text-white/42">
               Required: {getMissionRequirement(mission)}
             </p>
@@ -1275,7 +1418,7 @@ const ClubDetailModal = ({
               </div>
             </div>
 
-            {isTaskMission && !mission.is_completed ? (
+            {isTaskMission && !mission.is_completed && allowsSelfServeTaskLog(mission) ? (
               <button
                 type="button"
                 onClick={onLogMission}
@@ -1286,11 +1429,20 @@ const ClubDetailModal = ({
               </button>
             ) : !mission.is_completed ? (
               <p className="mt-5 rounded-lg border border-slate-300/10 bg-slate-950/25 px-3 py-3 text-sm font-semibold leading-6 text-white/45">
-                This mission updates automatically when you scan the gym QR.
+                {mission.is_locked
+                  ? mission.locked_reason || 'Complete the previous tier to unlock this challenge.'
+                  : isTaskMission
+                    ? COMPLETION_VIA_SYSTEM_COPY
+                    : 'This mission updates automatically when you scan the gym QR.'}
               </p>
             ) : (
               <p className="mt-5 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-3 text-sm font-black text-emerald-300">
                 Club unlocked on your FitCard.
+              </p>
+            )}
+            {mission.benefit_status?.benefits_paused && (
+              <p className="mt-3 rounded-lg border border-amber-300/20 bg-amber-300/10 px-3 py-3 text-sm font-bold leading-6 text-amber-100">
+                {mission.benefit_status.comeback_mission?.description || 'Comeback mission available to restore benefits.'}
               </p>
             )}
           </section>
@@ -1308,6 +1460,19 @@ const ClubDetailModal = ({
             {mission.unlocks?.share_cta && (
               <p className="mt-4 rounded-lg border border-primary/20 bg-primary/10 px-3 py-3 text-sm font-bold leading-6 text-primary">
                 {mission.unlocks.share_cta}
+              </p>
+            )}
+            {mission.goal_tracks && Object.keys(mission.goal_tracks).length > 0 && (
+              <div className="mt-4">
+                <p className="text-xs font-black uppercase text-white/35">Goal track</p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-white/50">
+                  {Object.entries(mission.goal_tracks).slice(0, 2).map(([goal, tasks]) => `${goal.replace(/_/g, ' ')}: ${(tasks || []).slice(0, 2).join(', ')}`).join(' · ')}
+                </p>
+              </div>
+            )}
+            {mission.protected_status && (
+              <p className="mt-4 rounded-lg border border-sky-300/20 bg-sky-300/10 px-3 py-3 text-sm font-bold text-sky-100">
+                Protected tier: negative marking stops while membership stays active.
               </p>
             )}
           </section>

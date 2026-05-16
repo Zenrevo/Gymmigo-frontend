@@ -50,6 +50,14 @@ const shouldRetry = (error: AxiosError) => {
   );
 };
 
+export type ApiValidationIssue = { code?: string; message: string; mission_code?: string };
+
+export const getApiValidationIssues = (error: unknown): ApiValidationIssue[] => {
+  const err = error as AxiosError<{ error?: { extra?: { errors?: ApiValidationIssue[] } }; detail?: { extra?: { errors?: ApiValidationIssue[] } } }>;
+  const data = err.response?.data;
+  return data?.error?.extra?.errors || data?.detail?.extra?.errors || [];
+};
+
 export const getApiErrorMessage = (error: unknown) => {
   const err = error as AxiosError<any>;
   if (err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout')) {
