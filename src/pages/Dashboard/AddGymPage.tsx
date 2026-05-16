@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../utils/api';
+import api, { getApiErrorMessage } from '../../utils/api';
 import { 
   Building2, ArrowLeft, ArrowRight, Check, 
   MapPin, Phone, Mail, Info,
@@ -142,7 +142,7 @@ const AddGymPage = () => {
       await api.post(`/gym-owner/gyms`, payload);
       navigate('/app/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to list gym. Please check all required fields.');
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }

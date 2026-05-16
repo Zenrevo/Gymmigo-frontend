@@ -21,14 +21,18 @@ interface LocationContextType {
   updateSelectedLocation: (loc: AddressResult) => void;
   refreshGPS: () => Promise<void>;
   isLoaded: boolean;
+  mapsLoadError: Error | undefined;
+  hasMapsApiKey: boolean;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
+const mapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: mapsApiKey,
     libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
@@ -95,7 +99,9 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       permissionStatus,
       updateSelectedLocation, 
       refreshGPS,
-      isLoaded
+      isLoaded: Boolean(mapsApiKey) && isLoaded,
+      mapsLoadError: loadError,
+      hasMapsApiKey: Boolean(mapsApiKey),
     }}>
       {children}
     </LocationContext.Provider>

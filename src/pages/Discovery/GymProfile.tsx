@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
-import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { 
   ArrowLeft, ArrowRight, MapPin, Star, Building2, 
   CheckCircle2, Clock, Phone, ShoppingCart, Package, X,
@@ -12,8 +12,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import PageLoader from '../../components/PageLoader';
-
-const GOOGLE_MAPS_LIBRARIES: ("places" | "geometry" | "drawing" | "visualization")[] = ["places"];
 
 import { useGeoLocation } from '../../context/LocationContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -94,14 +92,9 @@ const darkMapStyles = [
 const GymProfile = () => {
   const { gymId } = useParams();
   const navigate = useNavigate();
-  const { selectedLocation } = useGeoLocation();
+  const { selectedLocation, isLoaded } = useGeoLocation();
   const [gym, setGym] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: GOOGLE_MAPS_LIBRARIES,
-  });
 
   const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'equipment' | 'amenities' | 'reviews'>('overview');
   const [reviews, setReviews] = useState<any[]>([]);

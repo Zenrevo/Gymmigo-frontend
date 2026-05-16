@@ -60,7 +60,16 @@ export const getApiErrorMessage = (error: unknown) => {
       ? 'We could not reach the server. It may be waking up, please retry in a moment.'
       : 'You appear to be offline. Please check your internet connection.';
   }
-  return err.response?.data?.error?.message || err.response?.data?.message || 'Something went wrong. Please try again.';
+  const data = err.response?.data;
+  const detail = data?.detail;
+  return (
+    data?.error?.message ||
+    detail?.error?.message ||
+    (typeof detail === 'string' ? detail : undefined) ||
+    detail?.message ||
+    data?.message ||
+    'Something went wrong. Please try again.'
+  );
 };
 
 const api = axios.create({

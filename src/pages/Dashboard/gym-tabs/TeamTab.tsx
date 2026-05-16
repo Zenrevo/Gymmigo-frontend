@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Users, UserPlus, Shield, Phone, Mail, Trash2, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import api from '../../../utils/api';
+import api, { getApiErrorMessage } from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,7 +12,11 @@ const TeamTab = () => {
   const { showNotification } = useNotification();
   const { user } = useAuth();
   
-  const isOwner = user?.active_role === 'gym_owner';
+  const isOwner =
+    user?.active_role === 'gym_owner' ||
+    user?.roles?.some((r: string | { role: string }) =>
+      (typeof r === 'string' ? r : r.role) === 'gym_owner'
+    );
   
   const [managers, setManagers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +36,7 @@ const TeamTab = () => {
       setManagers(res.data.data || []);
     } catch (err) {
       console.error('Failed to fetch managers', err);
+      showNotification(getApiErrorMessage(err), 'error');
     } finally {
       setLoading(false);
     }
@@ -56,8 +61,7 @@ const TeamTab = () => {
       fetchManagers();
     } catch (err: any) {
       console.error(err);
-      const msg = err.response?.data?.detail?.message || 'Failed to invite co-owner';
-      showNotification(msg, 'error');
+      showNotification(getApiErrorMessage(err), 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -72,7 +76,7 @@ const TeamTab = () => {
       fetchManagers();
     } catch (err) {
       console.error(err);
-      showNotification('Failed to remove co-owner', 'error');
+      showNotification(getApiErrorMessage(err), 'error');
     }
   };
 

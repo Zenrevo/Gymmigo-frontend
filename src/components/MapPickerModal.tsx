@@ -1,5 +1,5 @@
-import { MapPin, Search, X, Navigation, Loader2, Check } from 'lucide-react';
-import { useState, useCallback, useRef } from 'react';
+import { MapPin, Search, X, Navigation, Loader2, Check, AlertCircle } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { GoogleMap, Autocomplete } from '@react-google-maps/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGeoLocation } from '../context/LocationContext';
@@ -20,16 +20,20 @@ interface MapPickerModalProps {
   initialCenter?: { lat: number; lng: number };
 }
 
+const DEFAULT_CENTER = { lat: 19.0760, lng: 72.8777 };
+
 const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPickerModalProps) => {
-  const { isLoaded } = useGeoLocation();
+  const { isLoaded, mapsLoadError, hasMapsApiKey, currentGPS } = useGeoLocation();
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [address, setAddress] = useState<AddressResult | null>(null);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [searchBox, setSearchBox] = useState<google.maps.places.Autocomplete | null>(null);
-  const [mapCenter] = useState(initialCenter || { lat: 19.0760, lng: 72.8777 });
 
-  const geocodeTimeout = useRef<any>(null);
+  const mapCenter = initialCenter
+    || (currentGPS ? { lat: currentGPS.lat, lng: currentGPS.lng } : DEFAULT_CENTER);
+
+  const geocodeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skipNextGeocode = useRef(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,23 +44,21 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
 
     try {
       const response = await geocoder.geocode({ location: { lat, lng } });
-      if (response && response.results && response.results[0]) {
+      if (response?.results?.[0]) {
         const result = response.results[0];
         const comps = result.address_components;
-
         const getComp = (type: string) => comps.find(c => c.types.includes(type))?.long_name || '';
 
-        const newAddress = {
+        const newAddress: AddressResult = {
           address_line1: result.formatted_address,
           city: getComp('locality') || getComp('postal_town') || getComp('administrative_area_level_2'),
           state: getComp('administrative_area_level_1'),
           pincode: getComp('postal_code'),
           latitude: lat,
-          longitude: lng
+          longitude: lng,
         };
 
         setAddress(newAddress);
-        
         if (updateInput && searchInputRef.current) {
           searchInputRef.current.value = result.formatted_address;
         }
@@ -67,6 +69,29 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
       setIsGeocoding(false);
     }
   }, []);
+
+  const handleMapLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+    const center = mapInstance.getCenter();
+    if (center) {
+      performGeocode(center.lat(), center.lng(), true);
+    }
+  }, [performGeocode]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setAddress(null);
+      setMap(null);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !map || !initialCenter) return;
+    skipNextGeocode.current = true;
+    map.panTo(initialCenter);
+    map.setZoom(17);
+    performGeocode(initialCenter.lat, initialCenter.lng, true);
+  }, [isOpen, map, initialCenter, performGeocode]);
 
   const onIdle = useCallback(() => {
     if (!map) return;
@@ -88,60 +113,60 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
   }, [map, performGeocode]);
 
   const onPlaceChanged = () => {
-    if (searchBox !== null) {
-      const place = searchBox.getPlace();
-      if (place.geometry?.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        
-        skipNextGeocode.current = true;
-        map?.panTo({ lat, lng });
-        map?.setZoom(17);
+    if (!searchBox) return;
+    const place = searchBox.getPlace();
+    if (!place.geometry?.location) return;
 
-        const comps = place.address_components || [];
-        const getComp = (type: string) => comps.find(c => c.types.includes(type))?.long_name || '';
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
 
-        setAddress({
-          address_line1: place.formatted_address || '',
-          city: getComp('locality') || getComp('postal_town') || getComp('administrative_area_level_2'),
-          state: getComp('administrative_area_level_1'),
-          pincode: getComp('postal_code'),
-          latitude: lat,
-          longitude: lng
-        });
-      }
-    }
+    skipNextGeocode.current = true;
+    map?.panTo({ lat, lng });
+    map?.setZoom(17);
+
+    const comps = place.address_components || [];
+    const getComp = (type: string) => comps.find(c => c.types.includes(type))?.long_name || '';
+
+    setAddress({
+      address_line1: place.formatted_address || '',
+      city: getComp('locality') || getComp('postal_town') || getComp('administrative_area_level_2'),
+      state: getComp('administrative_area_level_1'),
+      pincode: getComp('postal_code'),
+      latitude: lat,
+      longitude: lng,
+    });
   };
 
   const handleCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          skipNextGeocode.current = false; // We want to geocode after getting current position
-          map?.panTo({ lat: latitude, lng: longitude });
-          map?.setZoom(17);
-          performGeocode(latitude, longitude, true);
-        },
-        (error) => {
-          console.error("Error getting location in map picker:", error);
-          if (error.code === error.PERMISSION_DENIED) {
-            alert("Location access denied. Please enable it in your browser settings to use current location.");
-          } else {
-            alert("Could not get your location. Please check your signal or try searching manually.");
-          }
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
-    }
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        skipNextGeocode.current = false;
+        map?.panTo({ lat: latitude, lng: longitude });
+        map?.setZoom(17);
+        performGeocode(latitude, longitude, true);
+      },
+      (error) => {
+        console.error('Error getting location in map picker:', error);
+        if (error.code === error.PERMISSION_DENIED) {
+          alert('Location access denied. Please enable it in your browser settings to use current location.');
+        } else {
+          alert('Could not get your location. Please check your signal or try searching manually.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
   };
 
   if (!isOpen) return null;
 
+  const mapsUnavailable = !hasMapsApiKey || Boolean(mapsLoadError);
+
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -149,42 +174,57 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
         >
           <div className="absolute top-0 left-0 right-0 z-20 p-4 sm:p-6 bg-gradient-to-b from-black/80 to-transparent">
             <div className="flex items-center gap-3">
-               <button onClick={onClose} className="p-3 rounded-2xl bg-black/60 hover:bg-black border border-white/10 text-white transition-all">
-                 <X size={20} />
-               </button>
-               <div className="flex-1 relative group">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={20} />
-                 {isLoaded && (
-                   <Autocomplete 
-                      onLoad={setSearchBox} 
-                      onPlaceChanged={onPlaceChanged}
-                      options={{ componentRestrictions: { country: 'in' } }}
-                   >
-                      <input 
-                        ref={searchInputRef}
-                        type="text" 
-                        placeholder="Search area, landmark or street..."
-                        className="w-full bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-primary outline-none transition-all shadow-xl"
-                      />
-                   </Autocomplete>
-                 )}
-               </div>
-               <button 
-                  onClick={handleCurrentLocation}
-                  className="p-3 rounded-2xl bg-primary/20 hover:bg-primary text-primary hover:text-white border border-primary/20 transition-all shadow-lg"
-               >
-                  <Navigation size={20} />
-               </button>
+              <button onClick={onClose} className="p-3 rounded-2xl bg-black/60 hover:bg-black border border-white/10 text-white transition-all">
+                <X size={20} />
+              </button>
+              {!mapsUnavailable && (
+                <>
+                  <div className="flex-1 relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={20} />
+                    {isLoaded && (
+                      <Autocomplete
+                        onLoad={setSearchBox}
+                        onPlaceChanged={onPlaceChanged}
+                        options={{ componentRestrictions: { country: 'in' } }}
+                      >
+                        <input
+                          ref={searchInputRef}
+                          type="text"
+                          placeholder="Search area, landmark or street..."
+                          className="w-full bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-primary outline-none transition-all shadow-xl"
+                        />
+                      </Autocomplete>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleCurrentLocation}
+                    className="p-3 rounded-2xl bg-primary/20 hover:bg-primary text-primary hover:text-white border border-primary/20 transition-all shadow-lg"
+                  >
+                    <Navigation size={20} />
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           <div className="flex-1 relative bg-neutral-800">
-            {isLoaded ? (
+            {mapsUnavailable ? (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-8 text-center">
+                <AlertCircle className="text-primary" size={48} />
+                <h3 className="text-lg font-bold text-white">Maps unavailable</h3>
+                <p className="text-sm text-white/50 max-w-md">
+                  {!hasMapsApiKey
+                    ? 'Google Maps API key is not configured. Set VITE_GOOGLE_MAPS_API_KEY in your environment.'
+                    : 'Google Maps failed to load. Enable Maps JavaScript API and Places API, and allow your domain in the API key restrictions.'}
+                </p>
+                <button onClick={onClose} className="btn-primary px-6 py-3 mt-2">Close</button>
+              </div>
+            ) : isLoaded ? (
               <GoogleMap
                 mapContainerStyle={{ width: '100%', height: '100%' }}
                 center={mapCenter}
                 zoom={15}
-                onLoad={setMap}
+                onLoad={handleMapLoad}
                 onIdle={onIdle}
                 onDragStart={() => {
                   skipNextGeocode.current = false;
@@ -192,11 +232,11 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
                 options={{
                   disableDefaultUI: true,
                   styles: [
-                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-                    { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] }
-                  ]
+                    { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
+                    { elementType: 'labels.text.stroke', stylers: [{ color: '#242f3e' }] },
+                    { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+                  ],
                 }}
               />
             ) : (
@@ -206,45 +246,47 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
               </div>
             )}
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[100%] pointer-events-none z-10 flex flex-col items-center">
-               <div className="bg-primary text-white p-3 rounded-full shadow-[0_0_30px_rgba(255,107,0,0.5)] border-2 border-white animate-bounce-subtle">
-                 <MapPin size={24} fill="currentColor" />
-               </div>
-            </div>
+            {!mapsUnavailable && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[100%] pointer-events-none z-10 flex flex-col items-center">
+                <div className="bg-primary text-white p-3 rounded-full shadow-[0_0_30px_rgba(255,107,0,0.5)] border-2 border-white animate-bounce-subtle">
+                  <MapPin size={24} fill="currentColor" />
+                </div>
+              </div>
+            )}
 
-            <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-               <motion.div 
-                 initial={false}
-                 animate={{ y: address ? 0 : 100, opacity: address ? 1 : 0 }}
-                 className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
-               >
-                 <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-                 <div className="space-y-4">
+            {!mapsUnavailable && (
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                <motion.div
+                  initial={false}
+                  animate={{ y: address ? 0 : 100, opacity: address ? 1 : 0 }}
+                  className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                  <div className="space-y-4">
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Location Identified</span>
                         {isGeocoding && <Loader2 className="animate-spin text-primary" size={12} />}
                       </div>
                       <h3 className="text-xl font-bold line-clamp-1 leading-tight">
-                        {address?.address_line1.split(',')[0]}
+                        {address?.address_line1?.split(',')[0] || 'Selected location'}
                       </h3>
-                      <p className="text-sm text-white/40 line-clamp-2">
-                         {address?.address_line1}
-                      </p>
+                      <p className="text-sm text-white/40 line-clamp-2">{address?.address_line1}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 pb-2">
-                       <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                          <span className="block text-[8px] font-bold text-white/40 uppercase mb-1">City/Area</span>
-                          <span className="text-xs font-bold text-white/80">{address?.city || 'Detecting...'}</span>
-                       </div>
-                       <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                          <span className="block text-[8px] font-bold text-white/40 uppercase mb-1">Pincode</span>
-                          <span className="text-xs font-bold text-primary">{address?.pincode || 'Detecting...'}</span>
-                       </div>
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                        <span className="block text-[8px] font-bold text-white/40 uppercase mb-1">City/Area</span>
+                        <span className="text-xs font-bold text-white/80">{address?.city || 'Detecting...'}</span>
+                      </div>
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                        <span className="block text-[8px] font-bold text-white/40 uppercase mb-1">Pincode</span>
+                        <span className="text-xs font-bold text-primary">{address?.pincode || 'Detecting...'}</span>
+                      </div>
                     </div>
 
-                    <button 
+                    <button
+                      type="button"
                       disabled={!address || isGeocoding}
                       onClick={() => address && onConfirm(address)}
                       className="w-full py-4 rounded-2xl bg-primary hover:bg-orange-600 font-display font-black text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-50 shadow-[0_10px_20px_rgba(255,107,0,0.3)]"
@@ -252,9 +294,10 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
                       Confirm Location
                       <Check size={20} />
                     </button>
-                 </div>
-               </motion.div>
-            </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

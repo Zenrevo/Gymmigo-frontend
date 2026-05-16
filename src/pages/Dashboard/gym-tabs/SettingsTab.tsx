@@ -3,7 +3,7 @@ import { useGym } from '../../../context/GymContext';
 import { Settings, MapPin, Building, Loader2, Image as ImageIcon, Map as MapIcon } from 'lucide-react';
 import ImageUpload from '../../../components/ImageUpload';
 import MapPickerModal from '../../../components/MapPickerModal';
-import api from '../../../utils/api';
+import api, { getApiErrorMessage } from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
 import { getGoogleMapsUrl } from '../../../utils/navigation';
 
@@ -58,8 +58,9 @@ const SettingsTab = () => {
       await api.patch(`/gym-owner/gyms/${gymId}/basic-info`, payload);
       await refetch();
       showNotification('Basic info updated successfully', 'success');
-    } catch (err: any) { 
-      console.error(err); 
+    } catch (err: unknown) {
+      console.error(err);
+      showNotification(getApiErrorMessage(err), 'error');
     } finally { setIsSubmitting(false); }
   };
 
@@ -74,8 +75,9 @@ const SettingsTab = () => {
       }
       await refetch();
       showNotification('Location updated', 'success');
-    } catch (err: any) { 
-      console.error(err); 
+    } catch (err: unknown) {
+      console.error(err);
+      showNotification(getApiErrorMessage(err), 'error');
     } finally { setIsSubmitting(false); }
   };
 
@@ -86,8 +88,9 @@ const SettingsTab = () => {
       await api.patch(`/gym-owner/gyms/${gymId}/capacity`, capacity);
       await refetch();
       showNotification('Operations updated', 'success');
-    } catch (err: any) { 
-      console.error(err); 
+    } catch (err: unknown) {
+      console.error(err);
+      showNotification(getApiErrorMessage(err), 'error');
     } finally { setIsSubmitting(false); }
   };
 
@@ -98,9 +101,9 @@ const SettingsTab = () => {
       await api.patch(`/gym-owner/gyms/${gymId}/media`, media);
       await refetch();
       showNotification('Gym media updated', 'success');
-    } catch (err: any) { 
+    } catch (err: unknown) {
       console.error(err);
-      showNotification('Failed to update media', 'error');
+      showNotification(getApiErrorMessage(err), 'error');
     } finally { setIsSubmitting(false); }
   };
 
