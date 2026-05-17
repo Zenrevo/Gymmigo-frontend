@@ -53,7 +53,9 @@ export type ClubReward = {
   type?: string;
   source?: 'gym_owner' | 'gymmigo' | 'supplement_partner' | string;
   value?: string;
+  reward_tier?: 'meaningful' | 'normal' | string | null;
   estimated_cost_inr?: number;
+  wallet_credit_inr?: number | null;
   user_perceived_value?: string;
   condition?: string;
 };

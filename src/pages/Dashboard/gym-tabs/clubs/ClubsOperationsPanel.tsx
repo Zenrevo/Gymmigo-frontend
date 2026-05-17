@@ -2,6 +2,7 @@ import { CheckCircle2, Package, ShieldCheck, UserMinus, Users, XCircle } from 'l
 
 type RewardClaim = {
   id: string;
+  club_name: string;
   reward_label: string;
   member?: { name: string };
 };
@@ -25,7 +26,7 @@ type Props = {
   redeemingId: string;
   reviewingTransferId: string;
   removingClubId: string;
-  onRedeem: (claim: RewardClaim) => void;
+  onRedeem: (claim: RewardClaim) => void | Promise<void>;
   onReviewTransfer: (request: TransferRequest, status: 'approved' | 'rejected') => void;
   onRemoveMember: (member: ClubMember) => void;
 };
@@ -94,7 +95,8 @@ export default function ClubsOperationsPanel({
             {rewardClaims.slice(0, 6).map((claim) => (
               <div key={claim.id} className="rounded-2xl border border-white/10 bg-black/25 p-4">
                 <p className="text-sm font-black text-white">{claim.member?.name || 'Member'}</p>
-                <p className="mt-1 text-xs font-bold text-white/45">{claim.reward_label}</p>
+                <p className="mt-1 text-xs font-bold text-white/45">{claim.club_name}</p>
+                <p className="text-xs font-semibold text-white/35">{claim.reward_label}</p>
                 <button
                   type="button"
                   onClick={() => onRedeem(claim)}
