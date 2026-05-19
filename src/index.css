@@ -58,6 +58,10 @@
   animation: float 6s ease-in-out infinite;
 }
 
+.glow-text {
+  text-shadow: 0 0 40px rgba(241, 130, 44, 0.3), 0 0 80px rgba(241, 130, 44, 0.1);
+}
+
 /* Google Maps Autocomplete Dropdown Styling */
 .pac-container {
   z-index: 10000 !important;

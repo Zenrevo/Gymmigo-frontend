@@ -507,14 +507,7 @@ const CalendarPage = () => {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-white/40">No plans for this day</p>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 mt-1">Ask MigoAI to generate a plan</p>
                 </div>
-                <button 
-                  onClick={() => window.location.href = `/app/assistant?initialPrompt=Plan my fitness for ${format(selectedDate, 'MMMM dd, yyyy')}`}
-                  className="mt-4 px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/10 hover:border-primary/30 transition-all"
-                >
-                  Generate Plan
-                </button>
               </div>
             )}
           </div>

@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
   const { token } = useAuth();
   const BACK_PATH = token ? "/app/dashboard" : "/";
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-primary/30">
+    <div className="min-h-screen bg-[#0F172A] text-white selection:bg-primary/30">
       <div className="max-w-4xl mx-auto px-6 py-20">
         <Link to={BACK_PATH} className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
           <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />

@@ -197,8 +197,8 @@ const PublicFitCard = () => {
 
   if (!card) {
     return (
-      <main className="min-h-screen bg-black px-5 py-16 text-white">
-        <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center">
+      <main className="min-h-screen px-5 py-16 text-white">
+        <div className="mx-auto max-w-xl rounded-lg border border-slate-300/10 bg-slate-900/55 p-8 text-center backdrop-blur-xl">
           <Trophy size={42} className="mx-auto text-primary" />
           <h1 className="mt-5 text-3xl font-black tracking-tight">FitCard unavailable</h1>
           <p className="mt-3 text-sm font-semibold text-white/50">{error || 'This invite link is no longer active.'}</p>
@@ -209,7 +209,7 @@ const PublicFitCard = () => {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen text-white">
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-5 sm:px-6 sm:py-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <Link to="/">
@@ -250,14 +250,14 @@ const PublicFitCard = () => {
                   </span>
                 ))}
                 {!activeClub?.rewards?.length && nextMission?.rewards?.slice(0, 2).map((reward) => (
-                  <span key={reward.label} className="rounded-full border border-white/10 bg-black/30 px-3 py-1.5 text-[10px] font-black uppercase text-white/55">
+                  <span key={reward.label} className="rounded-full border border-slate-300/10 bg-slate-950/45 px-3 py-1.5 text-[10px] font-black uppercase text-white/55">
                     Locked: {reward.label}
                   </span>
                 ))}
               </motion.div>
 
               {nextMission && (
-                <div className="rounded-2xl border border-white/10 bg-black/35 p-4">
+                <div className="rounded-lg border border-slate-300/10 bg-slate-950/45 p-4 backdrop-blur-xl">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Club journey</p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-3">
                     <div>
@@ -273,7 +273,7 @@ const PublicFitCard = () => {
                       <p className="text-sm font-black text-white">{clampPercent(nextMission.progress_percent)}%</p>
                     </div>
                   </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/40">
                     <motion.div className="h-full rounded-full bg-primary" style={{ width: `${clampPercent(nextMission.progress_percent)}%` }} />
                   </div>
                 </div>
@@ -283,7 +283,7 @@ const PublicFitCard = () => {
             <motion.div
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
-              className="rounded-xl border border-slate-300/15 bg-slate-900/75 p-4 backdrop-blur-xl"
+              className="rounded-lg border border-slate-300/15 bg-slate-900/75 p-4 backdrop-blur-xl"
             >
               <div className="flex items-center gap-3">
                 <GymLogo src={card.gym.logo_url} name={card.gym.name} />
@@ -302,7 +302,7 @@ const PublicFitCard = () => {
                   <span>Club progress</span>
                   <span>{journey?.completed_count ?? 0}/{journey?.total_missions ?? totalTiers}</span>
                 </motion.div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-950/40">
                   <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${clubProgress}%` }} />
                 </div>
               </div>
@@ -326,9 +326,9 @@ const PublicFitCard = () => {
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-6">
-            <section className="rounded-2xl border border-white/10 bg-white/[0.035] p-5 sm:p-6">
+            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300/10 bg-slate-950/35">
                   {card.member.avatar_url ? (
                     <img src={card.member.avatar_url} alt="" className="h-full w-full object-cover" />
                   ) : (
@@ -352,7 +352,7 @@ const PublicFitCard = () => {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-white/[0.035] p-5 sm:p-6">
+            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Progress analysis</p>
@@ -367,7 +367,7 @@ const PublicFitCard = () => {
                       <span className="text-white/50">{bar.label}</span>
                       <span className="text-white">{bar.value}</span>
                     </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-2.5 overflow-hidden rounded-full bg-slate-950/40">
                       <div
                         className={clsx('h-full rounded-full transition-all', bar.tone)}
                         style={{ width: `${bar.max ? Math.round((bar.value / bar.max) * 100) : 0}%` }}
@@ -390,7 +390,7 @@ const PublicFitCard = () => {
                           'flex h-9 flex-1 items-center justify-center rounded-lg border text-[10px] font-black',
                           done && 'border-emerald-400/30 bg-emerald-400/15 text-emerald-200',
                           active && !done && 'border-primary/40 bg-primary/15 text-primary',
-                          !done && !active && 'border-white/10 bg-black/25 text-white/25'
+                          !done && !active && 'border-slate-300/10 bg-slate-950/35 text-white/25'
                         )}
                       >
                         {tier}
@@ -401,14 +401,14 @@ const PublicFitCard = () => {
               </div>
               <div className="mt-6 grid gap-2 sm:grid-cols-2">
                 {chartMissions.map((row) => (
-                  <div key={row.label} className="rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
+                  <div key={row.label} className="rounded-xl border border-slate-300/10 bg-slate-950/35 px-3 py-2.5">
                     <motion.div className="flex items-center justify-between gap-2">
                       <p className="truncate text-[10px] font-black uppercase text-white/45">{row.label}</p>
                       <span className="text-[10px] font-black text-white/70">
                         {row.done ? '✓' : row.locked ? <LockKeyhole size={10} className="inline" /> : `${row.percent}%`}
                       </span>
                     </motion.div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-950/40">
                       <div
                         className={clsx('h-full rounded-full', row.done ? 'bg-emerald-400' : row.locked ? 'bg-white/20' : 'bg-primary')}
                         style={{ width: `${row.percent}%` }}
@@ -421,11 +421,11 @@ const PublicFitCard = () => {
 
             <section className="grid gap-4 sm:grid-cols-2">
               {activeBadge && (
-                <div className="rounded-2xl border border-primary/20 bg-primary/10 p-5">
+                <div className="rounded-lg border border-primary/25 bg-[linear-gradient(135deg,rgba(241,130,44,0.18),rgba(255,255,255,0.035))] p-5 backdrop-blur-xl">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Current badge</p>
                   <div className="mt-3 flex items-center gap-3">
                     <div
-                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/25"
+                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300/10 bg-slate-950/45"
                       style={{ color: activeBadge.badge?.color || '#f1822c' }}
                     >
                       {renderMissionIcon(activeBadge.badge?.icon, activeBadge.mission?.mission_type, 22)}
@@ -438,7 +438,7 @@ const PublicFitCard = () => {
                 </div>
               )}
               {activeClub ? (
-                <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 p-5">
+                <div className="rounded-lg border border-emerald-400/30 bg-[linear-gradient(135deg,rgba(52,211,153,0.16),rgba(255,255,255,0.035))] p-5 backdrop-blur-xl">
                   <p className="text-[10px] font-black uppercase tracking-widest text-emerald-300">Unlocked club</p>
                   <div className="mt-3 flex items-start gap-3">
                     <Users className="shrink-0 text-emerald-300" size={22} />
@@ -460,7 +460,7 @@ const PublicFitCard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                <div className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl">
                   <p className="text-[10px] font-black uppercase tracking-widest text-white/35">Club status</p>
                   <p className="mt-2 text-sm font-semibold text-white/55">
                     {card.member.name} is working toward their first club unlock at {card.gym.name}.
@@ -469,10 +469,10 @@ const PublicFitCard = () => {
               )}
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl">
               <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
-                <div className="mx-auto rounded-xl border border-white/10 bg-white p-3">
-                  <QRCodeSVG value={invitePayload} size={108} fgColor="#111827" />
+                <div className="mx-auto rounded-xl border border-slate-300/15 bg-white p-3">
+                  <QRCodeSVG value={invitePayload} size={108} fgColor="#0F172A" />
                 </div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Scan to join</p>
@@ -487,7 +487,7 @@ const PublicFitCard = () => {
           </div>
 
           <div className="space-y-6">
-            <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-8 lg:sticky lg:top-6">
+            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-6 backdrop-blur-xl sm:p-8 lg:sticky lg:top-6">
               <div className="flex items-center gap-3">
                 <UserPlus className="text-primary" size={22} />
                 <div>
@@ -529,7 +529,7 @@ const PublicFitCard = () => {
 const GymLogo = ({ src, name }: { src?: string | null; name: string }) => {
   const [failed, setFailed] = useState(false);
   return (
-    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/5 p-1">
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-300/15 bg-slate-950/45 p-1">
       {src && !failed ? (
         <img src={src} alt={`${name} logo`} className="h-full w-full object-contain" onError={() => setFailed(true)} />
       ) : (
@@ -540,7 +540,7 @@ const GymLogo = ({ src, name }: { src?: string | null; name: string }) => {
 };
 
 const StatTile = ({ label, value, tone = 'white' }: { label: string; value: number | string; tone?: 'white' | 'orange' | 'green' }) => (
-  <div className="rounded-lg border border-white/10 bg-white/[0.045] p-3">
+  <div className="rounded-lg border border-slate-300/10 bg-slate-950/45 p-3">
     <p className="text-[10px] font-black uppercase text-white/35">{label}</p>
     <p className={clsx(
       'mt-1 text-xl font-black',
@@ -552,7 +552,7 @@ const StatTile = ({ label, value, tone = 'white' }: { label: string; value: numb
 );
 
 const Metric = ({ label, value }: { label: string; value: number | string }) => (
-  <div className="rounded-xl border border-white/10 bg-black/25 p-3">
+  <div className="rounded-xl border border-slate-300/10 bg-slate-950/35 p-3">
     <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{label}</p>
     <p className="mt-1 text-xl font-black">{value}</p>
   </div>
@@ -582,7 +582,7 @@ const Field = ({
       required={required}
       minLength={required ? 2 : undefined}
       placeholder={placeholder}
-      className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
+      className="mt-2 w-full rounded-2xl border border-slate-300/10 bg-slate-950/55 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-white/25 focus:border-primary/50"
     />
   </label>
 );

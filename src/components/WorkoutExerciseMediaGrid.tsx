@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { PlayCircle, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
 type ExerciseDbMedia = {
   gif_url?: string;
   image_url?: string;
   video_url?: string;
+  youtube_url?: string;
   name?: string;
   body_parts?: string[];
   equipments?: string[];
@@ -20,10 +21,26 @@ export type WorkoutExerciseMedia = {
   equipment?: string;
   target_muscle?: string;
   demo_gif_url?: string;
+  demo_video_url?: string;
   gif_url?: string;
   image_url?: string;
+  youtube_url?: string;
   exercise_db?: ExerciseDbMedia;
 };
+
+const youtubeThumbnailFromUrl = (url?: string) => {
+  if (!url) return '';
+  const match = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  return match ? `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg` : '';
+};
+
+const getExerciseVideoUrl = (exercise: WorkoutExerciseMedia) => (
+  exercise.exercise_db?.youtube_url ||
+  exercise.exercise_db?.video_url ||
+  exercise.demo_video_url ||
+  exercise.youtube_url ||
+  ''
+);
 
 const getExerciseMediaUrl = (exercise: WorkoutExerciseMedia) => (
   exercise.exercise_db?.gif_url ||
@@ -31,6 +48,7 @@ const getExerciseMediaUrl = (exercise: WorkoutExerciseMedia) => (
   exercise.demo_gif_url ||
   exercise.gif_url ||
   exercise.image_url ||
+  youtubeThumbnailFromUrl(getExerciseVideoUrl(exercise)) ||
   ''
 );
 
@@ -58,6 +76,7 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
     <div className={compact ? "grid grid-cols-1 sm:grid-cols-2 gap-2" : "grid grid-cols-1 sm:grid-cols-2 gap-4"}>
       {visibleExercises.map((exercise, index) => {
         const mediaUrl = getExerciseMediaUrl(exercise);
+        const videoUrl = getExerciseVideoUrl(exercise);
         const { target, equipment } = getExerciseMeta(exercise);
         const firstInstruction = exercise.exercise_db?.instructions?.[0];
 
@@ -67,19 +86,39 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
             className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.04]"
           >
             {mediaUrl ? (
-              <img
-                src={mediaUrl}
-                alt={`${exercise.name || 'Exercise'} demonstration`}
-                className={clsx(
-                  "w-full object-cover bg-black/40 cursor-pointer hover:opacity-90 transition-opacity",
-                  compact ? "h-24" : "h-44"
-                )}
-                loading="lazy"
-                onClick={() => setSelectedImage(mediaUrl)}
-              />
+              <div className="relative">
+                <img
+                  src={mediaUrl}
+                  alt={`${exercise.name || 'Exercise'} demonstration`}
+                  className={clsx(
+                    "w-full object-cover bg-black/40 cursor-pointer hover:opacity-90 transition-opacity",
+                    compact ? "h-24" : "h-44"
+                  )}
+                  loading="lazy"
+                  onClick={() => setSelectedImage(mediaUrl)}
+                />
+                {videoUrl ? (
+                  <a
+                    href={videoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="absolute bottom-2 right-2 rounded-full bg-red-600/95 p-1.5 text-white shadow-lg"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PlayCircle className="h-4 w-4" />
+                  </a>
+                ) : null}
+              </div>
             ) : (
               <div className={compact ? "h-20 w-full bg-white/[0.03] flex items-center justify-center" : "h-32 w-full bg-white/[0.03] flex items-center justify-center"}>
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/30">No demo</span>
+                {videoUrl ? (
+                  <a href={videoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-red-300">
+                    <PlayCircle className="h-5 w-5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Watch</span>
+                  </a>
+                ) : (
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/30">No demo</span>
+                )}
               </div>
             )}
 

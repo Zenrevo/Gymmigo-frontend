@@ -91,7 +91,7 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
           </div>
           <div>
             <h3 className="text-xl font-black text-white italic tracking-tighter">DAILY DROP</h3>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Workout and food picks tuned for today</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Your saved AI plans for today</p>
           </div>
         </div>
         <div className="px-3 py-1 rounded-lg bg-primary/10 border border-primary/20">
@@ -185,22 +185,6 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
                   </div>
                 </motion.div>
               ))}
-
-              {/* Quick AI Suggestions */}
-              {plans.length < 3 && (
-                <Link 
-                  to="/app/assistant"
-                  className="glass-card p-6 flex flex-col items-center justify-center gap-4 border-dashed border-white/10 hover:border-primary/30 transition-all text-center group"
-                >
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
-                    <Activity size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white group-hover:text-primary transition-colors">Ask Migo</h4>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">Get fuel or more drops</p>
-                  </div>
-                </Link>
-              )}
             </>
           ) : (
             <div 
@@ -224,23 +208,6 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
           )}
         </div>
       )}
-
-      {/* Quick AI Actions */}
-      <div className="pt-6 space-y-6">
-        <h4 className="text-sm font-black text-white italic tracking-tighter uppercase">Switch It Up</h4>
-        <div className="flex flex-wrap gap-3">
-          {['20-min HIIT', 'Vegan Fuel', 'Recovery', 'Make it harder'].map((prompt, idx) => (
-            <Link 
-              key={idx}
-              to={`/app/assistant?initialPrompt=I want to change my plan today: ${prompt}`}
-              className="px-6 py-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-primary/30 hover:bg-primary/5 transition-all text-xs font-bold text-white/60 hover:text-white"
-            >
-              {prompt}
-            </Link>
-          ))}
-        </div>
-      </div>
-
       {/* Checkin Modal */}
       <AnimatePresence>
         {showCheckinModal && (

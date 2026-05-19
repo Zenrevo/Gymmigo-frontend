@@ -115,7 +115,6 @@ export default function PersonalizationView() {
             <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center flex flex-col items-center">
               <Calendar size={32} className="text-white/20 mb-3" />
               <p className="text-white/60 text-sm">No active plans.</p>
-              <p className="text-white/40 text-xs mt-1">Ask MigoAI for a workout or diet plan to see it here.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -214,7 +213,7 @@ export default function PersonalizationView() {
       {/* Detail Modal */}
       {selectedRec && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#111] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-[#131b2e] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
@@ -245,7 +244,7 @@ export default function PersonalizationView() {
               <MarkdownRenderer content={selectedRec.content} />
             </div>
             
-            <div className="p-4 border-t border-white/10 bg-black flex gap-3 justify-end">
+            <div className="p-4 border-t border-white/10 bg-[#0f172a]/60 flex gap-3 justify-end">
               {selectedRec.is_completed ? (
                 <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-bold text-sm">
                   <CheckCircle2 size={18} />
@@ -282,7 +281,7 @@ export default function PersonalizationView() {
       {/* Regeneration Feedback Modal */}
       {feedbackModalVisible && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-[#131b2e] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-black text-white mb-1">Update Plan</h3>
             <p className="text-xs text-white/40 mb-6 font-bold uppercase tracking-widest">Help MigoAI improve this recommendation</p>
             
@@ -315,7 +314,7 @@ export default function PersonalizationView() {
       {/* Completion Feedback Modal */}
       {completionModalVisible && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-[#131b2e] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
             <h3 className="text-xl font-black text-white mb-1">Session Complete! 🎉</h3>
             <p className="text-xs text-white/40 mb-6 font-bold uppercase tracking-widest">How was your workout today?</p>
             
