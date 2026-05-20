@@ -15,7 +15,6 @@ import PageLoader from '../../components/PageLoader';
 import TrainerDashboard from './TrainerDashboard';
 import BookingDetailModal from '../../components/BookingDetailModal';
 import GymOwnerInsights from '../../components/GymOwnerInsights';
-import MemberInsights from '../../components/MemberInsights';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -218,6 +217,8 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
   const scoreTone = score >= 75 ? 'text-emerald-400 border-emerald-400/35' : score >= 45 ? 'text-primary border-primary/35' : 'text-red-400 border-red-400/35';
   const primaryGym = activeMemberships[0];
   const coachNudge = stats?.daily_score?.coach_nudge || data?.ai_tagline || 'Check in, train, and keep your week moving.';
+  const upcomingSessions = data?.upcoming_sessions || [];
+  const showTrainingPanel = upcomingSessions.length > 0 || groupedTrainerBookings.length === 0;
 
   useEffect(() => {
     let mounted = true;
@@ -275,7 +276,7 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
 
   return (
     <>
-      <div className="md:col-span-2 space-y-8">
+      <div className={clsx('space-y-8', showTrainingPanel ? 'md:col-span-2' : 'md:col-span-3')}>
         <section className="glass-card overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-white/[0.03] to-transparent p-5 sm:p-7">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-3">
@@ -405,12 +406,6 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
             </div>
             Active Memberships
           </h3>
-          <button 
-            onClick={() => setShowQRScanner(true)}
-            className="btn-primary py-2 px-4 text-sm flex items-center gap-2"
-          >
-            <ScanLine size={16} /> Scan to Check In
-          </button>
         </div>
         {groupedMemberships.length ? groupedMemberships.map((group: any, index: number) => (
           <motion.div 
@@ -463,15 +458,14 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
           <div className="glass-card p-12 text-center text-white/20">No memberships yet. Visit a gym to get started!</div>
         )}
 
-        {/* ── TRAINER BOOKINGS SECTION ── */}
-        <div className="pt-6 space-y-6">
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-              <User size={18} />
-            </div>
-            Your Trainers
-          </h3>
-          {groupedTrainerBookings.length ? (
+        {groupedTrainerBookings.length > 0 && (
+          <div className="pt-6 space-y-6">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <User size={18} />
+              </div>
+              Your Trainers
+            </h3>
             <div className="grid grid-cols-1 gap-4">
               {groupedTrainerBookings.map((booking: any) => (
                 <div 
@@ -511,50 +505,43 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="glass-card p-10 text-center border-dashed text-white/10 text-[10px] uppercase font-bold tracking-[0.2em]">
-              No active trainer bookings
-            </div>
-          )}
+          </div>
+        )}
+      </div>
+      {showTrainingPanel && (
+        <div className="space-y-8 md:col-span-1">
+          <div className="space-y-4">
+            {upcomingSessions.length > 0 ? (
+              <>
+                <h4 className="font-bold">Upcoming Sessions</h4>
+                <div className="space-y-3">
+                  {upcomingSessions.slice(0, 3).map((session: any) => (
+                    <Link key={session.id} to={`/app/sessions/${session.id}`} className="block glass-card p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20 space-y-2 hover:border-primary/50 transition-all cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-bold text-white capitalize">{session.session_type} Session</p>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/30">
+                          {session.status === 'pending_confirmation' ? 'Pending' : session.status}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-white/60 text-xs font-bold">
+                        <Calendar size={14} className="text-primary" />
+                        <span>{new Date(session.scheduled_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} • {session.scheduled_time}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-white/60 text-xs font-bold">
+                        <MapPin size={14} className="text-primary" />
+                        <span className="truncate max-w-[200px]" title={session.location || 'Trainer Gym'}>{session.location || 'Trainer Gym'}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <h4 className="font-bold">Personal Training</h4>
+            )}
+            <Link to="/app/trainers" className="w-full btn-primary py-3 inline-block text-center mt-2">Find a Trainer</Link>
+          </div>
         </div>
-      </div>
-      <div className="space-y-8 md:col-span-1">
-        <div className="space-y-4">
-          <h4 className="font-bold">Upcoming Sessions</h4>
-          {data?.upcoming_sessions && data.upcoming_sessions.length > 0 ? (
-            <div className="space-y-3">
-              {data.upcoming_sessions.slice(0, 3).map((session: any) => (
-                <Link key={session.id} to={`/app/sessions/${session.id}`} className="block glass-card p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20 space-y-2 hover:border-primary/50 transition-all cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-bold text-white capitalize">{session.session_type} Session</p>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/30">
-                      {session.status === 'pending_confirmation' ? 'Pending' : session.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/60 text-xs font-bold">
-                    <Calendar size={14} className="text-primary" />
-                    <span>{new Date(session.scheduled_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} • {session.scheduled_time}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-white/60 text-xs font-bold">
-                    <MapPin size={14} className="text-primary" />
-                    <span className="truncate max-w-[200px]" title={session.location || 'Trainer Gym'}>{session.location || 'Trainer Gym'}</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="glass-card p-6 border-dashed text-center text-white/20">
-              <p className="text-xs font-bold uppercase tracking-widest">No upcoming sessions</p>
-            </div>
-          )}
-          <Link to="/app/trainers" className="w-full btn-primary py-3 inline-block text-center mt-2">Find a Trainer</Link>
-        </div>
-      </div>
-
-      {/* Member Insights (Gamification & Utility) */}
-      <div className="md:col-span-3 pt-6 border-t border-white/10 mt-6">
-        <MemberInsights />
-      </div>
+      )}
 
       <QRScannerModal 
         isOpen={showQRScanner} 

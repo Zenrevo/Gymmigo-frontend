@@ -653,39 +653,7 @@ const GymmigoClubsPage = () => {
               </div>
             </div>
 
-            {nextMission && (
-              <button
-                type="button"
-                onClick={() => setSelectedClubMission(nextMission)}
-                className="mt-5 w-full rounded-lg border border-primary/30 bg-primary/10 p-3 text-left transition hover:border-primary/55 hover:bg-primary/15"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary/35 bg-slate-950/35 text-primary"
-                    style={{ color: nextMission.badge.color || '#f1822c' }}
-                  >
-                    {renderMissionIcon(nextMission.badge.icon, nextMission.mission.mission_type, 20)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-primary">Next club glimpse</p>
-                    <p className="truncate text-sm font-black text-white">{getClubDisplayName(nextMission)}</p>
-                    {nextMission.migo_recommendation && (
-                      <p className="mt-1 line-clamp-2 text-xs font-semibold text-white/45">{nextMission.migo_recommendation}</p>
-                    )}
-                  </div>
-                  <ArrowRight size={17} className="shrink-0 text-primary" />
-                </div>
-                {nextClubFacilities.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {nextClubFacilities.map((facility) => (
-                      <span key={facility} className="rounded-full border border-slate-300/10 bg-slate-950/35 px-2 py-1 text-[10px] font-black text-white/55">
-                        {facility}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </button>
-            )}
+
           </div>
         </div>
       </section>
@@ -890,8 +858,7 @@ const GymmigoClubsPage = () => {
             </div>
           </section>
 
-          <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-            <aside className="space-y-5">
+          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
             <section className="overflow-hidden rounded-lg border border-slate-300/10 bg-slate-900/55">
               <div className="border-b border-slate-300/10 bg-slate-800/35 p-5">
                 <div className="flex items-start justify-between gap-4">
@@ -1043,136 +1010,6 @@ const GymmigoClubsPage = () => {
                 </div>
               )}
             </section>
-            </aside>
-
-            <main className="space-y-5">
-            {nextMission && (
-              <section className="rounded-lg border border-primary/30 bg-[#160e08] p-5">
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
-                      <Sparkles size={21} />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs font-black uppercase text-primary">Next unlock</p>
-                      <h3 className="text-2xl font-black text-white">{nextMission.badge.name}</h3>
-                      <p className="text-sm font-semibold leading-6 text-white/55">{nextMission.mission.description}</p>
-                      {nextMission.migo_recommendation && (
-                        <p className="rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs font-bold leading-5 text-primary">
-                          {nextMission.migo_recommendation}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="min-w-[170px]">
-                    <div className="flex items-end justify-between">
-                      <span className="text-3xl font-black text-white">{nextMissionPercent}%</span>
-                      <span className="text-xs font-black text-white/30">{nextMission.progress_value}/{nextMission.mission.target_value}</span>
-                    </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/40">
-                      <div className="h-full rounded-full bg-primary" style={{ width: `${nextMissionPercent}%` }} />
-                    </div>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-black text-white">Badge missions</h3>
-                  <p className="mt-1 text-sm font-semibold text-white/45">Finish these simple actions to unlock clubs and rewards.</p>
-                </div>
-                <p className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-black text-white/55">
-                  {completedMissions.length}/{missions.length || 0} done
-                </p>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {missions.map((mission, index) => {
-                  const missionProgress = clampPercent(mission.progress_percent);
-                  const category = getMissionCategory(mission);
-                  const isTaskMission = mission.mission.mission_type === 'task_completion';
-                  const isRecording = recordingMissionCode === mission.mission.code;
-                  return (
-                    <motion.article
-                      key={mission.mission.code}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
-                      className={clsx(
-                        'rounded-lg border p-4 transition-all',
-                        mission.is_completed
-                          ? 'border-emerald-400/25 bg-emerald-400/10'
-                          : 'border-white/10 bg-white/[0.035] hover:border-primary/25 hover:bg-white/[0.055]'
-                      )}
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-4">
-                          <div
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-950/30"
-                            style={{ color: mission.badge.color || '#f1822c' }}
-                          >
-                            {renderMissionIcon(mission.badge.icon, mission.mission.mission_type)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h4 className="font-black text-white">{mission.badge.name}</h4>
-                              <span className="rounded-full border border-white/10 bg-white/8 px-2 py-0.5 text-[10px] font-black uppercase text-white/45">
-                                {category}
-                              </span>
-                            </div>
-                            <p className="mt-1 text-xs font-semibold leading-5 text-white/50">{mission.mission.description}</p>
-                          </div>
-                        </div>
-                        <span className={clsx(
-                          'shrink-0 rounded-full px-2.5 py-1 text-xs font-black',
-                          mission.is_completed ? 'bg-emerald-400/15 text-emerald-300' : 'bg-white/8 text-white/45'
-                        )}>
-                          {mission.is_completed ? 'Done' : `${missionProgress}%`}
-                        </span>
-                      </div>
-
-                      <div className="mt-4 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-black">
-                          <span className="text-white/35">Progress</span>
-                          <span className={mission.is_completed ? 'text-emerald-300' : 'text-white/50'}>{mission.progress_value}/{mission.mission.target_value}</span>
-                        </div>
-                        <div className="h-2 overflow-hidden rounded-full bg-slate-950/30">
-                          <div
-                            className={clsx('h-full rounded-full', mission.is_completed ? 'bg-emerald-400' : 'bg-primary')}
-                            style={{ width: `${missionProgress}%` }}
-                          />
-                        </div>
-                        {mission.unlocks?.reward_preview && (
-                          <p className="rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-200">
-                            {mission.unlocks.reward_preview}
-                          </p>
-                        )}
-                        {isTaskMission && !mission.is_completed && allowsSelfServeTaskLog(mission) && (
-                          <button
-                            onClick={() => handleTaskMission(mission)}
-                            disabled={isRecording}
-                            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/12 px-3 py-2.5 text-xs font-black uppercase text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-55"
-                          >
-                            <CheckCircle2 size={15} /> {isRecording ? 'Logging...' : mission.unlocks?.action_label || 'Mark done'}
-                          </button>
-                        )}
-                        {!mission.is_completed && (
-                          <p className="pt-1 text-xs font-semibold text-white/35">
-                            {mission.is_locked
-                              ? mission.locked_reason || 'Complete the previous tier to unlock this challenge.'
-                              : isTaskMission
-                                ? COMPLETION_VIA_SYSTEM_COPY
-                                : 'Auto-updates when you scan the gym QR.'}
-                          </p>
-                        )}
-                      </div>
-                    </motion.article>
-                  );
-                })}
-              </div>
-            </section>
-            </main>
           </div>
         </div>
       )}

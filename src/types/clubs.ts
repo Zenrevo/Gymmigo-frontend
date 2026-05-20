@@ -42,8 +42,12 @@ export type WalletTransaction = {
   signed_amount_inr: number;
   direction: 'credit' | 'debit';
   transaction_type: string;
+  status?: string;
+  reference_type?: string | null;
+  reference_id?: string | null;
   description: string;
   balance_after_inr: number;
+  metadata?: Record<string, unknown>;
   created_at?: string | null;
   gym_id?: string | null;
 };
@@ -201,7 +205,7 @@ export type ClubConfig = {
   momentum_rules?: Record<string, unknown> | null;
   comeback_mission?: ComebackMission | null;
   migo_recommendation_template?: string | null;
-  unlocks?: Record<string, any>;
+  unlocks?: Record<string, unknown>;
   framework_version?: string;
 };
 

@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { IndianRupee, RefreshCw, Wallet } from 'lucide-react';
+import { IndianRupee, RefreshCw, ShoppingBag, Wallet } from 'lucide-react';
 import clsx from 'clsx';
 import api, { getApiErrorMessage } from '../../utils/api';
 import type { LoyaltyWallet, WalletTransaction } from '../../types/clubs';
+
+const SHOP_URL = 'https://shop.gymmigo.in';
 
 const emptyWallet = (): LoyaltyWallet => ({
   id: '',
@@ -96,14 +98,24 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
               )}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => void loadWallet()}
-            disabled={loading}
-            className="inline-flex items-center gap-2 self-start rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase text-white/55 hover:border-emerald-300/30 hover:text-emerald-100 disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
-          </button>
+          <div className="flex flex-wrap gap-2 self-start">
+            <a
+              href={SHOP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-300/25 bg-emerald-400 px-3 py-2 text-[10px] font-black uppercase text-black transition hover:brightness-110"
+            >
+              <ShoppingBag size={14} /> Shop
+            </a>
+            <button
+              type="button"
+              onClick={() => void loadWallet()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase text-white/55 hover:border-emerald-300/30 hover:text-emerald-100 disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+            </button>
+          </div>
         </div>
 
         {notice && (

@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   Flame,
   Trophy,
+  Wallet,
 } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
@@ -111,6 +112,28 @@ type AddressEntry = {
   latitude?: number | null;
   longitude?: number | null;
   is_primary?: boolean;
+};
+
+type DashboardStats = {
+  streak?: number;
+  competition?: {
+    total_points?: number;
+  };
+};
+
+type ClubSummary = {
+  fitcard?: {
+    current_streak?: number;
+    total_points?: number;
+    title?: string;
+  };
+  clubs?: { name?: string }[];
+  badges?: unknown[];
+};
+
+type MembershipSummary = {
+  gym_id?: string;
+  status?: string;
 };
 
 const ROLE_META = {
@@ -298,8 +321,8 @@ const Profile = () => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [mapIntent, setMapIntent] = useState<'profile_city' | 'address'>('profile_city');
   const [switchingRole, setSwitchingRole] = useState('');
-  const [dashboardStats, setDashboardStats] = useState<any>(null);
-  const [clubSummary, setClubSummary] = useState<any>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [clubSummary, setClubSummary] = useState<ClubSummary | null>(null);
   const [fitnessProfile, setFitnessProfile] = useState<FitnessProfile>({
     primary_goal: null,
     activity_level: null,
@@ -338,8 +361,8 @@ const Profile = () => {
       if (user?.active_role === 'user') {
         try {
           const membershipsRes = await api.get('/memberships/my');
-          const activeMembership = (membershipsRes.data?.data?.memberships || [])
-            .find((membership: any) => membership.status === 'active');
+          const memberships = (membershipsRes.data?.data?.memberships || []) as MembershipSummary[];
+          const activeMembership = memberships.find((membership) => membership.status === 'active');
           if (activeMembership?.gym_id) {
             const fitcardRes = await api.get(`/clubs/fitcard/me?gym_id=${activeMembership.gym_id}`);
             setClubSummary(fitcardRes.data?.data || null);
@@ -543,6 +566,26 @@ const Profile = () => {
               <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Points</p>
             </div>
           </div>
+        </Link>
+      )}
+
+      {user?.active_role === 'user' && (
+        <Link
+          to="/app/wallet-transactions"
+          className="group flex flex-col gap-4 rounded-2xl border border-emerald-300/20 bg-emerald-500/[0.08] p-5 transition-all hover:border-emerald-300/40 hover:bg-emerald-500/10 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-emerald-400/15 text-emerald-200">
+              <Wallet size={23} />
+            </div>
+            <div>
+              <h2 className="text-xl font-black tracking-tight text-white">Wallet Transactions</h2>
+              <p className="mt-1 max-w-2xl text-xs font-semibold leading-5 text-white/45">
+                View every loyalty credit, reward claim, and wallet usage in one ledger.
+              </p>
+            </div>
+          </div>
+          <ChevronRight size={20} className="text-emerald-200 transition-transform group-hover:translate-x-1" />
         </Link>
       )}
 

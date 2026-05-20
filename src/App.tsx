@@ -14,6 +14,7 @@ import GymProfile from './pages/Discovery/GymProfile';
 import TrainerProfile from './pages/Discovery/TrainerProfile';
 import SessionDetail from './pages/Dashboard/SessionDetail';
 import Profile from './pages/Profile/Profile';
+import WalletTransactionsPage from './pages/Profile/WalletTransactionsPage';
 import GymmigoClubsPage from './pages/Clubs/GymmigoClubsPage';
 import CalendarPage from './pages/Dashboard/CalendarPage';
 import AssistantPage from './pages/Assistant/AssistantPage';
@@ -81,6 +82,7 @@ const AppRoutes = () => {
         <Route path="trainers/:trainerId" element={<TrainerProfile />} />
         <Route path="sessions/:sessionId" element={<SessionDetail />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
         <Route path="clubs" element={<GymmigoClubsPage />} />
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
