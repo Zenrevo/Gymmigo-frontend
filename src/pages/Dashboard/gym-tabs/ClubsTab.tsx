@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { LoaderCircle, Sparkles, Trophy } from 'lucide-react';
 import api, { getApiErrorMessage, getApiValidationIssues } from '../../../utils/api';
 import PageLoader from '../../../components/PageLoader';
 import { useGym } from '../../../context/GymContext';
@@ -111,8 +111,11 @@ const ClubsTab = () => {
 
   const generateDraft = async (options?: { skipAi?: boolean }) => {
     if (!gymId || generatingDraft) return;
+    setRebuildOpen(false);
     setGeneratingDraft(true);
     setError('');
+    setValidation(null);
+    setSummary(null);
     try {
       const res = await api.post(
         `/clubs/gyms/${gymId}/club-configs/generate-preview`,
@@ -139,9 +142,12 @@ const ClubsTab = () => {
         return;
       }
       setClubs(generatedClubs);
-      setSummary(res.data?.data?.summary || null);
-      setValidation(res.data?.data?.validation || null);
-      setGymContext(res.data?.data?.gym_context || null);
+      const nextSummary = res.data?.data?.summary || null;
+      const nextValidation = res.data?.data?.validation || null;
+      const nextGymContext = res.data?.data?.gym_context || null;
+      setSummary(nextSummary);
+      setValidation(nextValidation);
+      setGymContext(nextGymContext);
       const suggested = res.data?.data?.suggested_owner_inputs;
       if (suggested) {
         setSuggestedInputs({
@@ -322,10 +328,7 @@ const ClubsTab = () => {
           suggestedInputs={suggestedInputs}
           generating={generatingDraft}
           onChange={setGenerationInputs}
-          onGenerate={() => {
-            setRebuildOpen(false);
-            void generateDraft({ skipAi: false });
-          }}
+          onGenerate={() => void generateDraft({ skipAi: false })}
         />
       )}
 
@@ -385,9 +388,36 @@ const ClubsTab = () => {
           />
         )}
       </section>
+
+      {generatingDraft && <GenerationOverlay regenerating={hasDraft || wizardStep === 2} />}
     </div>
   );
 };
+
+const GenerationOverlay = ({ regenerating }: { regenerating: boolean }) => (
+  <div
+    role="status"
+    aria-live="polite"
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm"
+  >
+    <div className="w-full max-w-md rounded-[1.5rem] border border-primary/25 bg-[#101010] p-7 text-center shadow-2xl shadow-black/40">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-black">
+        <LoaderCircle size={30} className="animate-spin" />
+      </div>
+      <p className="mt-5 text-[10px] font-black uppercase tracking-[0.35em] text-primary">Migo AI</p>
+      <h2 className="mt-2 text-2xl font-black text-white">
+        {regenerating ? 'Refreshing your club draft' : 'Building your club journey'}
+      </h2>
+      <p className="mt-3 text-sm font-semibold leading-6 text-white/55">
+        Creating eight tiers with missions, rewards, discounts, and protection rules. Keep this tab open while the draft is prepared.
+      </p>
+      <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white/50">
+        <Sparkles size={14} className="text-primary" />
+        Usually takes under a minute
+      </div>
+    </div>
+  </div>
+);
 
 const StepIndicator = ({
   current,
