@@ -1,132 +1,108 @@
-import { motion } from 'framer-motion';
-import { Mail, MessageSquare, Globe, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { type FormEvent, useState } from 'react';
+import { Mail, MapPin, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
+import { PublicSiteFrame, buildEmailUrl } from './PublicSiteFrame';
+import { CONTACT_EMAIL } from './publicSiteContent';
 
-const ContactUs = () => {
-  const { token } = useAuth();
-  const BACK_PATH = token ? "/app/dashboard" : "/";
+export default function ContactUs() {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [message, setMessage] = useState('');
+
+  const submitEmail = (event: FormEvent) => {
+    event.preventDefault();
+    const body = [
+      'Hi Gymmigo team,',
+      '',
+      message || 'I want to know more about Gymmigo.',
+      '',
+      name ? `Name: ${name}` : '',
+      phone ? `Phone: ${phone}` : '',
+    ].filter(Boolean).join('\n');
+    window.location.href = buildEmailUrl('Gymmigo contact request', body);
+  };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white selection:bg-primary/30">
-      <div className="max-w-6xl mx-auto px-6 py-20">
-        <Link to={BACK_PATH} className="inline-flex items-center gap-2 text-white/40 hover:text-primary transition-colors mb-12 group">
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="text-xs font-bold uppercase tracking-widest">Back to {token ? 'Dashboard' : 'Home'}</span>
-        </Link>
+    <PublicSiteFrame active="contact">
+      {(actions) => (
+        <>
+          <section className="border-b border-white/10 bg-[#0b1222] pt-32">
+            <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-20 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.35em] text-primary">Contact</p>
+                  <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
+                    Talk to Gymmigo on WhatsApp first.
+                  </h1>
+                  <p className="max-w-2xl text-base font-semibold leading-7 text-white/50 sm:text-lg">
+                    For demos, pricing, setup, members, trainers, owners, shop, or support, WhatsApp is the fastest path. Email remains available for formal queries.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <button type="button" onClick={() => actions.openLead('general', 'contact page')} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
+                    Open WhatsApp <MessageCircle size={17} />
+                  </button>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-white/75 hover:text-white">
+                    Email us <Mail size={17} />
+                  </a>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {[
+                    ['WhatsApp', '+91 72082 21615', MessageCircle],
+                    ['Email', CONTACT_EMAIL, Mail],
+                    ['Parent', 'Zenrevo', ShieldCheck],
+                  ].map(([label, value, Icon]) => (
+                    <div key={label as string} className="rounded-xl border border-white/10 bg-white/[0.045] p-5">
+                      <Icon className="text-primary" size={22} />
+                      <p className="mt-4 text-[10px] font-black uppercase tracking-[0.24em] text-white/30">{label as string}</p>
+                      <p className="mt-2 break-words text-sm font-black text-white">{value as string}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Left Side: Info */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-12"
-          >
-            <div className="space-y-4">
-              <h1 className="text-5xl md:text-7xl font-display font-black italic uppercase tracking-tighter leading-none">
-                Get in <br /><span className="text-primary">Touch</span>
-              </h1>
-              <p className="text-white/40 text-lg max-w-md">
-                Have questions about Gymmigo? Our team at Zenrevo is here to support your fitness journey.
-              </p>
+              <div className="rounded-xl border border-white/10 bg-white/[0.045] p-6 sm:p-8">
+                <div className="mb-6 flex items-start gap-4 rounded-lg border border-primary/20 bg-primary/10 p-5">
+                  <Sparkles className="shrink-0 text-primary" size={26} />
+                  <div>
+                    <h2 className="text-xl font-black text-white">Prefer email?</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-white/50">
+                      This form opens your email app with a prepared message. It does not submit to a backend.
+                    </p>
+                  </div>
+                </div>
+                <form onSubmit={submitEmail} className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="rounded-lg border border-white/10 bg-[#090f1d] px-4 py-4 text-sm outline-none focus:border-primary/60" />
+                    <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="rounded-lg border border-white/10 bg-[#090f1d] px-4 py-4 text-sm outline-none focus:border-primary/60" />
+                  </div>
+                  <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={6} placeholder="Tell us what you want to build with Gymmigo..." className="w-full resize-none rounded-lg border border-white/10 bg-[#090f1d] px-4 py-4 text-sm outline-none focus:border-primary/60" />
+                  <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
+                    Open email draft <Mail size={17} />
+                  </button>
+                </form>
+              </div>
             </div>
+          </section>
 
-            <div className="space-y-8">
-              <div className="flex items-start gap-6 group">
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all duration-500">
-                  <Mail size={24} />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Email Support</h4>
-                  <p className="text-xl font-bold">support@gymmigo.in</p>
-                  <p className="text-sm text-white/40">support@zenrevo.in</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 group">
-                <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-black transition-all duration-500">
-                  <MessageSquare size={24} />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Live Chat</h4>
-                  <p className="text-xl font-bold">Available 24/7</p>
-                  <p className="text-sm text-white/40">Login to your dashboard for priority chat.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-6 group">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-black transition-all duration-500">
-                  <Globe size={24} />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-white/80 uppercase tracking-widest text-xs">Parent Company</h4>
-                  <p className="text-xl font-bold">Zenrevo</p>
-                  <a href="https://zenrevo.in" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline font-bold">zenrevo.in</a>
-                </div>
+          <section className="py-20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6">
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  ['For gym owners', 'Ask for demo, import workflows, QR setup, Club Road, pricing, or multi-gym rollout.'],
+                  ['For members', 'Ask about gym discovery, trainer bookings, wallet, shop, rewards, or Migo AI.'],
+                  ['For trainers', 'Ask about profile setup, packages, certifications, bookings, and session management.'],
+                ].map(([title, desc]) => (
+                  <div key={title} className="rounded-xl border border-white/10 bg-white/[0.045] p-6">
+                    <MapPin className="text-primary" size={23} />
+                    <h3 className="mt-5 text-xl font-black text-white">{title}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-6 text-white/50">{desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
-
-            <div className="pt-8 border-t border-white/5">
-              <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">© {new Date().getFullYear()} Gymmigo.in by Zenrevo</p>
-            </div>
-          </motion.div>
-
-          {/* Right Side: Form */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-10 md:p-12 border-white/10 shadow-2xl relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -z-10" />
-            
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Full Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="John Doe" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Email Address</label>
-                  <input 
-                    type="email" 
-                    placeholder="john@example.com" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Subject</label>
-                <select className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all appearance-none cursor-pointer">
-                  <option className="bg-black">General Inquiry</option>
-                  <option className="bg-black">Gym Partnership</option>
-                  <option className="bg-black">Support Issue</option>
-                  <option className="bg-black">Others</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-white/40 pl-1">Your Message</label>
-                <textarea 
-                  rows={5}
-                  placeholder="How can we help you?" 
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 focus:border-primary outline-none transition-all resize-none"
-                />
-              </div>
-
-              <button className="btn-primary w-full py-5 text-lg font-black italic uppercase tracking-wide shadow-xl shadow-primary/20">
-                Send Message
-              </button>
-            </form>
-          </motion.div>
-        </div>
-      </div>
-    </div>
+          </section>
+        </>
+      )}
+    </PublicSiteFrame>
   );
-};
-
-export default ContactUs;
+}

@@ -7,6 +7,10 @@ import PrivacyPolicy from './pages/Public/PrivacyPolicy';
 import TermsConditions from './pages/Public/TermsConditions';
 import ContactUs from './pages/Public/ContactUs';
 import LandingPage from './pages/Public/LandingPage';
+import MembersPage from './pages/Public/MembersPage';
+import GymOwnersPage from './pages/Public/GymOwnersPage';
+import TrainersPage from './pages/Public/TrainersPage';
+import PricingPage from './pages/Public/PricingPage';
 import PublicFitCard from './pages/Public/PublicFitCard';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Discovery from './pages/Discovery/Discovery';
@@ -72,6 +76,10 @@ const AppRoutes = () => {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsConditions />} />
       <Route path="/contact" element={<ContactUs />} />
+      <Route path="/members" element={<MembersPage />} />
+      <Route path="/gym-owners" element={<GymOwnersPage />} />
+      <Route path="/trainers" element={<TrainersPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
       <Route path="/fitcard/:inviteCode" element={<PublicFitCard />} />
       <Route path="/register-role" element={<ProtectedRoute requireOnboarding={false}><RegisterRolePage /></ProtectedRoute>} />
       

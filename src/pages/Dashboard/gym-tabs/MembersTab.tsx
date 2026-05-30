@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,19 +11,22 @@ import {
   Users, UserPlus, Search, Filter, LogIn, LogOut,
   Phone, Clock, ChevronRight, Activity, CheckCircle2,
   XCircle, AlertTriangle, Loader2, ArrowLeft,
-  CreditCard, RefreshCw, Zap, ScanLine, Trophy, Flame, Target
+  CreditCard, RefreshCw, Zap, ScanLine, Trophy, Flame, Target,
+  Download, Upload
 } from 'lucide-react';
 
 export interface MembershipItem {
   membership_id: string;
   plan_name: string | null;
   plan_id: string | null;
-  start_date: string;
-  end_date: string;
+  start_date: string | null;
+  end_date: string | null;
   status: string;
   remaining_visits: number | null;
   amount_paid: number;
+  payment_method?: string | null;
   selected_addons: { id: string; name: string; price: number }[] | null;
+  total_check_ins?: number;
   is_currently_checked_in: boolean;
   active_check_in_id: string | null;
   qr_code?: string;
@@ -80,10 +83,30 @@ interface MemberDetail extends Member {
   }[];
 }
 
+interface ImportRowResult {
+  row: number;
+  action: 'created' | 'updated' | 'skipped' | 'failed';
+  status: 'success' | 'failed' | string;
+  phone?: string | null;
+  full_name?: string | null;
+  membership_id?: string | null;
+  message: string;
+}
+
+interface ImportSummary {
+  total_rows: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+  results: ImportRowResult[];
+}
+
 const MembersTab = () => {
   const { gym, gymId } = useGym();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
   // View mode: members list or attendance log
   const [viewMode, setViewMode] = useState<'members' | 'attendance'>('members');
@@ -113,6 +136,9 @@ const MembersTab = () => {
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [enrollForm, setEnrollForm] = useState({ phone: '', full_name: '', plan_id: '', payment_method: 'cash', amount_paid: '', start_date: '', end_date: '', selected_addons: [] as any[] });
   const [enrolling, setEnrolling] = useState(false);
+  const [downloadingMembers, setDownloadingMembers] = useState(false);
+  const [importingMembers, setImportingMembers] = useState(false);
+  const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
 
   // Confirm dialog
   const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; confirmLabel?: string; isDangerous?: boolean; onConfirm: () => void } | null>(null);
@@ -132,7 +158,13 @@ const MembersTab = () => {
     plan_id: '', 
     start_date: '', 
     end_date: '', 
-    status: '' 
+    status: '',
+    amount_paid: '',
+    payment_method: '',
+    remaining_visits: '',
+    auto_renew: false,
+    selected_addons: [] as any[],
+    total_check_ins: ''
   });
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -380,14 +412,85 @@ const MembersTab = () => {
     }
   };
 
+  const handleDownloadMembers = async () => {
+    if (!gymId) return;
+    setDownloadingMembers(true);
+    try {
+      const response = await api.get(`/gym-owner/gyms/${gymId}/members/export`, {
+        params: {
+          status: statusFilter || undefined,
+          search: searchQuery || undefined,
+        },
+        responseType: 'blob',
+        timeout: 60000,
+      });
+      const contentDisposition = response.headers?.['content-disposition'] || '';
+      const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/i);
+      const filename = filenameMatch?.[1] || `gymmigo_members_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      showNotification('Members Excel downloaded', 'success');
+    } catch (err: any) {
+      showNotification('Failed to download members Excel', 'error');
+    } finally {
+      setDownloadingMembers(false);
+    }
+  };
+
+  const handleImportMembers = async (file?: File | null) => {
+    if (!gymId || !file) return;
+    if (!file.name.toLowerCase().endsWith('.xlsx')) {
+      showNotification('Please upload an .xlsx Excel file', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    setImportingMembers(true);
+    try {
+      const res = await api.post(`/gym-owner/gyms/${gymId}/members/import`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000,
+      });
+      const summary = res.data.data as ImportSummary;
+      setImportSummary(summary);
+      const message = `${summary.created} created, ${summary.updated} updated${summary.failed ? `, ${summary.failed} failed` : ''}`;
+      showNotification(`Import complete: ${message}`, summary.failed ? 'warning' : 'success');
+      fetchMembers();
+      if (selectedMember) fetchMemberDetail(selectedMember.user_id);
+    } catch (err: any) {
+      showNotification('Failed to import members Excel', 'error');
+    } finally {
+      setImportingMembers(false);
+      if (importInputRef.current) importInputRef.current.value = '';
+    }
+  };
+
+  const toDateInputValue = (value?: string | null) => {
+    if (!value || value === 'None' || value === 'null') return '';
+    return value.split('T')[0];
+  };
+
   const openEditModal = (member: Member, membership: MembershipItem) => {
     setEditingMember(membership);
     setEditForm({
       full_name: member.user_name || '',
       plan_id: membership.plan_id || '',
-      start_date: membership.start_date.split('T')[0], // format for date input
-      end_date: membership.end_date.split('T')[0],
-      status: membership.status
+      start_date: toDateInputValue(membership.start_date),
+      end_date: toDateInputValue(membership.end_date),
+      status: membership.status,
+      amount_paid: membership.amount_paid != null ? String(membership.amount_paid) : '',
+      payment_method: membership.payment_method || '',
+      remaining_visits: membership.remaining_visits != null ? String(membership.remaining_visits) : '',
+      auto_renew: Boolean(membership.auto_renew),
+      selected_addons: membership.selected_addons || [],
+      total_check_ins: membership.total_check_ins != null ? String(membership.total_check_ins) : ''
     });
     setShowEditModal(true);
   };
@@ -397,13 +500,19 @@ const MembersTab = () => {
     if (!editingMember) return;
     setIsUpdating(true);
     try {
-      const payload = {
+      const payload: any = {
         full_name: editForm.full_name,
         plan_id: editForm.plan_id,
         start_date: editForm.start_date,
         end_date: editForm.end_date,
-        status: editForm.status
+        status: editForm.status,
+        auto_renew: editForm.auto_renew,
+        selected_addons: editForm.selected_addons.map(a => ({ id: a.id, name: a.name, price: a.price }))
       };
+      if (editForm.amount_paid !== '') payload.amount_paid = parseInt(editForm.amount_paid);
+      if (editForm.payment_method) payload.payment_method = editForm.payment_method;
+      if (editForm.remaining_visits !== '') payload.remaining_visits = parseInt(editForm.remaining_visits);
+      if (editForm.total_check_ins !== '') payload.total_check_ins = parseInt(editForm.total_check_ins);
       await api.patch(`/gym-owner/gyms/${gymId}/members/${editingMember.membership_id}`, payload);
       showNotification('Member updated successfully', 'success');
       setShowEditModal(false);
@@ -432,8 +541,12 @@ const MembersTab = () => {
     );
   };
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-  const formatTime = (d: string) => new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const formatDate = (d?: string | null) => (!d || d === 'None' || d === 'null')
+    ? '—'
+    : new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const formatTime = (d?: string | null) => (!d || d === 'None' || d === 'null')
+    ? '—'
+    : new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
 
   // ── Member Detail View ─────────────────────────────────────────────────────
@@ -580,7 +693,7 @@ const MembersTab = () => {
                         </button>
                       </>
                     )}
-                    <button onClick={() => openEditModal({} as unknown as Member, membership)} className="p-1.5 px-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors" title="Edit Membership">
+                    <button onClick={() => openEditModal(selectedMember, membership)} className="p-1.5 px-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors" title="Edit Membership">
                       Edit
                     </button>
                   </div>
@@ -642,6 +755,133 @@ const MembersTab = () => {
             isDangerous={confirmAction.isDangerous}
           />
         )}
+
+        <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Membership" maxWidth="max-w-2xl">
+          <form onSubmit={handleEditMember} className="space-y-5">
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+              <input type="text" required
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+              <select required
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                value={editForm.plan_id} onChange={e => setEditForm({ ...editForm, plan_id: e.target.value })}>
+                <option value="">Select a plan...</option>
+                {gym?.membership_plans?.map((p: any) => (
+                  <option key={p.id} value={p.id} className="bg-[#111]">{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+                <input type="date" required style={{ colorScheme: 'dark' }}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                  value={editForm.start_date} onChange={e => setEditForm({ ...editForm, start_date: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date</label>
+                <input type="date" required style={{ colorScheme: 'dark' }}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                  value={editForm.end_date} onChange={e => setEditForm({ ...editForm, end_date: e.target.value })} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
+                <input type="number" min={0}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  value={editForm.amount_paid} onChange={e => setEditForm({ ...editForm, amount_paid: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+                <select
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                  value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>
+                  <option value="" className="bg-[#111]">Leave unchanged</option>
+                  <option value="cash" className="bg-[#111]">Cash</option>
+                  <option value="upi" className="bg-[#111]">UPI</option>
+                  <option value="card" className="bg-[#111]">Card</option>
+                  <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
+                <input type="number" min={0}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  value={editForm.remaining_visits} onChange={e => setEditForm({ ...editForm, remaining_visits: e.target.value })} />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
+                <input type="number" min={0}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  value={editForm.total_check_ins} onChange={e => setEditForm({ ...editForm, total_check_ins: e.target.value })} />
+              </div>
+            </div>
+            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 cursor-pointer">
+              <span>
+                <span className="block text-xs font-bold text-white/70">Auto renew</span>
+                <span className="block text-[11px] text-white/30">Keep this membership marked for renewal reminders.</span>
+              </span>
+              <input type="checkbox" checked={editForm.auto_renew} onChange={e => setEditForm({ ...editForm, auto_renew: e.target.checked })}
+                className="w-5 h-5 accent-primary" />
+            </label>
+
+            {gym?.addons && gym.addons.length > 0 && (
+              <div className="space-y-3">
+                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Add-ons</label>
+                <div className="grid grid-cols-1 gap-2">
+                  {gym.addons.map((addon: any) => {
+                    const isSelected = editForm.selected_addons.find(a => a.id === addon.id);
+                    return (
+                      <div
+                        key={addon.id}
+                        onClick={() => {
+                          if (isSelected) {
+                            setEditForm({ ...editForm, selected_addons: editForm.selected_addons.filter(a => a.id !== addon.id) });
+                          } else {
+                            setEditForm({ ...editForm, selected_addons: [...editForm.selected_addons, addon] });
+                          }
+                        }}
+                        className={clsx(
+                          "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
+                          isSelected ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", isSelected ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                            {isSelected && <CheckCircle2 size={10} />}
+                          </div>
+                          <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                        </div>
+                        <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Status</label>
+              <select required
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}>
+                <option value="active" className="bg-[#111]">Active</option>
+                <option value="expired" className="bg-[#111]">Expired</option>
+                <option value="cancelled" className="bg-[#111]">Cancelled</option>
+                <option value="pending" className="bg-[#111]">Pending</option>
+                <option value="suspended" className="bg-[#111]">Suspended</option>
+              </select>
+            </div>
+            <button type="submit" disabled={isUpdating}
+              className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isUpdating ? <><Loader2 size={16} className="animate-spin" /> Updating...</> : <><CheckCircle2 size={16} /> Save Changes</>}
+            </button>
+          </form>
+        </Modal>
       </div>
     );
   }
@@ -656,6 +896,21 @@ const MembersTab = () => {
           <p className="text-white/40 text-sm">Manage your gym's member base and attendance.</p>
         </div>
         <div className="flex items-center gap-3">
+          <input
+            ref={importInputRef}
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            className="hidden"
+            onChange={(e) => handleImportMembers(e.target.files?.[0])}
+          />
+          <button onClick={handleDownloadMembers} disabled={downloadingMembers}
+            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/20 transition-all disabled:opacity-50">
+            {downloadingMembers ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} Download Excel
+          </button>
+          <button onClick={() => importInputRef.current?.click()} disabled={importingMembers}
+            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-all disabled:opacity-50">
+            {importingMembers ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} Import Excel
+          </button>
           <button onClick={() => setQuickMode(!quickMode)}
             className={`py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold transition-all ${
               quickMode ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/20'
@@ -1209,6 +1464,82 @@ const MembersTab = () => {
             </div>
           </div>
 
+          {/* Payment + Usage */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
+              <input type="number" min={0}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                value={editForm.amount_paid} onChange={e => setEditForm({ ...editForm, amount_paid: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+              <select
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>
+                <option value="" className="bg-[#111]">Leave unchanged</option>
+                <option value="cash" className="bg-[#111]">Cash</option>
+                <option value="upi" className="bg-[#111]">UPI</option>
+                <option value="card" className="bg-[#111]">Card</option>
+                <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
+              <input type="number" min={0} placeholder="Blank for unlimited"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                value={editForm.remaining_visits} onChange={e => setEditForm({ ...editForm, remaining_visits: e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
+              <input type="number" min={0}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                value={editForm.total_check_ins} onChange={e => setEditForm({ ...editForm, total_check_ins: e.target.value })} />
+            </div>
+          </div>
+
+          <label className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 cursor-pointer">
+            <span>
+              <span className="block text-xs font-bold text-white/70">Auto renew</span>
+              <span className="block text-[11px] text-white/30">Keep this membership marked for renewal reminders.</span>
+            </span>
+            <input type="checkbox" checked={editForm.auto_renew} onChange={e => setEditForm({ ...editForm, auto_renew: e.target.checked })}
+              className="w-5 h-5 accent-primary" />
+          </label>
+
+          {gym?.addons && gym.addons.length > 0 && (
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Add-ons</label>
+              <div className="grid grid-cols-1 gap-2">
+                {gym.addons.map((addon: any) => (
+                  <div
+                    key={addon.id}
+                    onClick={() => {
+                      const isSelected = editForm.selected_addons.find(a => a.id === addon.id);
+                      if (isSelected) {
+                        setEditForm({ ...editForm, selected_addons: editForm.selected_addons.filter(a => a.id !== addon.id) });
+                      } else {
+                        setEditForm({ ...editForm, selected_addons: [...editForm.selected_addons, addon] });
+                      }
+                    }}
+                    className={clsx(
+                      "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
+                      editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                        {editForm.selected_addons.find(a => a.id === addon.id) && <CheckCircle2 size={10} />}
+                      </div>
+                      <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                    </div>
+                    <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Status */}
           <div>
             <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Status</label>
@@ -1219,6 +1550,7 @@ const MembersTab = () => {
               <option value="expired" className="bg-[#111]">Expired</option>
               <option value="cancelled" className="bg-[#111]">Cancelled</option>
               <option value="pending" className="bg-[#111]">Pending</option>
+              <option value="suspended" className="bg-[#111]">Suspended</option>
             </select>
           </div>
 
@@ -1227,6 +1559,54 @@ const MembersTab = () => {
             {isUpdating ? <><Loader2 size={16} className="animate-spin" /> Updating...</> : <><CheckCircle2 size={16} /> Save Changes</>}
           </button>
         </form>
+      </Modal>
+
+      <Modal isOpen={!!importSummary} onClose={() => setImportSummary(null)} title="Excel Import Summary" maxWidth="max-w-3xl">
+        {importSummary && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'Rows', value: importSummary.total_rows, color: 'text-white' },
+                { label: 'Created', value: importSummary.created, color: 'text-emerald-400' },
+                { label: 'Updated', value: importSummary.updated, color: 'text-sky-300' },
+                { label: 'Failed', value: importSummary.failed, color: importSummary.failed ? 'text-rose-400' : 'text-white/50' },
+              ].map(item => (
+                <div key={item.label} className="rounded-xl bg-white/5 border border-white/10 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30">{item.label}</p>
+                  <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="max-h-[360px] overflow-auto rounded-2xl border border-white/10">
+              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/30 sticky top-0">
+                <span>Row</span>
+                <span>Action</span>
+                <span>Member</span>
+                <span>Message</span>
+              </div>
+              <div className="divide-y divide-white/5">
+                {importSummary.results.map((result) => (
+                  <div key={`${result.row}-${result.action}-${result.phone || ''}`} className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 text-xs">
+                    <span className="font-mono text-white/50">{result.row}</span>
+                    <span className={clsx(
+                      "font-black uppercase tracking-wider",
+                      result.action === 'failed' ? 'text-rose-400' : result.action === 'created' ? 'text-emerald-400' : 'text-sky-300'
+                    )}>{result.action}</span>
+                    <span className="text-white/70 truncate">
+                      {result.full_name || 'Unknown'} <span className="text-white/30">{result.phone || ''}</span>
+                    </span>
+                    <span className={result.action === 'failed' ? 'text-rose-300' : 'text-white/45'}>{result.message}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button onClick={() => setImportSummary(null)} className="w-full btn-primary py-3">
+              Done
+            </button>
+          </div>
+        )}
       </Modal>
     </div>
   );

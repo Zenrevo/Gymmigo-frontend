@@ -7,6 +7,7 @@ import { MigoAILogo } from '../../components/ui/MigoAILogo';
 import { MarkdownRenderer } from '../../components/ui/MarkdownRenderer';
 import { WorkoutExerciseMediaGrid, type WorkoutExerciseMedia } from '../../components/WorkoutExerciseMediaGrid';
 import PersonalizationView from './PersonalizationView';
+import { createAssistantStreamSanitizer, sanitizeAssistantText } from '../../utils/assistantSanitizer';
 
 
 
@@ -60,6 +61,7 @@ async function postChatStream(
   let buffer = '';
   let fullText = '';
   let media: ChatMedia | undefined;
+  const streamSanitizer = createAssistantStreamSanitizer();
 
   const processFrame = (frame: string) => {
     const payloadText = frame
@@ -73,7 +75,7 @@ async function postChatStream(
 
     const payload = JSON.parse(payloadText);
     if (payload.type === 'content' || payload.content) {
-      fullText += String(payload.content || '');
+      fullText = streamSanitizer.feed(payload.content || '');
       onContent(fullText);
       return false;
     }
@@ -98,6 +100,8 @@ async function postChatStream(
       const frame = buffer.slice(0, boundary);
       buffer = buffer.slice(boundary + 2);
       if (processFrame(frame)) {
+        fullText = streamSanitizer.flush();
+        onContent(fullText);
         return { text: fullText, media };
       }
       boundary = buffer.indexOf('\n\n');
@@ -105,6 +109,7 @@ async function postChatStream(
   }
 
   if (buffer.trim()) processFrame(buffer);
+  fullText = streamSanitizer.flush();
   return { text: fullText, media };
 }
 
@@ -279,7 +284,7 @@ export default function AssistantPage() {
       } catch (streamError) {
         console.warn('AI stream failed, falling back to chat:', streamError);
         const response = await api.post('/ai/chat', { messages: messagesPayload }, { timeout: 30000 });
-        const fullText = response.data.message || response.data.data?.message || 'No response.';
+        const fullText = sanitizeAssistantText(response.data.message || response.data.data?.message || 'No response.');
         const workoutMedia = response.data.workout_media || response.data.data?.workout_media;
         const media = response.data.media || response.data.data?.media;
 
@@ -449,7 +454,7 @@ export default function AssistantPage() {
                           <p className="text-sm font-medium">{msg.content}</p>
                         ) : (
                           <>
-                            <MarkdownRenderer content={msg.content} />
+                            <MarkdownRenderer content={sanitizeAssistantText(msg.content)} />
                             {(msg.media?.exercises?.length || msg.workoutMedia?.exercises?.length) ? (
                               <div className="mt-4 border-t border-white/10 pt-4">
                                 <p className="mb-3 text-[10px] font-black uppercase tracking-[0.25em] text-orange-300/80">Exercise Demos</p>
@@ -473,7 +478,7 @@ export default function AssistantPage() {
                         <MigoAILogo size={20} />
                       </div>
                       <div className="max-w-[85%] rounded-2xl px-5 py-4 bg-white/5 border border-white/10 rounded-tl-sm border-l-primary shadow-[-4px_0_0_0_rgba(241,130,44,1)]">
-                        <MarkdownRenderer content={currentStreamingMessage} />
+                        <MarkdownRenderer content={sanitizeAssistantText(currentStreamingMessage)} />
                         {(streamingMedia?.exercises?.length || streamingMedia?.videos?.length) ? (
                           <>
                             {streamingMedia?.exercises?.length ? (
