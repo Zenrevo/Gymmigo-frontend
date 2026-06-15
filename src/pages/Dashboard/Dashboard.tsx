@@ -343,7 +343,7 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
           </div>
 
           {primaryGym && (
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Link to="/app/clubs" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-primary transition-all hover:border-primary/40 hover:bg-primary/15">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-black/25">
                   <Trophy size={17} />
@@ -354,6 +354,29 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                 </span>
                 <ArrowRight size={15} />
               </Link>
+
+              <Link to="?social=true&socialTab=profile" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-cyan-300 transition-all hover:border-cyan-400/40 hover:bg-cyan-400/15">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/25 bg-black/25">
+                  <Award size={17} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-black uppercase tracking-widest text-white">My FitCard</span>
+                  <span className="mt-1 block truncate text-[11px] font-bold text-white/45">Redesigned Card</span>
+                </span>
+                <ArrowRight size={15} />
+              </Link>
+
+              <Link to="?social=true&socialTab=feed" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-[#f1822c]/20 bg-[#f1822c]/10 px-4 py-3 text-[#f1822c] transition-all hover:border-[#f1822c]/40 hover:bg-[#f1822c]/15">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#f1822c]/25 bg-black/25">
+                  <Users size={17} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-black uppercase tracking-widest text-white">Social Feed</span>
+                  <span className="mt-1 block truncate text-[11px] font-bold text-white/45">Buddies & Posts</span>
+                </span>
+                <ArrowRight size={15} />
+              </Link>
+
               {clubReward?.available ? (
                 <button
                   type="button"

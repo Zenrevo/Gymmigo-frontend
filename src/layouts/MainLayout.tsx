@@ -16,6 +16,7 @@ import InfoModal from '../components/InfoModal';
 import { Sparkles, MapPin } from 'lucide-react';
 import { getGoogleMapsUrl } from '../utils/navigation';
 import api from '../utils/api';
+import SocialHubDrawer from '../components/social/SocialHubDrawer';
 
 type NavItem = {
   name: string;
@@ -37,6 +38,38 @@ const MainLayout = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [gymBranding, setGymBranding] = useState<{id: string; name: string; logo?: string | null} | null>(null);
+
+  // Social Hub state and handlers
+  const [isSocialOpen, setIsSocialOpen] = useState(false);
+  const [socialDefaultTab, setSocialDefaultTab] = useState('feed');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('social') === 'true') {
+      setIsSocialOpen(true);
+      const tab = params.get('socialTab');
+      if (tab) {
+        setSocialDefaultTab(tab);
+      }
+    } else {
+      setIsSocialOpen(false);
+    }
+  }, [location.search]);
+
+  const openSocial = (tab = 'feed') => {
+    const params = new URLSearchParams(location.search);
+    params.set('social', 'true');
+    params.set('socialTab', tab);
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  const closeSocial = () => {
+    const params = new URLSearchParams(location.search);
+    params.delete('social');
+    params.delete('socialTab');
+    const searchStr = params.toString();
+    navigate(`${location.pathname}${searchStr ? '?' + searchStr : ''}`, { replace: true });
+  };
 
   // Auto-sync states
   const [detectedAddr, setDetectedAddr] = useState<AddressResult | null>(null);
@@ -109,6 +142,7 @@ const MainLayout = () => {
     navItems = [
       { name: 'Home', path: '/app/dashboard', icon: Home },
       { name: 'Explore', path: '/app/discovery', icon: Search },
+      { name: 'Social', path: '#social', icon: Users },
       { name: 'Schedule', path: '/app/calendar', icon: Calendar },
       { name: 'Clubs', path: '/app/clubs', icon: Trophy },
       { name: 'Migo AI', path: '/app/assistant', icon: Bot },
@@ -245,21 +279,43 @@ const MainLayout = () => {
           </div>
 
           <nav className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                to={item.path}
-                className={clsx(
-                  "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2",
-                  location.pathname === item.path 
-                    ? "bg-primary text-white shadow-lg shadow-primary/20" 
-                    : "text-white/40 hover:text-white hover:bg-white/5"
-                )}
-              >
-                <item.icon size={16} className={clsx(location.pathname === item.path ? "text-white" : "text-primary/50")} />
-                {item.name}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isSocial = item.name === 'Social';
+              if (isSocial) {
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => openSocial('feed')}
+                    className={clsx(
+                      "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer relative group",
+                      isSocialOpen 
+                        ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                        : "text-white/40 hover:text-white hover:bg-white/5"
+                    )}
+                  >
+                    <item.icon size={16} className={clsx(isSocialOpen ? "text-white" : "text-primary/50")} />
+                    {item.name}
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-ping" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full" />
+                  </button>
+                );
+              }
+              return (
+                <Link
+                  key={item.name}
+                  to={item.path}
+                  className={clsx(
+                    "px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2",
+                    location.pathname === item.path 
+                      ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                      : "text-white/40 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <item.icon size={16} className={clsx(location.pathname === item.path ? "text-white" : "text-primary/50")} />
+                  {item.name}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-6">
@@ -441,24 +497,52 @@ const MainLayout = () => {
         </AnimatePresence>
       </main>
 
+      {/* Social Hub Sliding Drawer overlay */}
+      <SocialHubDrawer 
+        isOpen={isSocialOpen}
+        onClose={closeSocial}
+        defaultTab={socialDefaultTab}
+      />
+
       {/* Mobile Navigation */}
       {navItems.length > 0 && (
         <nav className="md:hidden fixed bottom-3 left-3 right-3 bg-[#1E293B]/92 backdrop-blur-2xl border border-slate-300/10 px-2 py-2 rounded-2xl grid shadow-[0_20px_50px_rgba(15,23,42,0.42)] z-50" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={clsx(
-                "flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 transition-all duration-300",
-                location.pathname === item.path ? "bg-primary/15 text-primary" : "text-white/35 hover:text-white"
-              )}
-            >
-              <item.icon size={20} strokeWidth={location.pathname === item.path ? 2.5 : 2} />
-              <span className="max-w-full truncate text-[9px] font-black uppercase tracking-tighter">
-                {item.name}
-              </span>
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isSocial = item.name === 'Social';
+            if (isSocial) {
+              return (
+                <button
+                  key={item.name}
+                  onClick={() => openSocial('feed')}
+                  className={clsx(
+                    "flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 transition-all duration-300 cursor-pointer relative",
+                    isSocialOpen ? "bg-primary/15 text-primary" : "text-white/35 hover:text-white"
+                  )}
+                >
+                  <item.icon size={20} strokeWidth={isSocialOpen ? 2.5 : 2} />
+                  <span className="max-w-full truncate text-[9px] font-black uppercase tracking-tighter">
+                    {item.name}
+                  </span>
+                  <span className="absolute top-1.5 right-4 w-1.5 h-1.5 bg-primary rounded-full" />
+                </button>
+              );
+            }
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={clsx(
+                  "flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1.5 py-2 transition-all duration-300",
+                  location.pathname === item.path ? "bg-primary/15 text-primary" : "text-white/35 hover:text-white"
+                )}
+              >
+                <item.icon size={20} strokeWidth={location.pathname === item.path ? 2.5 : 2} />
+                <span className="max-w-full truncate text-[9px] font-black uppercase tracking-tighter">
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
       )}
     </div>

@@ -20,13 +20,13 @@ import {
   Building2,
   ChevronRight,
   CheckCircle2,
-  Flame,
   Trophy,
   Wallet,
 } from 'lucide-react';
 import ImageUpload from '../../components/ImageUpload';
 import { useNotification } from '../../context/NotificationContext';
 import MapPickerModal from '../../components/MapPickerModal';
+import PremiumFitCard from '../../components/social/PremiumFitCard';
 
 // ─── AI Personalization Constants ─────────────────────────────────────────────
 const DIET_OPTIONS = [
@@ -524,49 +524,56 @@ const Profile = () => {
         </div>
       </div>
 
-      {user?.active_role === 'user' && (dashboardStats || clubSummary) && (
-        <Link
-          to="/app/clubs"
-          className="group block rounded-2xl border border-primary/20 bg-primary/[0.07] p-5 sm:p-6 transition-all hover:border-primary/40 hover:bg-primary/10"
-        >
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary">
-                <Trophy size={24} />
-              </div>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-xl font-black tracking-tight text-white">Gymmigo Clubs</h2>
-                  {clubStreak > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-lg border border-amber-400/20 bg-amber-400/10 px-2 py-1 text-[10px] font-black uppercase text-amber-300">
-                      <Flame size={12} fill="currentColor" /> {clubStreak}D Streak
-                    </span>
-                  )}
+      {user?.active_role === 'user' && (
+        <section className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-slate-950/35 p-5 shadow-2xl shadow-cyan-950/20 sm:p-6 lg:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.14),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(241,130,44,0.16),transparent_32%)]" />
+          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center">
+            <div className="space-y-6">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-200">
+                  <Sparkles size={13} /> Holographic Fitness Card
                 </div>
-                <p className="mt-1 text-sm font-semibold text-white/48">{fitcardTitle}</p>
-                <p className="mt-3 max-w-2xl text-xs font-medium leading-5 text-white/45">
-                  Your profile now carries the same Clubs, FitCard, badges, and real gym benefits shown in the mobile app.
+                <h2 className="mt-4 text-3xl font-display font-black tracking-tight text-white sm:text-4xl">
+                  Your premium Gymmigo identity
+                </h2>
+                <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-white/48">
+                  A shareable ATM-style Fitness Card with your six-character Fitness ID, QR profile, Clubs, badges, and live progress.
                 </p>
               </div>
-            </div>
-            <ChevronRight size={20} className="hidden text-primary transition-transform group-hover:translate-x-1 sm:block" />
-          </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            <div className="rounded-xl border border-slate-300/10 bg-slate-950/20 p-4">
-              <p className="text-2xl font-black text-white">{clubCount}</p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Clubs</p>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="flex items-center gap-1 text-2xl font-black text-white">
+                    {clubStreak}<span className="text-sm text-amber-300">D</span>
+                  </p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Streak</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-2xl font-black text-primary">{badgeCount}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Badges</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-2xl font-black text-emerald-300">{fitcardPoints}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Points</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link to="?social=true&socialTab=profile" className="btn-primary inline-flex items-center justify-center gap-2">
+                  <Sparkles size={16} /> Open Social Card
+                </Link>
+                <Link
+                  to="/app/clubs"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-white/70 transition hover:border-primary/30 hover:text-white"
+                >
+                  <Trophy size={16} /> {clubCount ? fitcardTitle : 'View Clubs'}
+                </Link>
+              </div>
             </div>
-            <div className="rounded-xl border border-slate-300/10 bg-slate-950/20 p-4">
-              <p className="text-2xl font-black text-primary">{badgeCount}</p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Badges</p>
-            </div>
-            <div className="rounded-xl border border-slate-300/10 bg-slate-950/20 p-4">
-              <p className="text-2xl font-black text-emerald-400">{fitcardPoints}</p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Points</p>
-            </div>
+
+            <PremiumFitCard />
           </div>
-        </Link>
+        </section>
       )}
 
       {user?.active_role === 'user' && (

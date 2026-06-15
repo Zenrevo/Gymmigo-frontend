@@ -81,6 +81,7 @@ const AppRoutes = () => {
       <Route path="/trainers" element={<TrainersPage />} />
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/fitcard/:inviteCode" element={<PublicFitCard />} />
+      <Route path="/fitness-card/:cardCode" element={<PublicFitCard />} />
       <Route path="/register-role" element={<ProtectedRoute requireOnboarding={false}><RegisterRolePage /></ProtectedRoute>} />
       
       <Route path="/app" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

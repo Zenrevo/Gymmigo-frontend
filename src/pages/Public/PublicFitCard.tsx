@@ -18,6 +18,7 @@ import {
   ListChecks,
   LockKeyhole,
   Phone,
+  Share2,
   ShieldCheck,
   Sparkles,
   StretchHorizontal,
@@ -116,7 +117,9 @@ const getInitials = (value?: string | null) => {
 const clampPercent = (value?: number) => Math.min(100, Math.max(0, Math.round(value || 0)));
 
 const PublicFitCard = () => {
-  const { inviteCode = '' } = useParams();
+  const { inviteCode = '', cardCode = '' } = useParams();
+  const publicCode = cardCode || inviteCode;
+  const isFitnessCardRoute = Boolean(cardCode);
   const [card, setCard] = useState<PublicFitCardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -136,7 +139,7 @@ const PublicFitCard = () => {
   const activeClub = journey?.active_club ?? card?.clubs[0];
   const activeBadge = journey?.active_badge ?? missions.find((m) => m.is_completed) ?? missions[0];
   const highlightedClubName = activeClub?.name || card?.fitcard.title || 'Starter Club';
-  const invitePayload = card?.share?.qr_payload || `gymmigo:fitcard:${inviteCode}`;
+  const invitePayload = card?.share?.qr_payload || `gymmigo:${isFitnessCardRoute ? 'fitness-card' : 'fitcard'}:${publicCode}`;
 
   const chartMissions = useMemo(
     () => missions.slice(0, 8).map((mission, index) => ({
@@ -162,16 +165,22 @@ const PublicFitCard = () => {
       setLoading(true);
       setError('');
       try {
-        const res = await api.get(`/clubs/fitcard/${inviteCode}`);
-        setCard(res.data?.data || null);
+        const res = await api.get(isFitnessCardRoute ? `/clubs/fitness-card/${publicCode}` : `/clubs/fitcard/${publicCode}`);
+        const data = res.data?.data;
+        setCard(data ? {
+          ...data,
+          gym: data.gym || { id: '', name: 'Gymmigo Fitness Card', logo_url: null, city: data.member?.city || null },
+          badges: data.badges || [],
+          clubs: data.clubs || [],
+        } : null);
       } catch (err) {
         setError(getApiErrorMessage(err));
       } finally {
         setLoading(false);
       }
     };
-    if (inviteCode) fetchCard();
-  }, [inviteCode]);
+    if (publicCode) fetchCard();
+  }, [isFitnessCardRoute, publicCode]);
 
   const submitLead = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -206,6 +215,10 @@ const PublicFitCard = () => {
         </div>
       </main>
     );
+  }
+
+  if (isFitnessCardRoute) {
+    return <PublicFitnessCardProfile card={card} cardCode={publicCode} />;
   }
 
   return (
@@ -519,6 +532,107 @@ const PublicFitCard = () => {
                 </p>
               </div>
             </section>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+};
+
+const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: string }) => {
+  const fitnessId = String(card?.share?.card_code || card?.fitness_card?.card_code || cardCode || '').toUpperCase();
+  const qrPayload = card?.share?.qr_payload || `gymmigo:fitness-card:${fitnessId}`;
+  const shareUrl = card?.share?.share_url || `${window.location.origin}/fitness-card/${fitnessId}`;
+  const tierLabel = card?.tier_card?.tier_label || card?.fitcard?.tier_label || card?.fitcard?.frame || 'Starter';
+  const memberName = card?.member?.name || 'Gymmigo Member';
+
+  return (
+    <main className="min-h-screen overflow-hidden bg-[#07111f] text-white">
+      <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
+        <header className="flex items-center justify-between gap-4">
+          <Link to="/">
+            <BrandLogo size={44} />
+          </Link>
+          <span className="rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-cyan-200">
+            Fitness Card
+          </span>
+        </header>
+
+        <section className="relative mt-8 overflow-hidden rounded-2xl border border-cyan-300/15 bg-slate-950/70 p-5 shadow-2xl shadow-cyan-950/30 sm:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.18),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(241,130,44,0.18),transparent_35%)]" />
+          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
+                <Sparkles size={13} /> Holographic member identity
+              </div>
+              <div>
+                <h1 className="text-4xl font-display font-black tracking-tight sm:text-6xl">{memberName}</h1>
+                <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/50">
+                  Permanent Gymmigo Fitness Card profile with verified progress, social gallery, and a six-character Fitness ID.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <Metric label="Fitness ID" value={fitnessId || 'PENDING'} />
+                <Metric label="Score" value={card?.tier_card?.fitness_score ?? card?.fitcard?.fitness_score ?? 0} />
+                <Metric label="Streak" value={card?.fitcard?.current_streak ?? 0} />
+                <Metric label="Check-ins" value={card?.fitcard?.total_check_ins ?? 0} />
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <a
+                  href={shareUrl}
+                  className="btn-primary inline-flex items-center justify-center gap-2"
+                >
+                  <Share2 size={16} /> Share Card
+                </a>
+                <Link
+                  to="/"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-white/70 transition hover:border-primary/30 hover:text-white"
+                >
+                  Join Gymmigo <ArrowRight size={16} />
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative mx-auto w-full max-w-[360px] rounded-[28px] border border-cyan-200/20 bg-gradient-to-br from-slate-950 via-[#121a2a] to-slate-950 p-5 shadow-2xl shadow-cyan-500/20">
+              <div className="absolute inset-0 rounded-[28px] bg-gradient-to-tr from-primary/25 via-cyan-400/15 to-fuchsia-400/10 opacity-80" />
+              <div className="relative flex aspect-[1.58/1] flex-col justify-between">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[8px] font-black uppercase tracking-[0.24em] text-white/40">Fitness Card</p>
+                    <p className="mt-1 text-sm font-black tracking-widest">GYMMIGO CORE</p>
+                  </div>
+                  <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[9px] font-black uppercase text-white/80">
+                    {tierLabel}
+                  </span>
+                </div>
+
+                <div>
+                  <p className="text-2xl font-black uppercase tracking-tight">{memberName}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-widest text-cyan-100/75">Fitness ID {fitnessId}</p>
+                </div>
+
+                <div className="flex items-end justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10">
+                      {card?.member?.avatar_url ? (
+                        <img src={card.member.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-sm font-black text-primary">{getInitials(memberName)}</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Verified</p>
+                      <p className="text-xs font-black text-emerald-200">Active profile</p>
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-white p-2">
+                    <QRCodeSVG value={qrPayload} size={44} fgColor="#0F172A" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </div>
