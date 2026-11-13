@@ -169,14 +169,14 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
           initial={{ opacity: 0, scale: 0.98, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.98, y: 10 }}
-          className="w-full max-w-3xl bg-neutral-900 border border-white/10 rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] flex flex-col max-h-[95vh] sm:max-h-[92vh]"
+          className="w-full max-w-3xl bg-surface border border-ink/10 rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] flex flex-col max-h-[95vh] sm:max-h-[92vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="relative p-6 sm:p-8 border-b border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent">
+          <div className="relative p-6 sm:p-8 border-b border-ink/5 bg-gradient-to-br from-ink/[0.03] to-transparent">
             <button 
               onClick={onClose}
-              className="absolute top-6 right-6 sm:top-8 sm:right-8 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-all border border-white/5 active:scale-95"
+              className="absolute top-6 right-6 sm:top-8 sm:right-8 p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-ink/5 hover:bg-ink/10 text-ink/40 hover:text-ink transition-all border border-ink/5 active:scale-95"
             >
               <X size={18} />
             </button>
@@ -185,13 +185,13 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                 "text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] px-3 sm:px-4 py-1.5 rounded-full border inline-block shadow-sm",
                 booking.status === 'confirmed' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
                 booking.status === 'pending' ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
-                "bg-white/5 text-white/20 border-white/10"
+                "bg-ink/5 text-ink/20 border-ink/10"
               )}>
                 {booking.status} Booking
               </span>
               <div className="space-y-1">
                 <h2 className="text-xl sm:text-3xl font-display font-black tracking-tighter italic uppercase flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <span className="text-white truncate">{role === 'trainer' ? booking.user_name || 'Member' : booking.trainer_name || 'Pro Trainer'}</span>
+                  <span className="text-ink truncate">{role === 'trainer' ? booking.user_name || 'Member' : booking.trainer_name || 'Pro Trainer'}</span>
                   {((role === 'trainer' && booking.user_phone) || (role === 'user' && booking.trainer_phone)) && (
                      <div className="flex items-center gap-2 px-2.5 py-1 bg-primary/10 rounded-lg sm:rounded-xl border border-primary/20 w-fit">
                         <Phone size={10} className="text-primary" />
@@ -201,7 +201,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                      </div>
                   )}
                 </h2>
-                <p className="text-white/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em]">
+                <p className="text-ink/40 text-[10px] sm:text-xs font-bold uppercase tracking-[0.3em]">
                   {booking.package_name || 'Personal Training Program'}
                 </p>
               </div>
@@ -215,16 +215,16 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 20 }}
-                        className="absolute inset-x-6 sm:inset-x-8 top-0 z-20 bg-neutral-900/95 backdrop-blur-md pt-8 space-y-8 pb-10"
+                        className="absolute inset-x-6 sm:inset-x-8 top-0 z-20 bg-surface backdrop-blur-md pt-8 space-y-8 pb-10"
                     >
                         <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-black italic uppercase tracking-tighter text-white">Schedule New Session</h3>
-                            <button onClick={() => setIsScheduling(false)} className="text-white/40 hover:text-white uppercase text-[10px] font-black tracking-widest bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 transition-all">Cancel</button>
+                            <h3 className="text-xl font-black italic uppercase tracking-tighter text-ink">Schedule New Session</h3>
+                            <button onClick={() => setIsScheduling(false)} className="text-ink/40 hover:text-ink uppercase text-[10px] font-black tracking-widest bg-ink/5 px-3 py-1.5 rounded-lg border border-ink/10 transition-all">Cancel</button>
                         </div>
 
                         <form onSubmit={handleSchedule} className="space-y-6">
                             <div>
-                              <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-3 ml-1">Select Date</p>
+                              <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-3 ml-1">Select Date</p>
                               <div className="flex gap-2 overflow-x-auto pb-4 custom-scrollbar no-scrollbar scroll-smooth">
                                 {dates.map(date => {
                                   const d = new Date(date);
@@ -236,12 +236,12 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                                       onClick={() => handleDateSelect(date)}
                                       className={clsx(
                                         "flex flex-col items-center px-4 py-3 rounded-xl border transition-all shrink-0 min-w-[65px] h-[85px] justify-center",
-                                        isSelected ? "bg-primary/10 border-primary/30 text-primary" : "bg-white/5 border-white/10 text-white/50 hover:border-white/20"
+                                        isSelected ? "bg-primary/10 border-primary/30 text-primary" : "bg-ink/5 border-ink/10 text-ink/50 hover:border-ink/20"
                                       )}
                                     >
                                       <span className="text-[10px] font-black uppercase mb-1">{d.toLocaleDateString('en', { weekday: 'short' })}</span>
                                       <span className="text-xl font-black">{d.getDate()}</span>
-                                      <span className="text-[9px] font-bold text-white/20">{d.toLocaleDateString('en', { month: 'short' })}</span>
+                                      <span className="text-[9px] font-bold text-ink/20">{d.toLocaleDateString('en', { month: 'short' })}</span>
                                     </button>
                                   );
                                 })}
@@ -253,11 +253,11 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                               >
-                                <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-3 ml-1">Available Slots</p>
+                                <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-3 ml-1">Available Slots</p>
                                 {slotsLoading ? (
-                                  <div className="text-center py-10 glass-card bg-white/[0.02] border-dashed border-white/5 rounded-2xl">
+                                  <div className="text-center py-10 glass-card bg-ink/[0.02] border-dashed border-ink/5 rounded-2xl">
                                     <Loader2 className="animate-spin text-primary mx-auto mb-2" size={24} />
-                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Checking Availability...</span>
+                                    <span className="text-[10px] font-black text-ink/20 uppercase tracking-widest">Checking Availability...</span>
                                   </div>
                                 ) : slots?.slots?.length > 0 ? (
                                   <div className="grid grid-cols-3 gap-2">
@@ -270,10 +270,10 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                                         className={clsx(
                                           "relative py-4 rounded-xl border text-center transition-all group overflow-hidden",
                                           slot.is_booked 
-                                            ? "bg-white/5 border-white/5 text-white/10 cursor-not-allowed opacity-30"
+                                            ? "bg-ink/5 border-ink/5 text-ink/10 cursor-not-allowed opacity-30"
                                             : selectedSlot === slot.start_time
                                               ? "bg-primary/10 border-primary/30 text-primary"
-                                              : "bg-white/5 border-white/10 text-white/60 hover:border-white/20"
+                                              : "bg-ink/5 border-ink/10 text-ink/60 hover:border-ink/20"
                                         )}
                                       >
                                         <div className="flex flex-col items-center relative z-10">
@@ -282,23 +282,23 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                                         </div>
                                         {slot.is_booked && (
                                           <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="h-[1px] w-8 bg-white/20 rotate-45" />
+                                            <div className="h-[1px] w-8 bg-ink/20 rotate-45" />
                                           </div>
                                         )}
                                       </button>
                                     ))}
                                   </div>
                                 ) : (
-                                  <div className="text-center py-8 glass-card bg-white/[0.02] border-dashed border-white/5 rounded-2xl">
-                                    <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">No slots available for this day</p>
+                                  <div className="text-center py-8 glass-card bg-ink/[0.02] border-dashed border-ink/5 rounded-2xl">
+                                    <p className="text-[10px] font-black text-ink/20 uppercase tracking-widest">No slots available for this day</p>
                                   </div>
                                 )}
                               </motion.div>
                             )}
 
-                            <div className="space-y-6 pt-4 border-t border-white/5">
+                            <div className="space-y-6 pt-4 border-t border-ink/5">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Session Type</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-ink/30 ml-1">Session Type</label>
                                     <div className="grid grid-cols-3 gap-3">
                                         {['gym', 'home', 'online'].map(t => (
                                             <button 
@@ -307,7 +307,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                                                 onClick={() => setFormData({...formData, session_type: t})}
                                                 className={clsx(
                                                     "py-3.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all",
-                                                    formData.session_type === t ? "bg-primary text-black border-primary shadow-[0_10px_20px_rgba(255,107,0,0.2)]" : "bg-white/5 text-white/40 border-white/10 hover:bg-white/10"
+                                                    formData.session_type === t ? "bg-primary text-black border-primary shadow-[0_10px_20px_rgba(255,107,0,0.2)]" : "bg-ink/5 text-ink/40 border-ink/10 hover:bg-ink/10"
                                                 )}
                                             >
                                                 {t}
@@ -317,11 +317,11 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">Location Details</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-ink/30 ml-1">Location Details</label>
                                     <input 
                                         type="text" 
                                         placeholder="Enter specific venue or address"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm font-bold focus:border-primary/50 transition-all outline-none"
+                                        className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-4 text-ink text-sm font-bold focus:border-primary/50 transition-all outline-none"
                                         value={formData.location}
                                         onChange={e => setFormData({...formData, location: e.target.value})}
                                     />
@@ -347,9 +347,9 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                  { label: 'Total Value', value: `₹${booking.total_amount}`, icon: DollarSign, color: 'text-emerald-400', bg: 'bg-emerald-400/5', border: 'hover:border-emerald-400/30' },
                  { label: 'Start Date', value: booking.start_date ? new Date(booking.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'N/A', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-400/5', border: 'hover:border-purple-400/30' }
                ].map((stat, i) => (
-                 <div key={i} className={clsx("bg-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-white/5 transition-all duration-300 group", stat.bg, stat.border)}>
+                 <div key={i} className={clsx("bg-ink/5 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-ink/5 transition-all duration-300 group", stat.bg, stat.border)}>
                     <stat.icon size={16} className={clsx("mb-2 sm:mb-3", stat.color)} />
-                    <p className="text-[9px] sm:text-[10px] text-white/30 font-black uppercase tracking-widest">{stat.label}</p>
+                    <p className="text-[9px] sm:text-[10px] text-ink/30 font-black uppercase tracking-widest">{stat.label}</p>
                     <p className="text-base sm:text-lg font-black uppercase tracking-tight">{stat.value}</p>
                  </div>
                ))}
@@ -359,10 +359,10 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
             {/* Progress Bar Implementation */}
             <div className="space-y-3">
               <div className="flex justify-between items-end">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Completion Rate</p>
+                <p className="text-[10px] font-black text-ink/20 uppercase tracking-widest">Completion Rate</p>
                 <p className="text-sm font-black text-primary">{Math.round(progress)}%</p>
               </div>
-              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+              <div className="h-2 w-full bg-ink/5 rounded-full overflow-hidden border border-ink/5">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
@@ -377,17 +377,17 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                   {/* Location Area */}
                   <div className="space-y-4">
                      <div className="flex items-center justify-between">
-                        <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-3">
+                        <p className="text-[11px] font-black text-ink/30 uppercase tracking-[0.2em] flex items-center gap-3">
                            <MapPin size={14} className="text-primary" /> Session Venue
                         </p>
                      </div>
-                     <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 space-y-4 shadow-xl">
+                     <div className="bg-ink/5 border border-ink/10 rounded-[2rem] p-6 space-y-4 shadow-xl">
                         <div className="flex items-start justify-between gap-4">
                            <div className="space-y-1">
-                              <p className="text-base font-black text-white italic tracking-tight uppercase">
+                              <p className="text-base font-black text-ink italic tracking-tight uppercase">
                                  {booking.session_type} Session
                               </p>
-                              <p className="text-sm text-white/50 leading-relaxed">
+                              <p className="text-sm text-ink/50 leading-relaxed">
                                  {booking.location ? booking.location : 
                                   booking.session_type === 'gym' && booking.trainer_location ? `At ${booking.trainer_location}` :
                                   booking.session_type === 'online' ? 'Digital session via link' : 
@@ -401,10 +401,10 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
 
                         {/* Map Visual */}
                         {hasCoordinates && isLoaded && (
-                           <div className="h-40 sm:h-56 w-full rounded-2xl overflow-hidden border border-white/10 relative group bg-neutral-800 shadow-inner">
+                           <div className="h-40 sm:h-56 w-full rounded-2xl overflow-hidden border border-ink/10 relative group bg-surface shadow-inner">
                               <button 
                                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`, '_blank')}
-                                 className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-[9px] sm:text-[10px] font-black text-white/70 hover:text-white hover:bg-black/80 transition-all uppercase tracking-widest flex items-center gap-2"
+                                 className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-black/60 backdrop-blur-md border border-ink/10 text-[9px] sm:text-[10px] font-black text-white/70 hover:text-white hover:bg-black/80 transition-all uppercase tracking-widest flex items-center gap-2"
                               >
                                  <Globe size={12} className="sm:w-[14px] sm:h-[14px]"/> <span className="hidden sm:inline">Open Maps</span><span className="sm:hidden">Maps</span>
                               </button>
@@ -438,11 +438,11 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                <div className="lg:col-span-2 space-y-8">
                   {/* Notes & Contacts Section */}
                   <div className="space-y-4">
-                     <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-3">
+                     <p className="text-[11px] font-black text-ink/30 uppercase tracking-[0.2em] flex items-center gap-3">
                         <MessageSquare size={14} className="text-primary" /> Requirements
                      </p>
-                     <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 shadow-xl min-h-[120px]">
-                        <p className="text-sm text-white/60 font-medium italic leading-relaxed">
+                     <div className="bg-ink/5 border border-ink/10 rounded-[2rem] p-6 shadow-xl min-h-[120px]">
+                        <p className="text-sm text-ink/60 font-medium italic leading-relaxed">
                            "{booking.user_notes || 'No special requirements mentioned for this program.'}"
                         </p>
                      </div>
@@ -450,17 +450,17 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
 
                   {/* Payment Breakdown Card */}
                   <div className="space-y-4">
-                     <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.2em] flex items-center gap-3">
+                     <p className="text-[11px] font-black text-ink/30 uppercase tracking-[0.2em] flex items-center gap-3">
                         <DollarSign size={14} className="text-primary" /> Financials
                      </p>
-                     <div className="bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-[2rem] p-6 shadow-xl space-y-5">
+                     <div className="bg-gradient-to-br from-ink/5 to-transparent border border-ink/10 rounded-[2rem] p-6 shadow-xl space-y-5">
                         <div className="flex items-center justify-between">
-                           <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Amount Paid</span>
+                           <span className="text-xs font-bold text-ink/40 uppercase tracking-widest">Amount Paid</span>
                            <span className="text-xl font-black text-emerald-400 tabular-nums">₹{booking.amount_paid}</span>
                          </div>
                          {booking.amount_paid < booking.total_amount && (
-                           <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                              <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Balance</span>
+                           <div className="flex items-center justify-between pt-4 border-t border-ink/5">
+                              <span className="text-xs font-bold text-ink/40 uppercase tracking-widest">Balance</span>
                               <span className="text-lg font-black text-red-400 tabular-nums">₹{booking.total_amount - booking.amount_paid}</span>
                            </div>
                          )}
@@ -477,11 +477,11 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
 
             {/* ── SECTION HISTORY: FULL WIDTH BOTTOM ── */}
             <div className="space-y-6 pt-6 mb-4">
-               <div className="flex items-center justify-between border-b border-white/5 pb-4">
-                  <p className="text-[11px] font-black text-white/40 uppercase tracking-[0.3em] flex items-center gap-3">
+               <div className="flex items-center justify-between border-b border-ink/5 pb-4">
+                  <p className="text-[11px] font-black text-ink/40 uppercase tracking-[0.3em] flex items-center gap-3">
                      <Clock size={16} className="text-primary" /> Scheduled Sessions History
                   </p>
-                  <div className="px-3 py-1 bg-white/5 rounded-lg border border-white/10 text-[9px] font-black uppercase text-white/40">
+                  <div className="px-3 py-1 bg-ink/5 rounded-lg border border-ink/10 text-[9px] font-black uppercase text-ink/40">
                      Total {sessions.length} Slots
                   </div>
                </div>
@@ -500,7 +500,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                      let iconColor = 'text-primary';
                      let badgeClass = 'bg-primary/10 text-primary border-primary/20';
                      let label = session.status;
-                     let cardBg = 'bg-white/5';
+                     let cardBg = 'bg-ink/5';
 
                      if (isPending) {
                         statusColor = 'border-amber-400';
@@ -529,14 +529,14 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                               navigate(`/app/sessions/${session.id}`);
                            }}
                            className={clsx(
-                           "relative border border-white/5 border-l-4 rounded-3xl p-5 flex items-center justify-between group overflow-hidden transition-all hover:bg-white/[0.07] active:scale-[0.99] cursor-pointer",
+                           "relative border border-ink/5 border-l-4 rounded-3xl p-5 flex items-center justify-between group overflow-hidden transition-all hover:bg-ink/[0.07] active:scale-[0.99] cursor-pointer",
                            statusColor, cardBg
                         )}>
                            <div className="space-y-2 relative z-10">
-                              <p className="text-base font-black tracking-tight text-white uppercase italic">
+                              <p className="text-base font-black tracking-tight text-ink uppercase italic">
                                  {new Date(session.scheduled_date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}
                               </p>
-                              <div className="flex flex-col gap-1 text-[10px] text-white/30 font-black uppercase tracking-[0.15em]">
+                              <div className="flex flex-col gap-1 text-[10px] text-ink/30 font-black uppercase tracking-[0.15em]">
                                  <div className="flex items-center gap-4">
                                     <span className="flex items-center gap-1.5"><Clock size={12} className={iconColor} /> {session.scheduled_time}</span>
                                     <span className="opacity-30">•</span>
@@ -568,10 +568,10 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                         </div>
                      );
                   }) : (
-                     <div className="col-span-full py-16 text-center border-2 border-dashed border-white/5 rounded-[2.5rem] bg-white/[0.01]">
-                        <Activity size={32} className="mx-auto text-white/10 mb-4" />
-                        <p className="text-xs text-white/20 font-black uppercase tracking-[0.25em]">Your training journey begins here</p>
-                        <p className="text-[10px] text-white/10 uppercase mt-2">No sessions have been recorded yet</p>
+                     <div className="col-span-full py-16 text-center border-2 border-dashed border-ink/5 rounded-[2.5rem] bg-ink/[0.01]">
+                        <Activity size={32} className="mx-auto text-ink/10 mb-4" />
+                        <p className="text-xs text-ink/20 font-black uppercase tracking-[0.25em]">Your training journey begins here</p>
+                        <p className="text-[10px] text-ink/10 uppercase mt-2">No sessions have been recorded yet</p>
                      </div>
                   )}
                </div>
@@ -579,7 +579,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
           </div>
 
           {/* Footer Actions */}
-          <div className="p-6 sm:p-8 border-t border-white/10 bg-black/60 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+          <div className="p-6 sm:p-8 border-t border-ink/10 bg-black/60 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
              {role === 'trainer' && isPending ? (
                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full">
                   <button 
@@ -598,7 +598,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
               ) : (
                 <>
                    <button 
-                      className="flex items-center gap-3 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.25em] text-white/30 hover:text-white/60 transition-colors group"
+                      className="flex items-center gap-3 text-[10px] sm:text-[11px] font-black uppercase tracking-[0.25em] text-ink/30 hover:text-ink/60 transition-colors group"
                    >
                       <AlertCircle size={14} className="sm:w-4 sm:h-4 group-hover:text-red-400 transition-colors" /> Report Issue
                    </button>
@@ -606,7 +606,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                       {role === 'user' && booking.status === 'confirmed' && booking.sessions_remaining > 0 && !isScheduling && (
                           <button 
                              onClick={() => setIsScheduling(true)}
-                             className="flex-1 sm:flex-initial px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-[1.5rem] bg-white/5 border border-primary/30 text-primary font-display font-black uppercase tracking-[0.2em] text-[10px] sm:text-[11px] hover:bg-primary/10 transition-all flex items-center justify-center gap-3 active:scale-95"
+                             className="flex-1 sm:flex-initial px-6 sm:px-8 py-4 sm:py-5 rounded-xl sm:rounded-[1.5rem] bg-ink/5 border border-primary/30 text-primary font-display font-black uppercase tracking-[0.2em] text-[10px] sm:text-[11px] hover:bg-primary/10 transition-all flex items-center justify-center gap-3 active:scale-95"
                           >
                              <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" /> Book Session
                           </button>
@@ -617,7 +617,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                            if (phone) window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
                            else alert('Contact number not available');
                         }}
-                        className="p-4 sm:p-5 rounded-xl sm:rounded-[1.5rem] bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all active:scale-90"
+                        className="p-4 sm:p-5 rounded-xl sm:rounded-[1.5rem] bg-ink/5 border border-ink/10 text-ink/70 hover:text-ink hover:bg-ink/10 transition-all active:scale-90"
                      >
                         <MessageSquare size={18} className="sm:w-5 sm:h-5" />
                      </button>

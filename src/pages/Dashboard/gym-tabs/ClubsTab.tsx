@@ -282,7 +282,7 @@ const ClubsTab = () => {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(241,130,44,0.16),rgba(255,255,255,0.035)_45%,rgba(34,197,94,0.10))] p-6 sm:p-8">
+      <section className="rounded-[2rem] border border-ink/10 bg-[linear-gradient(135deg,rgba(241,130,44,0.16),rgba(255,255,255,0.035)_45%,rgba(34,197,94,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -292,8 +292,8 @@ const ClubsTab = () => {
               <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary">Loyalty Engine</p>
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">Fitness Clubs</h1>
-              <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-white/48">
+              <h1 className="text-4xl font-black tracking-tighter text-ink sm:text-5xl">Fitness Clubs</h1>
+              <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-ink/48">
                 Three steps: set your goal, review the 8-club journey, publish once. Members unlock renewal savings before month one ends.
               </p>
             </div>
@@ -370,7 +370,7 @@ const ClubsTab = () => {
         <button
           type="button"
           onClick={() => setOperationsOpen((open) => !open)}
-          className="mb-4 text-xs font-black uppercase tracking-widest text-white/45 hover:text-white"
+          className="mb-4 text-xs font-black uppercase tracking-widest text-ink/45 hover:text-ink"
         >
           {operationsOpen ? 'Hide' : 'Show'} club operations (claims, transfers, members)
         </button>
@@ -405,13 +405,13 @@ const GenerationOverlay = ({ regenerating }: { regenerating: boolean }) => (
         <LoaderCircle size={30} className="animate-spin" />
       </div>
       <p className="mt-5 text-[10px] font-black uppercase tracking-[0.35em] text-primary">Migo AI</p>
-      <h2 className="mt-2 text-2xl font-black text-white">
+      <h2 className="mt-2 text-2xl font-black text-ink">
         {regenerating ? 'Refreshing your club draft' : 'Building your club journey'}
       </h2>
-      <p className="mt-3 text-sm font-semibold leading-6 text-white/55">
+      <p className="mt-3 text-sm font-semibold leading-6 text-ink/55">
         Creating eight tiers with missions, rewards, discounts, and protection rules. Keep this tab open while the draft is prepared.
       </p>
-      <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white/50">
+      <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-ink/10 bg-ink/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-ink/50">
         <Sparkles size={14} className="text-primary" />
         Usually takes under a minute
       </div>
@@ -443,7 +443,7 @@ const StepIndicator = ({
           disabled={step > 1 && !hasDraft}
           onClick={() => onStep(step)}
           className={`rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-widest transition ${
-            current === step ? 'bg-primary text-black' : 'border border-white/10 text-white/40'
+            current === step ? 'bg-primary text-black' : 'border border-ink/10 text-white/40'
           } ${step > 1 && !hasDraft ? 'opacity-40' : ''}`}
         >
           {step === 1 ? 'Setup' : step === 2 ? 'Review' : 'Publish'}

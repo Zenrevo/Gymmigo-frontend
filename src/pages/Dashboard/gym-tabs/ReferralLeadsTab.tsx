@@ -144,7 +144,7 @@ const ReferralLeadsTab = () => {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,rgba(241,130,44,0.14),rgba(255,255,255,0.035)_45%,rgba(59,130,246,0.10))] p-6 sm:p-8">
+      <section className="rounded-[2rem] border border-ink/10 bg-[linear-gradient(135deg,rgba(241,130,44,0.14),rgba(255,255,255,0.035)_45%,rgba(59,130,246,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -154,8 +154,8 @@ const ReferralLeadsTab = () => {
               <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary">Growth Loop</p>
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl">FitCard Referral Leads</h1>
-              <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-white/45">
+              <h1 className="text-4xl font-black tracking-tighter text-ink sm:text-5xl">FitCard Referral Leads</h1>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-ink/45">
                 Members share badges, friends claim trials, and your team gets the lead here.
               </p>
             </div>
@@ -173,8 +173,8 @@ const ReferralLeadsTab = () => {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-300">Next follow-up</p>
-              <h2 className="mt-2 truncate text-2xl font-black text-white">{nextLead.full_name}</h2>
-              <p className="mt-1 text-sm font-semibold text-white/50">
+              <h2 className="mt-2 truncate text-2xl font-black text-ink">{nextLead.full_name}</h2>
+              <p className="mt-1 text-sm font-semibold text-ink/50">
                 {nextLead.status === 'trial_booked' && nextLead.trial_at
                   ? `Trial ${formatDate(nextLead.trial_at)}`
                   : nextLead.status === 'new'
@@ -201,7 +201,7 @@ const ReferralLeadsTab = () => {
               'shrink-0 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
               status === option
                 ? 'border-primary/50 bg-primary/10 text-primary'
-                : 'border-white/10 bg-white/[0.03] text-white/40 hover:text-white'
+                : 'border-ink/10 bg-ink/[0.03] text-ink/40 hover:text-ink'
             )}
           >
             {formatStatus(option)}
@@ -223,21 +223,21 @@ const ReferralLeadsTab = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.035 }}
-              className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 transition hover:border-primary/25"
+              className="rounded-[1.5rem] border border-ink/10 bg-ink/[0.04] p-5 transition hover:border-primary/25"
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-primary/10 text-primary">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-ink/10 bg-primary/10 text-primary">
                     <Users size={22} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-lg font-black text-white">{lead.full_name}</h3>
-                      <span className={clsx('rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest', statusClasses[lead.status] || 'border-white/10 bg-white/5 text-white/40')}>
+                      <h3 className="text-lg font-black text-ink">{lead.full_name}</h3>
+                      <span className={clsx('rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest', statusClasses[lead.status] || 'border-ink/10 bg-ink/5 text-ink/40')}>
                         {formatStatus(lead.status)}
                       </span>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-4 text-xs font-bold text-white/45">
+                    <div className="mt-2 flex flex-wrap gap-4 text-xs font-bold text-ink/45">
                       <span className="inline-flex items-center gap-1.5"><Phone size={13} className="text-primary" /> {lead.phone}</span>
                       <span className="inline-flex items-center gap-1.5"><CalendarClock size={13} className="text-primary" /> {formatDate(lead.created_at)}</span>
                       {lead.referrer?.name && <span className="inline-flex items-center gap-1.5"><MessageCircle size={13} className="text-primary" /> {lead.referrer.name}</span>}
@@ -245,7 +245,7 @@ const ReferralLeadsTab = () => {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <a href={`tel:${lead.phone}`} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:border-primary/40">
+                  <a href={`tel:${lead.phone}`} className="rounded-xl border border-ink/10 bg-ink/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-ink transition hover:border-primary/40">
                     Call
                   </a>
                   <button onClick={() => messageLead(lead)} className="rounded-xl bg-emerald-500 px-4 py-3 text-xs font-black uppercase tracking-widest text-black transition hover:brightness-110">
@@ -253,13 +253,13 @@ const ReferralLeadsTab = () => {
                   </button>
                 </div>
               </div>
-              <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div className="mt-5 rounded-2xl border border-ink/10 bg-surface-sunken p-4">
                 <textarea
                   value={noteDrafts[lead.id] || ''}
                   onChange={(event) => setNoteDrafts((current) => ({ ...current, [lead.id]: event.target.value }))}
                   placeholder="Add follow-up note"
                   rows={2}
-                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold leading-5 text-white outline-none transition placeholder:text-white/25 focus:border-primary/45"
+                  className="w-full resize-none rounded-xl border border-ink/10 bg-ink/[0.04] px-4 py-3 text-sm font-semibold leading-5 text-ink outline-none transition placeholder:text-ink/25 focus:border-primary/45"
                 />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <PipelineButton label="Contacted" active={lead.status === 'contacted'} loading={updatingId === lead.id} onClick={() => updateLead(lead, { status: 'contacted', note: noteDrafts[lead.id] || '' })} />
@@ -286,9 +286,9 @@ const ReferralLeadsTab = () => {
 };
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="min-w-[92px] rounded-2xl border border-white/10 bg-black/25 p-4">
-    <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{label}</p>
-    <p className="mt-1 text-3xl font-black text-white">{value}</p>
+  <div className="min-w-[92px] rounded-2xl border border-ink/10 bg-surface-sunken p-4">
+    <p className="text-[9px] font-black uppercase tracking-widest text-ink/30">{label}</p>
+    <p className="mt-1 text-3xl font-black text-ink">{value}</p>
   </div>
 );
 
@@ -315,7 +315,7 @@ const PipelineButton = ({
         ? 'border-primary bg-primary text-black'
         : danger
         ? 'border-red-400/25 bg-red-400/10 text-red-200 hover:border-red-400/40'
-        : 'border-white/10 bg-white/[0.04] text-white/55 hover:border-primary/30 hover:text-white'
+        : 'border-ink/10 bg-ink/[0.04] text-ink/55 hover:border-primary/30 hover:text-ink'
     )}
   >
     {loading ? <CheckCircle2 size={13} /> : null}

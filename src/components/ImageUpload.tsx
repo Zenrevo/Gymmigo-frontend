@@ -71,29 +71,29 @@ const ImageUpload = ({
 
   return (
     <div className={clsx("space-y-2", className)}>
-      {label && <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">{label}</label>}
+      {label && <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">{label}</label>}
       
       <div 
         className={clsx(
-          "relative group overflow-hidden bg-white/5 border border-white/10 hover:border-primary transition-all duration-500",
+          "relative group overflow-hidden bg-ink/5 border border-ink/10 hover:border-primary transition-all duration-500",
           aspectClasses[aspectRatio]
         )}
       >
         {preview ? (
           <>
             <img src={preview} alt="Upload Preview" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <div className="absolute inset-0 bg-surface-sunken opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button 
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors"
+                className="w-10 h-10 rounded-full bg-ink/20 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors"
               >
                 <Camera size={18} />
               </button>
               <button 
                 type="button"
                 onClick={handleRemove}
-                className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:bg-red-500 transition-colors"
+                className="w-10 h-10 rounded-full bg-ink/20 backdrop-blur-md flex items-center justify-center hover:bg-red-500 transition-colors"
               >
                 <X size={18} />
               </button>
@@ -103,9 +103,9 @@ const ImageUpload = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="w-full h-full flex flex-col items-center justify-center text-white/20 gap-3 group-hover:text-primary transition-colors"
+            className="w-full h-full flex flex-col items-center justify-center text-ink/20 gap-3 group-hover:text-primary transition-colors"
           >
-            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-primary transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-ink/5 border border-ink/10 flex items-center justify-center group-hover:border-primary transition-colors">
               <Plus size={24} />
             </div>
             <span className="text-[10px] font-black uppercase tracking-tighter">Upload Photo</span>

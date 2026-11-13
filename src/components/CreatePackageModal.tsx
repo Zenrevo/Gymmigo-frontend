@@ -67,14 +67,14 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         
         {/* Package Name */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Package Name *</label>
+          <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Package Name *</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             placeholder="e.g. 1 Month Elite Transformation"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
             required
           />
         </div>
@@ -82,16 +82,16 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         <div className="grid grid-cols-2 gap-4">
           {/* Package Type */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Package Type</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Package Type</label>
             <div className="relative">
               <select
                 name="package_type"
                 value={formData.package_type}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white appearance-none cursor-pointer"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink appearance-none cursor-pointer"
               >
                 {PACKAGE_TYPES.map(type => (
-                  <option key={type} value={type} className="bg-zinc-900 text-white">{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+                  <option key={type} value={type} className="bg-surface text-ink">{type.charAt(0).toUpperCase() + type.slice(1)}</option>
                 ))}
               </select>
             </div>
@@ -99,14 +99,14 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
           
           {/* Price */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Price (₹) *</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Price (₹) *</label>
             <input
               type="number"
               name="price"
               value={formData.price}
               onChange={handleChange}
               placeholder="e.g. 5000"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-emerald-400 placeholder-white/20 font-bold"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-emerald-400 placeholder:text-ink-subtle font-bold"
               required
             />
           </div>
@@ -115,39 +115,39 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         <div className="grid grid-cols-3 gap-4">
           {/* Total Sessions */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Total Sessions *</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Total Sessions *</label>
             <input
               type="number"
               name="total_sessions"
               value={formData.total_sessions}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
 
           {/* Session Duration */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Duration (mins) *</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Duration (mins) *</label>
             <input
               type="number"
               name="session_duration_mins"
               value={formData.session_duration_mins}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
 
           {/* Validity */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Validity (days) *</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Validity (days) *</label>
             <input
               type="number"
               name="validity_days"
               value={formData.validity_days}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
@@ -155,23 +155,23 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
 
         {/* Description */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Description</label>
+          <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe what's included in this package..."
             rows={3}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20 resize-none"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle resize-none"
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 pt-4 border-t border-white/10">
+        <div className="flex gap-4 pt-4 border-t border-ink/10">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-colors"
+            className="flex-1 py-4 bg-ink/5 border border-ink/10 text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-ink/10 transition-colors"
           >
             Cancel
           </button>

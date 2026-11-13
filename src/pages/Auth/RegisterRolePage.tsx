@@ -286,7 +286,7 @@ const RegisterRolePage = () => {
             <h2 className="text-3xl font-bold">
               {step === 'role' ? 'Choose your path' : 'Complete your profile'}
             </h2>
-            <p className="text-white/40">
+            <p className="text-ink/40">
               {step === 'role'
                 ? 'Select the role that best fits your needs on Gymmigo.'
                 : 'Tell us a bit more about you to get started.'}
@@ -316,7 +316,7 @@ const RegisterRolePage = () => {
                       disabled={role.comingSoon}
                       className={clsx(
                         "group relative text-left p-8 glass-card transition-all duration-500 overflow-hidden",
-                        isSelected ? "border-primary ring-1 ring-primary" : "hover:border-white/20",
+                        isSelected ? "border-primary ring-1 ring-primary" : "hover:border-ink/20",
                         role.comingSoon && "opacity-60 cursor-not-allowed grayscale-[0.5]"
                       )}
                     >
@@ -334,15 +334,15 @@ const RegisterRolePage = () => {
 
                       <div className="relative z-10 space-y-6">
                         <div className={clsx(
-                          "w-14 h-14 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 transition-all duration-500",
-                          isSelected ? "text-primary bg-primary/10 border-primary" : "text-white/40 group-hover:text-white group-hover:border-primary/50",
+                          "w-14 h-14 rounded-2xl flex items-center justify-center bg-ink/5 border border-ink/10 transition-all duration-500",
+                          isSelected ? "text-primary bg-primary/10 border-primary" : "text-ink/40 group-hover:text-ink group-hover:border-primary/50",
                           !isSelected && !role.comingSoon && "group-hover:scale-110"
                         )}>
                           <role.icon size={28} />
                         </div>
                         <div className="space-y-2">
                           <h3 className="text-xl font-bold">{role.name}</h3>
-                          <p className="text-sm text-white/40 leading-relaxed group-hover:text-white/60 transition-colors">
+                          <p className="text-sm text-ink/40 leading-relaxed group-hover:text-ink/60 transition-colors">
                             {role.description}
                           </p>
                         </div>
@@ -386,13 +386,13 @@ const RegisterRolePage = () => {
                 {/* ── SHARED FIELDS for ALL ROLES ── */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm text-white/60 ml-1">Full Name</label>
+                    <label className="text-sm text-ink/60 ml-1">Full Name</label>
                     <div className="relative">
-                      <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                      <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                       <input
                         type="text"
                         placeholder="John Doe"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                         value={formData.full_name}
                         onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                         required
@@ -400,13 +400,13 @@ const RegisterRolePage = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm text-white/60 ml-1">Email Address</label>
+                    <label className="text-sm text-ink/60 ml-1">Email Address</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                       <input
                         type="email"
                         placeholder="john@example.com"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
@@ -415,29 +415,29 @@ const RegisterRolePage = () => {
                   </div>
                 </div>
 
-                <div className="w-full h-px bg-white/5 my-6" />
+                <div className="w-full h-px bg-ink/5 my-6" />
 
                 {/* ── MEMBER SPECIFIC: ADDRESS SECTION ── */}
                 {selectedRole === 'user' && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Location Details</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Location Details</h3>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm text-white/60 ml-1">Location Selection</label>
+                      <label className="text-sm text-ink/60 ml-1">Location Selection</label>
                       <button
                         type="button"
                         onClick={() => setIsMapOpen(true)}
-                        className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-xl py-4 px-4 hover:border-primary transition-all group"
+                        className="w-full flex items-center justify-between bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 hover:border-primary transition-all group"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                             <MapPin size={20} />
                           </div>
                           <div className="text-left">
-                            <span className={clsx("block text-sm font-bold", formData.address_line1 ? "text-white" : "text-white/20")}>
+                            <span className={clsx("block text-sm font-bold", formData.address_line1 ? "text-ink" : "text-ink/20")}>
                               {formData.address_line1 || 'Pick your address on Map'}
                             </span>
                             {formData.address_line1 && (
@@ -453,21 +453,21 @@ const RegisterRolePage = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">Landmark (Optional)</label>
+                        <label className="text-sm text-ink/60 ml-1">Landmark (Optional)</label>
                         <input
                           type="text"
                           placeholder="e.g. Near HDFC Bank"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.landmark}
                           onChange={(e) => setFormData({ ...formData, landmark: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">City</label>
+                        <label className="text-sm text-ink/60 ml-1">City</label>
                         <input
                           type="text"
                           placeholder="Mumbai"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.city}
                           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                           required
@@ -477,24 +477,24 @@ const RegisterRolePage = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">State</label>
+                        <label className="text-sm text-ink/60 ml-1">State</label>
                         <input
                           type="text"
                           placeholder="Maharashtra"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.state}
                           onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">Pin Code</label>
+                        <label className="text-sm text-ink/60 ml-1">Pin Code</label>
                         <input
                           type="text"
                           maxLength={6}
                           placeholder="400001"
                           className={clsx(
-                            "w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all",
+                            "w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all",
                             formData.pincode && !/^[1-9][0-9]{5}$/.test(formData.pincode) && "border-red-500/50 focus:border-red-500"
                           )}
                           value={formData.pincode}
@@ -509,7 +509,7 @@ const RegisterRolePage = () => {
                   </div>
                 )}
 
-                <div className="w-full h-px bg-white/5 my-6" />
+                <div className="w-full h-px bg-ink/5 my-6" />
 
                 {/* ── ROLE SPECIFIC FIELDS ── */}
                 {selectedRole === 'trainer' && (
@@ -518,15 +518,15 @@ const RegisterRolePage = () => {
                     {/* ── Section: Professional Info ── */}
                     <div className="flex items-center gap-2 mb-2">
                       <Briefcase className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Professional Info</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Professional Info</h3>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm text-white/60 ml-1">Bio / About You</label>
+                      <label className="text-sm text-ink/60 ml-1">Bio / About You</label>
                       <textarea
                         placeholder="Tell clients about your training philosophy, approach, and what makes you unique..."
                         rows={3}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all resize-none"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all resize-none"
                         value={formData.bio}
                         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                       />
@@ -534,14 +534,14 @@ const RegisterRolePage = () => {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">Years of Experience *</label>
+                        <label className="text-sm text-ink/60 ml-1">Years of Experience *</label>
                         <div className="relative">
-                          <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                           <input
                             type="number"
                             min="0"
                             placeholder="5"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                            className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                             value={formData.experience_years}
                             onChange={(e) => setFormData({ ...formData, experience_years: e.target.value })}
                             required
@@ -549,11 +549,11 @@ const RegisterRolePage = () => {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">Session Duration (mins)</label>
+                        <label className="text-sm text-ink/60 ml-1">Session Duration (mins)</label>
                         <div className="relative">
-                          <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                           <select
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all appearance-none"
+                            className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all appearance-none"
                             value={formData.session_duration_mins}
                             onChange={(e) => setFormData({ ...formData, session_duration_mins: e.target.value })}
                           >
@@ -570,7 +570,7 @@ const RegisterRolePage = () => {
                     {/* ── Section: Specializations ── */}
                     <div className="flex items-center gap-2 mt-4 mb-2">
                       <Star className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Specializations *</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Specializations *</h3>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {SPECIALIZATION_OPTIONS.map(spec => {
@@ -591,7 +591,7 @@ const RegisterRolePage = () => {
                               "px-3 py-1.5 rounded-lg text-xs font-bold border transition-all capitalize",
                               isSelected
                                 ? "bg-primary/20 border-primary text-primary"
-                                : "bg-white/5 border-white/10 text-white/40 hover:border-white/30 hover:text-white/70"
+                                : "bg-ink/5 border-ink/10 text-ink/40 hover:border-ink/30 hover:text-ink/70"
                             )}
                           >
                             {spec.replace(/_/g, ' ')}
@@ -600,40 +600,40 @@ const RegisterRolePage = () => {
                       })}
                     </div>
                     {formData.selected_specializations.length === 0 && (
-                      <p className="text-[10px] text-white/20 mt-1 ml-1 uppercase tracking-wider font-bold">Select at least 1 specialization</p>
+                      <p className="text-[10px] text-ink/20 mt-1 ml-1 uppercase tracking-wider font-bold">Select at least 1 specialization</p>
                     )}
 
-                    <div className="w-full h-px bg-white/5 my-2" />
+                    <div className="w-full h-px bg-ink/5 my-2" />
 
                     {/* ── Section: Pricing ── */}
                     <div className="flex items-center gap-2 mb-2">
                       <DollarSign className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Pricing</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Pricing</h3>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">Hourly Rate (₹)</label>
+                        <label className="text-sm text-ink/60 ml-1">Hourly Rate (₹)</label>
                         <div className="relative">
-                          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                           <input
                             type="number"
                             min="0"
                             placeholder="500"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                            className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                             value={formData.hourly_rate}
                             onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">Monthly Package (₹)</label>
+                        <label className="text-sm text-ink/60 ml-1">Monthly Package (₹)</label>
                         <div className="relative">
-                          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                          <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                           <input
                             type="number"
                             min="0"
                             placeholder="5000"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                            className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                             value={formData.monthly_charges}
                             onChange={(e) => setFormData({ ...formData, monthly_charges: e.target.value })}
                           />
@@ -641,12 +641,12 @@ const RegisterRolePage = () => {
                       </div>
                     </div>
 
-                    <div className="w-full h-px bg-white/5 my-2" />
+                    <div className="w-full h-px bg-ink/5 my-2" />
 
                     {/* ── Section: Availability ── */}
                     <div className="flex items-center gap-2 mb-2">
                       <Globe className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Availability Mode</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Availability Mode</h3>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       {[
@@ -664,7 +664,7 @@ const RegisterRolePage = () => {
                               "flex flex-col items-center gap-2 p-4 rounded-xl border transition-all text-center",
                               isActive
                                 ? "bg-primary/10 border-primary text-primary"
-                                : "bg-white/5 border-white/10 text-white/40 hover:border-white/20"
+                                : "bg-ink/5 border-ink/10 text-ink/40 hover:border-ink/20"
                             )}
                           >
                             <mode.icon size={22} />
@@ -675,24 +675,24 @@ const RegisterRolePage = () => {
                       })}
                     </div>
 
-                    <div className="w-full h-px bg-white/5 my-2" />
+                    <div className="w-full h-px bg-ink/5 my-2" />
 
                     {/* ── Section: Certifications ── */}
                     <div className="flex items-center gap-2 mb-2">
                       <Award className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Certifications</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Certifications</h3>
                     </div>
 
                     {formData.certifications.length > 0 && (
                       <div className="space-y-2">
                         {formData.certifications.map((cert, idx) => (
-                          <div key={idx} className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-3 border border-white/10">
+                          <div key={idx} className="flex items-center gap-3 bg-ink/5 rounded-xl px-4 py-3 border border-ink/10">
                             <Award size={16} className="text-primary shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-bold truncate">{cert.name}</p>
-                              <p className="text-[10px] text-white/40">{cert.issued_by}</p>
+                              <p className="text-[10px] text-ink/40">{cert.issued_by}</p>
                             </div>
-                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== idx) }))} className="text-white/20 hover:text-red-400 transition-colors">
+                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, certifications: prev.certifications.filter((_, i) => i !== idx) }))} className="text-ink/20 hover:text-red-400 transition-colors">
                               <X size={16} />
                             </button>
                           </div>
@@ -704,14 +704,14 @@ const RegisterRolePage = () => {
                       <input
                         type="text"
                         placeholder="Certification name"
-                        className="bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all text-sm"
+                        className="bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all text-sm"
                         value={formData.cert_name}
                         onChange={(e) => setFormData({ ...formData, cert_name: e.target.value })}
                       />
                       <input
                         type="text"
                         placeholder="Issued by (e.g. ACE, NASM)"
-                        className="bg-white/5 border border-white/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all text-sm"
+                        className="bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none transition-all text-sm"
                         value={formData.cert_issued_by}
                         onChange={(e) => setFormData({ ...formData, cert_issued_by: e.target.value })}
                       />
@@ -734,24 +734,24 @@ const RegisterRolePage = () => {
                       <Plus size={16} /> Add Certification
                     </button>
 
-                    <div className="w-full h-px bg-white/5 my-2" />
+                    <div className="w-full h-px bg-ink/5 my-2" />
 
                     {/* ── Section: Location ── */}
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="text-primary" size={18} />
-                      <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Working Location *</h3>
+                      <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Working Location *</h3>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsMapOpen(true)}
-                      className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-xl py-4 px-4 hover:border-primary transition-all group"
+                      className="w-full flex items-center justify-between bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 hover:border-primary transition-all group"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                           <MapPin size={20} />
                         </div>
                         <div className="text-left">
-                          <span className={clsx("block text-sm font-bold", formData.location_address ? "text-white" : "text-white/20")}>
+                          <span className={clsx("block text-sm font-bold", formData.location_address ? "text-ink" : "text-ink/20")}>
                             {formData.location_address || 'Pin your working location on Map'}
                           </span>
                           {formData.location_address && (
@@ -769,13 +769,13 @@ const RegisterRolePage = () => {
                 {selectedRole === 'gym_owner' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <label className="text-sm text-white/60 ml-1">Business Name</label>
+                      <label className="text-sm text-ink/60 ml-1">Business Name</label>
                       <div className="relative">
-                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40" size={20} />
                         <input
                           type="text"
                           placeholder="Gymmigo Fitness Center"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all"
                           value={formData.business_name}
                           onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
                           required
@@ -784,21 +784,21 @@ const RegisterRolePage = () => {
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">GSTIN (Optional)</label>
+                        <label className="text-sm text-ink/60 ml-1">GSTIN (Optional)</label>
                         <input
                           type="text"
                           placeholder="22AAAAA0000A1Z5"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.gstin}
                           onChange={(e) => setFormData({ ...formData, gstin: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm text-white/60 ml-1">PAN Number (Optional)</label>
+                        <label className="text-sm text-ink/60 ml-1">PAN Number (Optional)</label>
                         <input
                           type="text"
                           placeholder="ABCDE1234F"
-                          className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none transition-all"
                           value={formData.pan_number}
                           onChange={(e) => setFormData({ ...formData, pan_number: e.target.value })}
                         />
@@ -813,7 +813,7 @@ const RegisterRolePage = () => {
                   <button
                     type="button"
                     onClick={() => setStep('role')}
-                    className="flex-1 px-8 py-4 rounded-xl border border-white/10 hover:bg-white/5 font-display transition-all"
+                    className="flex-1 px-8 py-4 rounded-xl border border-ink/10 hover:bg-ink/5 font-display transition-all"
                   >
                     Back
                   </button>

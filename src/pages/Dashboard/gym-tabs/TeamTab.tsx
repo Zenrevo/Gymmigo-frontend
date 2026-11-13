@@ -98,10 +98,10 @@ const TeamTab = () => {
 
       <div className="grid grid-cols-1 gap-6">
         <section className="glass-card overflow-hidden">
-          <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <div className="p-6 border-b border-ink/5 flex items-center justify-between bg-ink/[0.02]">
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white/60">Authorized Managers</h3>
-              <p className="text-[10px] text-white/20 uppercase font-mono mt-1">Management team for {gym?.gym?.name}</p>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-ink/60">Authorized Managers</h3>
+              <p className="text-[10px] text-ink/20 uppercase font-mono mt-1">Management team for {gym?.gym?.name}</p>
             </div>
             <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
                <Shield size={12} className="text-primary" />
@@ -112,37 +112,37 @@ const TeamTab = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-white/5 bg-black/20">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Name & Role</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Contact Information</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white/40">Added On</th>
+                <tr className="border-b border-ink/5 bg-surface-sunken">
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink/40">Name & Role</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink/40">Contact Information</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink/40">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink/40">Added On</th>
                   <th className="px-6 py-4 text-right"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-ink/5">
                 {/* The Primary Owner is always shown (even if not in manager list) */}
-                <tr className="hover:bg-white/[0.02] transition-colors">
+                <tr className="hover:bg-ink/[0.02] transition-colors">
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary border border-primary/30">
                         {gym?.gym?.owner_name?.[0] || 'O'}
                       </div>
                       <div>
-                        <div className="font-bold text-white flex items-center gap-2">
+                        <div className="font-bold text-ink flex items-center gap-2">
                           Primary Owner
                           <span className="px-1.5 py-0.5 bg-primary text-black text-[8px] font-black uppercase rounded">Creator</span>
                         </div>
-                        <div className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Full System Access</div>
+                        <div className="text-[10px] text-ink/40 uppercase tracking-widest mt-0.5">Full System Access</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2 text-xs text-white/60">
+                      <div className="flex items-center gap-2 text-xs text-ink/60">
                         <Phone size={12} className="text-primary/60" /> {gym?.gym?.contact_phone || 'N/A'}
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-white/60">
+                      <div className="flex items-center gap-2 text-xs text-ink/60">
                         <Mail size={12} className="text-primary/60" /> {gym?.gym?.contact_email || 'N/A'}
                       </div>
                     </div>
@@ -152,7 +152,7 @@ const TeamTab = () => {
                       <CheckCircle2 size={10} /> Active
                     </span>
                   </td>
-                  <td className="px-6 py-5 text-[10px] font-mono text-white/40 uppercase">
+                  <td className="px-6 py-5 text-[10px] font-mono text-ink/40 uppercase">
                     Original
                   </td>
                   <td className="px-6 py-5 text-right"></td>
@@ -162,38 +162,38 @@ const TeamTab = () => {
                   <tr>
                     <td colSpan={5} className="p-12 text-center">
                       <Loader2 className="animate-spin text-primary mx-auto mb-2" size={32} />
-                      <p className="text-xs text-white/40 uppercase tracking-widest font-bold">Synchronizing team data...</p>
+                      <p className="text-xs text-ink/40 uppercase tracking-widest font-bold">Synchronizing team data...</p>
                     </td>
                   </tr>
                 ) : managers.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-12 text-center">
-                      <Users className="text-white/10 mx-auto mb-3" size={48} />
-                      <p className="text-sm font-bold text-white/60">No Co-owners Found</p>
-                      <p className="text-xs text-white/20 uppercase mt-1">Add trusted partners to help manage your gym operations.</p>
+                      <Users className="text-ink/10 mx-auto mb-3" size={48} />
+                      <p className="text-sm font-bold text-ink/60">No Co-owners Found</p>
+                      <p className="text-xs text-ink/20 uppercase mt-1">Add trusted partners to help manage your gym operations.</p>
                     </td>
                   </tr>
                 ) : (
                   managers.map((m) => (
-                    <tr key={m.user_id} className="hover:bg-white/[0.02] transition-colors group">
+                    <tr key={m.user_id} className="hover:bg-ink/[0.02] transition-colors group">
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20">
                             {m.name[0]}
                           </div>
                           <div>
-                            <div className="font-bold text-white">{m.name}</div>
-                            <div className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Co-owner / Manager</div>
+                            <div className="font-bold text-ink">{m.name}</div>
+                            <div className="text-[10px] text-ink/40 uppercase tracking-widest mt-0.5">Co-owner / Manager</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-xs text-white/60">
+                          <div className="flex items-center gap-2 text-xs text-ink/60">
                             <Phone size={12} /> {m.phone}
                           </div>
                           {m.email && (
-                            <div className="flex items-center gap-2 text-xs text-white/60">
+                            <div className="flex items-center gap-2 text-xs text-ink/60">
                               <Mail size={12} /> {m.email}
                             </div>
                           )}
@@ -209,7 +209,7 @@ const TeamTab = () => {
                           {m.is_active ? <><CheckCircle2 size={10} /> Active</> : <><AlertCircle size={10} /> Inactive</>}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-[10px] font-mono text-white/40 uppercase">
+                      <td className="px-6 py-5 text-[10px] font-mono text-ink/40 uppercase">
                         {new Date(m.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -235,8 +235,8 @@ const TeamTab = () => {
         <section className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex gap-4">
            <AlertCircle className="text-primary shrink-0" size={24} />
            <div className="space-y-2">
-              <h4 className="text-sm font-bold text-white uppercase tracking-widest">Team Access Policy</h4>
-              <p className="text-xs text-white/60 leading-relaxed">
+              <h4 className="text-sm font-bold text-ink uppercase tracking-widest">Team Access Policy</h4>
+              <p className="text-xs text-ink/60 leading-relaxed">
                 Co-owners and Managers can view dashboard metrics, manage members, update plans, and handle check-ins. 
                 However, sensitive operations such as <span className="text-primary font-bold">deleting the gym</span> or 
                 <span className="text-primary font-bold">changing bank details</span> are restricted to the Primary Owner only.
@@ -260,54 +260,54 @@ const TeamTab = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl p-8 overflow-hidden"
+              className="relative w-full max-w-md bg-surface border border-ink/10 rounded-3xl shadow-2xl p-8 overflow-hidden"
             >
                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
                
                <div className="flex items-center justify-between mb-8">
-                 <h3 className="text-xl font-display font-black tracking-tighter italic uppercase text-white">Add Team Member</h3>
-                 <button onClick={() => setShowInviteModal(false)} className="text-white/40 hover:text-white transition-colors">
+                 <h3 className="text-xl font-display font-black tracking-tighter italic uppercase text-ink">Add Team Member</h3>
+                 <button onClick={() => setShowInviteModal(false)} className="text-ink/40 hover:text-ink transition-colors">
                    <AlertCircle className="rotate-45" size={24} />
                  </button>
                </div>
 
                <form onSubmit={handleInvite} className="space-y-6">
                  <div>
-                   <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Member Name</label>
+                   <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-ink/40 mb-2">Member Name</label>
                    <input 
                      required 
                      type="text" 
                      placeholder="John Doe"
                      value={newManager.name}
                      onChange={e => setNewManager({...newManager, name: e.target.value})}
-                     className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none transition-all" 
+                     className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none transition-all" 
                    />
                  </div>
 
                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Phone Number</label>
+                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-ink/40 mb-2">Phone Number</label>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3 text-white/40 font-bold text-xs border-r border-white/10 pr-2">+91</span>
+                      <span className="absolute left-3 text-ink/40 font-bold text-xs border-r border-ink/10 pr-2">+91</span>
                       <input 
                         required
                         type="tel" 
                         value={newManager.phone} 
                         onChange={e => setNewManager({...newManager, phone: e.target.value.replace(/\D/g, '').slice(0, 10)})} 
                         maxLength={10}
-                        className="w-full bg-black/50 border border-white/10 rounded-xl p-3 pl-12 text-white focus:border-primary outline-none transition-all" 
+                        className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 pl-12 text-white focus:border-primary outline-none transition-all" 
                         placeholder="10-digit number"
                       />
                     </div>
                   </div>
 
                  <div>
-                   <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Email (Optional)</label>
+                   <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-ink/40 mb-2">Email (Optional)</label>
                    <input 
                      type="email" 
                      placeholder="john@example.com"
                      value={newManager.email}
                      onChange={e => setNewManager({...newManager, email: e.target.value})}
-                     className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none transition-all" 
+                     className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none transition-all" 
                    />
                  </div>
 
@@ -319,7 +319,7 @@ const TeamTab = () => {
                    >
                      {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <><UserPlus size={20} /> GRANT ACCESS</>}
                    </button>
-                   <p className="text-[10px] text-center text-white/20 mt-4 uppercase tracking-widest font-bold">New users will be asked to sign up</p>
+                   <p className="text-[10px] text-center text-ink/20 mt-4 uppercase tracking-widest font-bold">New users will be asked to sign up</p>
                  </div>
                </form>
             </motion.div>

@@ -94,7 +94,7 @@ const GymManageDashboard = () => {
     <div className="text-center p-20 space-y-4">
       <AlertCircle className="mx-auto text-red-500" size={48} />
       <h2 className="text-2xl font-bold">Gym Not Found</h2>
-      <p className="text-white/40">{error || "Could not load gym details."}</p>
+      <p className="text-ink/40">{error || "Could not load gym details."}</p>
       <button onClick={() => navigate('/app/dashboard')} className="btn-primary px-6 py-2 mt-4">Back to Dashboard</button>
     </div>
   );
@@ -104,14 +104,14 @@ const GymManageDashboard = () => {
       {/* Mobile Top Header (only visible on small screens) */}
       <div className="md:hidden flex items-center justify-between mb-4 glass-card p-4">
         <div className="flex items-center gap-3">
-          <Link to="/app/dashboard" className="text-white/60 hover:text-white">
+          <Link to="/app/dashboard" className="text-ink/60 hover:text-ink">
             <ArrowLeft size={20} />
           </Link>
           <h2 className="font-bold text-lg truncate max-w-[200px] uppercase italic">{gym.gym.name}</h2>
         </div>
         <button 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 hover:bg-white/5 rounded-full"
+          className="p-2 hover:bg-ink/5 rounded-full"
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -126,18 +126,18 @@ const GymManageDashboard = () => {
         <div className="hidden md:block space-y-6 mb-8">
           <Link 
             to="/app/dashboard"
-            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group w-fit"
+            className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors group w-fit"
           >
             <ArrowLeft size={16} />
             <span className="text-xs font-bold uppercase tracking-widest">Back to Portfolio</span>
           </Link>
-          <div className="flex items-center gap-4 border-b border-white/5 pb-6">
+          <div className="flex items-center gap-4 border-b border-ink/5 pb-6">
             <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
               <Building2 size={24} />
             </div>
             <div className="min-w-0">
               <h1 className="text-xl font-display font-black tracking-tighter truncate italic uppercase">{gym.gym.name}</h1>
-              <p className="text-[10px] text-white/40 uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
+              <p className="text-[10px] text-ink/40 uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
               <div className="flex items-center gap-2 mt-2">
                 {gym.gym.is_verified ? (
                   <span className="text-blue-400 text-[8px] font-bold bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20 uppercase tracking-widest flex items-center gap-1">
@@ -159,7 +159,7 @@ const GymManageDashboard = () => {
         </div>
 
         <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar md:pr-4">
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2 px-3">Management</p>
+          <p className="text-[10px] font-bold text-ink/40 uppercase tracking-widest mb-2 px-3">Management</p>
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -171,11 +171,11 @@ const GymManageDashboard = () => {
                   "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all group",
                   isActive 
                     ? "bg-primary/10 text-primary border border-primary/20" 
-                    : "text-white/60 hover:text-white hover:bg-white/5 border border-transparent"
+                    : "text-ink/60 hover:text-ink hover:bg-ink/5 border border-transparent"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon size={18} className={isActive ? "text-primary" : "text-white/40 group-hover:text-white"} />
+                  <item.icon size={18} className={isActive ? "text-primary" : "text-ink/40 group-hover:text-ink"} />
                   {item.name}
                 </div>
                 {isActive && <ChevronRight size={16} />}

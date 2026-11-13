@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -51,7 +52,10 @@ const TrainerDashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  // Active tab lives in ?tab= so the sidebar's Clients / Bookings / Schedule / Packages links land here.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as TabType | null) ?? 'overview';
+  const setActiveTab = (tab: TabType) => setSearchParams(tab === 'overview' ? {} : { tab });
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isCertModalOpen, setIsCertModalOpen] = useState(false);
@@ -341,7 +345,7 @@ const TrainerDashboard = () => {
                   </span>
                 )}
               </div>
-              <p className="text-white/40 text-[11px] sm:text-sm max-w-[200px] sm:max-w-none truncate sm:whitespace-normal">
+              <p className="text-ink/40 text-[11px] sm:text-sm max-w-[200px] sm:max-w-none truncate sm:whitespace-normal">
                 {isOnline 
                   ? 'Members can discover and book sessions' 
                   : 'You won\'t appear in search results.'
@@ -350,7 +354,7 @@ const TrainerDashboard = () => {
               {stats?.profile_completion_pct !== undefined && stats.profile_completion_pct < 100 && (
                 <div className="mt-3 flex items-center gap-3">
                   <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Profile {stats.profile_completion_pct}%</span>
-                  <div className="h-1 w-24 sm:w-32 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-1 w-24 sm:w-32 bg-ink/10 rounded-full overflow-hidden">
                     <div className="h-full bg-amber-400" style={{ width: `${stats.profile_completion_pct}%` }} />
                   </div>
                 </div>
@@ -387,7 +391,7 @@ const TrainerDashboard = () => {
               "flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
               activeTab === tab.id
                 ? "bg-primary text-black shadow-lg shadow-primary/20"
-                : "bg-white/5 border border-white/5 text-white/40 hover:bg-white/10 hover:text-white"
+                : "bg-ink/5 border border-ink/5 text-ink/40 hover:bg-ink/10 hover:text-ink"
             )}
           >
             <tab.icon size={16} />
@@ -413,15 +417,15 @@ const TrainerDashboard = () => {
                 {/* Earnings & Rating Strip */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="glass-card p-4 sm:p-6 text-center hover:border-emerald-500/30 transition-colors">
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Today\'s Earnings</p>
+                    <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-2">Today\'s Earnings</p>
                     <p className="text-2xl sm:text-3xl font-black text-emerald-400">₹{(stats?.today_earnings || 0).toLocaleString()}</p>
                   </div>
-                  <div className="glass-card p-4 sm:p-6 text-center hover:border-white/20 transition-colors">
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">This Month</p>
-                    <p className="text-2xl sm:text-3xl font-black text-white">₹{(stats?.this_month_earnings || 0).toLocaleString()}</p>
+                  <div className="glass-card p-4 sm:p-6 text-center hover:border-ink/20 transition-colors">
+                    <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-2">This Month</p>
+                    <p className="text-2xl sm:text-3xl font-black text-ink">₹{(stats?.this_month_earnings || 0).toLocaleString()}</p>
                   </div>
                   <div className="glass-card p-4 sm:p-6 text-center hover:border-primary/30 transition-colors">
-                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Rating</p>
+                    <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-2">Rating</p>
                     <div className="flex items-center justify-center gap-2">
                       <Star size={20} className="text-primary fill-primary w-4 h-4 sm:w-5 sm:h-5" />
                       <p className="text-2xl sm:text-3xl font-black text-primary">{stats?.rating_avg?.toFixed(1) || '—'}</p>
@@ -442,10 +446,10 @@ const TrainerDashboard = () => {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: i * 0.1 }}
-                      className="glass-card p-5 relative overflow-hidden group hover:border-white/10 transition-colors"
+                      className="glass-card p-5 relative overflow-hidden group hover:border-ink/10 transition-colors"
                     >
                       <stat.icon size={60} className={`absolute -right-3 -bottom-3 ${stat.bg}/5 group-hover:${stat.bg}/10 transition-all`} />
-                      <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-3 flex items-center gap-2">
                         <stat.icon size={12} className={stat.color} />
                         {stat.label}
                       </p>
@@ -465,8 +469,8 @@ const TrainerDashboard = () => {
                         Today's Schedule
                       </h3>
                       <div className="flex gap-4">
-                        <button onClick={() => setActiveTab('clients')} className="text-[10px] text-primary hover:text-white uppercase tracking-widest font-black">My Clients</button>
-                        <button onClick={() => setActiveTab('schedule')} className="text-[10px] text-white/40 hover:text-white uppercase tracking-widest font-bold">Full Schedule</button>
+                        <button onClick={() => setActiveTab('clients')} className="text-[10px] text-primary hover:text-ink uppercase tracking-widest font-black">My Clients</button>
+                        <button onClick={() => setActiveTab('schedule')} className="text-[10px] text-ink/40 hover:text-ink uppercase tracking-widest font-bold">Full Schedule</button>
                       </div>
                     </div>
 
@@ -478,18 +482,18 @@ const TrainerDashboard = () => {
                               <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                                 <User size={14} className="text-primary" />
                               </div>
-                              <h4 className="text-sm font-black text-white/60 tracking-widest uppercase">{group.client_name}</h4>
-                              <div className="flex-1 h-px bg-white/10" />
+                              <h4 className="text-sm font-black text-ink/60 tracking-widest uppercase">{group.client_name}</h4>
+                              <div className="flex-1 h-px bg-ink/10" />
                             </div>
                             <div className="space-y-3">
                               {group.sessions.map((session: any) => (
-                                <div key={session.id} className="glass-card p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 group hover:border-white/10 transition-all relative">
+                                <div key={session.id} className="glass-card p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 group hover:border-ink/10 transition-all relative">
                                   {/* Mobile Corner Status Pin */}
                                   <div className={clsx(
                                     "sm:hidden absolute top-3 right-3 w-2 h-2 rounded-full",
                                     session.status === 'completed' ? "bg-emerald-500" :
                                     session.status === 'in_progress' ? "bg-primary animate-pulse" :
-                                    "bg-white/20"
+                                    "bg-ink/20"
                                   )} />
 
                                   {/* Timeline Dot (Desktop only) */}
@@ -498,7 +502,7 @@ const TrainerDashboard = () => {
                                       "w-3 h-3 rounded-full border-2",
                                       session.status === 'completed' ? "bg-emerald-500 border-emerald-500" :
                                       session.status === 'in_progress' ? "bg-primary border-primary animate-pulse" :
-                                      "bg-transparent border-white/20"
+                                      "bg-transparent border-ink/20"
                                     )} />
                                   </div>
 
@@ -506,9 +510,9 @@ const TrainerDashboard = () => {
                                   <div className="flex-1 min-w-0 flex items-center gap-3 sm:gap-4">
                                     <div className="w-14 sm:w-16 shrink-0 text-left sm:text-center">
                                       <p className="text-xs sm:text-sm font-black">{session.scheduled_time}</p>
-                                      <p className="text-[8px] sm:text-[9px] text-white/30 font-bold uppercase">{session.duration_minutes}m</p>
+                                      <p className="text-[8px] sm:text-[9px] text-ink/30 font-bold uppercase">{session.duration_minutes}m</p>
                                     </div>
-                                    <div className="w-px h-6 sm:h-8 bg-white/10 shrink-0" />
+                                    <div className="w-px h-6 sm:h-8 bg-ink/10 shrink-0" />
                                     <div className="flex-1 min-w-0">
                                       <div className="flex flex-wrap items-center gap-2">
                                         <span className={clsx(
@@ -520,7 +524,7 @@ const TrainerDashboard = () => {
                                           {session.session_type}
                                         </span>
                                         {session.location && (
-                                          <span className="text-[9px] sm:text-[10px] text-white/40 truncate max-w-[120px] sm:max-w-[150px]" title={session.location}>
+                                          <span className="text-[9px] sm:text-[10px] text-ink/40 truncate max-w-[120px] sm:max-w-[150px]" title={session.location}>
                                             • {session.location}
                                           </span>
                                         )}
@@ -533,7 +537,7 @@ const TrainerDashboard = () => {
                                     "hidden sm:block px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shrink-0",
                                     session.status === 'completed' ? "text-emerald-400 border border-emerald-500/20 bg-emerald-500/10" :
                                     session.status === 'in_progress' ? "text-primary border border-primary/20 bg-primary/10" :
-                                    "text-white/40 border border-white/10 bg-white/5"
+                                    "text-ink/40 border border-ink/10 bg-ink/5"
                                   )}>
                                     {session.status === 'in_progress' ? 'LIVE' : session.status.replace('_', ' ')}
                                   </div>
@@ -544,7 +548,7 @@ const TrainerDashboard = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="glass-card p-10 text-center border-dashed text-white/20">
+                      <div className="glass-card p-10 text-center border-dashed text-ink/20">
                         <Calendar size={32} className="mx-auto mb-3 opacity-30" />
                         <p className="text-xs font-bold">No sessions scheduled for today</p>
                       </div>
@@ -574,19 +578,19 @@ const TrainerDashboard = () => {
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <p className="font-bold text-sm truncate">{booking.client_name}</p>
-                                <p className="text-[10px] text-white/40 uppercase font-black">{booking.package_name}</p>
+                                <p className="text-[10px] text-ink/40 uppercase font-black">{booking.package_name}</p>
                               </div>
                               <p className="text-sm font-black text-emerald-400">₹{booking.total_amount}</p>
                             </div>
-                            <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                            <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-ink/40">
                               Package paid. Sessions should be confirmed from the Sessions tab.
                             </p>
                           </div>
                         ))}
-                        <button onClick={() => setActiveTab('bookings')} className="w-full text-center text-[10px] text-white/30 hover:text-white uppercase font-bold py-2">View All Bookings</button>
+                        <button onClick={() => setActiveTab('bookings')} className="w-full text-center text-[10px] text-ink/30 hover:text-ink uppercase font-bold py-2">View All Bookings</button>
                       </div>
                     ) : (
-                      <div className="glass-card p-8 text-center border-dashed text-white/15">
+                      <div className="glass-card p-8 text-center border-dashed text-ink/15">
                         <Users size={24} className="mx-auto mb-2 opacity-30" />
                         <p className="text-[10px] font-bold uppercase tracking-widest">No Recent Purchases</p>
                       </div>
@@ -627,22 +631,22 @@ const TrainerDashboard = () => {
                           </div>
                           <div className="text-right">
                             <p className="text-xl font-black text-emerald-400">₹{pkg.price}</p>
-                            <p className="text-[10px] text-white/30 font-bold uppercase">{pkg.total_sessions} Sessions</p>
+                            <p className="text-[10px] text-ink/30 font-bold uppercase">{pkg.total_sessions} Sessions</p>
                           </div>
                         </div>
-                        <p className="text-[11px] text-white/50 flex-1">{pkg.description || 'No description provided.'}</p>
-                        <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                          <span className="text-[10px] text-white/30 font-bold uppercase">Valid: {pkg.validity_days} days</span>
-                          <button className="text-[10px] text-primary font-bold uppercase tracking-widest hover:text-white transition-colors">Edit</button>
+                        <p className="text-[11px] text-ink/50 flex-1">{pkg.description || 'No description provided.'}</p>
+                        <div className="pt-4 border-t border-ink/5 flex justify-between items-center">
+                          <span className="text-[10px] text-ink/30 font-bold uppercase">Valid: {pkg.validity_days} days</span>
+                          <button className="text-[10px] text-primary font-bold uppercase tracking-widest hover:text-ink transition-colors">Edit</button>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="glass-card p-12 text-center border-dashed border-white/10">
-                    <Package size={48} className="mx-auto mb-4 text-white/10" />
+                  <div className="glass-card p-12 text-center border-dashed border-ink/10">
+                    <Package size={48} className="mx-auto mb-4 text-ink/10" />
                     <p className="font-bold text-lg mb-2">No packages created</p>
-                    <p className="text-sm text-white/40 mb-6">Create service packages (monthly, weekly, or specific sessions) for clients to book.</p>
+                    <p className="text-sm text-ink/40 mb-6">Create service packages (monthly, weekly, or specific sessions) for clients to book.</p>
                     <button onClick={() => setIsPackageModalOpen(true)} className="bg-primary/20 text-primary border border-primary/30 px-6 py-2 rounded-xl font-bold text-sm hover:bg-primary hover:text-black transition-colors">Create First Package</button>
                   </div>
                 )}
@@ -670,12 +674,12 @@ const TrainerDashboard = () => {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold">Booking Management</h3>
-                  <div className="flex bg-white/5 rounded-xl p-1">
+                  <div className="flex bg-ink/5 rounded-xl p-1">
                      <button 
                        onClick={() => setBookingFilter('active')}
                        className={clsx(
                          "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                         bookingFilter === 'active' ? "bg-primary text-black shadow-lg" : "text-white/40 hover:text-white"
+                         bookingFilter === 'active' ? "bg-primary text-black shadow-lg" : "text-ink/40 hover:text-ink"
                        )}
                      >
                         Active
@@ -684,7 +688,7 @@ const TrainerDashboard = () => {
                        onClick={() => setBookingFilter('past')}
                        className={clsx(
                          "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                         bookingFilter === 'past' ? "bg-primary text-black shadow-lg" : "text-white/40 hover:text-white"
+                         bookingFilter === 'past' ? "bg-primary text-black shadow-lg" : "text-ink/40 hover:text-ink"
                        )}
                      >
                         Past
@@ -693,7 +697,7 @@ const TrainerDashboard = () => {
                 </div>
 
                 {bookingsLoading ? (
-                  <div className="glass-card p-12 text-center text-white/20">Loading bookings...</div>
+                  <div className="glass-card p-12 text-center text-ink/20">Loading bookings...</div>
                 ) : allBookings.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
                     {allBookings
@@ -707,21 +711,21 @@ const TrainerDashboard = () => {
                         <div className="flex items-center gap-4">
                           <div className={clsx(
                              "w-12 h-12 rounded-xl flex items-center justify-center border transition-all",
-                             booking.status === 'pending' ? "bg-amber-500/10 border-amber-500/20 text-amber-400" : "bg-white/5 border-white/10 text-primary group-hover:bg-primary/20"
+                             booking.status === 'pending' ? "bg-amber-500/10 border-amber-500/20 text-amber-400" : "bg-ink/5 border-ink/10 text-primary group-hover:bg-primary/20"
                           )}>
                             <User size={24} />
                           </div>
                           <div>
                             <h4 className="font-bold group-hover:text-primary transition-colors">{booking.user_name || 'Member'}</h4>
-                            <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">{booking.package_name || 'Personal Training'}</p>
+                            <p className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">{booking.package_name || 'Personal Training'}</p>
                           </div>
                         </div>
                         
                         <div className="text-right flex items-center gap-6">
                           <div className="hidden sm:block">
-                            <p className="text-[10px] text-white/20 font-black uppercase tracking-widest mb-1">Sessions</p>
+                            <p className="text-[10px] text-ink/20 font-black uppercase tracking-widest mb-1">Sessions</p>
                             <p className="text-sm font-black">
-                              {booking.sessions_completed} <span className="text-white/20 font-medium">/ {booking.total_sessions}</span>
+                              {booking.sessions_completed} <span className="text-ink/20 font-medium">/ {booking.total_sessions}</span>
                             </p>
                           </div>
                           <div className="flex flex-col items-end gap-2">
@@ -730,17 +734,17 @@ const TrainerDashboard = () => {
                               booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                               booking.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
                               booking.status === 'completed' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                              'bg-white/5 text-white/20 border border-white/10'
+                              'bg-ink/5 text-ink/20 border border-ink/10'
                             )}>
                               {booking.status}
                             </span>
                           </div>
-                          <ArrowRight size={18} className="text-white/20 group-hover:text-primary transition-all group-hover:translate-x-1" />
+                          <ArrowRight size={18} className="text-ink/20 group-hover:text-primary transition-all group-hover:translate-x-1" />
                         </div>
                       </div>
                     ))}
                     {allBookings.filter(b => bookingFilter === 'active' ? (b.status === 'confirmed' || b.status === 'pending') : (b.status === 'completed' || b.status === 'cancelled')).length === 0 && (
-                      <div className="glass-card p-12 text-center border-dashed text-white/15">
+                      <div className="glass-card p-12 text-center border-dashed text-ink/15">
                         <Users size={32} className="mx-auto mb-3 opacity-20" />
                         <p className="text-xs font-bold uppercase tracking-widest">No {bookingFilter} bookings found</p>
                       </div>
@@ -748,8 +752,8 @@ const TrainerDashboard = () => {
                   </div>
                 ) : (
                   <div className="glass-card p-12 text-center border-dashed">
-                    <Users className="mx-auto mb-4 text-white/10" size={48} />
-                    <p className="text-white/40 text-sm font-bold">No bookings recorded yet.</p>
+                    <Users className="mx-auto mb-4 text-ink/10" size={48} />
+                    <p className="text-ink/40 text-sm font-bold">No bookings recorded yet.</p>
                   </div>
                 )}
               </div>
@@ -776,15 +780,15 @@ const TrainerDashboard = () => {
                              <AlertTriangle size={16} className="text-amber-400 shrink-0" />
                            )}
                          </div>
-                         <p className="text-xs text-white/40">{cert.issued_by}</p>
-                         <p className="text-[10px] text-white/20 font-bold uppercase tracking-widest">
+                         <p className="text-xs text-ink/40">{cert.issued_by}</p>
+                         <p className="text-[10px] text-ink/20 font-bold uppercase tracking-widest">
                            {cert.is_verified ? <span className="text-blue-400">Verified</span> : <span className="text-amber-400">Pending Review</span>}
                          </p>
                        </div>
                      ))}
                    </div>
                  ) : (
-                   <div className="glass-card p-10 text-center border-dashed text-white/20">
+                   <div className="glass-card p-10 text-center border-dashed text-ink/20">
                      <Award size={40} className="mx-auto mb-4 opacity-30" />
                      <p className="text-sm font-bold">No certifications uploaded.</p>
                    </div>
@@ -797,35 +801,35 @@ const TrainerDashboard = () => {
                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                  <h3 className="text-xl font-bold">Profile Settings</h3>
                  <div className="grid md:grid-cols-2 gap-4">
-                   <div onClick={() => setIsProfModalOpen(true)} className="glass-card p-6 flex items-center justify-between hover:border-white/20 transition-all cursor-pointer">
+                   <div onClick={() => setIsProfModalOpen(true)} className="glass-card p-6 flex items-center justify-between hover:border-ink/20 transition-all cursor-pointer">
                      <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10"><Briefcase size={18} className="text-white/40"/></div>
+                       <div className="w-10 h-10 rounded-xl bg-ink/5 flex items-center justify-center border border-ink/10"><Briefcase size={18} className="text-ink/40"/></div>
                        <div>
                          <p className="font-bold text-sm">Professional Details</p>
-                         <p className="text-[10px] text-white/30 uppercase tracking-widest">Experience, Bio, Languages</p>
+                         <p className="text-[10px] text-ink/30 uppercase tracking-widest">Experience, Bio, Languages</p>
                        </div>
                      </div>
-                     <ChevronRight size={16} className="text-white/20" />
+                     <ChevronRight size={16} className="text-ink/20" />
                    </div>
-                   <div onClick={() => setIsPricingModalOpen(true)} className="glass-card p-6 flex items-center justify-between hover:border-white/20 transition-all cursor-pointer">
+                   <div onClick={() => setIsPricingModalOpen(true)} className="glass-card p-6 flex items-center justify-between hover:border-ink/20 transition-all cursor-pointer">
                      <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10"><DollarSign size={18} className="text-white/40"/></div>
+                       <div className="w-10 h-10 rounded-xl bg-ink/5 flex items-center justify-center border border-ink/10"><DollarSign size={18} className="text-ink/40"/></div>
                        <div>
                          <p className="font-bold text-sm">Pricing & Service Info</p>
-                         <p className="text-[10px] text-white/30 uppercase tracking-widest">Rates, Duration, Availability Mode</p>
+                         <p className="text-[10px] text-ink/30 uppercase tracking-widest">Rates, Duration, Availability Mode</p>
                        </div>
                      </div>
-                     <ChevronRight size={16} className="text-white/20" />
+                     <ChevronRight size={16} className="text-ink/20" />
                    </div>
-                   <div onClick={() => setIsLocationModalOpen(true)} className="glass-card p-6 flex items-center justify-between hover:border-white/20 transition-all cursor-pointer">
+                   <div onClick={() => setIsLocationModalOpen(true)} className="glass-card p-6 flex items-center justify-between hover:border-ink/20 transition-all cursor-pointer">
                      <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10"><MapPin size={18} className="text-white/40"/></div>
+                       <div className="w-10 h-10 rounded-xl bg-ink/5 flex items-center justify-center border border-ink/10"><MapPin size={18} className="text-ink/40"/></div>
                        <div>
                          <p className="font-bold text-sm">Location settings</p>
-                         <p className="text-[10px] text-white/30 uppercase tracking-widest">Pin working address</p>
+                         <p className="text-[10px] text-ink/30 uppercase tracking-widest">Pin working address</p>
                        </div>
                      </div>
-                     <ChevronRight size={16} className="text-white/20" />
+                     <ChevronRight size={16} className="text-ink/20" />
                    </div>
                  </div>
                </div>
@@ -836,13 +840,13 @@ const TrainerDashboard = () => {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold">Portfolio Gallery</h3>
-                  <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{galleryImages.length} photo{galleryImages.length !== 1 && 's'}</p>
+                  <p className="text-[10px] text-ink/30 font-bold uppercase tracking-widest">{galleryImages.length} photo{galleryImages.length !== 1 && 's'}</p>
                 </div>
 
                 {galleryLoading ? (
                   <div className="glass-card p-12 text-center">
                     <Loader2 className="mx-auto mb-3 animate-spin text-primary" size={32} />
-                    <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Loading portfolio...</p>
+                    <p className="text-ink/30 text-xs font-bold uppercase tracking-widest">Loading portfolio...</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -857,7 +861,7 @@ const TrainerDashboard = () => {
 
                     {/* Gallery Images */}
                     {galleryImages.map((img: any) => (
-                      <div key={img.id} className="aspect-square rounded-2xl overflow-hidden relative group border border-white/5 hover:border-white/15 transition-all">
+                      <div key={img.id} className="aspect-square rounded-2xl overflow-hidden relative group border border-ink/5 hover:border-ink/15 transition-all">
                         <img src={img.image_url} alt={img.caption || 'Portfolio'} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
                           <button
@@ -870,7 +874,7 @@ const TrainerDashboard = () => {
                         </div>
                         {img.caption && (
                           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                            <p className="text-[10px] text-white/60 font-bold truncate">{img.caption}</p>
+                            <p className="text-[10px] text-ink/60 font-bold truncate">{img.caption}</p>
                           </div>
                         )}
                       </div>
@@ -880,8 +884,8 @@ const TrainerDashboard = () => {
 
                 {!galleryLoading && galleryImages.length === 0 && (
                   <div className="glass-card p-10 text-center border-dashed">
-                    <ImageIcon className="mx-auto mb-4 text-white/10" size={48} />
-                    <p className="text-white/40 text-sm font-bold">Build your visual portfolio by uploading transformation photos, certifications, and training content.</p>
+                    <ImageIcon className="mx-auto mb-4 text-ink/10" size={48} />
+                    <p className="text-ink/40 text-sm font-bold">Build your visual portfolio by uploading transformation photos, certifications, and training content.</p>
                   </div>
                 )}
               </div>
@@ -897,14 +901,14 @@ const TrainerDashboard = () => {
                       <p className="text-3xl font-black text-primary">{reviewsMeta.avg_rating?.toFixed(1) || '—'}</p>
                       <div className="flex items-center gap-1 mt-1">
                         {[1,2,3,4,5].map(i => (
-                          <Star key={i} size={12} className={clsx(i <= Math.round(reviewsMeta.avg_rating) ? 'text-primary fill-primary' : 'text-white/10')} />
+                          <Star key={i} size={12} className={clsx(i <= Math.round(reviewsMeta.avg_rating) ? 'text-primary fill-primary' : 'text-ink/10')} />
                         ))}
                       </div>
                     </div>
-                    <div className="h-12 w-px bg-white/10" />
+                    <div className="h-12 w-px bg-ink/10" />
                     <div>
                       <p className="text-lg font-black">{reviewsMeta.total}</p>
-                      <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Total Reviews</p>
+                      <p className="text-[10px] text-ink/30 font-bold uppercase tracking-widest">Total Reviews</p>
                     </div>
                   </div>
                 </div>
@@ -912,19 +916,19 @@ const TrainerDashboard = () => {
                 {reviewsLoading ? (
                   <div className="glass-card p-12 text-center">
                     <Loader2 className="mx-auto mb-3 animate-spin text-primary" size={32} />
-                    <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Loading reviews...</p>
+                    <p className="text-ink/30 text-xs font-bold uppercase tracking-widest">Loading reviews...</p>
                   </div>
                 ) : reviews.length > 0 ? (
                   <div className="space-y-4">
                     {reviews.map((rev: any) => (
-                      <div key={rev.id} className="glass-card p-6 space-y-4 hover:border-white/10 transition-colors">
+                      <div key={rev.id} className="glass-card p-6 space-y-4 hover:border-ink/10 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                            <div className="w-10 h-10 rounded-full bg-ink/5 border border-ink/10 flex items-center justify-center overflow-hidden">
                               {rev.avatar_url ? (
                                 <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" />
                               ) : (
-                                <User size={16} className="text-white/20" />
+                                <User size={16} className="text-ink/20" />
                               )}
                             </div>
                             <div>
@@ -938,9 +942,9 @@ const TrainerDashboard = () => {
                               </div>
                               <div className="flex items-center gap-1 mt-0.5">
                                 {[1,2,3,4,5].map(i => (
-                                  <Star key={i} size={10} className={clsx(i <= rev.rating ? 'text-primary fill-primary' : 'text-white/10')} />
+                                  <Star key={i} size={10} className={clsx(i <= rev.rating ? 'text-primary fill-primary' : 'text-ink/10')} />
                                 ))}
-                                <span className="text-[9px] text-white/20 ml-2 font-bold">
+                                <span className="text-[9px] text-ink/20 ml-2 font-bold">
                                   {new Date(rev.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                 </span>
                               </div>
@@ -949,28 +953,28 @@ const TrainerDashboard = () => {
                         </div>
 
                         {rev.title && (
-                          <p className="text-sm font-bold italic text-white/80">"{rev.title}"</p>
+                          <p className="text-sm font-bold italic text-ink/80">"{rev.title}"</p>
                         )}
                         {rev.review && (
-                          <p className="text-sm text-white/50 leading-relaxed">{rev.review}</p>
+                          <p className="text-sm text-ink/50 leading-relaxed">{rev.review}</p>
                         )}
 
                         {/* Sub-Ratings */}
                         {(rev.professionalism_rating || rev.knowledge_rating || rev.punctuality_rating) && (
                           <div className="flex flex-wrap gap-3 pt-2">
                             {rev.professionalism_rating && (
-                              <div className="text-[9px] font-bold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 uppercase tracking-widest">
-                                Professionalism: <span className="text-white/80">{rev.professionalism_rating}/5</span>
+                              <div className="text-[9px] font-bold px-3 py-1 rounded-full bg-ink/5 border border-ink/10 text-ink/40 uppercase tracking-widest">
+                                Professionalism: <span className="text-ink/80">{rev.professionalism_rating}/5</span>
                               </div>
                             )}
                             {rev.knowledge_rating && (
-                              <div className="text-[9px] font-bold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 uppercase tracking-widest">
-                                Knowledge: <span className="text-white/80">{rev.knowledge_rating}/5</span>
+                              <div className="text-[9px] font-bold px-3 py-1 rounded-full bg-ink/5 border border-ink/10 text-ink/40 uppercase tracking-widest">
+                                Knowledge: <span className="text-ink/80">{rev.knowledge_rating}/5</span>
                               </div>
                             )}
                             {rev.punctuality_rating && (
-                              <div className="text-[9px] font-bold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/40 uppercase tracking-widest">
-                                Punctuality: <span className="text-white/80">{rev.punctuality_rating}/5</span>
+                              <div className="text-[9px] font-bold px-3 py-1 rounded-full bg-ink/5 border border-ink/10 text-ink/40 uppercase tracking-widest">
+                                Punctuality: <span className="text-ink/80">{rev.punctuality_rating}/5</span>
                               </div>
                             )}
                           </div>
@@ -980,7 +984,7 @@ const TrainerDashboard = () => {
                         {rev.trainer_response && (
                           <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 mt-2">
                             <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Your Response</p>
-                            <p className="text-xs text-white/60">{rev.trainer_response}</p>
+                            <p className="text-xs text-ink/60">{rev.trainer_response}</p>
                           </div>
                         )}
                       </div>
@@ -988,8 +992,8 @@ const TrainerDashboard = () => {
                   </div>
                 ) : (
                   <div className="glass-card p-10 text-center border-dashed">
-                    <MessageCircle className="mx-auto mb-4 text-white/10" size={48} />
-                    <p className="text-white/40 text-sm font-bold">No reviews yet. Complete sessions to start getting feedback from clients.</p>
+                    <MessageCircle className="mx-auto mb-4 text-ink/10" size={48} />
+                    <p className="text-ink/40 text-sm font-bold">No reviews yet. Complete sessions to start getting feedback from clients.</p>
                   </div>
                 )}
               </div>
@@ -1044,7 +1048,7 @@ const ClientsSection = ({ clients, onSelectClient }: { clients: any[]; onSelectC
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold italic uppercase tracking-tighter">My Clients</h3>
-        <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{clients.length} Active Client{clients.length !== 1 && 's'}</p>
+        <p className="text-[10px] text-ink/30 font-black uppercase tracking-widest">{clients.length} Active Client{clients.length !== 1 && 's'}</p>
       </div>
 
       {clients.length > 0 ? (
@@ -1056,24 +1060,24 @@ const ClientsSection = ({ clients, onSelectClient }: { clients: any[]; onSelectC
               className="glass-card p-6 flex items-center justify-between group cursor-pointer hover:border-primary/30 transition-all border border-transparent"
             >
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden">
+                <div className="w-14 h-14 rounded-2xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden">
                   <User size={28} />
                 </div>
                 <div>
                   <h4 className="font-bold text-lg group-hover:text-primary transition-colors">{client.user_name}</h4>
-                  <p className="text-[10px] text-white/40 font-black uppercase tracking-widest">
+                  <p className="text-[10px] text-ink/40 font-black uppercase tracking-widest">
                     {client.bookings.length} Package{client.bookings.length !== 1 && 's'} • {client.sessions.length} Session{client.sessions.length !== 1 && 's'}
                   </p>
                 </div>
               </div>
-              <ArrowRight size={20} className="text-white/10 group-hover:text-primary transition-all group-hover:translate-x-1" />
+              <ArrowRight size={20} className="text-ink/10 group-hover:text-primary transition-all group-hover:translate-x-1" />
             </div>
           ))}
         </div>
       ) : (
         <div className="glass-card p-20 text-center border-dashed">
-          <Users className="mx-auto mb-4 text-white/10" size={48} />
-          <p className="text-white/40 text-sm font-bold uppercase tracking-widest">No clients found yet</p>
+          <Users className="mx-auto mb-4 text-ink/10" size={48} />
+          <p className="text-ink/40 text-sm font-bold uppercase tracking-widest">No clients found yet</p>
         </div>
       )}
     </div>
@@ -1102,38 +1106,38 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
             onClick={(e) => e.stopPropagation()}
           >
             {/* Left Panel: Client Info */}
-            <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-white/10 p-6 sm:p-8 bg-white/5">
+            <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-ink/10 p-6 sm:p-8 bg-ink/5">
               <div className="text-center lg:text-left">
                 <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-primary/10 border-2 border-primary/20 flex items-center justify-center mx-auto lg:mx-0 mb-4 sm:mb-6 text-primary">
                   <User size={32} className="sm:w-12 sm:h-12" />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black italic uppercase tracking-tighter mb-1">{client.user_name}</h2>
-                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-4 sm:mb-6">Active Client</p>
+                <p className="text-[10px] font-bold text-ink/30 uppercase tracking-widest mb-4 sm:mb-6">Active Client</p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6">
                   {client.user_phone && (
                     <div className="space-y-1">
-                      <p className="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Phone Number</p>
+                      <p className="text-[8px] sm:text-[9px] font-black text-ink/20 uppercase tracking-[0.2em]">Phone Number</p>
                       <p className="text-sm font-bold text-primary">{client.user_phone}</p>
                     </div>
                   )}
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Bookings</p>
+                      <p className="text-[8px] sm:text-[9px] font-black text-ink/20 uppercase tracking-[0.2em]">Bookings</p>
                       <p className="text-base sm:text-lg font-black">{client.bookings.length}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[8px] sm:text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Sessions</p>
+                      <p className="text-[8px] sm:text-[9px] font-black text-ink/20 uppercase tracking-[0.2em]">Sessions</p>
                       <p className="text-base sm:text-lg font-black">{client.sessions.length}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-white/5 hidden lg:block">
+                <div className="pt-6 mt-6 border-t border-ink/5 hidden lg:block">
                   <button 
                     onClick={onClose}
-                    className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                    className="w-full py-4 rounded-2xl bg-ink/5 border border-ink/10 text-[10px] font-black uppercase tracking-widest hover:bg-ink/10 transition-all"
                   >
                     Close Profile
                   </button>
@@ -1151,16 +1155,16 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                   </h3>
                   <div className="space-y-3">
                     {client.bookings.map((booking: any) => (
-                      <div key={booking.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between hover:bg-white/10 transition-all">
+                      <div key={booking.id} className="bg-ink/5 border border-ink/10 rounded-2xl p-4 flex items-center justify-between hover:bg-ink/10 transition-all">
                         <div>
                           <p className="font-bold text-sm">{booking.package_name || 'Personal Training'}</p>
-                          <p className="text-[10px] text-white/30 font-black uppercase tracking-widest mt-1">
+                          <p className="text-[10px] text-ink/30 font-black uppercase tracking-widest mt-1">
                             {booking.sessions_completed} / {booking.total_sessions} Sessions Done
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="font-black text-emerald-400 text-sm">₹{booking.total_amount}</p>
-                          <p className="text-[9px] text-white/20 font-bold uppercase mt-1">{booking.status}</p>
+                          <p className="text-[9px] text-ink/20 font-bold uppercase mt-1">{booking.status}</p>
                         </div>
                       </div>
                     ))}
@@ -1174,25 +1178,25 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                   </h3>
                   <div className="space-y-4">
                     {client.sessions.sort((a: any, b: any) => new Date(b.scheduled_date).getTime() - new Date(a.scheduled_date).getTime()).map((session: any) => (
-                      <div key={session.id} className="relative pl-6 border-l border-white/10">
+                      <div key={session.id} className="relative pl-6 border-l border-ink/10">
                         <div className={clsx(
                           "absolute -left-1.5 top-0 w-3 h-3 rounded-full border-2 border-black",
                           session.status === 'completed' ? "bg-emerald-500" :
                           session.status === 'scheduled' ? "bg-primary" :
-                          "bg-white/20"
+                          "bg-ink/20"
                         )} />
-                        <div className="bg-white/5 border border-white/5 rounded-2xl p-5 hover:border-white/20 transition-all group">
+                        <div className="bg-ink/5 border border-ink/5 rounded-2xl p-5 hover:border-ink/20 transition-all group">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                             <div>
                               <p className="font-bold text-sm">
                                 {new Date(session.scheduled_date).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}
                               </p>
                               <div className="flex items-center gap-3 mt-1">
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-white/40">
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-ink/40">
                                   <Clock size={12} /> {session.scheduled_time}
                                 </span>
-                                <span className="text-[10px] text-white/20">•</span>
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                                <span className="text-[10px] text-ink/20">•</span>
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-ink/40 uppercase tracking-widest">
                                   {session.session_type} Session
                                 </span>
                               </div>
@@ -1201,18 +1205,18 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                               "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shrink-0 w-fit",
                               session.status === 'completed' ? "text-emerald-400 border-emerald-500/20 bg-emerald-500/10" :
                               session.status === 'scheduled' ? "text-primary border-primary/20 bg-primary/10" :
-                              "text-white/40 border-white/10 bg-white/5"
+                              "text-ink/40 border-ink/10 bg-ink/5"
                             )}>
                               {session.status}
                             </div>
                           </div>
 
                           {session.location && (
-                            <div className="flex items-start gap-3 p-4 bg-black/20 rounded-xl border border-white/5 group-hover:border-white/10 transition-all">
+                            <div className="flex items-start gap-3 p-4 bg-surface-sunken rounded-xl border border-ink/5 group-hover:border-ink/10 transition-all">
                               <MapPin size={16} className="text-primary shrink-0 mt-0.5" />
                               <div className="min-w-0">
-                                <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">Session Location</p>
-                                <p className="text-xs font-bold text-white/60 leading-relaxed truncate md:whitespace-normal">{session.location}</p>
+                                <p className="text-[9px] font-black text-ink/20 uppercase tracking-[0.2em] mb-1">Session Location</p>
+                                <p className="text-xs font-bold text-ink/60 leading-relaxed truncate md:whitespace-normal">{session.location}</p>
                               </div>
                             </div>
                           )}
@@ -1222,7 +1226,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                               <p className="text-[9px] font-black text-amber-500/40 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                                 <MessageCircle size={10} /> Session Notes
                               </p>
-                              <p className="text-xs text-white/50 leading-relaxed italic">"{session.trainer_notes}"</p>
+                              <p className="text-xs text-ink/50 leading-relaxed italic">"{session.trainer_notes}"</p>
                             </div>
                           )}
                         </div>
@@ -1249,17 +1253,17 @@ const ScheduleSection = ({ availability, onViewManage }: { availability: any[] |
     {availability && availability.length > 0 ? (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {availability.map((avail, idx) => (
-          <div key={idx} className="glass-card p-4 flex items-center justify-between hover:border-white/20 transition-all">
+          <div key={idx} className="glass-card p-4 flex items-center justify-between hover:border-ink/20 transition-all">
             <div className="flex items-center gap-4">
               <div className={clsx(
                 "w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm",
-                avail.is_available ? "bg-primary/10 text-primary border border-primary/20" : "bg-white/5 text-white/20 border border-white/10"
+                avail.is_available ? "bg-primary/10 text-primary border border-primary/20" : "bg-ink/5 text-ink/20 border border-ink/10"
               )}>
                 {(avail.day_name || 'DAY').substring(0, 3)}
               </div>
               <div>
                 <p className="font-bold text-sm">{avail.day_name}</p>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">
                   {avail.is_available ? `${avail.start_time} - ${avail.end_time}` : 'Unavailable'}
                 </p>
               </div>
@@ -1279,7 +1283,7 @@ const ScheduleSection = ({ availability, onViewManage }: { availability: any[] |
       </div>
     ) : (
       <div className="glass-card p-10 text-center border-dashed">
-        <p className="text-white/40 text-sm">No regular schedule defined yet.</p>
+        <p className="text-ink/40 text-sm">No regular schedule defined yet.</p>
       </div>
     )}
   </div>
@@ -1294,16 +1298,16 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between">
          <h3 className="text-xl font-bold italic uppercase tracking-tighter">Session Management</h3>
-         <div className="flex bg-white/5 rounded-xl p-1 border border-white/5">
+         <div className="flex bg-ink/5 rounded-xl p-1 border border-ink/5">
             <button 
               onClick={() => setFilter('pending')}
-              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all", filter === 'pending' ? "bg-primary text-black" : "text-white/40 hover:text-white")}
+              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all", filter === 'pending' ? "bg-primary text-black" : "text-ink/40 hover:text-ink")}
             >
               Pending
             </button>
             <button 
               onClick={() => setFilter('upcoming')}
-              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all", filter === 'upcoming' ? "bg-primary text-black" : "text-white/40 hover:text-white")}
+              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all", filter === 'upcoming' ? "bg-primary text-black" : "text-ink/40 hover:text-ink")}
             >
               Scheduled
             </button>
@@ -1313,7 +1317,7 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
       {loading ? (
         <div className="py-20 text-center">
            <Loader2 className="animate-spin text-primary mx-auto mb-4" size={32} />
-           <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">Refreshing sessions...</p>
+           <p className="text-[10px] font-black text-ink/20 uppercase tracking-widest">Refreshing sessions...</p>
         </div>
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1321,12 +1325,12 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
              <div key={session.id} className="glass-card p-6 space-y-5 group hover:border-primary/20 transition-all">
                 <div className="flex justify-between items-start">
                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary overflow-hidden">
+                      <div className="w-12 h-12 rounded-2xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary overflow-hidden">
                         {session.user_avatar ? <img src={session.user_avatar} className="w-full h-full object-cover" /> : <User size={24} />}
                       </div>
                       <div>
                          <h4 className="font-bold text-lg leading-tight">{session.user_name || 'Member'}</h4>
-                         <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.2em]">{session.session_type} Session</p>
+                         <p className="text-[10px] text-ink/40 font-bold uppercase tracking-[0.2em]">{session.session_type} Session</p>
                       </div>
                    </div>
                    <div className={clsx(
@@ -1341,17 +1345,17 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
 
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-1">
-                      <p className="text-[9px] text-white/20 font-black uppercase tracking-widest">Date & Time</p>
+                      <p className="text-[9px] text-ink/20 font-black uppercase tracking-widest">Date & Time</p>
                       <p className="text-xs font-bold">{new Date(session.scheduled_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} • {session.scheduled_time}</p>
                    </div>
                    <div className="space-y-1">
-                      <p className="text-[9px] text-white/20 font-black uppercase tracking-widest">Duration</p>
+                      <p className="text-[9px] text-ink/20 font-black uppercase tracking-widest">Duration</p>
                       <p className="text-xs font-bold">{session.duration_minutes} Minutes</p>
                    </div>
                 </div>
 
                 {session.location && (
-                   <div className="flex items-center gap-2 text-white/40">
+                   <div className="flex items-center gap-2 text-ink/40">
                       <MapPin size={12} className="text-primary" />
                       <p className="text-[10px] font-bold truncate">{session.location}</p>
                    </div>
@@ -1378,8 +1382,8 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
         </div>
       ) : (
         <div className="glass-card p-20 text-center border-dashed">
-           <Clock className="mx-auto mb-4 text-white/10" size={48} />
-           <p className="text-white/40 text-sm font-bold uppercase tracking-widest">No {filter} sessions found</p>
+           <Clock className="mx-auto mb-4 text-ink/10" size={48} />
+           <p className="text-ink/40 text-sm font-bold uppercase tracking-widest">No {filter} sessions found</p>
         </div>
       )}
     </div>

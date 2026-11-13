@@ -99,19 +99,19 @@ const Discovery = () => {
       <div className="space-y-8">
         <div className="space-y-1">
           <h1 className="text-4xl md:text-5xl font-display font-black tracking-tighter italic">EXPLORE</h1>
-          <p className="text-sm md:text-base text-white/40">Find the best fitness facilities and mentors near you.</p>
+          <p className="text-sm md:text-base text-ink/40">Find the best fitness facilities and mentors near you.</p>
         </div>
 
         <div className="relative group max-w-2xl">
           <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-focus-within:opacity-30 transition-opacity pointer-events-none" />
-          <div className="relative flex items-center bg-white/5 border border-white/10 rounded-2xl p-1 focus-within:border-primary/50 transition-all shadow-2xl backdrop-blur-xl">
-            <div className="pl-6 text-white/20">
+          <div className="relative flex items-center bg-ink/5 border border-ink/10 rounded-2xl p-1 focus-within:border-primary/50 transition-all shadow-2xl backdrop-blur-xl">
+            <div className="pl-6 text-ink/20">
               <Search size={22} />
             </div>
             <input
               type="text"
               placeholder={`Search ${activeTab === 'gyms' ? 'gyms, crossfit, yoga...' : 'fitness coaches...'}`}
-              className="flex-1 min-w-0 bg-transparent border-none py-4 sm:py-5 px-3 sm:px-4 focus:ring-0 outline-none text-sm sm:text-base text-white font-medium placeholder:text-white/20"
+              className="flex-1 min-w-0 bg-transparent border-none py-4 sm:py-5 px-3 sm:px-4 focus:ring-0 outline-none text-sm sm:text-base text-ink font-medium placeholder:text-ink/20"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -123,7 +123,7 @@ const Discovery = () => {
                 title="Near Me"
                 className={clsx(
                   "p-3 sm:p-4 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0",
-                  isNearMe ? "bg-primary text-black" : "text-white/40 hover:bg-white/5 hover:text-white"
+                  isNearMe ? "bg-primary text-black" : "text-ink/40 hover:bg-ink/5 hover:text-ink"
                 )}
               >
                 {isLocating ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
@@ -132,7 +132,7 @@ const Discovery = () => {
 
               <button
                 title="Filters"
-                className="p-3 sm:p-4 rounded-xl text-white/40 hover:bg-white/5 hover:text-white transition-all shrink-0"
+                className="p-3 sm:p-4 rounded-xl text-ink/40 hover:bg-ink/5 hover:text-ink transition-all shrink-0"
               >
                 <Filter size={18} />
               </button>
@@ -147,7 +147,7 @@ const Discovery = () => {
                 exit={{ opacity: 0, y: -10 }}
                 className="flex items-center gap-2 mt-4 ml-2"
               >
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 mr-2">Radius</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/20 mr-2">Radius</span>
                 <div className="flex items-center gap-1.5 pointer-events-auto">
                   {[1, 2, 5, 10].map((r) => (
                     <button
@@ -157,7 +157,7 @@ const Discovery = () => {
                         "px-3 py-1.5 rounded-lg text-[10px] font-black transition-all border",
                         radius === r 
                           ? "bg-primary/10 border-primary/30 text-primary shadow-[0_0_20px_rgba(241,130,44,0.1)]" 
-                          : "bg-white/5 border-white/5 text-white/30 hover:text-white hover:bg-white/10"
+                          : "bg-ink/5 border-ink/5 text-ink/30 hover:text-ink hover:bg-ink/10"
                       )}
                     >
                       {r}KM
@@ -170,7 +170,7 @@ const Discovery = () => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl w-fit border border-white/10">
+        <div className="flex items-center gap-1 bg-ink/5 p-1 rounded-2xl w-fit border border-ink/10">
           {(['gyms', 'trainers'] as const).map((tab) => (
             <button
               key={tab}
@@ -193,7 +193,7 @@ const Discovery = () => {
                 'shrink-0 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
                 selectedCategory === category
                   ? 'border-primary bg-primary text-black shadow-lg shadow-primary/20'
-                  : 'border-white/10 bg-white/5 text-white/40 hover:border-white/20 hover:text-white'
+                  : 'border-ink/10 bg-ink/5 text-ink/40 hover:border-ink/20 hover:text-ink'
               )}
             >
               {category}
@@ -214,7 +214,7 @@ const Discovery = () => {
         <AnimatePresence mode="popLayout">
          {loading ? (
             Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="glass-card h-80 animate-pulse bg-white/5" />
+              <div key={i} className="glass-card h-80 animate-pulse bg-ink/5" />
             ))
           ) : (items?.length ?? 0) > 0 ? items.map((item, index) => (
             <motion.div
@@ -229,7 +229,7 @@ const Discovery = () => {
               }}
               className="glass-card group overflow-hidden cursor-pointer flex flex-col h-full hover:border-primary/30 transition-colors"
             >
-              <div className="h-40 md:h-48 relative overflow-hidden bg-white/5 shrink-0">
+              <div className="h-40 md:h-48 relative overflow-hidden bg-ink/5 shrink-0">
                 {activeTab === 'gyms' ? (
                   (item.cover_image_url || item.logo_url) ? (
                     <img
@@ -238,7 +238,7 @@ const Discovery = () => {
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-white/10 group-hover:scale-110 transition-transform duration-700">
+                    <div className="absolute inset-0 flex items-center justify-center text-ink/10 group-hover:scale-110 transition-transform duration-700">
                       <Building2 size={100} />
                     </div>
                   )
@@ -249,7 +249,7 @@ const Discovery = () => {
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-white/10 group-hover:scale-110 transition-transform duration-700">
+                  <div className="absolute inset-0 flex items-center justify-center text-ink/10 group-hover:scale-110 transition-transform duration-700">
                     <User size={100} />
                   </div>
                 )}
@@ -277,7 +277,7 @@ const Discovery = () => {
                   )}
                 </div>
 
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 border border-white/10">
+                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 border border-ink/10">
                   <Star className="text-primary fill-primary" size={14} />
                   <span className="text-xs font-bold">{item.rating_avg?.toFixed(1) || 'NEW'}</span>
                 </div>
@@ -290,7 +290,7 @@ const Discovery = () => {
                   </h3>
                   {activeTab === 'gyms' ? (
                     item.description && (
-                      <p className="text-[11px] md:text-xs text-white/30 line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] md:text-xs text-ink/30 line-clamp-2 leading-relaxed">
                         {item.description}
                       </p>
                     )
@@ -298,12 +298,12 @@ const Discovery = () => {
                     item.specializations && item.specializations.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-1 mb-1">
                         {item.specializations.slice(0, 3).map((spec: string, idx: number) => (
-                          <span key={idx} className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-white/60">
+                          <span key={idx} className="bg-ink/5 border border-ink/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-ink/60">
                             {spec}
                           </span>
                         ))}
                         {item.specializations.length > 3 && (
-                          <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-white/60">
+                          <span className="bg-ink/5 border border-ink/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-ink/60">
                             +{item.specializations.length - 3}
                           </span>
                         )}
@@ -313,7 +313,7 @@ const Discovery = () => {
                   <div 
                     role="button"
                     onClick={(e) => openInMap(e, activeTab === 'gyms' ? (item.address_line1 || item.city) : item.location, item.latitude, item.longitude)}
-                    className="text-white/40 text-[10px] md:text-[11px] flex items-center gap-1 font-medium hover:text-primary transition-colors cursor-pointer group/addr"
+                    className="text-ink/40 text-[10px] md:text-[11px] flex items-center gap-1 font-medium hover:text-primary transition-colors cursor-pointer group/addr"
                   >
                     <MapPin size={12} className="shrink-0 text-primary/50 group-hover/addr:text-primary group-hover/addr:scale-110 transition-all" />
                     <span className="line-clamp-1 border-b border-transparent group-hover/addr:border-primary/30">
@@ -323,26 +323,26 @@ const Discovery = () => {
                 </div>
 
                 {activeTab === 'gyms' && item.max_capacity && (
-                  <div className="bg-white/5 rounded-xl p-3 border border-white/5 flex items-center justify-between">
+                  <div className="bg-ink/5 rounded-xl p-3 border border-ink/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Crowd Status</span>
+                      <span className="text-[10px] font-bold text-ink/40 uppercase tracking-wider">Crowd Status</span>
                     </div>
                     <span className="text-xs font-black">
-                      {item.current_occupancy} <span className="text-white/20 font-medium">/ {item.max_capacity}</span>
+                      {item.current_occupancy} <span className="text-ink/20 font-medium">/ {item.max_capacity}</span>
                     </span>
                   </div>
                 )}
 
-                <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                <div className="mt-auto pt-4 border-t border-ink/5 flex items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-white/20 uppercase font-black tracking-widest">Starting from</span>
+                    <span className="text-[10px] text-ink/20 uppercase font-black tracking-widest">Starting from</span>
                     <span className="text-lg font-black text-primary">
                       ₹{activeTab === 'gyms' ? (item.starting_price?.toLocaleString() || '1,500') : ((item.hourly_rate || 500).toLocaleString?.() || item.hourly_rate || '500')}
                       <span className="text-xs text-primary/70">{activeTab === 'gyms' ? getPeriodText(item.starting_price_duration) : '/hr'}</span>
                     </span>
                   </div>
-                  <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:translate-x-1">
+                  <div className="w-10 h-10 rounded-full border border-ink/10 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:translate-x-1">
                     <ArrowRight size={20} />
                   </div>
                 </div>
@@ -350,8 +350,8 @@ const Discovery = () => {
             </motion.div>
           )) : (
             <div className="col-span-full py-24 text-center glass-card border-dashed">
-              <p className="text-white/20 font-display text-4xl mb-4 italic">NO RESULTS</p>
-              <p className="text-white/40">Try adjusting your filters or search keywords.</p>
+              <p className="text-ink/20 font-display text-4xl mb-4 italic">NO RESULTS</p>
+              <p className="text-ink/40">Try adjusting your filters or search keywords.</p>
             </div>
           )}
         </AnimatePresence>

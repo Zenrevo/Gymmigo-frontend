@@ -212,7 +212,7 @@ const PillSelector = ({
             "px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap",
             isActive 
               ? "bg-primary/20 border-primary text-primary" 
-              : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+              : "bg-ink/5 border-ink/5 text-ink/40 hover:border-ink/20"
           )}
         >
           {opt.label}
@@ -245,7 +245,7 @@ const NumberPillSelector = ({
             "px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap",
             isActive
               ? "bg-primary/20 border-primary text-primary"
-              : "bg-white/5 border-white/5 text-white/40 hover:border-white/20"
+              : "bg-ink/5 border-ink/5 text-ink/40 hover:border-ink/20"
           )}
         >
           {value}{suffix}
@@ -284,7 +284,7 @@ const ChipMultiSelect = ({
           <button
             key={p} type="button" onClick={() => toggle(p)}
             className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all",
-              selected.includes(p) ? "bg-primary/10 border-primary text-primary" : "bg-white/5 border-white/5 text-white/20")}>
+              selected.includes(p) ? "bg-primary/10 border-primary text-primary" : "bg-ink/5 border-ink/5 text-ink/20")}>
             {p} {selected.includes(p) && <X size={10} />}
           </button>
         ))}
@@ -301,9 +301,9 @@ const ChipMultiSelect = ({
           type="text" value={customText} onChange={e => setCustomText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom())}
           placeholder={placeholder}
-          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-primary/50 transition-colors"
+          className="flex-1 bg-ink/5 border border-ink/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-primary/50 transition-colors"
         />
-        <button type="button" onClick={addCustom} className="p-2 rounded-xl bg-white/5 border border-white/10 text-primary hover:bg-white/10">
+        <button type="button" onClick={addCustom} className="p-2 rounded-xl bg-ink/5 border border-ink/10 text-primary hover:bg-ink/10">
           <Plus size={16} />
         </button>
       </div>
@@ -525,7 +525,7 @@ const Profile = () => {
       </div>
 
       {user?.active_role === 'user' && (
-        <section className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-slate-950/35 p-5 shadow-2xl shadow-cyan-950/20 sm:p-6 lg:p-8">
+        <section className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-surface/35 p-5 shadow-2xl shadow-cyan-950/20 sm:p-6 lg:p-8">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.14),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(241,130,44,0.16),transparent_32%)]" />
           <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center">
             <div className="space-y-6">
@@ -533,28 +533,28 @@ const Profile = () => {
                 <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-200">
                   <Sparkles size={13} /> Holographic Fitness Card
                 </div>
-                <h2 className="mt-4 text-3xl font-display font-black tracking-tight text-white sm:text-4xl">
+                <h2 className="mt-4 text-3xl font-display font-black tracking-tight text-ink sm:text-4xl">
                   Your premium Gymmigo identity
                 </h2>
-                <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-white/48">
+                <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-ink/48">
                   A shareable ATM-style Fitness Card with your six-character Fitness ID, QR profile, Clubs, badges, and live progress.
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="flex items-center gap-1 text-2xl font-black text-white">
+                <div className="rounded-xl border border-ink/10 bg-ink/[0.04] p-4">
+                  <p className="flex items-center gap-1 text-2xl font-black text-ink">
                     {clubStreak}<span className="text-sm text-amber-300">D</span>
                   </p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Streak</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Streak</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                <div className="rounded-xl border border-ink/10 bg-ink/[0.04] p-4">
                   <p className="text-2xl font-black text-primary">{badgeCount}</p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Badges</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Badges</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                <div className="rounded-xl border border-ink/10 bg-ink/[0.04] p-4">
                   <p className="text-2xl font-black text-emerald-300">{fitcardPoints}</p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Points</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Points</p>
                 </div>
               </div>
 
@@ -564,7 +564,7 @@ const Profile = () => {
                 </Link>
                 <Link
                   to="/app/clubs"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-white/70 transition hover:border-primary/30 hover:text-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-ink/10 bg-ink/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-ink/70 transition hover:border-primary/30 hover:text-ink"
                 >
                   <Trophy size={16} /> {clubCount ? fitcardTitle : 'View Clubs'}
                 </Link>
@@ -586,8 +586,8 @@ const Profile = () => {
               <Wallet size={23} />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight text-white">Wallet Transactions</h2>
-              <p className="mt-1 max-w-2xl text-xs font-semibold leading-5 text-white/45">
+              <h2 className="text-xl font-black tracking-tight text-ink">Wallet Transactions</h2>
+              <p className="mt-1 max-w-2xl text-xs font-semibold leading-5 text-ink/45">
                 View every loyalty credit, reward claim, and wallet usage in one ledger.
               </p>
             </div>
@@ -596,12 +596,12 @@ const Profile = () => {
         </Link>
       )}
 
-      <section className="glass-card p-5 sm:p-8 space-y-6 border-white/10 bg-white/[0.02]">
+      <section className="glass-card p-5 sm:p-8 space-y-6 border-ink/10 bg-ink/[0.02]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Account roles</p>
             <h2 className="text-2xl font-black tracking-tight mt-2">Use Gymmigo your way</h2>
-            <p className="text-sm text-white/40 mt-1 max-w-2xl">
+            <p className="text-sm text-ink/40 mt-1 max-w-2xl">
               Add a role when you want to manage a gym or use member features from the same login.
             </p>
           </div>
@@ -630,13 +630,13 @@ const Profile = () => {
                   <Icon size={13} />
                   {meta.label}
                   {isSwitching ? (
-                    <span className="text-white/50">Switching</span>
+                    <span className="text-ink/50">Switching</span>
                   ) : isActive ? (
-                    <span className="text-white/50">Active</span>
+                    <span className="text-ink/50">Active</span>
                   ) : isTrainer ? (
-                    <span className="text-white/50">Soon</span>
+                    <span className="text-ink/50">Soon</span>
                   ) : (
-                    <ChevronRight size={12} className="text-white/35" />
+                    <ChevronRight size={12} className="text-ink/35" />
                   )}
                 </button>
               );
@@ -651,25 +651,25 @@ const Profile = () => {
               const cardClass = clsx(
                 'group rounded-2xl border p-5 text-left transition-all',
                 role.comingSoon
-                  ? 'border-white/5 bg-white/[0.02] opacity-50 cursor-not-allowed'
-                  : 'border-white/10 bg-white/[0.04] hover:border-primary/40 hover:bg-primary/10'
+                  ? 'border-ink/5 bg-ink/[0.02] opacity-50 cursor-not-allowed'
+                  : 'border-ink/10 bg-ink/[0.04] hover:border-primary/40 hover:bg-primary/10'
               );
               const content = (
                 <>
                   <div className="flex items-start justify-between gap-3">
-                    <div className="h-11 w-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary">
+                    <div className="h-11 w-11 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary">
                       <Icon size={20} />
                     </div>
                     {role.comingSoon ? (
-                      <span className="rounded-full bg-white/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white/40">
+                      <span className="rounded-full bg-ink/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-ink/40">
                         Soon
                       </span>
                     ) : (
-                      <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors" />
+                      <ChevronRight size={18} className="text-ink/20 group-hover:text-primary transition-colors" />
                     )}
                   </div>
                   <h3 className="mt-5 text-base font-black tracking-tight">{role.label}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-white/40">{role.description}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-ink/40">{role.description}</p>
                 </>
               );
 
@@ -702,25 +702,25 @@ const Profile = () => {
             <Sparkles size={500} className="text-primary" />
           </div>
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-10 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-ink/5 pb-10 relative z-10">
             <div className="flex items-center gap-6">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black shadow-2xl shadow-primary/30 transform group-hover:scale-110 transition-transform duration-500">
                 <Sparkles size={32} fill="currentColor" />
               </div>
               <div>
-                <h3 className="text-2xl sm:text-4xl font-black italic tracking-tighter text-white">INTELLIGENCE PROFILE</h3>
-                <p className="text-xs text-white/40 font-bold uppercase tracking-[0.2em] mt-1">Powering your personalized MigoAI experience</p>
+                <h3 className="text-2xl sm:text-4xl font-black italic tracking-tighter text-ink">INTELLIGENCE PROFILE</h3>
+                <p className="text-xs text-ink/40 font-bold uppercase tracking-[0.2em] mt-1">Powering your personalized MigoAI experience</p>
               </div>
             </div>
             <div className="hidden md:block text-right">
               <div className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">MigoAI Core Engine</div>
-              <div className="text-2xl font-display font-black text-white/10">v2.4.0</div>
+              <div className="text-2xl font-display font-black text-ink/10">v2.4.0</div>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-primary" /> Primary Goal
               </label>
               <PillSelector 
@@ -731,7 +731,7 @@ const Profile = () => {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-primary" /> Activity Level
               </label>
               <PillSelector 
@@ -742,7 +742,7 @@ const Profile = () => {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-primary" /> Diet Preference
               </label>
               <PillSelector 
@@ -753,7 +753,7 @@ const Profile = () => {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] flex items-center gap-2">
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
                 <div className="w-1 h-1 rounded-full bg-primary" /> Experience
               </label>
               <PillSelector 
@@ -766,37 +766,37 @@ const Profile = () => {
 
           <div className="grid md:grid-cols-3 gap-8 pt-4 relative z-10">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Height (cm)</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Height (cm)</label>
               <input 
                 type="number" placeholder="170"
                 value={fitnessProfile.height || ''} 
                 onChange={(e) => setFitnessProfile({...fitnessProfile, height: e.target.value ? parseInt(e.target.value) : null})}
-                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all font-display font-bold text-xl"
+                className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all font-display font-bold text-xl"
               />
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Current Weight (kg)</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Current Weight (kg)</label>
               <input 
                 type="number" placeholder="70"
                 value={fitnessProfile.current_weight || ''} 
                 onChange={(e) => setFitnessProfile({...fitnessProfile, current_weight: e.target.value ? parseInt(e.target.value) : null})}
-                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all font-display font-bold text-xl"
+                className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all font-display font-bold text-xl"
               />
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Target Weight (kg)</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Target Weight (kg)</label>
               <input 
                 type="number" placeholder="65"
                 value={fitnessProfile.target_weight || ''} 
                 onChange={(e) => setFitnessProfile({...fitnessProfile, target_weight: e.target.value ? parseInt(e.target.value) : null})}
-                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all font-display font-bold text-xl"
+                className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all font-display font-bold text-xl"
               />
             </div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 relative z-10">
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Food Allergies & Restrictions</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Food Allergies & Restrictions</label>
               <ChipMultiSelect 
                 presets={ALLERGY_PRESETS} 
                 selected={fitnessProfile.food_allergies || []}
@@ -805,7 +805,7 @@ const Profile = () => {
               />
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Injuries / Physical Limitations</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Injuries / Physical Limitations</label>
               <ChipMultiSelect 
                 presets={INJURY_PRESETS} 
                 selected={fitnessProfile.injuries || []}
@@ -814,7 +814,7 @@ const Profile = () => {
               />
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Medical Conditions</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Medical Conditions</label>
               <ChipMultiSelect
                 presets={CONDITION_PRESETS}
                 selected={fitnessProfile.medical_conditions || []}
@@ -826,7 +826,7 @@ const Profile = () => {
 
           <div className="grid md:grid-cols-2 gap-8 relative z-10">
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Workout Duration</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Workout Duration</label>
               <NumberPillSelector
                 options={DURATION_OPTIONS}
                 selected={fitnessProfile.preferred_workout_duration}
@@ -835,7 +835,7 @@ const Profile = () => {
               />
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Workout Days / Week</label>
+              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Workout Days / Week</label>
               <NumberPillSelector
                 options={DAYS_OPTIONS}
                 selected={fitnessProfile.workout_days_per_week}
@@ -846,13 +846,13 @@ const Profile = () => {
           </div>
 
           <div className="space-y-4 pt-4 relative z-10">
-            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] ml-1">Additional Context for MigoAI</label>
+            <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Additional Context for MigoAI</label>
             <textarea 
               rows={4}
               placeholder="Tell us anything else that will help MigoAI tailor your journey..."
               value={fitnessProfile.notes_for_agent || ''} 
               onChange={(e) => setFitnessProfile({...fitnessProfile, notes_for_agent: e.target.value})}
-              className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-6 focus:border-primary/50 focus:bg-white/[0.05] outline-none transition-all placeholder:text-white/10 custom-scrollbar text-sm leading-relaxed"
+              className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl p-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all placeholder:text-ink/10 custom-scrollbar text-sm leading-relaxed"
             />
           </div>
 
@@ -862,7 +862,7 @@ const Profile = () => {
               disabled={savingSection === 'AI Personalization'} 
               className="group/btn relative px-10 py-5 rounded-2xl bg-primary text-black font-display font-black italic uppercase tracking-tighter hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl shadow-primary/40 overflow-hidden"
             >
-              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-12" />
+              <div className="absolute inset-0 bg-ink/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-12" />
               <span className="relative flex items-center gap-3">
                 {savingSection === 'AI Personalization' ? (
                   <>SYNCING INTELLIGENCE...</>
@@ -890,7 +890,7 @@ const Profile = () => {
               />
               <div className="space-y-1">
                 <h3 className="text-2xl font-black italic tracking-tight">{profile?.full_name || 'SET YOUR NAME'}</h3>
-                <p className="text-white/40 text-sm flex items-center gap-2 font-medium">
+                <p className="text-ink/40 text-sm flex items-center gap-2 font-medium">
                   <Phone size={14} className="text-primary" /> {user?.phone}
                 </p>
               </div>
@@ -898,28 +898,28 @@ const Profile = () => {
 
             <div className="grid md:grid-cols-2 gap-6 pt-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Full Name</label>
+                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Full Name</label>
                 <div className="relative group">
-                  <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 group-focus-within:text-primary transition-colors" size={18} />
                   <input 
                     type="text" 
                     placeholder="John Doe"
                     value={profile?.full_name || ''} 
                     onChange={(e) => setProfile({ ...(profile || {}), full_name: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
+                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-ink/20"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Email Address</label>
+                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 group-focus-within:text-primary transition-colors" size={18} />
                   <input 
                     type="email" 
                     placeholder="john@example.com"
                     value={profile?.email || ''} 
                     onChange={(e) => setProfile({ ...(profile || {}), email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-white/20"
+                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-ink/20"
                   />
                 </div>
               </div>
@@ -927,23 +927,23 @@ const Profile = () => {
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Date of Birth</label>
+                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Date of Birth</label>
                 <div className="relative group">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 group-focus-within:text-primary transition-colors" size={18} />
                   <input 
                     type="date" 
                     value={profile?.date_of_birth || ''} 
                     onChange={(e) => setProfile({ ...(profile || {}), date_of_birth: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all text-white/80"
+                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all text-ink/80"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Gender</label>
+                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Gender</label>
                 <select 
                   value={profile?.gender || ''} 
                   onChange={(e) => setProfile({ ...(profile || {}), gender: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer"
                 >
                   <option value="" className="bg-black">Select Gender</option>
                   <option value="male" className="bg-black">Male</option>
@@ -953,17 +953,17 @@ const Profile = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">City Location</label>
+                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">City Location</label>
                 <div 
                   onClick={() => {
                     setMapIntent('profile_city');
                     setIsMapOpen(true);
                   }}
-                  className="w-full flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl py-3 px-4 hover:border-primary transition-all cursor-pointer group"
+                  className="w-full flex items-center justify-between bg-ink/5 border border-ink/10 rounded-2xl py-3 px-4 hover:border-primary transition-all cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">
-                    <MapPin className="text-white/20 group-hover:text-primary transition-colors" size={18} />
-                    <span className={profile?.city ? "text-white" : "text-white/20"}>
+                    <MapPin className="text-ink/20 group-hover:text-primary transition-colors" size={18} />
+                    <span className={profile?.city ? "text-ink" : "text-ink/20"}>
                       {profile?.city || 'Pick location on Map'}
                     </span>
                   </div>
@@ -983,13 +983,13 @@ const Profile = () => {
 
           <form onSubmit={(e) => handleUpdateProfile('Profile Bio', e)} className="glass-card p-5 sm:p-8 lg:p-10 space-y-8">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-white/40 uppercase tracking-widest ml-1">Profile Bio</label>
+              <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Profile Bio</label>
               <textarea 
                 rows={3}
                 placeholder="Tell us about yourself..."
                 value={profile?.bio || ''} 
                 onChange={(e) => setProfile({ ...(profile || {}), bio: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-white/20 custom-scrollbar"
+                className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-ink/20 custom-scrollbar"
               />
             </div>
 
@@ -1017,28 +1017,28 @@ const Profile = () => {
               {addresses.map((addr) => (
                 <div key={addr.id} className="glass-card p-6 flex items-center justify-between group">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-white/40 group-hover:text-primary transition-colors">
+                    <div className="p-3 bg-ink/5 border border-ink/10 rounded-xl text-ink/40 group-hover:text-primary transition-colors">
                       <MapPin size={20} />
                     </div>
                     <div>
                       <h4 className="font-bold text-sm uppercase tracking-widest">
                         {addr.label || 'Address'} {addr.is_primary && <span className="text-primary">(Primary)</span>}
                       </h4>
-                      <p className="text-white/40 text-sm">{addr.address_line1 || [addr.city, addr.state].filter(Boolean).join(', ')}</p>
+                      <p className="text-ink/40 text-sm">{addr.address_line1 || [addr.city, addr.state].filter(Boolean).join(', ')}</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleDeleteAddress(addr.id)}
                     disabled={savingSection === `delete-address-${addr.id}`}
-                    className="text-white/20 hover:text-red-400 p-2 transition-colors disabled:opacity-40"
+                    className="text-ink/20 hover:text-red-400 p-2 transition-colors disabled:opacity-40"
                     title="Delete address"
                   >
                     {savingSection === `delete-address-${addr.id}` ? <CheckCircle2 size={18} /> : <Trash2 size={18} />}
                   </button>
                 </div>
               ))}
-              {addresses.length === 0 && <div className="glass-card p-12 text-center text-white/20 italic">No addresses saved.</div>}
+              {addresses.length === 0 && <div className="glass-card p-12 text-center text-ink/20 italic">No addresses saved.</div>}
             </div>
           </div>
         </div>
@@ -1048,19 +1048,19 @@ const Profile = () => {
           <div className="glass-card p-8 bg-primary/5 border-primary/10 space-y-6">
             <h3 className="font-bold uppercase tracking-widest font-display text-sm">Account Status</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between py-2 border-b border-white/5">
-                <span className="text-white/40 text-sm">Verified</span>
+              <div className="flex items-center justify-between py-2 border-b border-ink/5">
+                <span className="text-ink/40 text-sm">Verified</span>
                 <span className="text-emerald-500 font-bold text-xs uppercase tracking-tighter">YES</span>
               </div>
               <div className="flex items-center justify-between py-2">
-                <span className="text-white/40 text-sm">Joined</span>
-                <span className="text-white/60 font-bold text-xs uppercase tracking-tighter">
+                <span className="text-ink/40 text-sm">Joined</span>
+                <span className="text-ink/60 font-bold text-xs uppercase tracking-tighter">
                   {new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                 </span>
               </div>
             </div>
             <div className="pt-4">
-              <p className="text-[10px] text-white/20 italic leading-relaxed text-center">
+              <p className="text-[10px] text-ink/20 italic leading-relaxed text-center">
                 Your account is managed by Zenrevo authentication systems. 
               </p>
             </div>

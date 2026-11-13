@@ -58,7 +58,7 @@ const TrainerProfile = () => {
   if (loading) return <PageLoader message="Loading trainer profile..." />;
   if (!trainer) return (
     <div className="text-center py-20 space-y-4">
-      <User size={48} className="mx-auto text-white/20" />
+      <User size={48} className="mx-auto text-ink/20" />
       <h2 className="text-2xl font-bold">Trainer Not Found</h2>
       <button onClick={() => navigate(-1)} className="btn-primary px-6 py-2">Go Back</button>
     </div>
@@ -71,7 +71,7 @@ const TrainerProfile = () => {
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group"
+        className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors group"
       >
         <ArrowLeft size={16} />
         <span className="text-xs font-bold uppercase tracking-widest">Back to Explore</span>
@@ -102,7 +102,7 @@ const TrainerProfile = () => {
                 )}
               </div>
               {trainer.bio && (
-                <p className="text-white/50 text-sm leading-relaxed max-w-xl">{trainer.bio}</p>
+                <p className="text-ink/50 text-sm leading-relaxed max-w-xl">{trainer.bio}</p>
               )}
             </div>
 
@@ -120,22 +120,22 @@ const TrainerProfile = () => {
               <div className="flex items-center gap-2">
                 <Star size={16} className="text-primary fill-primary" />
                 <span className="font-black text-lg">{trainer.rating_avg?.toFixed(1) || '—'}</span>
-                <span className="text-[10px] text-white/30 font-bold">({trainer.rating_count} reviews)</span>
+                <span className="text-[10px] text-ink/30 font-bold">({trainer.rating_count} reviews)</span>
               </div>
               {trainer.experience_years && (
-                <div className="flex items-center gap-2 text-white/50 text-sm">
+                <div className="flex items-center gap-2 text-ink/50 text-sm">
                   <Timer size={14} />
                   <span className="font-bold">{trainer.experience_years} yrs experience</span>
                 </div>
               )}
               {trainer.total_clients > 0 && (
-                <div className="flex items-center gap-2 text-white/50 text-sm">
+                <div className="flex items-center gap-2 text-ink/50 text-sm">
                   <Users size={14} />
                   <span className="font-bold">{trainer.total_clients} clients</span>
                 </div>
               )}
               {trainer.languages_spoken && trainer.languages_spoken.length > 0 && (
-                <div className="flex items-center gap-2 text-white/50 text-sm">
+                <div className="flex items-center gap-2 text-ink/50 text-sm">
                   <Languages size={14} />
                   <span className="font-bold">{trainer.languages_spoken.join(', ')}</span>
                 </div>
@@ -157,7 +157,7 @@ const TrainerProfile = () => {
               {trainer.accepts_home_visits && (
                 <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border text-purple-400 bg-purple-500/10 border-purple-500/20 flex items-center gap-1.5">
                   <Home size={10} /> Home Visits
-                  {trainer.travel_distance_km && <span className="text-white/30">({trainer.travel_distance_km}km)</span>}
+                  {trainer.travel_distance_km && <span className="text-ink/30">({trainer.travel_distance_km}km)</span>}
                 </span>
               )}
             </div>
@@ -176,16 +176,16 @@ const TrainerProfile = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {trainer.certifications.map((cert: any) => (
-                  <div key={cert.id} className="glass-card p-4 flex items-center gap-3 group hover:border-white/10 transition-colors">
+                  <div key={cert.id} className="glass-card p-4 flex items-center gap-3 group hover:border-ink/10 transition-colors">
                     <div className={clsx(
                       "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                      cert.is_verified ? "bg-blue-500/10 border border-blue-500/20" : "bg-white/5 border border-white/10"
+                      cert.is_verified ? "bg-blue-500/10 border border-blue-500/20" : "bg-ink/5 border border-ink/10"
                     )}>
-                      {cert.is_verified ? <Shield size={18} className="text-blue-400" /> : <Award size={18} className="text-white/30" />}
+                      {cert.is_verified ? <Shield size={18} className="text-blue-400" /> : <Award size={18} className="text-ink/30" />}
                     </div>
                     <div className="min-w-0">
                       <p className="font-bold text-sm truncate">{cert.name}</p>
-                      <p className="text-[10px] text-white/30 font-bold">{cert.issued_by}
+                      <p className="text-[10px] text-ink/30 font-bold">{cert.issued_by}
                         {cert.issue_year && ` • ${cert.issue_year}`}
                       </p>
                     </div>
@@ -208,7 +208,7 @@ const TrainerProfile = () => {
                 {DAY_NAMES.map((day, idx) => {
                   const avail = trainer.availability.find((a: any) => a.day_of_week === idx);
                   return (
-                    <div key={day} className="flex items-center justify-between py-2 border-b border-white/5 last:border-b-0">
+                    <div key={day} className="flex items-center justify-between py-2 border-b border-ink/5 last:border-b-0">
                       <span className="text-sm font-bold w-28">{day}</span>
                       {avail && avail.is_available ? (
                         <div className="flex items-center gap-4">
@@ -223,7 +223,7 @@ const TrainerProfile = () => {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-white/20 font-bold">Unavailable</span>
+                        <span className="text-xs text-ink/20 font-bold">Unavailable</span>
                       )}
                     </div>
                   );
@@ -240,7 +240,7 @@ const TrainerProfile = () => {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {trainer.gallery.map((img: any) => (
-                  <div key={img.id} className="aspect-square rounded-2xl overflow-hidden bg-white/5 border border-white/10 group cursor-pointer">
+                  <div key={img.id} className="aspect-square rounded-2xl overflow-hidden bg-ink/5 border border-ink/10 group cursor-pointer">
                     <img src={img.image_url} alt={img.caption || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   </div>
                 ))}
@@ -260,7 +260,7 @@ const TrainerProfile = () => {
                     <Star size={14} className="text-primary fill-primary" />
                     <span className="text-sm font-black">{reviewsMeta.avg_rating?.toFixed(1)}</span>
                   </div>
-                  <span className="text-[10px] text-white/30 font-bold">({reviewsMeta.total} reviews)</span>
+                  <span className="text-[10px] text-ink/30 font-bold">({reviewsMeta.total} reviews)</span>
                 </div>
               </div>
 
@@ -269,11 +269,11 @@ const TrainerProfile = () => {
                   <div key={rev.id} className="glass-card p-5 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                        <div className="w-9 h-9 rounded-full bg-ink/5 border border-ink/10 flex items-center justify-center overflow-hidden">
                           {rev.avatar_url ? (
                             <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <User size={14} className="text-white/20" />
+                            <User size={14} className="text-ink/20" />
                           )}
                         </div>
                         <div>
@@ -287,21 +287,21 @@ const TrainerProfile = () => {
                           </div>
                           <div className="flex items-center gap-1 mt-0.5">
                             {[1,2,3,4,5].map(i => (
-                              <Star key={i} size={9} className={i <= rev.rating ? 'text-primary fill-primary' : 'text-white/10'} />
+                              <Star key={i} size={9} className={i <= rev.rating ? 'text-primary fill-primary' : 'text-ink/10'} />
                             ))}
-                            <span className="text-[8px] text-white/20 ml-1">
+                            <span className="text-[8px] text-ink/20 ml-1">
                               {new Date(rev.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                             </span>
                           </div>
                         </div>
                       </div>
                     </div>
-                    {rev.title && <p className="text-xs font-bold italic text-white/70">"{rev.title}"</p>}
-                    {rev.review && <p className="text-xs text-white/40 leading-relaxed">{rev.review}</p>}
+                    {rev.title && <p className="text-xs font-bold italic text-ink/70">"{rev.title}"</p>}
+                    {rev.review && <p className="text-xs text-ink/40 leading-relaxed">{rev.review}</p>}
                     {rev.trainer_response && (
                       <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 mt-1">
                         <p className="text-[9px] font-bold text-primary uppercase tracking-widest mb-0.5">Trainer Response</p>
-                        <p className="text-[11px] text-white/50">{rev.trainer_response}</p>
+                        <p className="text-[11px] text-ink/50">{rev.trainer_response}</p>
                       </div>
                     )}
                   </div>
@@ -322,19 +322,19 @@ const TrainerProfile = () => {
             <div className="space-y-3">
               {sessionPrice > 0 && (
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-white/60">Per Session</span>
+                  <span className="text-sm text-ink/60">Per Session</span>
                   <span className="text-xl font-black text-primary">₹{sessionPrice.toLocaleString()}</span>
                 </div>
               )}
               {trainer.hourly_rate && (
-                <div className="flex items-center justify-between py-2 border-t border-white/5">
-                  <span className="text-sm text-white/60">Hourly Rate</span>
+                <div className="flex items-center justify-between py-2 border-t border-ink/5">
+                  <span className="text-sm text-ink/60">Hourly Rate</span>
                   <span className="text-lg font-black">₹{trainer.hourly_rate.toLocaleString()}</span>
                 </div>
               )}
               {trainer.monthly_charges && (
-                <div className="flex items-center justify-between py-2 border-t border-white/5">
-                  <span className="text-sm text-white/60">Monthly</span>
+                <div className="flex items-center justify-between py-2 border-t border-ink/5">
+                  <span className="text-sm text-ink/60">Monthly</span>
                   <span className="text-lg font-black text-emerald-400">₹{trainer.monthly_charges.toLocaleString()}</span>
                 </div>
               )}
@@ -345,7 +345,7 @@ const TrainerProfile = () => {
 
             <button 
               disabled
-              className="w-full bg-white/5 border border-white/10 text-white/20 py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed"
+              className="w-full bg-ink/5 border border-ink/10 text-ink/20 py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed"
             >
               Booking Coming Soon
             </button>
@@ -364,7 +364,7 @@ const TrainerProfile = () => {
                     onClick={() => setSelectedPackage(pkg.id === selectedPackage?.id ? null : pkg)}
                     className={clsx(
                       "glass-card p-5 cursor-pointer transition-all",
-                      selectedPackage?.id === pkg.id ? "border-primary/50 bg-primary/5" : "hover:border-white/10"
+                      selectedPackage?.id === pkg.id ? "border-primary/50 bg-primary/5" : "hover:border-ink/10"
                     )}
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -375,14 +375,14 @@ const TrainerProfile = () => {
                             <span className="text-[8px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase">Popular</span>
                           )}
                         </div>
-                        <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">
+                        <p className="text-[10px] text-ink/30 font-bold uppercase tracking-widest mt-1">
                           {pkg.total_sessions} sessions • {pkg.validity_days} days
                         </p>
                       </div>
                       <div className="text-right">
                         {pkg.discounted_price ? (
                           <>
-                            <p className="text-xs text-white/30 line-through">₹{pkg.price.toLocaleString()}</p>
+                            <p className="text-xs text-ink/30 line-through">₹{pkg.price.toLocaleString()}</p>
                             <p className="text-xl font-black text-emerald-400">₹{pkg.discounted_price.toLocaleString()}</p>
                           </>
                         ) : (
@@ -392,7 +392,7 @@ const TrainerProfile = () => {
                     </div>
                     
                     {pkg.description && (
-                      <p className="text-[11px] text-white/40 mb-3">{pkg.description}</p>
+                      <p className="text-[11px] text-ink/40 mb-3">{pkg.description}</p>
                     )}
 
                     <div className="flex flex-wrap gap-2">
@@ -411,11 +411,11 @@ const TrainerProfile = () => {
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        className="mt-4 pt-4 border-t border-white/5"
+                        className="mt-4 pt-4 border-t border-ink/5"
                       >
                         <button
                           disabled
-                          className="w-full bg-white/5 border border-white/10 text-white/20 py-3 text-xs font-black uppercase tracking-widest cursor-not-allowed"
+                          className="w-full bg-ink/5 border border-ink/10 text-ink/20 py-3 text-xs font-black uppercase tracking-widest cursor-not-allowed"
                         >
                           Booking Coming Soon
                         </button>
@@ -512,16 +512,16 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="p-6 border-b border-white/5 flex items-center justify-between">
+          <div className="p-6 border-b border-ink/5 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-display font-black tracking-tighter italic uppercase">Buy Training Plan</h2>
-              <p className="text-xs text-white/40 mt-1">with {trainer.full_name}</p>
+              <p className="text-xs text-ink/40 mt-1">with {trainer.full_name}</p>
             </div>
             <div className="flex items-center gap-2">
               {[1, 2, 3].map(s => (
                 <div key={s} className={clsx(
                   "w-8 h-1 rounded-full transition-all",
-                  step >= s ? "bg-primary" : "bg-white/10"
+                  step >= s ? "bg-primary" : "bg-ink/10"
                 )} />
               ))}
             </div>
@@ -532,7 +532,7 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
               /* ── Step 1: Select Date ──────────────────────────────── */
               <div className="space-y-6">
                 <div>
-                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-3">Plan Start Date</p>
+                  <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-3">Plan Start Date</p>
                   <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                     {dates.map(date => {
                       const d = new Date(date);
@@ -543,19 +543,19 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
                           onClick={() => handleDateSelect(date)}
                           className={clsx(
                             "flex flex-col items-center px-4 py-3 rounded-xl border transition-all shrink-0 min-w-[60px]",
-                            isSelected ? "bg-primary/10 border-primary/30 text-primary" : "bg-white/5 border-white/10 text-white/50 hover:border-white/20"
+                            isSelected ? "bg-primary/10 border-primary/30 text-primary" : "bg-ink/5 border-ink/10 text-ink/50 hover:border-ink/20"
                           )}
                         >
                           <span className="text-[10px] font-black uppercase">{d.toLocaleDateString('en', { weekday: 'short' })}</span>
                           <span className="text-lg font-black">{d.getDate()}</span>
-                          <span className="text-[9px] font-bold text-white/30">{d.toLocaleDateString('en', { month: 'short' })}</span>
+                          <span className="text-[9px] font-bold text-ink/30">{d.toLocaleDateString('en', { month: 'short' })}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="glass-card border-dashed p-4 text-sm text-white/40 leading-relaxed">
+                <div className="glass-card border-dashed p-4 text-sm text-ink/40 leading-relaxed">
                   You’re activating a session pack here. Individual session dates and trainer approval happen after purchase.
                 </div>
 
@@ -572,23 +572,23 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
             {step === 2 && (
               /* ── Step 2: Session Details ──────────────────────────── */
               <div className="space-y-6">
-                <div className="glass-card border-dashed p-4 text-sm text-white/40 leading-relaxed">
+                <div className="glass-card border-dashed p-4 text-sm text-ink/40 leading-relaxed">
                   Session type, location, and exact time are collected when you request each session from your active balance.
                 </div>
 
                 <div>
-                  <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Notes for Trainer (optional)</p>
+                  <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-2">Notes for Trainer (optional)</p>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any goals or context for this plan..."
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-primary/50 outline-none resize-none"
+                    className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink placeholder:text-ink/20 focus:border-primary/50 outline-none resize-none"
                     rows={3}
                   />
                 </div>
 
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl border border-white/10 text-white/40 font-bold text-sm hover:bg-white/5 transition-colors">Back</button>
+                  <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl border border-ink/10 text-ink/40 font-bold text-sm hover:bg-ink/5 transition-colors">Back</button>
                   <button
                     onClick={() => setStep(3)}
                     className="flex-1 btn-primary py-3 text-sm font-black uppercase tracking-widest disabled:opacity-30"
@@ -603,23 +603,23 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
               /* ── Step 3: Review & Confirm ─────────────────────────── */
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <div className="bg-white/5 rounded-xl p-4 space-y-3">
+                  <div className="bg-ink/5 rounded-xl p-4 space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/40">Trainer</span>
+                      <span className="text-ink/40">Trainer</span>
                       <span className="font-bold">{trainer.full_name}</span>
                     </div>
-                    <div className="flex justify-between text-sm border-t border-white/5 pt-2">
-                      <span className="text-white/40">Date</span>
+                    <div className="flex justify-between text-sm border-t border-ink/5 pt-2">
+                      <span className="text-ink/40">Date</span>
                       <span className="font-bold">{new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
                     </div>
                     {pkg && (
-                      <div className="flex justify-between text-sm border-t border-white/5 pt-2">
-                        <span className="text-white/40">Package</span>
+                      <div className="flex justify-between text-sm border-t border-ink/5 pt-2">
+                        <span className="text-ink/40">Package</span>
                         <span className="font-bold">{pkg.name}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-sm border-t border-white/5 pt-2">
-                      <span className="text-white/40">Session Booking</span>
+                    <div className="flex justify-between text-sm border-t border-ink/5 pt-2">
+                      <span className="text-ink/40">Session Booking</span>
                       <span className="font-bold text-primary">Requested Later</span>
                     </div>
                   </div>
@@ -631,7 +631,7 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
                 </div>
 
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl border border-white/10 text-white/40 font-bold text-sm hover:bg-white/5 transition-colors">Back</button>
+                  <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl border border-ink/10 text-ink/40 font-bold text-sm hover:bg-ink/5 transition-colors">Back</button>
                   <button
                     disabled={submitting}
                     onClick={handleSubmit}
@@ -656,7 +656,7 @@ const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) =>
                 </motion.div>
                 <div>
                   <h3 className="text-2xl font-display font-black tracking-tighter italic uppercase">PLAN ACTIVATED!</h3>
-                  <p className="text-white/40 text-sm mt-2 max-w-xs mx-auto">
+                  <p className="text-ink/40 text-sm mt-2 max-w-xs mx-auto">
                     Your session balance with {trainer.full_name} is ready. You can now request individual sessions and the trainer will confirm each one.
                   </p>
                 </div>

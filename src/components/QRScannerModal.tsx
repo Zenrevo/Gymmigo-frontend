@@ -302,7 +302,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                   <ScanLine size={16} className="text-primary" />
                   Point camera at the gym's daily QR code
                 </p>
-                <p className="text-xs text-white/30">The QR is displayed on the gym's dashboard screen</p>
+                <p className="text-xs text-ink/30">The QR is displayed on the gym's dashboard screen</p>
               </div>
             </motion.div>
           )}
@@ -323,12 +323,12 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-2xl font-black">Checkout Confirmation</h3>
-                <p className="text-white/60">You are checked in at <span className="text-white font-bold">{confirmData?.gym_name || 'the gym'}</span>.</p>
-                <p className="text-white/60">Do you want to check out now?</p>
+                <p className="text-ink/60">You are checked in at <span className="text-ink font-bold">{confirmData?.gym_name || 'the gym'}</span>.</p>
+                <p className="text-ink/60">Do you want to check out now?</p>
               </div>
               <div className="flex w-full gap-3 mt-4">
                 <button onClick={() => { setScanState('scanning'); setTimeout(startScanner, 300); }} 
-                  className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all">
+                  className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all">
                   Cancel
                 </button>
                 <button onClick={() => performActualAction(true)} 
@@ -347,7 +347,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                   <Dumbbell className="text-primary" size={32} />
                 </div>
                 <h3 className="text-2xl font-black">Ready to grind?</h3>
-                <p className="text-white/60">Checking into <span className="text-white font-bold">{confirmData?.gym_name}</span></p>
+                <p className="text-ink/60">Checking into <span className="text-ink font-bold">{confirmData?.gym_name}</span></p>
               </div>
               
               <div className="space-y-4">
@@ -375,7 +375,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                             ? "bg-primary border-primary text-black" 
                             : recommended
                               ? "bg-primary/10 border-primary/30 text-white hover:bg-primary/20"
-                              : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
+                              : "bg-ink/5 border-ink/10 text-ink/60 hover:bg-ink/10 hover:text-ink"
                         )}
                       >
                         {option}
@@ -390,7 +390,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 {selectedWorkout === 'Other' && (
                   <input
                     type="text"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-medium mt-2 focus:border-primary focus:outline-none transition-colors"
+                    className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink text-sm font-medium mt-2 focus:border-primary focus:outline-none transition-colors"
                     placeholder="Type your workout..."
                     value={customWorkout}
                     onChange={e => setCustomWorkout(e.target.value)}
@@ -399,9 +399,9 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 )}
               </div>
 
-      <div className="flex w-full gap-3 pt-4 border-t border-white/10">
+      <div className="flex w-full gap-3 pt-4 border-t border-ink/10">
         <button onClick={() => { setScanState('scanning'); setTimeout(startScanner, 300); }} 
-          className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all text-white/60 uppercase tracking-widest">
+          className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all text-ink/60 uppercase tracking-widest">
           Cancel
         </button>
         <button 
@@ -429,14 +429,14 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
       </div>
       <div className="text-center space-y-2">
         <h3 className="text-2xl font-black italic uppercase tracking-tighter">MigoAI Update?</h3>
-        <p className="text-white/60">
+        <p className="text-ink/60">
           You're training <span className="text-primary font-bold">"{customWorkout}"</span> today.
         </p>
-        <p className="text-white/40 text-sm">Would you like MigoAI to generate a personalized workout plan for this session?</p>
+        <p className="text-ink/40 text-sm">Would you like MigoAI to generate a personalized workout plan for this session?</p>
       </div>
       <div className="flex w-full gap-3 mt-4">
         <button onClick={() => performActualAction(true)} 
-          className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all text-white/40 uppercase tracking-widest">
+          className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all text-ink/40 uppercase tracking-widest">
           No, Just Check-in
         </button>
         <button 
@@ -465,12 +465,12 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 <h3 className="text-2xl font-black uppercase italic tracking-tighter">
                   {confirmData?.action === 'check_out' ? 'See you soon!' : "You're In! 💪"}
                 </h3>
-                <p className="text-white/60">{resultMessage}</p>
+                <p className="text-ink/60">{resultMessage}</p>
                 {resultData?.gym_name && (
                   <p className="text-primary font-bold">{resultData.gym_name}</p>
                 )}
                 {resultData?.check_in_time && (
-                  <p className="text-xs text-white/30 font-mono mt-2">
+                  <p className="text-xs text-ink/30 font-mono mt-2">
                     {new Date(resultData.check_in_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 )}
@@ -489,13 +489,13 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-xl font-bold uppercase tracking-widest">Check-in Failed</h3>
-                <p className="text-white/50 text-sm max-w-xs mx-auto">{resultMessage}</p>
+                <p className="text-ink/50 text-sm max-w-xs mx-auto">{resultMessage}</p>
               </div>
               <div className="flex w-full gap-3 mt-4">
                 {resultData?.type === 'NO_MEMBERSHIP' && resultData?.gym_id ? (
                   <>
                     <button onClick={handleClose}
-                      className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all uppercase tracking-widest text-[10px]">
+                      className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all uppercase tracking-widest text-[10px]">
                       Not Now
                     </button>
                     <button onClick={handleViewPlans}
@@ -506,11 +506,11 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 ) : (
                   <>
                     <button onClick={handleRetry}
-                      className="flex-[2] py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
+                      className="flex-[2] py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
                       <Camera size={14} /> Try Again
                     </button>
                     <button onClick={handleClose}
-                      className="flex-1 py-3 px-4 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all uppercase tracking-widest text-[10px]">
+                      className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all uppercase tracking-widest text-[10px]">
                       Close
                     </button>
                   </>

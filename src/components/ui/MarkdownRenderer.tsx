@@ -44,11 +44,11 @@ export const FitnessMeter = ({ score, label, compact = false }: FitnessMeterProp
 
   // Full-size meter
   return (
-    <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 my-4 overflow-hidden relative group shadow-lg">
+    <div className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 my-4 overflow-hidden relative group shadow-lg">
       <div className="absolute top-0 right-0 w-32 h-32 blur-[50px] opacity-20 transition-all duration-500 group-hover:opacity-40" style={{ backgroundColor: color }} />
       
       <div className="flex flex-row items-center justify-between mb-3 relative z-10">
-        <span className="text-white font-bold tracking-tight text-sm uppercase">{label}</span>
+        <span className="text-ink font-bold tracking-tight text-sm uppercase">{label}</span>
         <div 
           className="px-2.5 py-1 rounded-lg border text-xs font-black shadow-inner"
           style={{ backgroundColor: `${color}20`, borderColor: `${color}40`, color }}
@@ -79,8 +79,8 @@ export const FitnessMeter = ({ score, label, compact = false }: FitnessMeterProp
       </div>
       
       <div className="flex flex-row justify-between mt-2 px-1 relative z-10">
-        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Poor</span>
-        <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Excellent</span>
+        <span className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">Poor</span>
+        <span className="text-[10px] text-ink/40 font-bold uppercase tracking-widest">Excellent</span>
       </div>
     </div>
   );
@@ -96,11 +96,11 @@ const renderInlineFormatting = (text: string): React.ReactNode => {
     if (!part) return null;
     // Bold
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={idx} className="font-bold text-white/90">{part.slice(2, -2)}</strong>;
+      return <strong key={idx} className="font-bold text-ink/90">{part.slice(2, -2)}</strong>;
     }
     // Italic (single *)
     if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) {
-      return <em key={idx} className="italic text-white/60">{part.slice(1, -1)}</em>;
+      return <em key={idx} className="italic text-ink/60">{part.slice(1, -1)}</em>;
     }
     // Markdown link [text](url)
     const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
@@ -161,20 +161,20 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       }
       if (tableRows.length > 0) {
         elements.push(
-          <div key={`table-${i}`} className="w-full overflow-x-auto my-3 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div key={`table-${i}`} className="w-full overflow-x-auto my-3 rounded-xl border border-ink/10 bg-ink/[0.02]">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-white/5 border-b border-white/10">
+                <tr className="bg-ink/5 border-b border-ink/10">
                   {tableRows[0].map((cell, ci) => (
-                    <th key={ci} className="px-4 py-2 font-bold text-white/80">{cell}</th>
+                    <th key={ci} className="px-4 py-2 font-bold text-ink/80">{cell}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {tableRows.slice(1).map((row, ri) => (
-                  <tr key={ri} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
+                  <tr key={ri} className="border-b border-ink/5 last:border-0 hover:bg-ink/[0.02]">
                     {row.map((cell, ci) => (
-                      <td key={ci} className="px-4 py-2 text-white/60">{renderInlineFormatting(cell)}</td>
+                      <td key={ci} className="px-4 py-2 text-ink/60">{renderInlineFormatting(cell)}</td>
                     ))}
                   </tr>
                 ))}
@@ -188,14 +188,14 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
 
     // Horizontal Rule
     if (line.trim() === '---' || line.trim() === '***' || line.trim() === '___') {
-      elements.push(<hr key={i} className="my-4 border-white/10" />);
+      elements.push(<hr key={i} className="my-4 border-ink/10" />);
       i++;
       continue;
     }
 
     // Headers
     if (line.startsWith('### ')) {
-      elements.push(<h3 key={i} className="text-lg font-bold text-white mt-4 mb-2">{renderInlineFormatting(line.replace('### ', ''))}</h3>);
+      elements.push(<h3 key={i} className="text-lg font-bold text-ink mt-4 mb-2">{renderInlineFormatting(line.replace('### ', ''))}</h3>);
       i++;
       continue;
     }
@@ -205,7 +205,7 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       continue;
     }
     if (line.startsWith('# ')) {
-      elements.push(<h1 key={i} className="text-2xl font-black text-white mt-6 mb-4">{renderInlineFormatting(line.replace('# ', ''))}</h1>);
+      elements.push(<h1 key={i} className="text-2xl font-black text-ink mt-6 mb-4">{renderInlineFormatting(line.replace('# ', ''))}</h1>);
       i++;
       continue;
     }
@@ -241,8 +241,8 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       if (isCardBullet) {
         // Render as section card
         elements.push(
-          <div key={`card-${i}`} className="bg-white/[0.03] border border-white/5 rounded-xl p-3 my-2">
-            <p className="text-sm text-white/80 leading-relaxed">
+          <div key={`card-${i}`} className="bg-ink/[0.03] border border-ink/5 rounded-xl p-3 my-2">
+            <p className="text-sm text-ink/80 leading-relaxed">
               {renderInlineFormatting(line.replace(/^[-*+]\s+/, ''))}
             </p>
           </div>
@@ -254,7 +254,7 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
             <span className={clsx("text-primary/50 text-sm mt-0.5", isOrdered ? "font-bold" : "")}>
               {isOrdered ? line.trim().match(/^(\d+\.)/)?.[1] : '•'}
             </span>
-            <div className="flex-1 text-sm text-white/70 leading-relaxed break-words">
+            <div className="flex-1 text-sm text-ink/70 leading-relaxed break-words">
               {renderInlineFormatting(line.replace(/^([-*+]\s+|\d+\.\s+)/, ''))}
             </div>
           </div>
@@ -269,7 +269,7 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       elements.push(<div key={i} className="h-2" />);
     } else {
       elements.push(
-        <p key={i} className="text-sm text-white/70 leading-relaxed my-1 break-words">
+        <p key={i} className="text-sm text-ink/70 leading-relaxed my-1 break-words">
           {renderInlineFormatting(line)}
         </p>
       );

@@ -63,7 +63,7 @@ const NavigationLoader = ({ children }: { children: React.ReactNode }) => {
               transition={{ delay: 0.2 }}
               className="text-center"
             >
-              <div className="text-xl font-display font-black tracking-tighter italic text-white">
+              <div className="text-xl font-display font-black tracking-tighter italic text-ink">
                 GYM<span className="text-primary">MIGO</span>
               </div>
               <div className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 mt-2">

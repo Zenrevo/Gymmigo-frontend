@@ -119,37 +119,37 @@ const SettingsTab = () => {
         
         {/* BASIC INFO */}
         <section className="glass-card p-8">
-           <div className="flex items-center gap-2 text-primary font-bold mb-6 border-b border-white/5 pb-4">
-             <Building size={20} /> <h3 className="uppercase tracking-widest text-sm text-white">Basic Info</h3>
+           <div className="flex items-center gap-2 text-primary font-bold mb-6 border-b border-ink/5 pb-4">
+             <Building size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Basic Info</h3>
            </div>
            
            <form onSubmit={handleBasicSave} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-white/60 mb-2">Gym Name</label>
-                <input required type="text" value={basicInfo.name} onChange={e => setBasicInfo({...basicInfo, name: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none" />
+                <label className="block text-xs font-bold text-ink/60 mb-2">Gym Name</label>
+                <input required type="text" value={basicInfo.name} onChange={e => setBasicInfo({...basicInfo, name: e.target.value})} className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/60 mb-2">Description</label>
-                <textarea rows={4} value={basicInfo.description} onChange={e => setBasicInfo({...basicInfo, description: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none custom-scrollbar" placeholder="Tell members what makes your gym special..." />
+                <label className="block text-xs font-bold text-ink/60 mb-2">Description</label>
+                <textarea rows={4} value={basicInfo.description} onChange={e => setBasicInfo({...basicInfo, description: e.target.value})} className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none custom-scrollbar" placeholder="Tell members what makes your gym special..." />
               </div>
               <div className="grid grid-cols-2 gap-4">
                  <div>
-                   <label className="block text-xs font-bold text-white/60 mb-2">Contact Phone</label>
+                   <label className="block text-xs font-bold text-ink/60 mb-2">Contact Phone</label>
                    <div className="relative flex items-center">
-                     <span className="absolute left-3 text-white/40 font-bold text-xs border-r border-white/10 pr-2">+91</span>
+                     <span className="absolute left-3 text-ink/40 font-bold text-xs border-r border-ink/10 pr-2">+91</span>
                      <input 
                        type="tel" 
                        value={basicInfo.contact_phone} 
                        onChange={e => setBasicInfo({...basicInfo, contact_phone: e.target.value.replace(/\D/g, '').slice(0, 10)})} 
                        maxLength={10}
-                       className="w-full bg-black/50 border border-white/10 rounded-xl p-3 pl-12 text-white focus:border-primary outline-none transition-all" 
+                       className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 pl-12 text-white focus:border-primary outline-none transition-all" 
                        placeholder="10-digit number"
                      />
                    </div>
                  </div>
                  <div>
-                   <label className="block text-xs font-bold text-white/60 mb-2">Established</label>
-                   <input type="number" value={basicInfo.established_year} onChange={e => setBasicInfo({...basicInfo, established_year: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:border-primary outline-none" placeholder="YYYY" />
+                   <label className="block text-xs font-bold text-ink/60 mb-2">Established</label>
+                   <input type="number" value={basicInfo.established_year} onChange={e => setBasicInfo({...basicInfo, established_year: e.target.value})} className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none" placeholder="YYYY" />
                  </div>
               </div>
               <div className="pt-4 flex justify-end"><button type="submit" disabled={isSubmitting} className="btn-primary py-2 px-6 text-xs">{isSubmitting ? <Loader2 size={14} className="animate-spin" /> : 'Save Changes'}</button></div>
@@ -158,8 +158,8 @@ const SettingsTab = () => {
 
         {/* GYM MEDIA */}
         <section className="glass-card p-8">
-           <div className="flex items-center gap-2 text-primary font-bold mb-6 border-b border-white/5 pb-4">
-             <ImageIcon size={20} /> <h3 className="uppercase tracking-widest text-sm text-white">Gym Media</h3>
+           <div className="flex items-center gap-2 text-primary font-bold mb-6 border-b border-ink/5 pb-4">
+             <ImageIcon size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Gym Media</h3>
            </div>
            
            <form onSubmit={handleMediaSave} className="space-y-6">
@@ -187,12 +187,12 @@ const SettingsTab = () => {
 
         {/* ADDRESS */}
         <section className="glass-card p-8">
-           <div className="flex items-center gap-2 text-blue-500 font-bold mb-6 border-b border-white/5 pb-4">
-             <MapPin size={20} /> <h3 className="uppercase tracking-widest text-sm text-white">Location</h3>
+           <div className="flex items-center gap-2 text-blue-500 font-bold mb-6 border-b border-ink/5 pb-4">
+             <MapPin size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Location</h3>
            </div>
 
            <form onSubmit={handleAddressSave} className="space-y-6">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+              <div className="bg-ink/5 border border-ink/10 rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
@@ -204,8 +204,8 @@ const SettingsTab = () => {
                       rel="noopener noreferrer"
                       className="group/addr"
                     >
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-white/40 group-hover/addr:text-primary transition-colors">Current Pin Location</span>
-                      <span className="block text-sm font-bold text-white leading-tight group-hover/addr:text-primary group-hover/addr:underline underline-offset-2 transition-all">
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-ink/40 group-hover/addr:text-primary transition-colors">Current Pin Location</span>
+                      <span className="block text-sm font-bold text-ink leading-tight group-hover/addr:text-primary group-hover/addr:underline underline-offset-2 transition-all">
                         {address.address_line1 || 'No location set yet'}
                       </span>
                     </a>
@@ -220,13 +220,13 @@ const SettingsTab = () => {
                 </div>
 
                 {address.address_line1 && (
-                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/5">
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-ink/5">
                     <div>
-                      <span className="block text-[8px] font-bold text-white/20 uppercase mb-0.5">City & State</span>
-                      <span className="text-[10px] font-bold text-white/60">{address.city}, {address.state}</span>
+                      <span className="block text-[8px] font-bold text-ink/20 uppercase mb-0.5">City & State</span>
+                      <span className="text-[10px] font-bold text-ink/60">{address.city}, {address.state}</span>
                     </div>
                     <div>
-                      <span className="block text-[8px] font-bold text-white/20 uppercase mb-0.5">Pincode</span>
+                      <span className="block text-[8px] font-bold text-ink/20 uppercase mb-0.5">Pincode</span>
                       <span className="text-[10px] font-bold text-blue-400">{address.pincode}</span>
                     </div>
                   </div>
@@ -247,21 +247,21 @@ const SettingsTab = () => {
 
         {/* OPERATIONS & CAPACITY */}
         <section className="glass-card p-8 lg:col-span-2">
-           <div className="flex items-center gap-2 text-emerald-500 font-bold mb-6 border-b border-white/5 pb-4">
-             <Settings size={20} /> <h3 className="uppercase tracking-widest text-sm text-white">Operations & Capacity</h3>
+           <div className="flex items-center gap-2 text-emerald-500 font-bold mb-6 border-b border-ink/5 pb-4">
+             <Settings size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Operations & Capacity</h3>
            </div>
            
            <form onSubmit={handleCapacitySave} className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-             <div className="bg-white/5 p-6 rounded-2xl border border-white/5">
+             <div className="bg-ink/5 p-6 rounded-2xl border border-ink/5">
                 <label className="block font-bold mb-1">Maximum Capacity</label>
-                <p className="text-xs text-white/40 mb-4">Set the absolute maximum number of members allowed in the facility at once.</p>
-                <input required type="number" min="1" value={capacity.max_capacity} onChange={e => setCapacity({...capacity, max_capacity: e.target.value})} className="w-full max-w-[200px] bg-black border border-white/20 rounded-xl p-3 text-white text-xl font-bold font-mono focus:border-emerald-500 outline-none" />
+                <p className="text-xs text-ink/40 mb-4">Set the absolute maximum number of members allowed in the facility at once.</p>
+                <input required type="number" min="1" value={capacity.max_capacity} onChange={e => setCapacity({...capacity, max_capacity: e.target.value})} className="w-full max-w-[200px] bg-black border border-ink/20 rounded-xl p-3 text-white text-xl font-bold font-mono focus:border-emerald-500 outline-none" />
              </div>
              
-             <div className="bg-white/5 p-6 rounded-2xl border border-white/5 flex flex-col justify-between">
+             <div className="bg-ink/5 p-6 rounded-2xl border border-ink/5 flex flex-col justify-between">
                 <div>
                    <label className="block font-bold mb-1">24/7 Operations</label>
-                   <p className="text-xs text-white/40 mb-4">Toggle if your gym is open 24 hours a day, 7 days a week.</p>
+                   <p className="text-xs text-ink/40 mb-4">Toggle if your gym is open 24 hours a day, 7 days a week.</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={capacity.is_24_hours} onChange={e => setCapacity({...capacity, is_24_hours: e.target.checked})} className="w-6 h-6 accent-emerald-500 cursor-pointer" />
@@ -269,10 +269,10 @@ const SettingsTab = () => {
                 </label>
              </div>
 
-             <div className="bg-white/5 p-6 rounded-2xl border border-white/5 flex flex-col justify-between border-primary/20 bg-primary/5">
+             <div className="bg-ink/5 p-6 rounded-2xl border border-ink/5 flex flex-col justify-between border-primary/20 bg-primary/5">
                 <div>
                    <label className="block font-bold mb-1">Performance Stats</label>
-                   <p className="text-xs text-white/40 mb-4">Show or hide revenue and member count statistics on your dashboard.</p>
+                   <p className="text-xs text-ink/40 mb-4">Show or hide revenue and member count statistics on your dashboard.</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={capacity.show_stats} onChange={e => setCapacity({...capacity, show_stats: e.target.checked})} className="w-6 h-6 accent-primary cursor-pointer" />

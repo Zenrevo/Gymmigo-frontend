@@ -344,20 +344,20 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-[550px] bg-slate-950 border-l border-white/10 z-50 shadow-2xl flex flex-row overflow-hidden"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-[550px] bg-surface border-l border-ink/10 z-50 shadow-2xl flex flex-row overflow-hidden"
           >
             {/* Drawer Content Area (Scrollable) */}
-            <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white min-w-0">
+            <div className="flex-1 flex flex-col h-full bg-gradient-to-b from-background via-background to-background text-ink min-w-0">
               
               {/* Header */}
-              <div className="p-4 border-b border-white/5 flex items-center justify-between bg-slate-900/60 backdrop-blur-md sticky top-0 z-20">
+              <div className="p-4 border-b border-ink/5 flex items-center justify-between bg-surface/60 backdrop-blur-md sticky top-0 z-20">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                   <h2 className="text-sm font-display font-black tracking-widest uppercase">Gymmigo Social Hub</h2>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="p-2 hover:bg-white/5 rounded-xl transition-colors text-white/50 hover:text-white"
+                  className="p-2 hover:bg-ink/5 rounded-xl transition-colors text-ink/50 hover:text-ink"
                 >
                   <X size={20} />
                 </button>
@@ -384,25 +384,25 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                         key={post.id} 
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="rounded-3xl border border-white/5 bg-white/[0.02] overflow-hidden"
+                        className="rounded-3xl border border-ink/5 bg-ink/[0.02] overflow-hidden"
                       >
                         {/* Post Header */}
                         <div className="p-4 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-full border border-ink/10 overflow-hidden bg-ink/5 flex items-center justify-center shrink-0">
                               {post.user.avatar ? (
                                 <img src={post.user.avatar} alt="" className="w-full h-full object-cover" />
                               ) : (
-                                <User size={18} className="text-white/40" />
+                                <User size={18} className="text-ink/40" />
                               )}
                             </div>
                             <div>
                               <h4 className="font-bold text-xs">{post.user.name}</h4>
-                              <p className="text-[9px] text-white/40 uppercase tracking-widest mt-0.5">{post.user.gym}</p>
+                              <p className="text-[9px] text-ink/40 uppercase tracking-widest mt-0.5">{post.user.gym}</p>
                             </div>
                           </div>
                           
-                          <span className="px-2 py-1 bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-primary">
+                          <span className="px-2 py-1 bg-ink/5 border border-ink/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-primary">
                             {post.workoutType}
                           </span>
                         </div>
@@ -418,7 +418,7 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                           {/* Floating stats tag */}
                           <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
                             {Object.entries(post.stats).map(([key, val]: any) => (
-                              <span key={key} className="px-2.5 py-1 bg-slate-950/80 backdrop-blur-md rounded-lg text-[9px] font-black uppercase tracking-widest border border-white/10 text-white">
+                              <span key={key} className="px-2.5 py-1 bg-surface backdrop-blur-md rounded-lg text-[9px] font-black uppercase tracking-widest border border-ink/10 text-ink">
                                 {val}
                               </span>
                             ))}
@@ -434,14 +434,14 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                                 onClick={() => handleLikePost(post.id)}
                                 className={clsx(
                                   "flex items-center gap-1.5 text-xs font-bold transition-transform active:scale-75",
-                                  post.hasLiked ? "text-red-500 font-black" : "text-white/40 hover:text-white"
+                                  post.hasLiked ? "text-red-500 font-black" : "text-ink/40 hover:text-ink"
                                 )}
                               >
                                 <Heart size={18} fill={post.hasLiked ? "currentColor" : "none"} />
                                 <span>{post.likes}</span>
                               </button>
 
-                              <button className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white transition-colors">
+                              <button className="flex items-center gap-1.5 text-xs text-ink/40 hover:text-ink transition-colors">
                                 <MessageSquare size={18} />
                                 <span>{post.comments.length}</span>
                               </button>
@@ -456,17 +456,17 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                           </div>
 
                           {/* Caption */}
-                          <p className="text-xs leading-relaxed text-white/70">
-                            <span className="font-bold text-white mr-1.5">{post.user.name}</span>
+                          <p className="text-xs leading-relaxed text-ink/70">
+                            <span className="font-bold text-ink mr-1.5">{post.user.name}</span>
                             {post.caption}
                           </p>
 
                           {/* Comments List */}
                           {post.comments.length > 0 && (
-                            <div className="pt-2 border-t border-white/5 space-y-1.5">
+                            <div className="pt-2 border-t border-ink/5 space-y-1.5">
                               {post.comments.map((c: any, index: number) => (
-                                <p key={index} className="text-[11px] leading-relaxed text-white/50">
-                                  <span className="font-bold text-white/80 mr-1.5">{c.user}</span>
+                                <p key={index} className="text-[11px] leading-relaxed text-ink/50">
+                                  <span className="font-bold text-ink/80 mr-1.5">{c.user}</span>
                                   {c.text}
                                 </p>
                               ))}
@@ -491,13 +491,13 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                         placeholder="Search trainers, buddies, or gym tags..."
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-4 pr-12 text-sm focus:border-primary outline-none transition-all placeholder:text-white/20"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-4 pr-12 text-sm focus:border-primary outline-none transition-all placeholder:text-ink/20"
                       />
-                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-ink/20" size={18} />
                     </div>
 
                     <div className="space-y-4">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/30">TRENDING ATHLETES</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-ink/30">TRENDING ATHLETES</p>
                       {[
                         { name: 'Sneha Patel', role: 'Calisthenics Athlete', gym: 'Gold\'s Gym', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=60' },
                         { name: 'Coach Karan', role: 'Strength Coach', gym: 'Cult.Fit Gym', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=60' },
@@ -505,12 +505,12 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                       ]
                       .filter(buddy => buddy.name.toLowerCase().includes(searchQuery.toLowerCase()))
                       .map((buddy, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                        <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-ink/[0.02] border border-ink/5">
                           <div className="flex items-center gap-3">
-                            <img src={buddy.avatar} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                            <img src={buddy.avatar} alt="" className="w-10 h-10 rounded-full object-cover border border-ink/10" />
                             <div>
-                              <h4 className="font-bold text-xs text-white">{buddy.name}</h4>
-                              <p className="text-[9px] text-white/40 uppercase tracking-widest mt-0.5">{buddy.role} · {buddy.gym}</p>
+                              <h4 className="font-bold text-xs text-ink">{buddy.name}</h4>
+                              <p className="text-[9px] text-ink/40 uppercase tracking-widest mt-0.5">{buddy.role} · {buddy.gym}</p>
                             </div>
                           </div>
                           <button className="py-1.5 px-4 bg-primary text-black text-[10px] font-black uppercase rounded-lg hover:brightness-110">
@@ -533,20 +533,20 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                             <div 
                               key={chat.id}
                               onClick={() => setActiveChatId(chat.id)}
-                              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-primary/30 transition-all cursor-pointer group"
+                              className="flex items-center justify-between p-4 rounded-2xl bg-ink/[0.02] border border-ink/5 hover:border-primary/30 transition-all cursor-pointer group"
                             >
                               <div className="flex items-center gap-3">
                                 <div className="relative">
-                                  <img src={chat.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-white/10" />
+                                  <img src={chat.avatar} alt="" className="w-11 h-11 rounded-full object-cover border border-ink/10" />
                                   {chat.unread > 0 && <span className="absolute top-0 right-0 h-3 w-3 bg-primary rounded-full border border-black" />}
                                 </div>
                                 <div>
-                                  <h4 className="font-bold text-xs text-white group-hover:text-primary transition-colors">{chat.name}</h4>
-                                  <p className="text-[11px] text-white/40 truncate max-w-[200px] mt-0.5">{chat.lastMessage}</p>
+                                  <h4 className="font-bold text-xs text-ink group-hover:text-primary transition-colors">{chat.name}</h4>
+                                  <p className="text-[11px] text-ink/40 truncate max-w-[200px] mt-0.5">{chat.lastMessage}</p>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-[9px] text-white/30 uppercase font-bold">{chat.time}</p>
+                                <p className="text-[9px] text-ink/30 uppercase font-bold">{chat.time}</p>
                               </div>
                             </div>
                           ))}
@@ -554,22 +554,22 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                       </div>
                     ) : (
                       // Active Conversation Screen
-                      <div className="flex flex-col flex-1 h-[450px] border border-white/5 rounded-3xl bg-slate-950/60 overflow-hidden">
+                      <div className="flex flex-col flex-1 h-[450px] border border-ink/5 rounded-3xl bg-surface/60 overflow-hidden">
                         {/* Active chat header */}
                         {(() => {
                           const currentChat = chats.find(c => c.id === activeChatId);
                           return (
-                            <div className="p-3 bg-white/[0.02] border-b border-white/5 flex items-center justify-between">
+                            <div className="p-3 bg-ink/[0.02] border-b border-ink/5 flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <img src={currentChat?.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-white/10" />
+                                <img src={currentChat?.avatar} alt="" className="w-8 h-8 rounded-full object-cover border border-ink/10" />
                                 <div>
-                                  <h4 className="font-bold text-xs text-white leading-none">{currentChat?.name}</h4>
+                                  <h4 className="font-bold text-xs text-ink leading-none">{currentChat?.name}</h4>
                                   <span className="text-[8px] uppercase tracking-widest text-emerald-400 font-bold">Online</span>
                                 </div>
                               </div>
                               <button 
                                 onClick={() => setActiveChatId(null)}
-                                className="px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/60"
+                                className="px-2.5 py-1 bg-ink/5 hover:bg-ink/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-ink/60"
                               >
                                 Back
                               </button>
@@ -583,10 +583,10 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                             const isMe = msg.sender === 'me';
                             return (
                               <div key={msg.id} className={clsx("flex flex-col max-w-[80%] rounded-2xl p-3 text-xs leading-relaxed",
-                                isMe ? "self-end bg-primary text-black ml-auto rounded-tr-sm" : "self-start bg-white/5 text-white mr-auto rounded-tl-sm border border-white/5"
+                                isMe ? "self-end bg-primary text-black ml-auto rounded-tr-sm" : "self-start bg-ink/5 text-ink mr-auto rounded-tl-sm border border-ink/5"
                               )}>
                                 <p>{msg.text}</p>
-                                <span className={clsx("text-[8px] font-bold block mt-1", isMe ? "text-black/55" : "text-white/30")}>
+                                <span className={clsx("text-[8px] font-bold block mt-1", isMe ? "text-black/55" : "text-ink/30")}>
                                   {msg.time}
                                 </span>
                               </div>
@@ -596,14 +596,14 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                         </div>
 
                         {/* Message Send Form */}
-                        <div className="p-3 border-t border-white/5 flex gap-2">
+                        <div className="p-3 border-t border-ink/5 flex gap-2">
                           <input 
                             type="text"
                             placeholder="Type a message..."
                             value={chatMessage}
                             onChange={e => setChatMessage(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-                            className="flex-1 bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-xs focus:border-primary outline-none transition-all text-white placeholder:text-white/20"
+                            className="flex-1 bg-ink/5 border border-ink/15 rounded-xl px-4 py-2.5 text-xs focus:border-primary outline-none transition-all text-ink placeholder:text-ink/20"
                           />
                           <button 
                             onClick={handleSendMessage}
@@ -623,7 +623,7 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                     <h3 className="text-xl font-display font-black italic tracking-tighter uppercase">CREATE WORKOUT POST</h3>
                     
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">1. Share a photo</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/30">1. Share a photo</label>
                       <div className="grid grid-cols-4 gap-2">
                         {presetImages.map((img, idx) => (
                           <div 
@@ -641,11 +641,11 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">2. Workout Type</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/30">2. Workout Type</label>
                       <select 
                         value={newPostWorkoutType}
                         onChange={e => setNewPostWorkoutType(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer text-xs"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer text-xs"
                       >
                         <option value="Strength Training" className="bg-black">🏋️‍♂️ Strength Training</option>
                         <option value="Cardio & Run" className="bg-black">🏃‍♂️ Cardio & Run</option>
@@ -657,44 +657,44 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Calories Burned</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/30">Calories Burned</label>
                         <input 
                           type="number"
                           value={newPostStats.calories}
                           onChange={e => setNewPostStats({...newPostStats, calories: e.target.value})}
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-xs focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-3 px-4 text-xs focus:border-primary outline-none transition-all"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Duration (mins)</label>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-ink/30">Duration (mins)</label>
                         <input 
                           type="text"
                           value={newPostStats.duration}
                           onChange={e => setNewPostStats({...newPostStats, duration: e.target.value})}
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-xs focus:border-primary outline-none transition-all"
+                          className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-3 px-4 text-xs focus:border-primary outline-none transition-all"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Custom Fitness Metric (Optional)</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/30">Custom Fitness Metric (Optional)</label>
                       <input 
                         type="text"
                         placeholder="e.g. 140kg Deadlift, 5.2 km, etc."
                         value={newPostStats.metric}
                         onChange={e => setNewPostStats({...newPostStats, metric: e.target.value})}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 px-4 text-xs focus:border-primary outline-none transition-all"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-3.5 px-4 text-xs focus:border-primary outline-none transition-all"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/30">Caption</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-ink/30">Caption</label>
                       <textarea 
                         rows={4}
                         placeholder="Write a fitness caption to motivate your buddies..."
                         value={newPostCaption}
                         onChange={e => setNewPostCaption(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:border-primary outline-none transition-all text-xs placeholder:text-white/20 custom-scrollbar"
+                        className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 focus:border-primary outline-none transition-all text-xs placeholder:text-ink/20 custom-scrollbar"
                       />
                     </div>
 
@@ -716,19 +716,19 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                       {notifications.map((notif) => (
                         <div 
                           key={notif.id}
-                          className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5"
+                          className="flex items-center justify-between p-4 rounded-2xl bg-ink/[0.02] border border-ink/5"
                         >
                           <div className="flex items-center gap-3">
-                            <img src={notif.user.avatar} alt="" className="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
-                            <div className="text-xs leading-relaxed text-white/60">
-                              <span className="font-bold text-white mr-1">{notif.user.name}</span>
+                            <img src={notif.user.avatar} alt="" className="w-10 h-10 rounded-full object-cover border border-ink/10 shrink-0" />
+                            <div className="text-xs leading-relaxed text-ink/60">
+                              <span className="font-bold text-ink mr-1">{notif.user.name}</span>
                               {notif.text}
-                              <span className="text-[9px] text-white/30 block mt-0.5">{notif.time}</span>
+                              <span className="text-[9px] text-ink/30 block mt-0.5">{notif.time}</span>
                             </div>
                           </div>
                           
                           {notif.type === 'follow' && (
-                            <button className="py-1 px-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-white">
+                            <button className="py-1 px-3 bg-ink/5 hover:bg-ink/10 border border-ink/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-ink">
                               Reply
                             </button>
                           )}
@@ -744,34 +744,34 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                     {/* Social Profile Header */}
                     <div className="flex flex-col items-center text-center space-y-4">
                       <div className="relative">
-                        <div className="w-20 h-20 rounded-full border-2 border-primary overflow-hidden bg-white/5 flex items-center justify-center p-0.5 shadow-neon-sm">
+                        <div className="w-20 h-20 rounded-full border-2 border-primary overflow-hidden bg-ink/5 flex items-center justify-center p-0.5 shadow-neon-sm">
                           {user?.avatar_url ? (
                             <img src={user.avatar_url} alt="" className="w-full h-full object-cover rounded-full" />
                           ) : (
-                            <User size={36} className="text-white/30" />
+                            <User size={36} className="text-ink/30" />
                           )}
                         </div>
                         <span className="absolute bottom-0 right-0 h-4 w-4 bg-emerald-500 rounded-full border border-black" />
                       </div>
                       
                       <div>
-                        <h3 className="text-lg font-display font-black tracking-tight text-white uppercase">{user?.full_name || 'GYMMIGO ATHLETE'}</h3>
-                        <p className="text-[9px] text-white/40 uppercase tracking-widest mt-0.5">Core Fitness Member</p>
+                        <h3 className="text-lg font-display font-black tracking-tight text-ink uppercase">{user?.full_name || 'GYMMIGO ATHLETE'}</h3>
+                        <p className="text-[9px] text-ink/40 uppercase tracking-widest mt-0.5">Core Fitness Member</p>
                       </div>
 
                       {/* Fitness Social Stats */}
-                      <div className="grid grid-cols-3 gap-6 py-2 px-6 rounded-2xl bg-white/[0.02] border border-white/5 w-full">
+                      <div className="grid grid-cols-3 gap-6 py-2 px-6 rounded-2xl bg-ink/[0.02] border border-ink/5 w-full">
                         <div className="text-center">
-                          <p className="text-base font-black text-white">{posts.filter(p => p.user.name === user?.full_name).length}</p>
-                          <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mt-0.5">Posts</p>
+                          <p className="text-base font-black text-ink">{posts.filter(p => p.user.name === user?.full_name).length}</p>
+                          <p className="text-[8px] font-black text-ink/40 uppercase tracking-widest mt-0.5">Posts</p>
                         </div>
-                        <div className="text-center border-x border-white/5">
+                        <div className="text-center border-x border-ink/5">
                           <p className="text-base font-black text-primary">142</p>
-                          <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mt-0.5">Followers</p>
+                          <p className="text-[8px] font-black text-ink/40 uppercase tracking-widest mt-0.5">Followers</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-base font-black text-white">96</p>
-                          <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mt-0.5">Following</p>
+                          <p className="text-base font-black text-ink">96</p>
+                          <p className="text-[8px] font-black text-ink/40 uppercase tracking-widest mt-0.5">Following</p>
                         </div>
                       </div>
                     </div>
@@ -783,11 +783,11 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                     </div>
 
                     {/* User Social Posts Grid */}
-                    <div className="space-y-3 pt-4 border-t border-white/5">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-white/40">MY WORKOUT LOGS</p>
+                    <div className="space-y-3 pt-4 border-t border-ink/5">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-ink/40">MY WORKOUT LOGS</p>
                       
                       {posts.filter(p => p.user.name === user?.full_name).length === 0 ? (
-                        <div className="p-8 text-center text-white/20 italic border border-dashed border-white/10 rounded-2xl text-xs">
+                        <div className="p-8 text-center text-ink/20 italic border border-dashed border-ink/10 rounded-2xl text-xs">
                           No social workout logs posted yet. Check-in or create a post to share!
                         </div>
                       ) : (
@@ -797,12 +797,12 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                             .map((post) => (
                               <div 
                                 key={post.id} 
-                                className="aspect-square rounded-xl overflow-hidden border border-white/5 relative group cursor-pointer"
+                                className="aspect-square rounded-xl overflow-hidden border border-ink/5 relative group cursor-pointer"
                               >
                                 <img src={post.image} alt="" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity duration-300">
                                   <span className="text-[10px] font-black text-primary uppercase tracking-widest">{post.workoutType}</span>
-                                  <div className="flex items-center gap-2 mt-1 text-[10px] font-bold text-white">
+                                  <div className="flex items-center gap-2 mt-1 text-[10px] font-bold text-ink">
                                     <span className="flex items-center gap-1"><Heart size={10} fill="currentColor" /> {post.likes}</span>
                                     <span className="flex items-center gap-1"><Flame size={10} fill="currentColor" /> {post.cheers}</span>
                                   </div>
@@ -818,7 +818,7 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
               </div>
 
               {/* Drawer Instagram Navigation Bar (Vertical sliding layout container inside layout) */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 border-t border-white/10 bg-slate-950/95 backdrop-blur-md flex items-center justify-around z-20">
+              <div className="absolute bottom-0 left-0 right-0 h-16 border-t border-ink/10 bg-surface backdrop-blur-md flex items-center justify-around z-20">
                 {[
                   { id: 'feed', icon: Home, label: 'Feed' },
                   { id: 'search', icon: Search, label: 'Search' },
@@ -835,7 +835,7 @@ export default function SocialHubDrawer({ isOpen, onClose, defaultTab = 'feed' }
                       onClick={() => setActiveTab(tab.id)}
                       className={clsx(
                         "flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 w-12 h-12 relative",
-                        isActive ? "text-primary scale-110" : "text-white/40 hover:text-white"
+                        isActive ? "text-primary scale-110" : "text-ink/40 hover:text-ink"
                       )}
                       title={tab.label}
                     >
@@ -878,12 +878,12 @@ function CommentInput({ onAddComment }: { onAddComment: (text: string) => void }
         placeholder="Add a gym comment..."
         value={comment}
         onChange={e => setComment(e.target.value)}
-        className="flex-1 bg-white/5 border border-white/5 rounded-xl px-3 py-1.5 text-[11px] focus:border-primary outline-none transition-all text-white placeholder:text-white/20"
+        className="flex-1 bg-ink/5 border border-ink/5 rounded-xl px-3 py-1.5 text-[11px] focus:border-primary outline-none transition-all text-ink placeholder:text-ink/20"
       />
       <button 
         type="submit"
         disabled={!comment.trim()}
-        className="px-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black uppercase text-primary disabled:opacity-40"
+        className="px-3 bg-ink/5 hover:bg-ink/10 rounded-xl text-[10px] font-black uppercase text-primary disabled:opacity-40"
       >
         Send
       </button>

@@ -30,7 +30,7 @@ export default function WelcomePage() {
   const slide = SLIDES[index];
 
   return (
-    <div data-theme="dark" className="relative flex min-h-dvh flex-col overflow-hidden bg-signature text-ink">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-signature text-ink">
       <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#131315] via-[#131315]/80 to-[#131315]/10" />
       <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(70% 45% at 92% 0%, rgba(255,87,34,0.32) 0%, rgba(255,87,34,0) 70%)' }} />

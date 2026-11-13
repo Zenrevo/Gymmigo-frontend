@@ -87,63 +87,63 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Years of Experience</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Years of Experience</label>
               <input
                 type="number"
                 name="experience_years"
                 value={formData.experience_years}
                 onChange={handleChange}
                 placeholder="e.g. 5"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
               />
             </div>
             
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Level</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Level</label>
               <select
                 name="experience_level"
                 value={formData.experience_level}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white appearance-none cursor-pointer"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink appearance-none cursor-pointer"
               >
-                <option value="beginner" className="bg-zinc-900">Beginner</option>
-                <option value="intermediate" className="bg-zinc-900">Intermediate</option>
-                <option value="advanced" className="bg-zinc-900">Advanced</option>
-                <option value="expert" className="bg-zinc-900">Expert</option>
+                <option value="beginner" className="bg-surface">Beginner</option>
+                <option value="intermediate" className="bg-surface">Intermediate</option>
+                <option value="advanced" className="bg-surface">Advanced</option>
+                <option value="expert" className="bg-surface">Expert</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Languages Spoken</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Languages Spoken</label>
             <input
               type="text"
               name="languages_spoken"
               value={formData.languages_spoken}
               onChange={handleChange}
               placeholder="English, Hindi, Marathi (comma separated)"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Brief Bio</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Brief Bio</label>
             <textarea
               name="bio"
               value={formData.bio}
               onChange={handleChange}
               placeholder="Tell clients about your methodology and approach..."
               rows={4}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20 resize-none"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle resize-none"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4 border-t border-white/10">
+          <div className="flex gap-4 pt-4 border-t border-ink/10">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-colors"
+              className="flex-1 py-4 bg-ink/5 border border-ink/10 text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-ink/10 transition-colors"
             >
               Cancel
             </button>

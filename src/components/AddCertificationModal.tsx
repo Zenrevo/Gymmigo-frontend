@@ -62,28 +62,28 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
         
         {/* Name */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Certification Name *</label>
+          <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Certification Name *</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             placeholder="e.g. NASM Certified Personal Trainer"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
             required
           />
         </div>
 
         {/* Issued By */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Issuing Organization *</label>
+          <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Issuing Organization *</label>
           <input
             type="text"
             name="issued_by"
             value={formData.issued_by}
             onChange={handleChange}
             placeholder="e.g. National Academy of Sports Medicine"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+            className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
             required
           />
         </div>
@@ -91,7 +91,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
         <div className="grid grid-cols-2 gap-4">
           {/* Issue Year */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Issue Year *</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Issue Year *</label>
             <input
               type="number"
               name="issue_year"
@@ -100,14 +100,14 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
               value={formData.issue_year}
               onChange={handleChange}
               placeholder="YYYY"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
           
           {/* Expiry Year */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Expiry Year (Optional)</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Expiry Year (Optional)</label>
             <input
               type="number"
               name="expiry_year"
@@ -115,17 +115,17 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
               value={formData.expiry_year}
               onChange={handleChange}
               placeholder="YYYY"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 pt-4 border-t border-white/10">
+        <div className="flex gap-4 pt-4 border-t border-ink/10">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-colors"
+            className="flex-1 py-4 bg-ink/5 border border-ink/10 text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-ink/10 transition-colors"
           >
             Cancel
           </button>

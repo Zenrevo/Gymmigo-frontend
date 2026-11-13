@@ -532,7 +532,7 @@ const MembersTab = () => {
       expired: 'bg-amber-500/20 text-amber-400 border-amber-500/20',
       cancelled: 'bg-red-500/20 text-red-400 border-red-500/20',
       pending: 'bg-blue-500/20 text-blue-400 border-blue-500/20',
-      suspended: 'bg-gray-500/20 text-gray-400 border-gray-500/20',
+      suspended: 'bg-gray-500/20 text-ink-muted border-gray-500/20',
     };
     return (
       <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest ${colors[status] || colors.pending}`}>
@@ -553,7 +553,7 @@ const MembersTab = () => {
   if (selectedMember) {
     return (
       <div className="space-y-6">
-        <button onClick={() => setSelectedMember(null)} className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm">
+        <button onClick={() => setSelectedMember(null)} className="flex items-center gap-2 text-ink/60 hover:text-ink transition-colors text-sm">
           <ArrowLeft size={16} /> Back to Members
         </button>
 
@@ -565,7 +565,7 @@ const MembersTab = () => {
               </div>
               <div>
                 <h2 className="text-2xl font-display font-black tracking-tight">{selectedMember.user_name || 'Unknown'}</h2>
-                <div className="flex items-center gap-3 text-white/40 text-sm mt-1">
+                <div className="flex items-center gap-3 text-ink/40 text-sm mt-1">
                   <span className="flex items-center gap-1"><Phone size={13} />{selectedMember.user_phone}</span>
                   <span>•</span>
                   {selectedMember.is_currently_checked_in && (
@@ -600,14 +600,14 @@ const MembersTab = () => {
                 <Target size={16} />
                 <span className="text-[10px] font-black uppercase tracking-widest">Today Score</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-white/30 font-bold"> / 100</span></p>
+              <p className="text-3xl font-black">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-ink/30 font-bold"> / 100</span></p>
             </div>
             <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4">
               <div className="flex items-center gap-2 text-amber-400 mb-2">
                 <Flame size={16} />
                 <span className="text-[10px] font-black uppercase tracking-widest">Streak</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-white/30 font-bold"> days</span></p>
+              <p className="text-3xl font-black">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-ink/30 font-bold"> days</span></p>
             </div>
             <div className="rounded-2xl bg-sky-500/10 border border-sky-500/20 p-4">
               <div className="flex items-center gap-2 text-sky-300 mb-2">
@@ -616,7 +616,7 @@ const MembersTab = () => {
               </div>
               <p className="text-3xl font-black">
                 {selectedMember.fitness_score?.global_rank ? `#${selectedMember.fitness_score.global_rank}` : '--'}
-                {selectedMember.fitness_score?.global_rank_total ? <span className="text-xs text-white/30 font-bold"> / {selectedMember.fitness_score.global_rank_total}</span> : null}
+                {selectedMember.fitness_score?.global_rank_total ? <span className="text-xs text-ink/30 font-bold"> / {selectedMember.fitness_score.global_rank_total}</span> : null}
               </p>
             </div>
             <div className="rounded-2xl bg-violet-500/10 border border-violet-500/20 p-4">
@@ -624,32 +624,32 @@ const MembersTab = () => {
                 <Activity size={16} />
                 <span className="text-[10px] font-black uppercase tracking-widest">Week Goal</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-white/30 font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
+              <p className="text-3xl font-black">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-ink/30 font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
             </div>
           </div>
 
           {selectedMember.fitness_score?.daily_score?.coach_nudge && (
             <div className="mb-8 rounded-2xl bg-orange-500/10 border border-orange-500/20 p-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300/80 mb-1">Migo AI retention nudge</p>
-              <p className="text-sm text-white/65 leading-relaxed">{selectedMember.fitness_score.daily_score.coach_nudge}</p>
+              <p className="text-sm text-ink/65 leading-relaxed">{selectedMember.fitness_score.daily_score.coach_nudge}</p>
             </div>
           )}
 
           <div className="space-y-6">
-            <h3 className="text-sm font-bold text-white/50 uppercase tracking-widest">Active & Past Subscriptions</h3>
+            <h3 className="text-sm font-bold text-ink/50 uppercase tracking-widest">Active & Past Subscriptions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {selectedMember.memberships.map((membership, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
+                <div key={idx} className="bg-ink/5 border border-ink/10 rounded-2xl p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4">
                     {statusBadge(membership.status)}
                   </div>
                   
                   <div className="mb-4 pr-20">
                     <h4 className="font-bold text-lg mb-1">{membership.plan_name || 'N/A'}</h4>
-                    <p className="text-xs text-white/40">₹{membership.amount_paid} • {membership.remaining_visits ?? 'Unlimited'} visits left</p>
+                    <p className="text-xs text-ink/40">₹{membership.amount_paid} • {membership.remaining_visits ?? 'Unlimited'} visits left</p>
                   </div>
                   
-                  <div className="space-y-2 text-xs text-white/60 mb-6 font-mono">
+                  <div className="space-y-2 text-xs text-ink/60 mb-6 font-mono">
                     <div className="flex justify-between">
                       <span>Start: {formatDate(membership.start_date)}</span>
                     </div>
@@ -660,7 +660,7 @@ const MembersTab = () => {
 
                   {membership.selected_addons && membership.selected_addons.length > 0 && (
                     <div className="mb-6 space-y-2">
-                      <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Add-ons</p>
+                      <p className="text-[10px] uppercase tracking-widest text-ink/30 font-bold">Add-ons</p>
                       <div className="flex flex-wrap gap-2">
                         {membership.selected_addons.map((addon, aIdx) => (
                           <span key={aIdx} className="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
@@ -671,7 +671,7 @@ const MembersTab = () => {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                  <div className="flex flex-wrap gap-2 pt-4 border-t border-ink/5">
                     {membership.status === 'active' && (
                       <button onClick={() => handleCancel(membership.membership_id || (membership as any).id, selectedMember.user_name || '')}
                         className="p-1.5 px-3 flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all font-bold group-hover:scale-100" title="Cancel Subscription">
@@ -693,7 +693,7 @@ const MembersTab = () => {
                         </button>
                       </>
                     )}
-                    <button onClick={() => openEditModal(selectedMember, membership)} className="p-1.5 px-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors" title="Edit Membership">
+                    <button onClick={() => openEditModal(selectedMember, membership)} className="p-1.5 px-3 bg-ink/5 border border-ink/10 hover:bg-ink/10 rounded-lg text-ink/60 hover:text-ink transition-colors" title="Edit Membership">
                       Edit
                     </button>
                   </div>
@@ -705,29 +705,29 @@ const MembersTab = () => {
 
         {/* Check-in History */}
         <div className="glass-card overflow-hidden">
-          <div className="p-6 border-b border-white/5">
+          <div className="p-6 border-b border-ink/5">
             <h3 className="text-lg font-bold flex items-center gap-2"><Clock size={18} className="text-primary" /> Combined Check-in History</h3>
           </div>
           {selectedMember.check_in_history?.length ? (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-ink/5">
               {selectedMember.check_in_history.map((ci, i) => {
                  const relatedMembership = selectedMember.memberships.find(m => m.membership_id === ci.membership_id);
                  return (
-                  <div key={i} className="p-4 px-6 flex items-center justify-between text-sm hover:bg-white/[0.02] transition-colors">
+                  <div key={i} className="p-4 px-6 flex items-center justify-between text-sm hover:bg-ink/[0.02] transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
+                      <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-ink/20' : 'bg-green-400 animate-pulse'}`} />
                       <span>{formatDate(ci.check_in_time)}</span>
                       <span>{formatTime(ci.check_in_time)}</span>
-                      <span className="ml-3 px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50">{relatedMembership?.plan_name || 'Unknown Plan'}</span>
+                      <span className="ml-3 px-2 py-0.5 rounded bg-ink/5 text-[10px] text-ink/50">{relatedMembership?.plan_name || 'Unknown Plan'}</span>
                       {ci.workout_type && (
                         <span className="ml-2 px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 text-[10px] uppercase font-bold tracking-wider">{ci.workout_type}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-white/40">
+                    <div className="flex items-center gap-4 text-ink/40">
                       {ci.check_out_time ? (
                         <>
                           <span>→ {formatTime(ci.check_out_time)}</span>
-                          <span className="text-white/60 font-mono text-xs bg-white/5 px-2 py-0.5 rounded">{ci.duration_minutes} min</span>
+                          <span className="text-ink/60 font-mono text-xs bg-ink/5 px-2 py-0.5 rounded">{ci.duration_minutes} min</span>
                         </>
                       ) : (
                         <span className="text-green-400 text-xs font-bold uppercase tracking-widest">Active</span>
@@ -739,7 +739,7 @@ const MembersTab = () => {
               })}
             </div>
           ) : (
-            <div className="p-12 text-center text-white/20">No check-in history yet.</div>
+            <div className="p-12 text-center text-ink/20">No check-in history yet.</div>
           )}
         </div>
 
@@ -759,72 +759,72 @@ const MembersTab = () => {
         <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Membership" maxWidth="max-w-2xl">
           <form onSubmit={handleEditMember} className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Full Name</label>
               <input type="text" required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                 value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
               <select required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
                 value={editForm.plan_id} onChange={e => setEditForm({ ...editForm, plan_id: e.target.value })}>
                 <option value="">Select a plan...</option>
                 {gym?.membership_plans?.map((p: any) => (
-                  <option key={p.id} value={p.id} className="bg-[#111]">{p.name}</option>
+                  <option key={p.id} value={p.id} className="bg-surface">{p.name}</option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Start Date</label>
                 <input type="date" required style={{ colorScheme: 'dark' }}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-ink/70"
                   value={editForm.start_date} onChange={e => setEditForm({ ...editForm, start_date: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">End Date</label>
                 <input type="date" required style={{ colorScheme: 'dark' }}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-ink/70"
                   value={editForm.end_date} onChange={e => setEditForm({ ...editForm, end_date: e.target.value })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
                 <input type="number" min={0}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                   value={editForm.amount_paid} onChange={e => setEditForm({ ...editForm, amount_paid: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Payment Method</label>
                 <select
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
                   value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>
-                  <option value="" className="bg-[#111]">Leave unchanged</option>
-                  <option value="cash" className="bg-[#111]">Cash</option>
-                  <option value="upi" className="bg-[#111]">UPI</option>
-                  <option value="card" className="bg-[#111]">Card</option>
-                  <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                  <option value="" className="bg-surface">Leave unchanged</option>
+                  <option value="cash" className="bg-surface">Cash</option>
+                  <option value="upi" className="bg-surface">UPI</option>
+                  <option value="card" className="bg-surface">Card</option>
+                  <option value="bank_transfer" className="bg-surface">Bank Transfer</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
                 <input type="number" min={0}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                   value={editForm.remaining_visits} onChange={e => setEditForm({ ...editForm, remaining_visits: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
                 <input type="number" min={0}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                   value={editForm.total_check_ins} onChange={e => setEditForm({ ...editForm, total_check_ins: e.target.value })} />
               </div>
             </div>
-            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 cursor-pointer">
+            <label className="flex items-center justify-between gap-3 rounded-xl bg-ink/5 border border-ink/10 px-4 py-3 cursor-pointer">
               <span>
-                <span className="block text-xs font-bold text-white/70">Auto renew</span>
-                <span className="block text-[11px] text-white/30">Keep this membership marked for renewal reminders.</span>
+                <span className="block text-xs font-bold text-ink/70">Auto renew</span>
+                <span className="block text-[11px] text-ink/30">Keep this membership marked for renewal reminders.</span>
               </span>
               <input type="checkbox" checked={editForm.auto_renew} onChange={e => setEditForm({ ...editForm, auto_renew: e.target.checked })}
                 className="w-5 h-5 accent-primary" />
@@ -832,7 +832,7 @@ const MembersTab = () => {
 
             {gym?.addons && gym.addons.length > 0 && (
               <div className="space-y-3">
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Add-ons</label>
+                <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider">Add-ons</label>
                 <div className="grid grid-cols-1 gap-2">
                   {gym.addons.map((addon: any) => {
                     const isSelected = editForm.selected_addons.find(a => a.id === addon.id);
@@ -848,14 +848,14 @@ const MembersTab = () => {
                         }}
                         className={clsx(
                           "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                          isSelected ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                          isSelected ? "bg-emerald-500/10 border-emerald-500/30" : "bg-ink/5 border-ink/5 hover:border-ink/10"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", isSelected ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", isSelected ? "bg-emerald-500 border-emerald-500 text-black" : "border-ink/20")}>
                             {isSelected && <CheckCircle2 size={10} />}
                           </div>
-                          <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                          <span className="text-xs font-bold text-ink/80">{addon.name}</span>
                         </div>
                         <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
                       </div>
@@ -865,15 +865,15 @@ const MembersTab = () => {
               </div>
             )}
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Status</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Status</label>
               <select required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
                 value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}>
-                <option value="active" className="bg-[#111]">Active</option>
-                <option value="expired" className="bg-[#111]">Expired</option>
-                <option value="cancelled" className="bg-[#111]">Cancelled</option>
-                <option value="pending" className="bg-[#111]">Pending</option>
-                <option value="suspended" className="bg-[#111]">Suspended</option>
+                <option value="active" className="bg-surface">Active</option>
+                <option value="expired" className="bg-surface">Expired</option>
+                <option value="cancelled" className="bg-surface">Cancelled</option>
+                <option value="pending" className="bg-surface">Pending</option>
+                <option value="suspended" className="bg-surface">Suspended</option>
               </select>
             </div>
             <button type="submit" disabled={isUpdating}
@@ -893,7 +893,7 @@ const MembersTab = () => {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-3xl font-display font-black tracking-tight italic">MEMBERS</h2>
-          <p className="text-white/40 text-sm">Manage your gym's member base and attendance.</p>
+          <p className="text-ink/40 text-sm">Manage your gym's member base and attendance.</p>
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -904,7 +904,7 @@ const MembersTab = () => {
             onChange={(e) => handleImportMembers(e.target.files?.[0])}
           />
           <button onClick={handleDownloadMembers} disabled={downloadingMembers}
-            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/20 transition-all disabled:opacity-50">
+            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-ink/5 text-ink/60 border-ink/10 hover:text-ink hover:border-ink/20 transition-all disabled:opacity-50">
             {downloadingMembers ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} Download Excel
           </button>
           <button onClick={() => importInputRef.current?.click()} disabled={importingMembers}
@@ -913,7 +913,7 @@ const MembersTab = () => {
           </button>
           <button onClick={() => setQuickMode(!quickMode)}
             className={`py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold transition-all ${
-              quickMode ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/20'
+              quickMode ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-ink/5 text-white/60 border-ink/10 hover:text-white hover:border-ink/20'
             }`}>
             <Zap size={16} /> Quick Check-in
           </button>
@@ -935,14 +935,14 @@ const MembersTab = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Quick Check-in / Check-out</h3>
-                  <p className="text-white/40 text-xs">Type member name or last few digits of their phone number</p>
+                  <p className="text-ink/40 text-xs">Type member name or last few digits of their phone number</p>
                 </div>
               </div>
 
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400/60" size={20} />
                 <input type="text" autoFocus placeholder="Search member... (e.g. '8989' or 'Ayus')" 
-                  className="w-full bg-black/30 border-2 border-green-500/30 rounded-2xl py-4 pl-12 pr-4 text-lg focus:border-green-400 outline-none transition-all placeholder:text-white/20"
+                  className="w-full bg-surface-sunken border-2 border-green-500/30 rounded-2xl py-4 pl-12 pr-4 text-lg focus:border-green-400 outline-none transition-all placeholder:text-ink-subtle"
                   value={quickSearch} onChange={e => setQuickSearch(e.target.value)} />
                 {quickLoading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-green-400" size={20} />}
               </div>
@@ -951,15 +951,15 @@ const MembersTab = () => {
               {quickSearch.length >= 2 && (
                 <div className="mt-3 space-y-2">
                   {quickResults.length === 0 && !quickLoading ? (
-                    <div className="p-4 text-center text-white/30 text-sm">
+                    <div className="p-4 text-center text-ink/30 text-sm">
                       No active member found for "{quickSearch}"
                     </div>
                   ) : (
                     quickResults.map((m) => (
                       <motion.div key={m.user_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl border border-white/5 hover:border-green-500/20 transition-all">
+                        className="flex items-center justify-between p-4 bg-ink/[0.03] rounded-xl border border-ink/5 hover:border-green-500/20 transition-all">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm">
+                          <div className="w-10 h-10 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-ink/60 font-bold text-sm">
                             {(m.user_name || 'U')[0].toUpperCase()}
                           </div>
                           <div>
@@ -969,7 +969,7 @@ const MembersTab = () => {
                                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-widest animate-pulse">IN GYM</span>
                               )}
                             </div>
-                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
+                            <p className="text-xs text-ink/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1010,7 +1010,7 @@ const MembersTab = () => {
           <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="glass-card p-5">
             <div className="flex items-center justify-between">
-              <span className="text-white/40 text-xs font-bold uppercase tracking-wider">{s.label}</span>
+              <span className="text-ink/40 text-xs font-bold uppercase tracking-wider">{s.label}</span>
               <s.icon size={16} className={s.color} />
             </div>
             <p className="text-3xl font-black mt-2">{s.value}</p>
@@ -1021,7 +1021,7 @@ const MembersTab = () => {
       {/* View Toggle + Filters */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
         {/* Members / Attendance toggle */}
-        <div className="flex bg-white/5 rounded-xl p-1 border border-white/5">
+        <div className="flex bg-ink/5 rounded-xl p-1 border border-ink/5">
           {(['members', 'attendance'] as const).map(mode => (
             <button key={mode} onClick={() => setViewMode(mode)}
               className={`px-4 py-2 text-sm font-bold rounded-lg transition-all capitalize ${viewMode === mode ? 'bg-primary text-white shadow-lg' : 'text-white/40 hover:text-white'}`}>
@@ -1034,17 +1034,17 @@ const MembersTab = () => {
           <>
             {/* Search */}
             <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/30" size={16} />
               <input type="text" placeholder="Search by name or phone..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary outline-none transition-all"
                 value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }} />
             </div>
             {/* Status filter */}
             <div className="flex items-center gap-2">
-              <Filter size={14} className="text-white/30" />
+              <Filter size={14} className="text-ink/30" />
               {['', 'pending', 'active', 'expired', 'cancelled'].map(s => (
                 <button key={s} onClick={() => { setStatusFilter(s); setPage(1); }}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all capitalize ${statusFilter === s ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 text-white/40 border-white/5 hover:text-white'}`}>
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all capitalize ${statusFilter === s ? 'bg-primary/20 text-primary border-primary/30' : 'bg-ink/5 text-white/40 border-ink/5 hover:text-white'}`}>
                   {s || 'All'}
                 </button>
               ))}
@@ -1054,9 +1054,9 @@ const MembersTab = () => {
           <>
             {/* Date filter for attendance */}
             <input type="date" value={attendanceDateFilter} onChange={e => { setAttendanceDateFilter(e.target.value); setAttendancePage(1); }}
-              className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm focus:border-primary outline-none transition-all" />
-            <button onClick={fetchAttendance} className="p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">
-              <RefreshCw size={16} className="text-white/40" />
+              className="bg-ink/5 border border-ink/10 rounded-xl py-2.5 px-4 text-sm focus:border-primary outline-none transition-all" />
+            <button onClick={fetchAttendance} className="p-2.5 bg-ink/5 border border-ink/10 rounded-xl hover:bg-ink/10 transition-all">
+              <RefreshCw size={16} className="text-ink/40" />
             </button>
           </>
         )}
@@ -1071,14 +1071,14 @@ const MembersTab = () => {
               <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-primary" size={32} /></div>
             ) : members.length === 0 ? (
               <div className="p-16 text-center space-y-4">
-                <Users size={48} className="mx-auto text-white/10" />
-                <p className="text-white/30 text-lg font-bold">No members found</p>
-                <p className="text-white/20 text-sm">Enroll your first member to get started.</p>
+                <Users size={48} className="mx-auto text-ink/10" />
+                <p className="text-ink/30 text-lg font-bold">No members found</p>
+                <p className="text-ink/20 text-sm">Enroll your first member to get started.</p>
               </div>
             ) : (
               <>
                 {/* Table Header (Desktop Only) */}
-                <div className="hidden md:grid grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
+                <div className="hidden md:grid grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-ink/30 uppercase tracking-widest border-b border-ink/5">
                   <span>Member</span>
                   <span>Active Plans</span>
                   <span>Status</span>
@@ -1087,16 +1087,16 @@ const MembersTab = () => {
                 </div>
 
                 {/* Rows */}
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-ink/5">
                   {members.map((m, i) => (
                     <motion.div key={m.user_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-ink/[0.02] transition-colors cursor-pointer group"
                       onClick={() => fetchMemberDetail(m.user_id)}>
                       
                       {/* -- Header Row: Avatar, Name, Phone, Status (Mobile Optimized) -- */}
                       <div className="flex items-start justify-between w-full md:w-auto">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-ink/60 font-bold text-sm shrink-0">
                             {(m.user_name || 'U')[0].toUpperCase()}
                           </div>
                           <div className="min-w-0">
@@ -1106,7 +1106,7 @@ const MembersTab = () => {
                                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" title="Currently in gym" />
                               )}
                             </div>
-                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
+                            <p className="text-xs text-ink/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
                           </div>
                         </div>
                         <div className="md:hidden">
@@ -1115,21 +1115,21 @@ const MembersTab = () => {
                       </div>
 
                       {/* -- Details Grid (Mobile: 2x2 Grid, Desktop: Columns) -- */}
-                      <div className="grid grid-cols-2 md:contents gap-3 p-3 md:p-0 bg-white/[0.03] md:bg-transparent rounded-xl border border-white/5 md:border-0">
+                      <div className="grid grid-cols-2 md:contents gap-3 p-3 md:p-0 bg-ink/[0.03] md:bg-transparent rounded-xl border border-ink/5 md:border-0">
                         <div className="flex flex-col md:block">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">PLANS</span>
-                           <span className="text-xs md:text-sm text-white/60 truncate font-medium flex flex-col gap-1">
+                           <span className="md:hidden text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">PLANS</span>
+                           <span className="text-xs md:text-sm text-ink/60 truncate font-medium flex flex-col gap-1">
                              {m.memberships.length > 0 
-                              ? m.memberships.slice(0,2).map((sub, sIdx) => <span key={sIdx} className="bg-white/5 px-2 py-0.5 rounded text-[10px]">{sub.plan_name}</span>)
+                              ? m.memberships.slice(0,2).map((sub, sIdx) => <span key={sIdx} className="bg-ink/5 px-2 py-0.5 rounded text-[10px]">{sub.plan_name}</span>)
                               : 'None'}
-                              {m.memberships.length > 2 && <span className="text-[10px] text-white/40">+{m.memberships.length - 2} more</span>}
+                              {m.memberships.length > 2 && <span className="text-[10px] text-ink/40">+{m.memberships.length - 2} more</span>}
                            </span>
                         </div>
                         <div className="hidden md:block">{statusBadge(m.active_status)}</div>
                         <div className="flex flex-col md:block">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">VISITS</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">VISITS</span>
                            <div className="space-y-1">
-                             <span className="text-xs md:text-sm font-mono text-white/80">{m.total_check_ins} Check-ins</span>
+                             <span className="text-xs md:text-sm font-mono text-ink/80">{m.total_check_ins} Check-ins</span>
                              {m.fitness_score && (
                                <div className="flex flex-wrap gap-1.5">
                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] font-black text-primary">
@@ -1143,15 +1143,15 @@ const MembersTab = () => {
                            </div>
                         </div>
                         <div className="md:hidden flex flex-col justify-center">
-                           <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">GYM STATUS</span>
-                           <span className={`text-[10px] font-bold ${m.is_currently_checked_in ? 'text-green-400' : 'text-white/20'}`}>
+                           <span className="text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">GYM STATUS</span>
+                           <span className={`text-[10px] font-bold ${m.is_currently_checked_in ? 'text-green-400' : 'text-ink/20'}`}>
                              {m.is_currently_checked_in ? 'In Gym Now' : 'Out of Gym'}
                            </span>
                         </div>
                       </div>
 
                       {/* -- Actions Row (Mobile: Full Width, Desktop: Inline) -- */}
-                      <div className="flex items-center justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t border-white/5 md:border-0 overflow-x-auto">
+                      <div className="flex items-center justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t border-ink/5 md:border-0 overflow-x-auto">
                         <div className="flex items-center gap-2">
                           <button onClick={e => { 
                               e.stopPropagation(); 
@@ -1168,7 +1168,7 @@ const MembersTab = () => {
                             <span className="text-xs font-bold uppercase transition-all">BILL</span>
                           </button>
                         </div>
-                        <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors shrink-0" />
+                        <ChevronRight size={18} className="text-ink/20 group-hover:text-primary transition-colors shrink-0" />
                       </div>
                     </motion.div>
                   ))}
@@ -1176,13 +1176,13 @@ const MembersTab = () => {
 
                 {/* Pagination */}
                 {totalMembers > 20 && (
-                  <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm">
-                    <span className="text-white/30">Page {page} of {Math.ceil(totalMembers / 20)}</span>
+                  <div className="p-4 border-t border-ink/5 flex items-center justify-between text-sm">
+                    <span className="text-ink/30">Page {page} of {Math.ceil(totalMembers / 20)}</span>
                     <div className="flex gap-2">
                       <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Prev</button>
+                        className="px-3 py-1.5 bg-ink/5 rounded-lg text-xs disabled:opacity-30">Prev</button>
                       <button onClick={() => setPage(page + 1)} disabled={page >= Math.ceil(totalMembers / 20)}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Next</button>
+                        className="px-3 py-1.5 bg-ink/5 rounded-lg text-xs disabled:opacity-30">Next</button>
                     </div>
                   </div>
                 )}
@@ -1197,13 +1197,13 @@ const MembersTab = () => {
               <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-primary" size={32} /></div>
             ) : attendance.length === 0 ? (
               <div className="p-16 text-center space-y-4">
-                <Clock size={48} className="mx-auto text-white/10" />
-                <p className="text-white/30 text-lg font-bold">No attendance records</p>
-                <p className="text-white/20 text-sm">{attendanceDateFilter ? 'No check-ins on this date.' : 'Check-in records will appear here.'}</p>
+                <Clock size={48} className="mx-auto text-ink/10" />
+                <p className="text-ink/30 text-lg font-bold">No attendance records</p>
+                <p className="text-ink/20 text-sm">{attendanceDateFilter ? 'No check-ins on this date.' : 'Check-in records will appear here.'}</p>
               </div>
             ) : (
               <>
-                <div className="hidden md:grid grid-cols-[1fr_120px_120px_80px_80px] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
+                <div className="hidden md:grid grid-cols-[1fr_120px_120px_80px_80px] gap-4 p-4 px-6 text-[10px] font-bold text-ink/30 uppercase tracking-widest border-b border-ink/5">
                   <span>Member</span>
                   <span>Check In</span>
                   <span>Check Out</span>
@@ -1211,66 +1211,66 @@ const MembersTab = () => {
                   <span>Duration</span>
                   <span>Method</span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-ink/5">
                   {attendance.map((a, i) => (
                     <motion.div key={a.check_in_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_120px_80px_80px] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors">
+                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_120px_80px_80px] gap-4 items-stretch md:items-center hover:bg-ink/[0.02] transition-colors">
                       
                       {/* Member Info */}
                       <div className="flex items-center gap-3 w-full">
-                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${a.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
+                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${a.check_out_time ? 'bg-ink/20' : 'bg-green-400 animate-pulse'}`} />
                         <div className="min-w-0">
                           <p className="font-bold truncate text-sm">{a.user_name || 'Unknown'}</p>
-                          <p className="text-xs text-white/30">{a.user_phone}</p>
+                          <p className="text-xs text-ink/30">{a.user_phone}</p>
                         </div>
                       </div>
 
                       {/* Grid for details on Mobile */}
-                      <div className="grid grid-cols-2 md:contents gap-4 p-3 bg-white/[0.02] md:bg-transparent rounded-xl border border-white/5 md:border-0">
+                      <div className="grid grid-cols-2 md:contents gap-4 p-3 bg-ink/[0.02] md:bg-transparent rounded-xl border border-ink/5 md:border-0">
                         <div className="text-sm">
-                           <span className="md:hidden block text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">IN</span>
+                           <span className="md:hidden block text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">IN</span>
                           <p className="font-medium">{formatDate(a.check_in_time)}</p>
-                          <p className="text-white/40 text-xs">{formatTime(a.check_in_time)}</p>
+                          <p className="text-ink/40 text-xs">{formatTime(a.check_in_time)}</p>
                         </div>
                         <div className="text-sm">
-                          <span className="md:hidden block text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">OUT</span>
+                          <span className="md:hidden block text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">OUT</span>
                           {a.check_out_time ? (
                             <>
                               <p className="font-medium">{formatDate(a.check_out_time)}</p>
-                              <p className="text-white/40 text-xs">{formatTime(a.check_out_time)}</p>
+                              <p className="text-ink/40 text-xs">{formatTime(a.check_out_time)}</p>
                             </>
                           ) : (
                             <span className="text-green-400 text-xs font-bold uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded">Active</span>
                           )}
                         </div>
                         <div className="flex flex-col">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">FOCUS</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">FOCUS</span>
                            {a.workout_type ? (
                              <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded uppercase tracking-wider text-center">{a.workout_type}</span>
                            ) : (
-                             <span className="text-[10px] text-white/20 uppercase tracking-widest text-center">—</span>
+                             <span className="text-[10px] text-ink/20 uppercase tracking-widest text-center">—</span>
                            )}
                         </div>
                         <div className="flex flex-col">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">DURATION</span>
-                           <span className="text-sm font-mono text-white/60">{a.duration_minutes != null ? `${a.duration_minutes}m` : '—'}</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">DURATION</span>
+                           <span className="text-sm font-mono text-ink/60">{a.duration_minutes != null ? `${a.duration_minutes}m` : '—'}</span>
                         </div>
                         <div className="flex flex-col">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">METHOD</span>
-                           <span className="text-[10px] uppercase tracking-widest text-white/30">{a.method}</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink/20 uppercase tracking-widest mb-1">METHOD</span>
+                           <span className="text-[10px] uppercase tracking-widest text-ink/30">{a.method}</span>
                         </div>
                       </div>
                     </motion.div>
                   ))}
                 </div>
                 {attendanceTotal > 30 && (
-                  <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm">
-                    <span className="text-white/30">Page {attendancePage} of {Math.ceil(attendanceTotal / 30)}</span>
+                  <div className="p-4 border-t border-ink/5 flex items-center justify-between text-sm">
+                    <span className="text-ink/30">Page {attendancePage} of {Math.ceil(attendanceTotal / 30)}</span>
                     <div className="flex gap-2">
                       <button onClick={() => setAttendancePage(Math.max(1, attendancePage - 1))} disabled={attendancePage === 1}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Prev</button>
+                        className="px-3 py-1.5 bg-ink/5 rounded-lg text-xs disabled:opacity-30">Prev</button>
                       <button onClick={() => setAttendancePage(attendancePage + 1)} disabled={attendancePage >= Math.ceil(attendanceTotal / 30)}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Next</button>
+                        className="px-3 py-1.5 bg-ink/5 rounded-lg text-xs disabled:opacity-30">Next</button>
                     </div>
                   </div>
                 )}
@@ -1285,42 +1285,42 @@ const MembersTab = () => {
         <form onSubmit={handleEnroll} className="space-y-5">
           {/* Phone */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Phone Number</label>
+            <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Phone Number</label>
             <div className="relative flex items-center">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
-                <Phone size={14} className="text-white/40" />
-                <span className="text-white/60 font-bold text-xs border-r border-white/10 pr-1.5">+91</span>
+                <Phone size={14} className="text-ink/40" />
+                <span className="text-ink/60 font-bold text-xs border-r border-ink/10 pr-1.5">+91</span>
               </div>
               <input type="tel" required placeholder="10-digit number" maxLength={10}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-[4.5rem] pr-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 pl-[4.5rem] pr-4 text-sm focus:border-primary outline-none transition-all"
                 value={enrollForm.phone} onChange={e => setEnrollForm({ ...enrollForm, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} />
             </div>
           </div>
 
           {/* Full Name */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+            <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Full Name</label>
             <input type="text" required placeholder="Member's full name"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
               value={enrollForm.full_name} onChange={e => setEnrollForm({ ...enrollForm, full_name: e.target.value })} />
           </div>
 
           {/* Plan */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+            <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
             {!gym?.membership_plans || gym.membership_plans.length === 0 ? (
               <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-xs flex items-center gap-2">
                 <AlertTriangle size={14} /> No plans found. Create one in the Plans tab first.
               </div>
             ) : (
               <select required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
                 value={enrollForm.plan_id} onChange={e => {
                   setEnrollForm({ ...enrollForm, plan_id: e.target.value });
                 }}>
                 <option value="">Select a plan...</option>
                 {gym.membership_plans.map((p: any) => (
-                  <option key={p.id} value={p.id} className="bg-[#111]">
+                  <option key={p.id} value={p.id} className="bg-surface">
                     {p.name} — ₹{p.discounted_price || p.price} / {p.duration_days} days
                   </option>
                 ))}
@@ -1331,16 +1331,16 @@ const MembersTab = () => {
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Start Date</label>
               <input type="date"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-ink/70"
                 style={{ colorScheme: 'dark' }}
                 value={enrollForm.start_date} onChange={e => setEnrollForm({ ...enrollForm, start_date: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date (Auto)</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">End Date (Auto)</label>
               <input type="date"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-ink/70"
                 style={{ colorScheme: 'dark' }}
                 value={enrollForm.end_date} onChange={e => setEnrollForm({ ...enrollForm, end_date: e.target.value })} />
             </div>
@@ -1349,19 +1349,19 @@ const MembersTab = () => {
           {/* Payment */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
-              <select className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+              <select className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
                 value={enrollForm.payment_method} onChange={e => setEnrollForm({ ...enrollForm, payment_method: e.target.value })}>
-                <option value="cash" className="bg-[#111]">Cash</option>
-                <option value="upi" className="bg-[#111]">UPI</option>
-                <option value="card" className="bg-[#111]">Card</option>
-                <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                <option value="cash" className="bg-surface">Cash</option>
+                <option value="upi" className="bg-surface">UPI</option>
+                <option value="card" className="bg-surface">Card</option>
+                <option value="bank_transfer" className="bg-surface">Bank Transfer</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount (optional)</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Amount (optional)</label>
               <input type="number" placeholder="Auto from plan"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                 value={enrollForm.amount_paid} onChange={e => setEnrollForm({ ...enrollForm, amount_paid: e.target.value })} />
             </div>
           </div>
@@ -1369,7 +1369,7 @@ const MembersTab = () => {
           {/* Add-ons Selection */}
           {gym?.addons && gym.addons.length > 0 && (
             <div className="space-y-3">
-               <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Available Add-ons</label>
+               <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider">Available Add-ons</label>
                <div className="grid grid-cols-1 gap-2">
                   {gym.addons.map((addon: any) => (
                     <div 
@@ -1384,14 +1384,14 @@ const MembersTab = () => {
                       }}
                       className={clsx(
                         "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                        enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                        enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-ink/5 border-ink/5 hover:border-ink/10"
                       )}
                     >
                        <div className="flex items-center gap-3">
-                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-ink/20")}>
                             {enrollForm.selected_addons.find(a => a.id === addon.id) && <CheckCircle2 size={10} />}
                           </div>
-                          <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                          <span className="text-xs font-bold text-ink/80">{addon.name}</span>
                        </div>
                        <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
                     </div>
@@ -1425,21 +1425,21 @@ const MembersTab = () => {
         <form onSubmit={handleEditMember} className="space-y-5">
           {/* Full Name */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+            <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Full Name</label>
             <input type="text" required placeholder="Member's full name"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
               value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
           </div>
 
           {/* Plan */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+            <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
             <select required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
               value={editForm.plan_id} onChange={e => setEditForm({ ...editForm, plan_id: e.target.value })}>
               <option value="">Select a plan...</option>
               {gym?.membership_plans?.map((p: any) => (
-                <option key={p.id} value={p.id} className="bg-[#111]">
+                <option key={p.id} value={p.id} className="bg-surface">
                   {p.name}
                 </option>
               ))}
@@ -1449,16 +1449,16 @@ const MembersTab = () => {
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Start Date</label>
               <input type="date" required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-ink/70"
                 style={{ colorScheme: 'dark' }}
                 value={editForm.start_date} onChange={e => setEditForm({ ...editForm, start_date: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">End Date</label>
               <input type="date" required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-ink/70"
                 style={{ colorScheme: 'dark' }}
                 value={editForm.end_date} onChange={e => setEditForm({ ...editForm, end_date: e.target.value })} />
             </div>
@@ -1467,41 +1467,41 @@ const MembersTab = () => {
           {/* Payment + Usage */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
               <input type="number" min={0}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                 value={editForm.amount_paid} onChange={e => setEditForm({ ...editForm, amount_paid: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Payment Method</label>
               <select
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
                 value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>
-                <option value="" className="bg-[#111]">Leave unchanged</option>
-                <option value="cash" className="bg-[#111]">Cash</option>
-                <option value="upi" className="bg-[#111]">UPI</option>
-                <option value="card" className="bg-[#111]">Card</option>
-                <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                <option value="" className="bg-surface">Leave unchanged</option>
+                <option value="cash" className="bg-surface">Cash</option>
+                <option value="upi" className="bg-surface">UPI</option>
+                <option value="card" className="bg-surface">Card</option>
+                <option value="bank_transfer" className="bg-surface">Bank Transfer</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
               <input type="number" min={0} placeholder="Blank for unlimited"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                 value={editForm.remaining_visits} onChange={e => setEditForm({ ...editForm, remaining_visits: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
               <input type="number" min={0}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
                 value={editForm.total_check_ins} onChange={e => setEditForm({ ...editForm, total_check_ins: e.target.value })} />
             </div>
           </div>
 
-          <label className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 cursor-pointer">
+          <label className="flex items-center justify-between gap-3 rounded-xl bg-ink/5 border border-ink/10 px-4 py-3 cursor-pointer">
             <span>
-              <span className="block text-xs font-bold text-white/70">Auto renew</span>
-              <span className="block text-[11px] text-white/30">Keep this membership marked for renewal reminders.</span>
+              <span className="block text-xs font-bold text-ink/70">Auto renew</span>
+              <span className="block text-[11px] text-ink/30">Keep this membership marked for renewal reminders.</span>
             </span>
             <input type="checkbox" checked={editForm.auto_renew} onChange={e => setEditForm({ ...editForm, auto_renew: e.target.checked })}
               className="w-5 h-5 accent-primary" />
@@ -1509,7 +1509,7 @@ const MembersTab = () => {
 
           {gym?.addons && gym.addons.length > 0 && (
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Add-ons</label>
+              <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider">Add-ons</label>
               <div className="grid grid-cols-1 gap-2">
                 {gym.addons.map((addon: any) => (
                   <div
@@ -1524,14 +1524,14 @@ const MembersTab = () => {
                     }}
                     className={clsx(
                       "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                      editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                      editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-ink/5 border-ink/5 hover:border-ink/10"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                      <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-ink/20")}>
                         {editForm.selected_addons.find(a => a.id === addon.id) && <CheckCircle2 size={10} />}
                       </div>
-                      <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                      <span className="text-xs font-bold text-ink/80">{addon.name}</span>
                     </div>
                     <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
                   </div>
@@ -1542,15 +1542,15 @@ const MembersTab = () => {
 
           {/* Status */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Status</label>
+            <label className="block text-xs font-bold text-ink/40 uppercase tracking-wider mb-1.5">Status</label>
             <select required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+              className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
               value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}>
-              <option value="active" className="bg-[#111]">Active</option>
-              <option value="expired" className="bg-[#111]">Expired</option>
-              <option value="cancelled" className="bg-[#111]">Cancelled</option>
-              <option value="pending" className="bg-[#111]">Pending</option>
-              <option value="suspended" className="bg-[#111]">Suspended</option>
+              <option value="active" className="bg-surface">Active</option>
+              <option value="expired" className="bg-surface">Expired</option>
+              <option value="cancelled" className="bg-surface">Cancelled</option>
+              <option value="pending" className="bg-surface">Pending</option>
+              <option value="suspended" className="bg-surface">Suspended</option>
             </select>
           </div>
 
@@ -1566,37 +1566,37 @@ const MembersTab = () => {
           <div className="space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: 'Rows', value: importSummary.total_rows, color: 'text-white' },
+                { label: 'Rows', value: importSummary.total_rows, color: 'text-ink' },
                 { label: 'Created', value: importSummary.created, color: 'text-emerald-400' },
                 { label: 'Updated', value: importSummary.updated, color: 'text-sky-300' },
-                { label: 'Failed', value: importSummary.failed, color: importSummary.failed ? 'text-rose-400' : 'text-white/50' },
+                { label: 'Failed', value: importSummary.failed, color: importSummary.failed ? 'text-rose-400' : 'text-ink/50' },
               ].map(item => (
-                <div key={item.label} className="rounded-xl bg-white/5 border border-white/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30">{item.label}</p>
+                <div key={item.label} className="rounded-xl bg-ink/5 border border-ink/10 p-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-ink/30">{item.label}</p>
                   <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="max-h-[360px] overflow-auto rounded-2xl border border-white/10">
-              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/30 sticky top-0">
+            <div className="max-h-[360px] overflow-auto rounded-2xl border border-ink/10">
+              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-ink/5 text-[10px] font-black uppercase tracking-widest text-ink/30 sticky top-0">
                 <span>Row</span>
                 <span>Action</span>
                 <span>Member</span>
                 <span>Message</span>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-ink/5">
                 {importSummary.results.map((result) => (
                   <div key={`${result.row}-${result.action}-${result.phone || ''}`} className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 text-xs">
-                    <span className="font-mono text-white/50">{result.row}</span>
+                    <span className="font-mono text-ink/50">{result.row}</span>
                     <span className={clsx(
                       "font-black uppercase tracking-wider",
                       result.action === 'failed' ? 'text-rose-400' : result.action === 'created' ? 'text-emerald-400' : 'text-sky-300'
                     )}>{result.action}</span>
-                    <span className="text-white/70 truncate">
-                      {result.full_name || 'Unknown'} <span className="text-white/30">{result.phone || ''}</span>
+                    <span className="text-ink/70 truncate">
+                      {result.full_name || 'Unknown'} <span className="text-ink/30">{result.phone || ''}</span>
                     </span>
-                    <span className={result.action === 'failed' ? 'text-rose-300' : 'text-white/45'}>{result.message}</span>
+                    <span className={result.action === 'failed' ? 'text-rose-300' : 'text-ink/45'}>{result.message}</span>
                   </div>
                 ))}
               </div>

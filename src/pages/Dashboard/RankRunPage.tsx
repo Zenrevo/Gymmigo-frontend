@@ -56,7 +56,7 @@ export default function RankRunPage() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative py-12 px-10 rounded-[3rem] bg-gradient-to-br from-primary/10 via-white/[0.02] to-transparent border border-white/5 overflow-hidden shadow-2xl"
+        className="relative py-12 px-10 rounded-[3rem] bg-gradient-to-br from-primary/10 via-ink/[0.02] to-transparent border border-ink/5 overflow-hidden shadow-2xl"
       >
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
         
@@ -66,25 +66,25 @@ export default function RankRunPage() {
               <div className="h-[1px] w-12 bg-primary/50" />
               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary">Season 02: Ignite</span>
             </div>
-            <h1 className="text-6xl md:text-7xl font-black tracking-tighter text-white italic">
+            <h1 className="text-6xl md:text-7xl font-black tracking-tighter text-ink italic">
               RANK RUN <span className="not-italic text-primary">⚡️</span>
             </h1>
-            <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-xs md:text-sm max-w-xl leading-relaxed">
+            <p className="text-ink/40 font-bold uppercase tracking-[0.2em] text-xs md:text-sm max-w-xl leading-relaxed">
               Every rep counts. Compete globally, earn points, and climb the ranks of the Gymmigo community.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6">
-             <div className="glass-card px-8 py-6 text-center space-y-1 bg-white/[0.03] border-white/10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Global Rank</p>
-                <p className="text-4xl font-black text-white italic tracking-tighter">#{rank}<span className="text-xs not-italic text-white/20 ml-1">/{total_users}</span></p>
+             <div className="glass-card px-8 py-6 text-center space-y-1 bg-ink/[0.03] border-ink/10">
+                <p className="text-[10px] font-black uppercase tracking-widest text-ink/30">Global Rank</p>
+                <p className="text-4xl font-black text-ink italic tracking-tighter">#{rank}<span className="text-xs not-italic text-ink/20 ml-1">/{total_users}</span></p>
              </div>
-             <div className="glass-card px-8 py-6 text-center space-y-1 bg-white/[0.03] border-white/10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Score</p>
+             <div className="glass-card px-8 py-6 text-center space-y-1 bg-ink/[0.03] border-ink/10">
+                <p className="text-[10px] font-black uppercase tracking-widest text-ink/30">Total Score</p>
                 <p className="text-4xl font-black text-primary italic tracking-tighter">{current_score}</p>
              </div>
-             <div className="glass-card px-8 py-6 text-center space-y-1 bg-white/[0.03] border-white/10">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Current Tier</p>
+             <div className="glass-card px-8 py-6 text-center space-y-1 bg-ink/[0.03] border-ink/10">
+                <p className="text-[10px] font-black uppercase tracking-widest text-ink/30">Current Tier</p>
                 <p className={clsx("text-4xl font-black italic tracking-tighter", currentTierColor)}>{current_tier}</p>
              </div>
           </div>
@@ -95,11 +95,11 @@ export default function RankRunPage() {
         {/* Leaderboard */}
         <div className="lg:col-span-2 space-y-8">
            <div className="flex items-center justify-between">
-              <h3 className="text-2xl font-black text-white flex items-center gap-3 italic tracking-tighter uppercase">
+              <h3 className="text-2xl font-black text-ink flex items-center gap-3 italic tracking-tighter uppercase">
                 <Trophy size={24} className="text-primary" />
                 Global Leaderboard
               </h3>
-              <div className="flex items-center gap-2 text-white/40 text-[10px] font-black uppercase tracking-widest bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+              <div className="flex items-center gap-2 text-ink/40 text-[10px] font-black uppercase tracking-widest bg-ink/5 px-3 py-1.5 rounded-full border border-ink/10">
                  <Activity size={12} className="animate-pulse text-primary" />
                  LIVE
               </div>
@@ -118,33 +118,33 @@ export default function RankRunPage() {
                     transition={{ delay: i * 0.05 }}
                     className={clsx(
                       "glass-card p-5 flex items-center justify-between group transition-all",
-                      isMe ? "bg-primary/10 border-primary/30" : "bg-white/[0.02] border-white/5 hover:border-white/15"
+                      isMe ? "bg-primary/10 border-primary/30" : "bg-ink/[0.02] border-ink/5 hover:border-ink/15"
                     )}
                   >
                     <div className="flex items-center gap-6">
                        <div className="w-10 text-center">
                           {userRank === 1 ? <Crown size={24} className="text-yellow-400 mx-auto" /> :
-                           userRank === 2 ? <Award size={22} className="text-slate-300 mx-auto" /> :
+                           userRank === 2 ? <Award size={22} className="text-ink-muted mx-auto" /> :
                            userRank === 3 ? <Award size={20} className="text-[#CD7F32] mx-auto" /> :
-                           <span className="text-lg font-black text-white/20">#{userRank}</span>}
+                           <span className="text-lg font-black text-ink/20">#{userRank}</span>}
                        </div>
                        
                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden shrink-0">
+                          <div className="w-12 h-12 rounded-2xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden shrink-0">
                             {user.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" /> : <Users size={20} />}
                           </div>
                           <div>
-                             <h4 className={clsx("font-black text-lg tracking-tight", isMe ? "text-primary" : "text-white")}>
+                             <h4 className={clsx("font-black text-lg tracking-tight", isMe ? "text-primary" : "text-ink")}>
                                {user.full_name} {isMe && <span className="text-[10px] font-black bg-primary text-black px-1.5 rounded ml-2">YOU</span>}
                              </h4>
-                             <p className="text-[10px] font-black uppercase tracking-widest text-white/30">{user.tier || 'ROOKIE'}</p>
+                             <p className="text-[10px] font-black uppercase tracking-widest text-ink/30">{user.tier || 'ROOKIE'}</p>
                           </div>
                        </div>
                     </div>
 
                     <div className="text-right">
-                       <p className="text-2xl font-black text-white italic tracking-tighter">{user.score || 0}</p>
-                       <p className="text-[9px] font-black uppercase tracking-widest text-white/20">Points</p>
+                       <p className="text-2xl font-black text-ink italic tracking-tighter">{user.score || 0}</p>
+                       <p className="text-[9px] font-black uppercase tracking-widest text-ink/20">Points</p>
                     </div>
                   </motion.div>
                 );
@@ -156,30 +156,30 @@ export default function RankRunPage() {
         <div className="space-y-8">
            <section className="glass-card p-8 space-y-6 bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
               <div className="flex items-center justify-between">
-                <h4 className="text-lg font-black text-white italic tracking-tighter flex items-center gap-2 uppercase">
+                <h4 className="text-lg font-black text-ink italic tracking-tighter flex items-center gap-2 uppercase">
                    <Flame size={18} className="text-amber-500" />
                    Streak Power
                 </h4>
               </div>
               <div className="space-y-4">
-                <div className="text-5xl font-black text-white italic tracking-tighter">{streak} Days</div>
-                <p className="text-xs text-white/40 font-medium leading-relaxed">
+                <div className="text-5xl font-black text-ink italic tracking-tighter">{streak} Days</div>
+                <p className="text-xs text-ink/40 font-medium leading-relaxed">
                   Maintain your daily activity streak to multiply your points. Don't let the fire go out!
                 </p>
-                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-ink/5 rounded-full overflow-hidden">
                    <div className="h-full bg-amber-500 rounded-full w-3/4 animate-pulse" />
                 </div>
               </div>
            </section>
 
            <section className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-6">How to Score</h4>
+              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-ink/40 mb-6">How to Score</h4>
               <div className="space-y-3">
                  {point_rules.map((rule: any, i: number) => (
-                    <div key={i} className="glass-card p-4 bg-white/[0.02] border-white/5 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
+                    <div key={i} className="glass-card p-4 bg-ink/[0.02] border-ink/5 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
                        <div className="space-y-1">
-                          <p className="text-xs font-black text-white uppercase tracking-tight">{rule.label}</p>
-                          <p className="text-[10px] font-medium text-white/30">{rule.description}</p>
+                          <p className="text-xs font-black text-ink uppercase tracking-tight">{rule.label}</p>
+                          <p className="text-[10px] font-medium text-ink/30">{rule.description}</p>
                        </div>
                        <div className="text-right">
                           <p className="text-lg font-black text-emerald-400">+{rule.max_points}</p>
@@ -193,9 +193,9 @@ export default function RankRunPage() {
               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500/40 mb-6">Penalties</h4>
               <div className="space-y-3">
                  {penalty_rules.map((rule: any, i: number) => (
-                    <div key={i} className="glass-card p-4 bg-white/[0.02] border-white/5 flex items-center justify-between group hover:border-rose-500/20 transition-all">
+                    <div key={i} className="glass-card p-4 bg-ink/[0.02] border-ink/5 flex items-center justify-between group hover:border-rose-500/20 transition-all">
                        <div className="space-y-1">
-                          <p className="text-xs font-black text-white/60 uppercase tracking-tight">{rule.label}</p>
+                          <p className="text-xs font-black text-ink/60 uppercase tracking-tight">{rule.label}</p>
                        </div>
                        <div className="text-right">
                           <p className="text-lg font-black text-rose-500">{rule.points}</p>

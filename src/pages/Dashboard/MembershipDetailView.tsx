@@ -101,7 +101,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
     return (
       <div className="flex flex-col items-center justify-center p-20 text-primary">
         <Loader2 className="animate-spin" size={32} />
-        <p className="mt-4 text-white/50 text-sm animate-pulse">Loading membership details...</p>
+        <p className="mt-4 text-ink/50 text-sm animate-pulse">Loading membership details...</p>
       </div>
     );
   }
@@ -123,12 +123,12 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
     <div className="space-y-6">
       {/* Header Back Button */}
       <div className="flex items-center gap-4">
-        <button onClick={onBack} className="p-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-white/60 hover:text-white">
+        <button onClick={onBack} className="p-2 bg-ink/5 border border-ink/10 rounded-xl hover:bg-ink/10 transition-all text-ink/60 hover:text-ink">
           <ArrowLeft size={16} />
         </button>
         <div>
           <h2 className="text-2xl font-bold">My Membership</h2>
-          <p className="text-white/40 text-sm">Detailed overview & attendance</p>
+          <p className="text-ink/40 text-sm">Detailed overview & attendance</p>
         </div>
       </div>
 
@@ -143,11 +143,11 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Live</span>
           </div>
-          <h3 className="text-xl font-display font-black italic uppercase tracking-tighter text-white/90">CROWD STATUS</h3>
+          <h3 className="text-xl font-display font-black italic uppercase tracking-tighter text-ink/90">CROWD STATUS</h3>
         </div>
         
         <div className="flex-1 w-full space-y-3 relative z-10">
-          <div className="h-4 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 p-1">
+          <div className="h-4 w-full bg-ink/5 rounded-full overflow-hidden border border-ink/5 p-1">
             <motion.div 
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(1, occupancyRatio) * 100}%` }}
@@ -156,7 +156,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                 occupancyRatio > 0.8 ? "bg-red-500" : occupancyRatio > 0.5 ? "bg-orange-500" : "bg-emerald-500"
               )}
             >
-              <div className="absolute inset-0 bg-white/20 animate-pulse" />
+              <div className="absolute inset-0 bg-ink/20 animate-pulse" />
             </motion.div>
           </div>
           <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
@@ -167,8 +167,8 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
               <Activity size={12} />
               {occupancyRatio > 0.8 ? 'VERY BUSY' : occupancyRatio > 0.5 ? 'MODERATE' : 'QUIET'} NOW
             </span>
-            <span className="text-white/40 font-mono">
-              <span className="text-white font-bold">{curOccupancy}</span> / {maxCap} PEOPLE IN FACILITY
+            <span className="text-ink/40 font-mono">
+              <span className="text-ink font-bold">{curOccupancy}</span> / {maxCap} PEOPLE IN FACILITY
             </span>
           </div>
         </div>
@@ -183,14 +183,14 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
             </h3>
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1">Total Visits</p>
-                <p className="text-4xl font-black text-white">{totalVisits}</p>
+                <p className="text-xs font-bold text-ink/40 uppercase tracking-widest mb-1">Total Visits</p>
+                <p className="text-4xl font-black text-ink">{totalVisits}</p>
               </div>
-              <div className="w-full h-px bg-white/10" />
+              <div className="w-full h-px bg-ink/10" />
               <div>
-                <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1">Avg. Workout</p>
+                <p className="text-xs font-bold text-ink/40 uppercase tracking-widest mb-1">Avg. Workout</p>
                 <p className="text-2xl font-bold flex items-baseline gap-1">
-                  {avgDuration} <span className="text-sm font-medium text-white/40 uppercase tracking-widest">min</span>
+                  {avgDuration} <span className="text-sm font-medium text-ink/40 uppercase tracking-widest">min</span>
                 </p>
               </div>
             </div>
@@ -204,21 +204,21 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
               {gymGroup.memberships.map((m: any, idx: number) => {
                  const daysRemaining = Math.max(0, Math.ceil((new Date(m.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
                  return (
-                   <div key={idx} className="bg-white/5 border border-white/5 rounded-xl p-4 space-y-3">
+                   <div key={idx} className="bg-ink/5 border border-ink/5 rounded-xl p-4 space-y-3">
                      <div className="flex justify-between items-center">
                        <span className="text-sm font-bold truncate">{m.plan_name}</span>
-                       <span className={`text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest rounded-full ${m.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/40'}`}>{m.status}</span>
+                       <span className={`text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest rounded-full ${m.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-ink/10 text-white/40'}`}>{m.status}</span>
                      </div>
-                     <div className="flex justify-between items-end text-xs text-white/40">
+                     <div className="flex justify-between items-end text-xs text-ink/40">
                        <div>Expires in <span className="text-amber-400 font-bold">{daysRemaining} days</span></div>
                        <div>{formatDate(m.end_date)}</div>
                      </div>
                      {m.selected_addons?.length > 0 && (
-                       <div className="pt-3 border-t border-white/10 space-y-2 mt-3">
-                         <h4 className="text-[9px] font-black uppercase tracking-widest text-white/40">Active Add-ons</h4>
+                       <div className="pt-3 border-t border-ink/10 space-y-2 mt-3">
+                         <h4 className="text-[9px] font-black uppercase tracking-widest text-ink/40">Active Add-ons</h4>
                          {m.selected_addons.map((addon: any, i: number) => (
                            <div key={i} className="flex justify-between items-center bg-emerald-500/5 p-2 rounded-lg border border-emerald-500/10">
-                             <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                             <span className="text-xs font-bold text-ink/80">{addon.name}</span>
                              <span className="text-[10px] font-bold text-emerald-500">₹{addon.price}</span>
                            </div>
                          ))}
@@ -236,23 +236,23 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
 
           {/* Gym Header Profile */}
           <div className="glass-card overflow-hidden">
-            <div className="h-32 bg-white/5 relative border-b border-white/10">
+            <div className="h-32 bg-ink/5 relative border-b border-ink/10">
               {gymDetail?.cover_image_url && (
                 <img src={gymDetail.cover_image_url} alt="cover" className="w-full h-full object-cover opacity-50" />
               )}
             </div>
             <div className="p-6 relative">
-              <div className="absolute -top-12 left-6 w-20 h-20 bg-black rounded-2xl border-2 border-white/10 flex items-center justify-center overflow-hidden">
+              <div className="absolute -top-12 left-6 w-20 h-20 bg-black rounded-2xl border-2 border-ink/10 flex items-center justify-center overflow-hidden">
                 {gymDetail?.logo_url ? (
                   <img src={gymDetail.logo_url} alt="logo" className="w-full h-full object-cover" />
                 ) : (
-                  <Building2 size={32} className="text-white/20" />
+                  <Building2 size={32} className="text-ink/20" />
                 )}
               </div>
 
               <div className="ml-24">
                 <h3 className="text-2xl font-black">{gymDetail?.name || gymGroup.gym_name}</h3>
-                <p className="text-white/60 text-sm mt-1">{gymDetail?.description || 'A premium fitness experience.'}</p>
+                <p className="text-ink/60 text-sm mt-1">{gymDetail?.description || 'A premium fitness experience.'}</p>
               </div>
 
               {gymDetail?.can_review && (
@@ -272,12 +272,12 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                           </div>
                           <div>
                              <h4 className="text-lg font-black italic uppercase tracking-tighter">Share Your Feedback</h4>
-                             <p className="text-[10px] text-white/40 uppercase tracking-[0.2em]">Help the community grow</p>
+                             <p className="text-[10px] text-ink/40 uppercase tracking-[0.2em]">Help the community grow</p>
                           </div>
                        </div>
 
                        <div className="flex flex-col lg:flex-row gap-8 items-start">
-                          <div className="flex flex-col items-center gap-3 px-6 py-4 bg-white/5 rounded-2xl border border-white/5 min-w-[200px]">
+                          <div className="flex flex-col items-center gap-3 px-6 py-4 bg-ink/5 rounded-2xl border border-ink/5 min-w-[200px]">
                              <div className="flex gap-2">
                                 {[1,2,3,4,5].map(i => (
                                    <button 
@@ -287,7 +287,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                                    >
                                       <Star 
                                          size={28} 
-                                         className={clsx(i <= newRating ? "text-primary fill-primary" : "text-white/10")} 
+                                         className={clsx(i <= newRating ? "text-primary fill-primary" : "text-ink/10")} 
                                       />
                                    </button>
                                 ))}
@@ -301,14 +301,14 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                              <input 
                                 type="text" 
                                 placeholder="Review Title (e.g. Amazing facility!)"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all placeholder:text-white/20"
+                                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all placeholder:text-ink/20"
                                 value={newReviewTitle}
                                 onChange={(e) => setNewReviewTitle(e.target.value)}
                              />
                              <textarea 
                                 rows={3}
                                 placeholder="What did you love most about your experience? (Staff, Equipment, Vibe...)"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all resize-none placeholder:text-white/20"
+                                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all resize-none placeholder:text-ink/20"
                                 value={newReviewText}
                                 onChange={(e) => setNewReviewText(e.target.value)}
                              />
@@ -333,23 +333,23 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                     href={getGoogleMapsUrl(`${gymDetail.addresses[0].address_line1}, ${gymDetail.addresses[0].city}, ${gymDetail.addresses[0].state}`, gymDetail.addresses[0].latitude, gymDetail.addresses[0].longitude)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 flex items-start gap-3 p-4 bg-white/5 rounded-xl border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                    className="flex-1 flex items-start gap-3 p-4 bg-ink/5 rounded-xl border border-ink/5 hover:border-primary/30 hover:bg-primary/5 transition-all group"
                   >
-                    <MapPin size={16} className="text-white/40 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
-                    <p className="text-sm leading-relaxed text-white/80 group-hover:text-white transition-colors">
+                    <MapPin size={16} className="text-ink/40 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
+                    <p className="text-sm leading-relaxed text-ink/80 group-hover:text-ink transition-colors">
                       {gymDetail.addresses[0].address_line1}, {gymDetail.addresses[0].city}, {gymDetail.addresses[0].state}
                     </p>
                   </a>
                   {(gymDetail?.contact_phone || gymDetail?.contact_email) && (
-                    <div className="flex-1 flex flex-col gap-2 justify-center p-4 bg-white/5 rounded-xl border border-white/5">
+                    <div className="flex-1 flex flex-col gap-2 justify-center p-4 bg-ink/5 rounded-xl border border-ink/5">
                       {gymDetail.contact_phone && (
-                        <div className="flex items-center gap-3 text-sm text-white/80">
-                          <Phone size={14} className="text-white/40" /> {gymDetail.contact_phone}
+                        <div className="flex items-center gap-3 text-sm text-ink/80">
+                          <Phone size={14} className="text-ink/40" /> {gymDetail.contact_phone}
                         </div>
                       )}
                       {gymDetail.contact_email && (
-                        <div className="flex items-center gap-3 text-sm text-white/80">
-                          <Building2 size={14} className="text-white/40" /> {gymDetail.contact_email}
+                        <div className="flex items-center gap-3 text-sm text-ink/80">
+                          <Building2 size={14} className="text-ink/40" /> {gymDetail.contact_email}
                         </div>
                       )}
                     </div>
@@ -359,15 +359,15 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
 
               {/* Amenities & Facilities */}
               {(gymDetail?.amenities?.length > 0 || gymDetail?.facilities?.length > 0) && (
-                <div className="mt-6 pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="mt-6 pt-6 border-t border-ink/10 grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {gymDetail?.amenities?.length > 0 && (
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-ink/40 flex items-center gap-2">
                         <Star size={12} className="text-primary" /> Included Amenities
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {gymDetail.amenities.map((am: any, i: number) => (
-                          <span key={i} className="text-xs bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                          <span key={i} className="text-xs bg-ink/5 border border-ink/10 px-3 py-1.5 rounded-lg flex items-center gap-2">
                             {am.name}
                           </span>
                         ))}
@@ -376,7 +376,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                   )}
                   {gymDetail?.facilities?.length > 0 && (
                     <div className="space-y-3">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-ink/40 flex items-center gap-2">
                         <Activity size={12} className="text-emerald-400" /> Facility Zones
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -395,7 +395,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
 
           {/* Attendance Log */}
           <div className="glass-card flex-1 flex flex-col">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+            <div className="p-6 border-b border-ink/10 flex items-center justify-between">
               <h3 className="font-bold flex items-center gap-2">
                 <Calendar size={18} className="text-primary" /> Attendance History
               </h3>
@@ -411,16 +411,16 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
 
             <div className="p-2">
               {attendance?.check_ins?.length > 0 ? (
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-ink/5">
                   {attendance.check_ins.map((entry: any) => (
-                    <div key={entry.id} className="p-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors rounded-xl">
+                    <div key={entry.id} className="p-4 flex items-center justify-between hover:bg-ink/[0.02] transition-colors rounded-xl">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${entry.check_out_time ? 'bg-white/5 border border-white/10' : 'bg-green-500/20 border border-green-500/30'}`}>
-                          {entry.check_out_time ? <CheckCircle size={16} className="text-white/40" /> : <PlayCircle size={16} className="text-green-400 group-hover:scale-110 transition-transform animate-pulse" />}
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${entry.check_out_time ? 'bg-ink/5 border border-ink/10' : 'bg-green-500/20 border border-green-500/30'}`}>
+                          {entry.check_out_time ? <CheckCircle size={16} className="text-ink/40" /> : <PlayCircle size={16} className="text-green-400 group-hover:scale-110 transition-transform animate-pulse" />}
                         </div>
                         <div>
                           <p className="font-bold text-sm">{formatDate(entry.check_in_time)}</p>
-                          <div className="flex items-center gap-2 text-xs text-white/40 mt-1 uppercase tracking-widest">
+                          <div className="flex items-center gap-2 text-xs text-ink/40 mt-1 uppercase tracking-widest">
                             <span className="text-emerald-400 font-bold">{formatTime(entry.check_in_time)}</span>
                             <span>→</span>
                             {entry.check_out_time ? (
@@ -430,7 +430,7 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
                             )}
                             {entry.workout_type && (
                               <>
-                                <span className="text-white/10">•</span>
+                                <span className="text-ink/10">•</span>
                                 <span className="text-primary font-black">{entry.workout_type}</span>
                               </>
                             )}
@@ -440,13 +440,13 @@ const MembershipDetailView = ({ gymGroup, onBack }: MembershipDetailProps) => {
 
                       <div className="text-right flex flex-col justify-center">
                         <span className="text-xl font-black">{entry.duration_minutes != null ? entry.duration_minutes : '—'}</span>
-                        <span className="text-[10px] uppercase tracking-widest text-white/30">MINUTES</span>
+                        <span className="text-[10px] uppercase tracking-widest text-ink/30">MINUTES</span>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-12 text-center text-white/20">
+                <div className="p-12 text-center text-ink/20">
                   <Activity size={32} className="mx-auto mb-4 opacity-20" />
                   <p>No check-in history found yet.</p>
                 </div>

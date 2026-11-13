@@ -54,7 +54,7 @@ const ReviewsTab = () => {
   // Helper for rendering stars
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, i) => (
-      <Star key={i} size={14} className={i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-white/10'} />
+      <Star key={i} size={14} className={i < rating ? 'fill-yellow-500 text-yellow-500' : 'text-ink/10'} />
     ));
   };
 
@@ -71,14 +71,14 @@ const ReviewsTab = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Rating Summary */}
         <div className="glass-card p-8 h-fit sticky top-24 space-y-6">
-           <h3 className="font-bold text-sm uppercase tracking-widest text-white/40 mb-4">Overall Score</h3>
-           <div className="flex flex-col items-center justify-center py-4 bg-white/5 rounded-2xl border border-white/5">
+           <h3 className="font-bold text-sm uppercase tracking-widest text-ink/40 mb-4">Overall Score</h3>
+           <div className="flex flex-col items-center justify-center py-4 bg-ink/5 rounded-2xl border border-ink/5">
              <div className="flex items-baseline gap-1">
                 <span className="text-6xl font-black italic text-primary">{avgRating.toFixed(1)}</span>
-                <span className="text-white/20 text-xl font-bold">/5</span>
+                <span className="text-ink/20 text-xl font-bold">/5</span>
              </div>
              <div className="flex gap-1 mt-2 mb-1">{renderStars(Math.round(avgRating))}</div>
-             <p className="text-xs text-white/40 font-bold uppercase tracking-widest">{totalReviews} Ratings</p>
+             <p className="text-xs text-ink/40 font-bold uppercase tracking-widest">{totalReviews} Ratings</p>
            </div>
         </div>
 
@@ -93,10 +93,10 @@ const ReviewsTab = () => {
            ) : (
              reviews.map((review) => (
                <div key={review.id} className="glass-card p-6 space-y-4 group">
-                  <div className="flex items-start justify-between gap-4 border-b border-white/5 pb-4">
+                  <div className="flex items-start justify-between gap-4 border-b border-ink/5 pb-4">
                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center overflow-hidden shrink-0">
-                           {review.avatar_url ? <img src={review.avatar_url} alt="" className="w-full h-full object-cover" /> : <User size={18} className="text-white/40" />}
+                        <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center overflow-hidden shrink-0">
+                           {review.avatar_url ? <img src={review.avatar_url} alt="" className="w-full h-full object-cover" /> : <User size={18} className="text-ink/40" />}
                         </div>
                         <div>
                            <h5 className="font-bold text-sm">{review.user_name || 'Anonymous Member'}</h5>
@@ -108,31 +108,31 @@ const ReviewsTab = () => {
                            </div>
                         </div>
                      </div>
-                     <span className="text-xs text-white/20 font-mono shrink-0">{new Date(review.created_at).toLocaleDateString()}</span>
+                     <span className="text-xs text-ink/20 font-mono shrink-0">{new Date(review.created_at).toLocaleDateString()}</span>
                   </div>
 
                   <div>
                      <h4 className="font-bold italic text-lg">{review.title}</h4>
-                     <p className="text-sm text-white/60 mt-1">{review.review}</p>
+                     <p className="text-sm text-ink/60 mt-1">{review.review}</p>
                   </div>
 
                   {/* Sub-ratings Breakdown (Optional display) */}
                   <div className="flex gap-4 pt-2">
-                     <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Clean: <span className="text-white">{review.cleanliness_rating || '-'}</span></div>
-                     <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Equip: <span className="text-white">{review.equipment_rating || '-'}</span></div>
-                     <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Staff: <span className="text-white">{review.staff_rating || '-'}</span></div>
+                     <div className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Clean: <span className="text-ink">{review.cleanliness_rating || '-'}</span></div>
+                     <div className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Equip: <span className="text-ink">{review.equipment_rating || '-'}</span></div>
+                     <div className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Staff: <span className="text-ink">{review.staff_rating || '-'}</span></div>
                   </div>
 
                   {/* Owner Response Section */}
-                  <div className="pt-4 border-t border-white/5">
+                  <div className="pt-4 border-t border-ink/5">
                      {review.owner_response ? (
                         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
                            <div className="flex items-center gap-2 mb-2">
                               <Reply size={14} className="text-primary" />
                               <span className="text-xs font-bold text-primary uppercase tracking-widest">Your Response</span>
-                              <span className="text-[10px] text-white/20 ml-auto">{new Date(review.response_date).toLocaleDateString()}</span>
+                              <span className="text-[10px] text-ink/20 ml-auto">{new Date(review.response_date).toLocaleDateString()}</span>
                            </div>
-                           <p className="text-sm text-white/80 italic">"{review.owner_response}"</p>
+                           <p className="text-sm text-ink/80 italic">"{review.owner_response}"</p>
                         </div>
                      ) : (
                         <div className="flex flex-col sm:flex-row gap-2 mt-2 opacity-50 focus-within:opacity-100 group-hover:opacity-100 transition-opacity">
@@ -141,7 +141,7 @@ const ReviewsTab = () => {
                              value={replyText[review.id] || ''} 
                              onChange={(e) => setReplyText({...replyText, [review.id]: e.target.value})}
                              placeholder="Write a public reply..." 
-                             className="flex-1 bg-black/50 border border-white/10 rounded-xl py-2.5 px-4 text-sm text-white focus:border-primary outline-none transition-colors"
+                             className="flex-1 bg-black/50 border border-ink/10 rounded-xl py-2.5 px-4 text-sm text-white focus:border-primary outline-none transition-colors"
                            />
                            <button 
                              onClick={() => handleReply(review.id)}

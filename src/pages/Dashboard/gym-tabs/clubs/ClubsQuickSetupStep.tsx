@@ -41,20 +41,20 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/25 bg-black/25 text-primary">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/25 bg-surface-sunken text-primary">
               <Wand2 size={20} />
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Step 1</p>
-              <h2 className="text-2xl font-black text-white">Build your retention journey</h2>
+              <h2 className="text-2xl font-black text-ink">Build your retention journey</h2>
             </div>
           </div>
-          <p className="text-sm font-semibold leading-6 text-white/55">
+          <p className="text-sm font-semibold leading-6 text-ink/55">
             We load your gym plans, facilities, and equipment automatically. Pick your goal and max savings — then we generate
             eight clubs from easy to hard with meaningful rewards.
           </p>
           {detectedGym?.gym_name && (
-            <p className="text-xs font-bold text-white/40">
+            <p className="text-xs font-bold text-ink/40">
               Detected for {detectedGym.gym_name}
               {detectedGym.facilities?.length ? ` · ${detectedGym.facilities.slice(0, 4).join(', ')}` : ''}
             </p>
@@ -70,7 +70,7 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
         </button>
       </div>
 
-      <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-white/35">Primary goal</p>
+      <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-ink/35">Primary goal</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {PRIMARY_GOAL_OPTIONS.map((option) => (
           <button
@@ -81,11 +81,11 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
               'rounded-2xl border p-4 text-left transition',
               inputs.primary_goal === option.id
                 ? 'border-primary/40 bg-primary/15'
-                : 'border-white/10 bg-black/20 hover:border-white/20'
+                : 'border-ink/10 bg-surface-sunken hover:border-ink/20'
             )}
           >
-            <p className="text-sm font-black text-white">{option.label}</p>
-            <p className="mt-1 text-xs font-semibold text-white/45">{option.description}</p>
+            <p className="text-sm font-black text-ink">{option.label}</p>
+            <p className="mt-1 text-xs font-semibold text-ink/45">{option.description}</p>
           </button>
         ))}
       </div>
@@ -114,20 +114,20 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
       </div>
 
       <label className="mt-4 block space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-white/35">Notes (optional)</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-ink/35">Notes (optional)</span>
         <textarea
           value={inputs.owner_notes}
           onChange={(event) => onChange({ ...inputs, owner_notes: event.target.value })}
           rows={2}
           placeholder="Supplement brands, trainer capacity, rewards you can afford…"
-          className="w-full resize-none rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
+          className="w-full resize-none rounded-2xl border border-ink/10 bg-surface-sunken px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
         />
       </label>
 
       <button
         type="button"
         onClick={() => setAdvancedOpen((open) => !open)}
-        className="mt-5 flex w-full items-center justify-between rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-xs font-black uppercase tracking-widest text-white/50"
+        className="mt-5 flex w-full items-center justify-between rounded-xl border border-ink/10 bg-surface-sunken px-4 py-3 text-xs font-black uppercase tracking-widest text-white/50"
       >
         Advanced gym capabilities
         {advancedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -184,12 +184,12 @@ const Field = ({
   type?: 'text' | 'number';
 }) => (
   <label className="space-y-2">
-    <span className="text-[10px] font-black uppercase tracking-widest text-white/35">{label}</span>
+    <span className="text-[10px] font-black uppercase tracking-widest text-ink/35">{label}</span>
     <input
       type={type}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
+      className="w-full rounded-2xl border border-ink/10 bg-surface-sunken px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
     />
   </label>
 );
@@ -200,7 +200,7 @@ const TogglePill = ({ label, checked, onChange }: { label: string; checked: bool
     onClick={() => onChange(!checked)}
     className={clsx(
       'rounded-2xl border px-4 py-3 text-left text-xs font-black uppercase tracking-widest transition',
-      checked ? 'border-primary/35 bg-primary/15 text-primary' : 'border-white/10 bg-black/20 text-white/42'
+      checked ? 'border-primary/35 bg-primary/15 text-primary' : 'border-ink/10 bg-surface-sunken text-white/42'
     )}
   >
     {label}: {checked ? 'Yes' : 'No'}

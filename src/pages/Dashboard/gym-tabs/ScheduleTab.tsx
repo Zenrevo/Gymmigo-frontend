@@ -77,35 +77,35 @@ const ScheduleTab = () => {
           <h2 className="text-3xl font-display font-black tracking-tight italic flex items-center gap-3">
              <Clock className="text-primary" size={32} /> TIMINGS
           </h2>
-          <p className="text-white/40 text-sm">Manage your daily operating hours.</p>
+          <p className="text-ink/40 text-sm">Manage your daily operating hours.</p>
         </div>
       </div>
 
       <div className="glass-card overflow-hidden">
-        <div className="grid grid-cols-1 divide-y divide-white/5">
+        <div className="grid grid-cols-1 divide-y divide-ink/5">
           {DAYS.map((day, index) => {
             const existing = gym?.operating_hours?.find((h: any) => h.day_of_week === index);
             const isEditing = editingDay === index;
             
             return (
-              <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4 hover:bg-white/5 transition-colors">
+              <div key={day} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 gap-4 hover:bg-ink/5 transition-colors">
                 <h4 className="font-bold w-32 uppercase tracking-widest text-sm">{day}</h4>
                 
                 {isEditing ? (
                   <div className="flex-1 flex flex-wrap items-center gap-4">
-                     <label className="flex items-center gap-2 text-sm text-white/60">
+                     <label className="flex items-center gap-2 text-sm text-ink/60">
                        <input type="checkbox" checked={hoursForm.is_closed} onChange={e => setHoursForm({...hoursForm, is_closed: e.target.checked})} className="accent-red-500 w-4 h-4 rounded" />
                        Closed entirely
                      </label>
                      {!hoursForm.is_closed && (
                        <div className="flex items-center gap-2">
-                         <input type="time" value={hoursForm.open_time} onChange={e => setHoursForm({...hoursForm, open_time: e.target.value})} className="bg-[#111] border border-white/10 rounded-md px-3 py-1.5 text-sm" />
-                         <span className="text-white/40">to</span>
-                         <input type="time" value={hoursForm.close_time} onChange={e => setHoursForm({...hoursForm, close_time: e.target.value})} className="bg-[#111] border border-white/10 rounded-md px-3 py-1.5 text-sm" />
+                         <input type="time" value={hoursForm.open_time} onChange={e => setHoursForm({...hoursForm, open_time: e.target.value})} className="bg-surface border border-ink/10 rounded-md px-3 py-1.5 text-sm" />
+                         <span className="text-ink/40">to</span>
+                         <input type="time" value={hoursForm.close_time} onChange={e => setHoursForm({...hoursForm, close_time: e.target.value})} className="bg-surface border border-ink/10 rounded-md px-3 py-1.5 text-sm" />
                        </div>
                      )}
                      <div className="flex items-center gap-2 ml-auto">
-                        <button onClick={cancelEditing} className="px-3 py-1.5 text-xs text-white/40 hover:text-white transition-colors">Cancel</button>
+                        <button onClick={cancelEditing} className="px-3 py-1.5 text-xs text-ink/40 hover:text-ink transition-colors">Cancel</button>
                         <button onClick={() => saveHours(index)} disabled={isSubmitting} className="btn-primary px-4 py-1.5 text-xs flex items-center gap-2">
                            {isSubmitting ? <Loader2 size={12} className="animate-spin" /> : 'Save'}
                         </button>
@@ -119,7 +119,7 @@ const ScheduleTab = () => {
                        ) : existing ? (
                          <span className="text-sm font-mono text-emerald-400 font-bold">{existing.open_time} - {existing.close_time}</span>
                        ) : (
-                         <span className="text-sm text-white/20 italic">Not set</span>
+                         <span className="text-sm text-ink/20 italic">Not set</span>
                        )}
                      </div>
                      <button onClick={() => startEditing(index)} className="text-xs text-primary font-bold hover:underline">Edit</button>
@@ -131,28 +131,28 @@ const ScheduleTab = () => {
         </div>
       </div>
 
-      <div className="pt-8 border-t border-white/10">
+      <div className="pt-8 border-t border-ink/10">
         <h3 className="text-2xl font-black italic tracking-tight mb-6 flex items-center gap-3">
           <Activity className="text-emerald-500" /> BUSY PROFILING
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
            <form onSubmit={saveBusyHour} className="glass-card p-8 space-y-4 h-fit">
-              <h4 className="font-bold text-sm uppercase tracking-widest text-white/60 mb-2">Update Traffic Estimate</h4>
+              <h4 className="font-bold text-sm uppercase tracking-widest text-ink/60 mb-2">Update Traffic Estimate</h4>
               <div className="grid grid-cols-2 gap-4">
                  <div>
-                   <label className="text-xs font-bold text-white/40">Day of Week</label>
-                   <select value={busyDay} onChange={e => setBusyDay(e.target.value)} className="w-full mt-1 bg-black border border-white/10 rounded-xl p-2.5 text-sm appearance-none">
+                   <label className="text-xs font-bold text-ink/40">Day of Week</label>
+                   <select value={busyDay} onChange={e => setBusyDay(e.target.value)} className="w-full mt-1 bg-black border border-ink/10 rounded-xl p-2.5 text-sm appearance-none">
                      {DAYS.map(d => <option key={d.toLowerCase()} value={d.toLowerCase()}>{d}</option>)}
                    </select>
                  </div>
                  <div>
-                   <label className="text-xs font-bold text-white/40">Hour (0-23)</label>
-                   <input type="number" min="0" max="23" value={busyHour} onChange={e => setBusyHour(e.target.value)} className="w-full mt-1 bg-black border border-white/10 rounded-xl p-2.5 text-sm" />
+                   <label className="text-xs font-bold text-ink/40">Hour (0-23)</label>
+                   <input type="number" min="0" max="23" value={busyHour} onChange={e => setBusyHour(e.target.value)} className="w-full mt-1 bg-black border border-ink/10 rounded-xl p-2.5 text-sm" />
                  </div>
               </div>
               <div>
-                <label className="flex justify-between text-xs font-bold text-white/40 mb-2">
+                <label className="flex justify-between text-xs font-bold text-ink/40 mb-2">
                   <span>Occupancy Percentage</span>
                   <span className={parseInt(busyOcc) > 80 ? 'text-red-500' : 'text-emerald-500'}>{busyOcc}%</span>
                 </label>
@@ -163,9 +163,9 @@ const ScheduleTab = () => {
 
            <div className="glass-card p-6 border-dashed opacity-50 flex items-center justify-center text-center">
               <div className="space-y-2 max-w-sm">
-                <Activity className="mx-auto text-white/20" size={32} />
+                <Activity className="mx-auto text-ink/20" size={32} />
                 <h4 className="font-bold">Traffic Heatmap Analysis</h4>
-                <p className="text-xs text-white/40">A visual heatmap of {gym?.gym?.name}'s busy hours will render here. Map traffic to let members know the best time to workout.</p>
+                <p className="text-xs text-ink/40">A visual heatmap of {gym?.gym?.name}'s busy hours will render here. Map traffic to let members know the best time to workout.</p>
               </div>
            </div>
         </div>

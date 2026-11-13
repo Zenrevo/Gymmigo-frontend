@@ -93,15 +93,15 @@ export default function WalletTransactionsPage() {
         <div className="flex items-center gap-4">
           <Link
             to="/app/profile"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/60 transition hover:border-primary/30 hover:text-primary"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-ink/10 bg-ink/[0.04] text-ink/60 transition hover:border-primary/30 hover:text-primary"
             aria-label="Back to profile"
           >
             <ArrowLeft size={18} />
           </Link>
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-300">Reward wallet</p>
-            <h1 className="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl">Wallet Transactions</h1>
-            <p className="mt-1 text-sm font-semibold text-white/40">Rewards, wallet usage, and loyalty credits in one ledger.</p>
+            <h1 className="mt-1 text-3xl font-black tracking-tight text-ink sm:text-4xl">Wallet Transactions</h1>
+            <p className="mt-1 text-sm font-semibold text-ink/40">Rewards, wallet usage, and loyalty credits in one ledger.</p>
           </div>
         </div>
         <button
@@ -114,7 +114,7 @@ export default function WalletTransactionsPage() {
         </button>
       </div>
 
-      <section className="rounded-lg border border-emerald-300/20 bg-gradient-to-r from-emerald-500/15 via-slate-900/80 to-slate-900/80 p-5 sm:p-6">
+      <section className="rounded-lg border border-emerald-300/20 bg-gradient-to-r from-emerald-500/15 via-background/80 to-background/80 p-5 sm:p-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-emerald-300/25 bg-emerald-400/15 text-emerald-200">
@@ -122,24 +122,24 @@ export default function WalletTransactionsPage() {
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200/70">Current balance</p>
-              <p className="mt-1 flex items-center gap-1 text-4xl font-black text-white">
+              <p className="mt-1 flex items-center gap-1 text-4xl font-black text-ink">
                 <IndianRupee size={28} className="text-emerald-300" />
                 {formatCurrency(wallet.balance_inr)}
               </p>
-              <p className="mt-2 text-xs font-semibold text-white/45">
+              <p className="mt-2 text-xs font-semibold text-ink/45">
                 Earned ₹{formatCurrency(wallet.lifetime_earned_inr)} lifetime
                 {wallet.lifetime_spent_inr > 0 ? ` · Used ₹${formatCurrency(wallet.lifetime_spent_inr)}` : ''}
               </p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2 md:w-64">
-            <div className="rounded-lg border border-white/10 bg-black/20 p-4">
-              <p className="text-2xl font-black text-white">{transactions.length}</p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Loaded entries</p>
+            <div className="rounded-lg border border-ink/10 bg-surface-sunken p-4">
+              <p className="text-2xl font-black text-ink">{transactions.length}</p>
+              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Loaded entries</p>
             </div>
-            <div className="rounded-lg border border-white/10 bg-black/20 p-4">
+            <div className="rounded-lg border border-ink/10 bg-surface-sunken p-4">
               <p className="text-2xl font-black text-emerald-300">{creditCount}</p>
-              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">Credits loaded</p>
+              <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Credits loaded</p>
             </div>
           </div>
         </div>
@@ -151,23 +151,23 @@ export default function WalletTransactionsPage() {
         </p>
       )}
 
-      <section className="rounded-lg border border-white/10 bg-white/[0.025] p-4 sm:p-5">
+      <section className="rounded-lg border border-ink/10 bg-ink/[0.025] p-4 sm:p-5">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-lg font-black text-white">All transactions</h2>
-            <p className="text-xs font-semibold text-white/40">Includes reward credits, debits, and future shop wallet usage.</p>
+            <h2 className="text-lg font-black text-ink">All transactions</h2>
+            <p className="text-xs font-semibold text-ink/40">Includes reward credits, debits, and future shop wallet usage.</p>
           </div>
         </div>
 
         {loading && transactions.length === 0 ? (
-          <div className="flex min-h-64 items-center justify-center text-sm font-bold text-white/45">
+          <div className="flex min-h-64 items-center justify-center text-sm font-bold text-ink/45">
             Loading wallet ledger...
           </div>
         ) : transactions.length === 0 ? (
-          <div className="flex min-h-64 flex-col items-center justify-center rounded-lg border border-white/10 bg-black/20 px-6 text-center">
-            <Wallet size={44} className="text-white/15" />
-            <h3 className="mt-4 text-lg font-black text-white">No transactions yet</h3>
-            <p className="mt-2 max-w-sm text-sm font-semibold text-white/40">
+          <div className="flex min-h-64 flex-col items-center justify-center rounded-lg border border-ink/10 bg-surface-sunken px-6 text-center">
+            <Wallet size={44} className="text-ink/15" />
+            <h3 className="mt-4 text-lg font-black text-ink">No transactions yet</h3>
+            <p className="mt-2 max-w-sm text-sm font-semibold text-ink/40">
               Claim club rewards or use wallet credits and the full history will appear here.
             </p>
           </div>
@@ -179,7 +179,7 @@ export default function WalletTransactionsPage() {
               return (
                 <article
                   key={tx.id}
-                  className="flex flex-col gap-3 rounded-lg border border-white/10 bg-black/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border border-ink/10 bg-surface-sunken px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     <div
@@ -193,11 +193,11 @@ export default function WalletTransactionsPage() {
                       <Icon size={17} />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-white">{tx.description}</p>
-                      <p className="mt-1 text-xs font-semibold text-white/35">
+                      <p className="font-bold text-ink">{tx.description}</p>
+                      <p className="mt-1 text-xs font-semibold text-ink/35">
                         {formatTransactionType(tx.transaction_type)} · {formatDate(tx.created_at)}
                       </p>
-                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/25">
+                      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/25">
                         Balance after ₹{formatCurrency(tx.balance_after_inr)}
                         {tx.status && tx.status !== 'completed' ? ` · ${tx.status}` : ''}
                       </p>

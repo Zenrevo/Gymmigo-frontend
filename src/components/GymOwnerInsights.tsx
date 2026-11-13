@@ -58,7 +58,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
           <select 
             value={selectedGymId || ''} 
             onChange={(e) => setSelectedGymId(e.target.value)}
-            className="bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm font-bold text-white outline-none focus:border-primary transition-colors"
+            className="bg-black/50 border border-ink/10 rounded-lg px-3 py-2 text-sm font-bold text-white outline-none focus:border-primary transition-colors"
           >
             {gyms.map((g: any) => (
               <option key={g.gym.id} value={g.gym.id}>{g.gym.name}</option>
@@ -84,7 +84,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                   <ActivityIcon className="text-primary" />
                   Live Footfall & Peak Hours
                 </h3>
-                <p className="text-xs text-white/40">Today's estimated traffic flow</p>
+                <p className="text-xs text-ink/40">Today's estimated traffic flow</p>
               </div>
               <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -92,7 +92,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
               </div>
             </div>
             
-            <div className="h-48 flex items-end gap-2 pb-4 border-b border-white/5 relative">
+            <div className="h-48 flex items-end gap-2 pb-4 border-b border-ink/5 relative">
               {/* Chart bars */}
               <div className="flex-1 flex items-end justify-between gap-1 h-full">
                 {footfall.map((slot: any, i: number) => (
@@ -100,7 +100,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                     <div 
                       className={clsx(
                         "w-full rounded-t-sm transition-all duration-1000",
-                        slot.percentage > 70 ? "bg-primary" : slot.percentage > 30 ? "bg-primary/50" : "bg-white/10"
+                        slot.percentage > 70 ? "bg-primary" : slot.percentage > 30 ? "bg-primary/50" : "bg-ink/10"
                       )} 
                       style={{ height: `${Math.max(slot.percentage, 5)}%` }} 
                     />
@@ -111,7 +111,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                 ))}
               </div>
             </div>
-            <div className="flex justify-between text-[10px] text-white/40 font-bold uppercase mt-2">
+            <div className="flex justify-between text-[10px] text-ink/40 font-bold uppercase mt-2">
               <span>6 AM</span>
               <span>12 PM</span>
               <span>6 PM</span>
@@ -127,7 +127,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                   <TrendingUp size={18} className="text-emerald-500" />
                   Revenue Intelligence
                 </h3>
-                <p className="text-xs text-white/40">Month-to-date breakdown</p>
+                <p className="text-xs text-ink/40">Month-to-date breakdown</p>
               </div>
               <div className="text-right">
                 <span className="text-2xl font-black">₹{totalRevenue.toLocaleString()}</span>
@@ -141,17 +141,17 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
               {revenueBreakdown.length > 0 ? revenueBreakdown.map((item: any, i: number) => (
                 <div key={i}>
                   <div className="flex justify-between text-xs font-bold mb-2">
-                    <span className="text-white/80 capitalize">{item.type} Plans ({item.percentage}%)</span>
+                    <span className="text-ink/80 capitalize">{item.type} Plans ({item.percentage}%)</span>
                     <span className={clsx(i % 3 === 0 ? "text-primary" : i % 3 === 1 ? "text-emerald-500" : "text-blue-500")}>
                       ₹{item.amount.toLocaleString()}
                     </span>
                   </div>
-                  <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-ink/5 rounded-full overflow-hidden">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${item.percentage}%` }} className={clsx("h-full rounded-full", i % 3 === 0 ? "bg-primary" : i % 3 === 1 ? "bg-emerald-500" : "bg-blue-500")} transition={{ duration: 1, delay: i * 0.2 }} />
                   </div>
                 </div>
               )) : (
-                <div className="text-sm text-white/40 text-center py-4">No revenue data for this month yet.</div>
+                <div className="text-sm text-ink/40 text-center py-4">No revenue data for this month yet.</div>
               )}
             </div>
           </div>
@@ -162,13 +162,13 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
           
           {/* At-Risk CRM */}
           <div className="lg:col-span-2 glass-card p-6 md:p-8 space-y-6">
-            <div className="flex items-center justify-between border-b border-white/5 pb-4">
+            <div className="flex items-center justify-between border-b border-ink/5 pb-4">
               <div>
                 <h3 className="font-bold text-lg flex items-center gap-2">
                   <UserX size={18} className="text-red-500" />
                   At-Risk Members (CRM)
                 </h3>
-                <p className="text-xs text-white/40">Take action to prevent churn</p>
+                <p className="text-xs text-ink/40">Take action to prevent churn</p>
               </div>
               <span className="bg-red-500/10 text-red-500 border border-red-500/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                 {atRiskMembers.length} Action Needed
@@ -177,9 +177,9 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
             
             <div className="space-y-3">
               {atRiskMembers.length > 0 ? atRiskMembers.map((member: any) => (
-                <div key={member.membership_id} className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-xl hover:border-white/10 transition-colors">
+                <div key={member.membership_id} className="flex items-center justify-between p-4 bg-ink/5 border border-ink/5 rounded-xl hover:border-ink/10 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm text-white/60">
+                    <div className="w-10 h-10 rounded-full bg-ink/10 flex items-center justify-center font-bold text-sm text-ink/60">
                       {member.name[0]}
                     </div>
                     <div>
@@ -211,7 +211,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                   </div>
                 </div>
               )) : (
-                <div className="text-sm text-white/40 text-center py-4">All members are active and engaged!</div>
+                <div className="text-sm text-ink/40 text-center py-4">All members are active and engaged!</div>
               )}
             </div>
           </div>
@@ -220,23 +220,23 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
           <div className="space-y-6 flex flex-col">
             {/* Command Center */}
             <div className="glass-card p-6 space-y-4">
-              <h3 className="font-bold flex items-center gap-2 border-b border-white/5 pb-2">
+              <h3 className="font-bold flex items-center gap-2 border-b border-ink/5 pb-2">
                 <Zap size={16} className="text-amber-500" />
                 Command Center
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <button 
                   onClick={() => handleAction('Broadcast UI opened')}
-                  className="flex flex-col items-center justify-center gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-ink/5 hover:bg-ink/10 border border-ink/10 rounded-xl transition-all group"
                 >
-                  <BellRing size={20} className="text-white/40 group-hover:text-primary transition-colors" />
+                  <BellRing size={20} className="text-ink/40 group-hover:text-primary transition-colors" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Broadcast</span>
                 </button>
                 <button 
                   onClick={() => handleAction('Flash Sale UI opened')}
-                  className="flex flex-col items-center justify-center gap-2 p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all group"
+                  className="flex flex-col items-center justify-center gap-2 p-4 bg-ink/5 hover:bg-ink/10 border border-ink/10 rounded-xl transition-all group"
                 >
-                  <TrendingUp size={20} className="text-white/40 group-hover:text-emerald-500 transition-colors" />
+                  <TrendingUp size={20} className="text-ink/40 group-hover:text-emerald-500 transition-colors" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Flash Sale</span>
                 </button>
               </div>
@@ -244,7 +244,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
 
             {/* Staff Leaderboard */}
             <div className="glass-card p-6 flex-1">
-              <h3 className="font-bold flex items-center gap-2 border-b border-white/5 pb-4 mb-4">
+              <h3 className="font-bold flex items-center gap-2 border-b border-ink/5 pb-4 mb-4">
                 <Star size={16} className="text-primary" />
                 Top Staff
               </h3>
@@ -257,14 +257,14 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                       </div>
                       <div>
                         <p className="text-sm font-bold">{staff.name}</p>
-                        <p className="text-[10px] text-white/40 uppercase tracking-widest">{staff.role}</p>
+                        <p className="text-[10px] text-ink/40 uppercase tracking-widest">{staff.role}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-bold flex items-center gap-1 justify-end">
                         {staff.rating} <Star size={10} className="fill-primary text-primary" />
                       </p>
-                      <p className="text-[10px] text-white/40">{staff.sessions} sessions</p>
+                      <p className="text-[10px] text-ink/40">{staff.sessions} sessions</p>
                     </div>
                   </div>
                 ))}

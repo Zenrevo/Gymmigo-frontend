@@ -69,7 +69,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
   return (
     <section
       className={clsx(
-        'rounded-lg border border-emerald-300/20 bg-gradient-to-r from-emerald-500/10 via-slate-900/80 to-slate-900/80 p-4 sm:p-5',
+        'rounded-lg border border-emerald-300/20 bg-gradient-to-r from-emerald-500/10 via-background/80 to-background/80 p-4 sm:p-5',
         className
       )}
     >
@@ -82,15 +82,15 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200/70">Gymmigo loyalty wallet</p>
               {loading ? (
-                <p className="mt-2 text-sm font-semibold text-white/45">Loading balance…</p>
+                <p className="mt-2 text-sm font-semibold text-ink/45">Loading balance…</p>
               ) : (
                 <>
-                  <p className="mt-1 flex items-center gap-1 text-2xl font-black text-white">
+                  <p className="mt-1 flex items-center gap-1 text-2xl font-black text-ink">
                     <IndianRupee size={22} className="text-emerald-300" />
                     {wallet.balance_inr.toLocaleString('en-IN')}
-                    <span className="text-sm font-bold text-white/40">cash balance</span>
+                    <span className="text-sm font-bold text-ink/40">cash balance</span>
                   </p>
-                  <p className="mt-1 text-xs font-semibold text-white/45">
+                  <p className="mt-1 text-xs font-semibold text-ink/45">
                     Earned ₹{wallet.lifetime_earned_inr.toLocaleString('en-IN')} lifetime
                     {wallet.lifetime_spent_inr > 0 ? ` · Spent ₹${wallet.lifetime_spent_inr.toLocaleString('en-IN')}` : ''}
                   </p>
@@ -111,7 +111,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
               type="button"
               onClick={() => void loadWallet()}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-black/25 px-3 py-2 text-[10px] font-black uppercase text-white/55 hover:border-emerald-300/30 hover:text-emerald-100 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-2 text-[10px] font-black uppercase text-white/55 hover:border-emerald-300/30 hover:text-emerald-100 disabled:opacity-50"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
@@ -131,23 +131,23 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
         )}
 
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-white/35">Recent transactions</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-ink/35">Recent transactions</p>
           {loading ? (
-            <p className="mt-3 text-xs font-semibold text-white/40">Loading…</p>
+            <p className="mt-3 text-xs font-semibold text-ink/40">Loading…</p>
           ) : transactions.length === 0 ? (
-            <p className="mt-3 rounded-lg border border-white/10 bg-black/20 px-3 py-3 text-xs font-semibold text-white/45">
-              No credits yet. Unlock a club tier and tap <strong className="text-white/70">Claim reward</strong> to add ₹ cash here.
+            <p className="mt-3 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-3 text-xs font-semibold text-white/45">
+              No credits yet. Unlock a club tier and tap <strong className="text-ink/70">Claim reward</strong> to add ₹ cash here.
             </p>
           ) : (
             <ul className="mt-3 max-h-56 space-y-2 overflow-y-auto pr-1">
               {transactions.map((tx) => (
                 <li
                   key={tx.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2.5"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-2.5"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-xs font-bold text-white">{tx.description}</p>
-                    <p className="mt-0.5 text-[10px] font-semibold text-white/35">{formatTxDate(tx.created_at)}</p>
+                    <p className="truncate text-xs font-bold text-ink">{tx.description}</p>
+                    <p className="mt-0.5 text-[10px] font-semibold text-ink/35">{formatTxDate(tx.created_at)}</p>
                   </div>
                   <div className="shrink-0 text-right">
                     <p
@@ -158,7 +158,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
                     >
                       {tx.direction === 'credit' ? '+' : '−'}₹{tx.amount_inr.toLocaleString('en-IN')}
                     </p>
-                    <p className="text-[10px] font-semibold text-white/30">Bal ₹{tx.balance_after_inr.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px] font-semibold text-ink/30">Bal ₹{tx.balance_after_inr.toLocaleString('en-IN')}</p>
                   </div>
                 </li>
               ))}

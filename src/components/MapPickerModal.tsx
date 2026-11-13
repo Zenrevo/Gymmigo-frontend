@@ -165,22 +165,22 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
 
   return (
     <AnimatePresence>
-      <div data-theme="dark" className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="w-full max-w-4xl h-full sm:h-[85vh] bg-neutral-900 sm:rounded-3xl overflow-hidden flex flex-col relative shadow-2xl border border-white/5"
+          className="w-full max-w-4xl h-full sm:h-[85vh] bg-surface sm:rounded-3xl overflow-hidden flex flex-col relative shadow-2xl border border-ink/5"
         >
           <div className="absolute top-0 left-0 right-0 z-20 p-4 sm:p-6 bg-gradient-to-b from-black/80 to-transparent">
             <div className="flex items-center gap-3">
-              <button onClick={onClose} className="p-3 rounded-2xl bg-black/60 hover:bg-black border border-white/10 text-white transition-all">
+              <button onClick={onClose} className="p-3 rounded-2xl bg-black/60 hover:bg-black border border-ink/10 text-white transition-all">
                 <X size={20} />
               </button>
               {!mapsUnavailable && (
                 <>
                   <div className="flex-1 relative group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors" size={20} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/40 group-focus-within:text-primary transition-colors" size={20} />
                     {isLoaded && (
                       <Autocomplete
                         onLoad={setSearchBox}
@@ -191,7 +191,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
                           ref={searchInputRef}
                           type="text"
                           placeholder="Search area, landmark or street..."
-                          className="w-full bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-primary outline-none transition-all shadow-xl"
+                          className="w-full bg-black/60 backdrop-blur-xl border border-ink/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:border-primary outline-none transition-all shadow-xl"
                         />
                       </Autocomplete>
                     )}
@@ -207,12 +207,12 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
             </div>
           </div>
 
-          <div className="flex-1 relative bg-neutral-800">
+          <div className="flex-1 relative bg-surface">
             {mapsUnavailable ? (
               <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-8 text-center">
                 <AlertCircle className="text-primary" size={48} />
-                <h3 className="text-lg font-bold text-white">Maps unavailable</h3>
-                <p className="text-sm text-white/50 max-w-md">
+                <h3 className="text-lg font-bold text-ink">Maps unavailable</h3>
+                <p className="text-sm text-ink/50 max-w-md">
                   {!hasMapsApiKey
                     ? 'Google Maps API key is not configured. Set VITE_GOOGLE_MAPS_API_KEY in your environment.'
                     : 'Google Maps failed to load. Enable Maps JavaScript API and Places API, and allow your domain in the API key restrictions.'}
@@ -240,7 +240,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
                 }}
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-white/20">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-ink/20">
                 <Loader2 className="animate-spin" size={40} />
                 <span className="text-xs font-bold uppercase tracking-widest">Loading Maps...</span>
               </div>
@@ -259,7 +259,7 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
                 <motion.div
                   initial={false}
                   animate={{ y: address ? 0 : 100, opacity: address ? 1 : 0 }}
-                  className="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
+                  className="bg-black/80 backdrop-blur-2xl border border-ink/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
                   <div className="space-y-4">
@@ -271,16 +271,16 @@ const MapPickerModal = ({ isOpen, onClose, onConfirm, initialCenter }: MapPicker
                       <h3 className="text-xl font-bold line-clamp-1 leading-tight">
                         {address?.address_line1?.split(',')[0] || 'Selected location'}
                       </h3>
-                      <p className="text-sm text-white/40 line-clamp-2">{address?.address_line1}</p>
+                      <p className="text-sm text-ink/40 line-clamp-2">{address?.address_line1}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 pb-2">
-                      <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                        <span className="block text-[8px] font-bold text-white/40 uppercase mb-1">City/Area</span>
-                        <span className="text-xs font-bold text-white/80">{address?.city || 'Detecting...'}</span>
+                      <div className="bg-ink/5 rounded-xl p-3 border border-ink/5">
+                        <span className="block text-[8px] font-bold text-ink/40 uppercase mb-1">City/Area</span>
+                        <span className="text-xs font-bold text-ink/80">{address?.city || 'Detecting...'}</span>
                       </div>
-                      <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                        <span className="block text-[8px] font-bold text-white/40 uppercase mb-1">Pincode</span>
+                      <div className="bg-ink/5 rounded-xl p-3 border border-ink/5">
+                        <span className="block text-[8px] font-bold text-ink/40 uppercase mb-1">Pincode</span>
                         <span className="text-xs font-bold text-primary">{address?.pincode || 'Detecting...'}</span>
                       </div>
                     </div>
