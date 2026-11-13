@@ -50,25 +50,25 @@ const AmenitiesTab = () => {
     <div className="space-y-12">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight italic flex items-center gap-3">
-             <Wifi className="text-primary" size={32} /> AMENITIES
+          <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+             <Wifi className="text-accent-text" size={32} /> AMENITIES
           </h2>
-          <p className="text-ink/40 text-sm">Add perks and conveniences available to all members.</p>
+          <p className="text-ink-muted text-sm">Add perks and conveniences available to all members.</p>
         </div>
       </div>
 
-      <div className="glass-card p-8">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-ink/40 mb-6">Active Amenities</h3>
+      <div className="bg-surface border border-border rounded-gm-xl shadow-card p-8">
+        <h3 className="text-sm font-bold uppercase tracking-widest text-ink-muted mb-6">Active Amenities</h3>
         
         {gym?.amenities?.length > 0 ? (
           <div className="flex flex-wrap gap-3">
              {gym.amenities.map((amenity: any) => (
-               <div key={amenity.id} className="flex items-center gap-2 pl-4 pr-1 py-1 bg-primary/10 border border-primary/20 rounded-full text-primary group">
+               <div key={amenity.id} className="flex items-center gap-2 pl-4 pr-1 py-1 bg-accent-soft border border-accent-border rounded-full text-accent-text group">
                  <span className="font-bold text-sm tracking-wide">{amenity.name}</span>
                  <button 
                   onClick={(e) => removeAmenity(amenity.id, amenity.name, e)}
                   disabled={isSubmitting}
-                  className="p-1 rounded-full hover:bg-primary/20 text-primary/60 hover:text-primary transition-colors disabled:opacity-50"
+                  className="p-1 rounded-full hover:bg-accent-soft text-accent-text hover:text-accent-text transition-colors disabled:opacity-50"
                  >
                    <X size={14} />
                  </button>
@@ -76,7 +76,7 @@ const AmenitiesTab = () => {
              ))}
           </div>
         ) : (
-          <div className="p-8 border border-dashed border-ink/10 rounded-xl text-center text-ink/40 text-sm">
+          <div className="p-8 border border-dashed border-border rounded-xl text-center text-ink-muted text-sm">
             No amenities added yet. Select from presets below or add a custom one.
           </div>
         )}
@@ -85,19 +85,19 @@ const AmenitiesTab = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Custom Add */}
         <div className="space-y-4">
-           <h3 className="text-sm font-bold uppercase tracking-widest text-ink/40">Add Custom</h3>
+           <h3 className="text-sm font-bold uppercase tracking-widest text-ink-muted">Add Custom</h3>
            <form onSubmit={(e) => { e.preventDefault(); addAmenity(customName); }} className="relative">
              <input 
                type="text" 
                value={customName}
                onChange={e => setCustomName(e.target.value)}
                placeholder="e.g. DJ Sound System"
-               className="w-full bg-black/50 border border-ink/10 rounded-xl py-4 pl-5 pr-32 text-white focus:border-primary outline-none transition-colors"
+               className="w-full bg-surface-sunken border border-border rounded-xl py-4 pl-5 pr-32 text-ink focus:border-accent outline-none transition-colors"
              />
              <button 
                type="submit" 
                disabled={!customName.trim() || isSubmitting}
-               className="absolute right-2 top-2 bottom-2 bg-ink/5 hover:bg-ink/10 text-ink font-bold text-xs uppercase tracking-widest px-4 rounded-lg disabled:opacity-50 flex items-center gap-2 transition-colors"
+               className="absolute right-2 top-2 bottom-2 bg-surface-raised hover:bg-surface-sunken text-ink font-bold text-xs uppercase tracking-widest px-4 rounded-lg disabled:opacity-50 flex items-center gap-2 transition-colors"
              >
                Add <Plus size={14} />
              </button>
@@ -106,7 +106,7 @@ const AmenitiesTab = () => {
 
         {/* Presets */}
         <div className="space-y-4">
-           <h3 className="text-sm font-bold uppercase tracking-widest text-ink/40 flex items-center gap-2">
+           <h3 className="text-sm font-bold uppercase tracking-widest text-ink-muted flex items-center gap-2">
              <Search size={14} /> Quick Suggestions
            </h3>
            <div className="flex flex-wrap gap-2">
@@ -115,13 +115,13 @@ const AmenitiesTab = () => {
                  key={preset}
                  onClick={() => addAmenity(preset)}
                  disabled={isSubmitting}
-                 className="px-4 py-2 bg-ink/5 border border-ink/5 hover:border-ink/20 rounded-full text-xs font-bold text-ink/60 hover:text-ink transition-all disabled:opacity-50"
+                 className="px-4 py-2 bg-surface-raised border border-border hover:border-border-strong rounded-full text-xs font-bold text-ink-muted hover:text-ink transition-all disabled:opacity-50"
                >
                  + {preset}
                </button>
              ))}
              {availablePresets.length === 0 && (
-               <p className="text-xs text-ink/20 italic">All presets used.</p>
+               <p className="text-xs text-ink-subtle ">All presets used.</p>
              )}
            </div>
         </div>

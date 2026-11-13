@@ -278,18 +278,18 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
           {scanState === 'scanning' && (
             <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {/* Scanner container */}
-              <div className="relative rounded-2xl overflow-hidden bg-black">
+              <div className="relative rounded-2xl overflow-hidden bg-surface">
                 <div id={containerId} className="w-full" />
                 {/* Overlay with scan indicator */}
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  <div className="w-[250px] h-[250px] border-2 border-primary/50 rounded-2xl relative">
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-primary rounded-tl-lg" />
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-primary rounded-tr-lg" />
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-primary rounded-bl-lg" />
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-primary rounded-br-lg" />
+                  <div className="w-[250px] h-[250px] border-2 border-accent-border rounded-2xl relative">
+                    <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-accent rounded-tl-lg" />
+                    <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-accent rounded-tr-lg" />
+                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-accent rounded-bl-lg" />
+                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-accent rounded-br-lg" />
                     {/* Scanning line animation */}
                     <motion.div
-                      className="absolute left-2 right-2 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent"
+                      className="absolute left-2 right-2 h-0.5 bg-gradient-to-r from-transparent to-transparent"
                       initial={{ top: '10%' }}
                       animate={{ top: ['10%', '90%', '10%'] }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
@@ -299,10 +299,10 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
               </div>
               <div className="text-center mt-4 space-y-1">
                 <p className="text-sm flex items-center justify-center gap-2">
-                  <ScanLine size={16} className="text-primary" />
+                  <ScanLine size={16} className="text-accent-text" />
                   Point camera at the gym's daily QR code
                 </p>
-                <p className="text-xs text-ink/30">The QR is displayed on the gym's dashboard screen</p>
+                <p className="text-xs text-ink-subtle">The QR is displayed on the gym's dashboard screen</p>
               </div>
             </motion.div>
           )}
@@ -310,7 +310,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
           {scanState === 'processing' && (
             <motion.div key="processing" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-16 space-y-4">
-              <Loader2 size={48} className="animate-spin text-primary" />
+              <Loader2 size={48} className="animate-spin text-accent-text" />
               <p className="text-lg font-bold">Processing...</p>
             </motion.div>
           )}
@@ -318,21 +318,21 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
           {scanState === 'confirm_checkout' && (
             <motion.div key="confirm_checkout" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-8 space-y-6">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                <ScanLine size={40} className="text-primary" />
+              <div className="w-20 h-20 rounded-full bg-accent-soft flex items-center justify-center border border-accent-border">
+                <ScanLine size={40} className="text-accent-text" />
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-2xl font-black">Checkout Confirmation</h3>
-                <p className="text-ink/60">You are checked in at <span className="text-ink font-bold">{confirmData?.gym_name || 'the gym'}</span>.</p>
-                <p className="text-ink/60">Do you want to check out now?</p>
+                <p className="text-ink-muted">You are checked in at <span className="text-ink font-bold">{confirmData?.gym_name || 'the gym'}</span>.</p>
+                <p className="text-ink-muted">Do you want to check out now?</p>
               </div>
               <div className="flex w-full gap-3 mt-4">
                 <button onClick={() => { setScanState('scanning'); setTimeout(startScanner, 300); }} 
-                  className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all">
+                  className="flex-1 py-3 px-4 bg-surface-raised border border-border rounded-xl text-sm font-bold hover:bg-surface-sunken transition-all">
                   Cancel
                 </button>
                 <button onClick={() => performActualAction(true)} 
-                  className="flex-[2] py-3 px-4 btn-primary text-sm font-bold">
+                  className="flex-[2] py-3 px-4 inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 text-sm font-bold">
                   Check Out
                 </button>
               </div>
@@ -343,18 +343,18 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
             <motion.div key="confirm_checkin" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col py-4 space-y-6">
               <div className="text-center space-y-2">
-                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                  <Dumbbell className="text-primary" size={32} />
+                <div className="w-16 h-16 mx-auto bg-accent-soft rounded-full flex items-center justify-center mb-4">
+                  <Dumbbell className="text-accent-text" size={32} />
                 </div>
                 <h3 className="text-2xl font-black">Ready to grind?</h3>
-                <p className="text-ink/60">Checking into <span className="text-ink font-bold">{confirmData?.gym_name}</span></p>
+                <p className="text-ink-muted">Checking into <span className="text-ink font-bold">{confirmData?.gym_name}</span></p>
               </div>
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-primary font-bold uppercase tracking-widest text-[10px]">What are you training today?</p>
+                  <p className="text-accent-text font-bold uppercase tracking-widest text-[10px]">What are you training today?</p>
                   {recommendedWorkout && (
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-[9px] font-black text-primary uppercase tracking-tighter animate-pulse">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-accent-soft border border-accent-border text-[9px] font-black text-accent-text uppercase tracking-tighter animate-pulse">
                       <Bot size={10} /> MigoAI Recommends
                     </div>
                   )}
@@ -372,15 +372,15 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                         className={clsx(
                           "px-4 py-2 rounded-full border text-sm font-bold transition-all relative overflow-hidden",
                           selected 
-                            ? "bg-primary border-primary text-black" 
+                            ? "bg-accent border-accent text-on-accent" 
                             : recommended
-                              ? "bg-primary/10 border-primary/30 text-white hover:bg-primary/20"
-                              : "bg-ink/5 border-ink/10 text-ink/60 hover:bg-ink/10 hover:text-ink"
+                              ? "bg-accent-soft border-accent-border text-ink hover:bg-accent-soft"
+                              : "bg-surface-raised border-border text-ink-muted hover:bg-surface-sunken hover:text-ink"
                         )}
                       >
                         {option}
                         {recommended && !selected && (
-                          <div className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full -translate-y-1 translate-x-1" />
+                          <div className="absolute top-0 right-0 w-2 h-2 bg-accent rounded-full -translate-y-1 translate-x-1" />
                         )}
                       </button>
                     );
@@ -390,7 +390,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 {selectedWorkout === 'Other' && (
                   <input
                     type="text"
-                    className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-ink text-sm font-medium mt-2 focus:border-primary focus:outline-none transition-colors"
+                    className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-ink text-sm font-medium mt-2 focus:border-accent focus:outline-none transition-colors"
                     placeholder="Type your workout..."
                     value={customWorkout}
                     onChange={e => setCustomWorkout(e.target.value)}
@@ -399,9 +399,9 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 )}
               </div>
 
-      <div className="flex w-full gap-3 pt-4 border-t border-ink/10">
+      <div className="flex w-full gap-3 pt-4 border-t border-border">
         <button onClick={() => { setScanState('scanning'); setTimeout(startScanner, 300); }} 
-          className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all text-ink/60 uppercase tracking-widest">
+          className="flex-1 py-3 px-4 bg-surface-raised border border-border rounded-xl text-sm font-bold hover:bg-surface-sunken transition-all text-ink-muted uppercase tracking-widest">
           Cancel
         </button>
         <button 
@@ -413,7 +413,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
             }
           }} 
           disabled={!selectedWorkout || (selectedWorkout === 'Other' && !customWorkout.trim())}
-          className="flex-[2] py-3 px-4 btn-primary text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+          className="flex-[2] py-3 px-4 inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 text-sm font-bold uppercase tracking-widest disabled:opacity-50"
         >
           Confirm Check-in
         </button>
@@ -424,19 +424,19 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
   {scanState === 'ask_update_plan' && (
     <motion.div key="ask_update_plan" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center justify-center py-8 space-y-6">
-      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-        <Bot size={40} className="text-primary" />
+      <div className="w-20 h-20 rounded-full bg-accent-soft flex items-center justify-center border border-accent-border">
+        <Bot size={40} className="text-accent-text" />
       </div>
       <div className="text-center space-y-2">
-        <h3 className="text-2xl font-black italic uppercase tracking-tighter">MigoAI Update?</h3>
-        <p className="text-ink/60">
-          You're training <span className="text-primary font-bold">"{customWorkout}"</span> today.
+        <h3 className="text-2xl font-black uppercase tracking-tighter">MigoAI Update?</h3>
+        <p className="text-ink-muted">
+          You're training <span className="text-accent-text font-bold">"{customWorkout}"</span> today.
         </p>
-        <p className="text-ink/40 text-sm">Would you like MigoAI to generate a personalized workout plan for this session?</p>
+        <p className="text-ink-muted text-sm">Would you like MigoAI to generate a personalized workout plan for this session?</p>
       </div>
       <div className="flex w-full gap-3 mt-4">
         <button onClick={() => performActualAction(true)} 
-          className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all text-ink/40 uppercase tracking-widest">
+          className="flex-1 py-3 px-4 bg-surface-raised border border-border rounded-xl text-sm font-bold hover:bg-surface-sunken transition-all text-ink-muted uppercase tracking-widest">
           No, Just Check-in
         </button>
         <button 
@@ -446,7 +446,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
             navigate(`/app/assistant?initialPrompt=${encodeURIComponent(prompt)}`);
             handleClose();
           }} 
-          className="flex-[2] py-3 px-4 btn-primary text-sm font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
+          className="flex-[2] py-3 px-4 inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 text-sm font-bold uppercase tracking-widest shadow-lg shadow-raised"
         >
           Yes, Update Plan
         </button>
@@ -458,24 +458,24 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
             <motion.div key="success" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-12 space-y-6">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                <CheckCircle2 size={40} className="text-emerald-400" />
+                className="w-20 h-20 rounded-full bg-success-soft flex items-center justify-center border border-success/30">
+                <CheckCircle2 size={40} className="text-success" />
               </motion.div>
               <div className="text-center space-y-2">
-                <h3 className="text-2xl font-black uppercase italic tracking-tighter">
+                <h3 className="text-2xl font-black uppercase tracking-tighter">
                   {confirmData?.action === 'check_out' ? 'See you soon!' : "You're In! 💪"}
                 </h3>
-                <p className="text-ink/60">{resultMessage}</p>
+                <p className="text-ink-muted">{resultMessage}</p>
                 {resultData?.gym_name && (
-                  <p className="text-primary font-bold">{resultData.gym_name}</p>
+                  <p className="text-accent-text font-bold">{resultData.gym_name}</p>
                 )}
                 {resultData?.check_in_time && (
-                  <p className="text-xs text-ink/30 font-mono mt-2">
+                  <p className="text-xs text-ink-subtle font-mono mt-2">
                     {new Date(resultData.check_in_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 )}
               </div>
-              <button onClick={handleClose} className="btn-primary py-3 px-8 text-sm uppercase tracking-widest font-black w-full mt-4">
+              <button onClick={handleClose} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 px-8 text-sm uppercase tracking-widest font-black w-full mt-4">
                 Done
               </button>
             </motion.div>
@@ -484,33 +484,33 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
           {scanState === 'error' && (
             <motion.div key="error" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-12 space-y-6">
-              <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/30">
-                <XCircle size={40} className="text-red-400" />
+              <div className="w-20 h-20 rounded-full bg-danger-soft flex items-center justify-center border border-danger/30">
+                <XCircle size={40} className="text-danger" />
               </div>
               <div className="text-center space-y-2">
                 <h3 className="text-xl font-bold uppercase tracking-widest">Check-in Failed</h3>
-                <p className="text-ink/50 text-sm max-w-xs mx-auto">{resultMessage}</p>
+                <p className="text-ink-muted text-sm max-w-xs mx-auto">{resultMessage}</p>
               </div>
               <div className="flex w-full gap-3 mt-4">
                 {resultData?.type === 'NO_MEMBERSHIP' && resultData?.gym_id ? (
                   <>
                     <button onClick={handleClose}
-                      className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all uppercase tracking-widest text-[10px]">
+                      className="flex-1 py-3 px-4 bg-surface-raised border border-border rounded-xl text-sm font-bold hover:bg-surface-sunken transition-all uppercase tracking-widest text-[10px]">
                       Not Now
                     </button>
                     <button onClick={handleViewPlans}
-                      className="flex-[2] py-3 px-4 btn-primary text-sm font-bold uppercase tracking-widest text-[10px]">
+                      className="flex-[2] py-3 px-4 inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 text-sm font-bold uppercase tracking-widest text-[10px]">
                       View Plans
                     </button>
                   </>
                 ) : (
                   <>
                     <button onClick={handleRetry}
-                      className="flex-[2] py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
+                      className="flex-[2] py-3 px-4 bg-surface-raised border border-border rounded-xl text-sm font-bold hover:bg-surface-sunken transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-[10px]">
                       <Camera size={14} /> Try Again
                     </button>
                     <button onClick={handleClose}
-                      className="flex-1 py-3 px-4 bg-ink/5 border border-ink/10 rounded-xl text-sm font-bold hover:bg-ink/10 transition-all uppercase tracking-widest text-[10px]">
+                      className="flex-1 py-3 px-4 bg-surface-raised border border-border rounded-xl text-sm font-bold hover:bg-surface-sunken transition-all uppercase tracking-widest text-[10px]">
                       Close
                     </button>
                   </>

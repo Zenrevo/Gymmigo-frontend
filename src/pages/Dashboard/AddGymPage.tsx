@@ -161,9 +161,9 @@ const AddGymPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <button 
           onClick={() => navigate('/app/dashboard')}
-          className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors group self-start"
+          className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors group self-start"
         >
-          <div className="w-8 h-8 rounded-lg bg-ink/5 border border-ink/10 flex items-center justify-center group-hover:border-primary/50">
+          <div className="w-8 h-8 rounded-lg bg-surface-raised border border-border flex items-center justify-center group-hover:border-accent-border">
             <ArrowLeft size={16} />
           </div>
           <span className="text-sm font-bold uppercase tracking-widest">Dashboard</span>
@@ -172,23 +172,23 @@ const AddGymPage = () => {
         <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              <div className={`flex items-center gap-2 ${step === i + 1 ? 'text-primary' : 'text-ink/20'}`}>
-                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold ${step === i + 1 ? 'border-primary' : 'border-ink/10'}`}>
+              <div className={`flex items-center gap-2 ${step === i + 1 ? 'text-accent-text' : 'text-ink-subtle'}`}>
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold ${step === i + 1 ? 'border-accent' : 'border-border'}`}>
                    {i + 1}
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-wider block">{s.title}</span>
               </div>
-              {i < steps.length - 1 && <div className="w-4 sm:w-8 h-px bg-ink/5" />}
+              {i < steps.length - 1 && <div className="w-4 sm:w-8 h-px bg-surface-raised" />}
             </div>
           ))}
         </div>
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-5xl sm:text-6xl font-display font-black tracking-tighter italic text-primary">
+        <h1 className="text-5xl sm:text-6xl font-display font-black tracking-tighter text-accent-text">
           LIST YOUR GYM
         </h1>
-        <p className="text-ink/40 max-w-lg">
+        <p className="text-ink-muted max-w-lg">
           Complete the steps below to create a high-quality listing that attracts its first members today.
         </p>
       </div>
@@ -201,17 +201,17 @@ const AddGymPage = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="glass-card p-6 sm:p-10 space-y-8"
+              className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8"
             >
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Gym Name</label>
+                  <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Gym Name</label>
                   <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20" size={20} />
+                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-subtle" size={20} />
                     <input 
                       type="text"
                       placeholder="e.g. Iron Paradise Gym"
-                      className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all text-xl font-bold"
+                      className="w-full bg-surface-raised border border-border rounded-2xl py-4 pl-12 pr-4 focus:border-accent outline-none transition-all text-xl font-bold"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       required
@@ -220,11 +220,11 @@ const AddGymPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">About the Gym</label>
+                  <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">About the Gym</label>
                   <textarea 
                     placeholder="Tell your future members what makes your gym special..."
                     rows={4}
-                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 px-4 focus:border-primary outline-none transition-all resize-none"
+                    className="w-full bg-surface-raised border border-border rounded-2xl py-4 px-4 focus:border-accent outline-none transition-all resize-none"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     required
@@ -233,22 +233,22 @@ const AddGymPage = () => {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Contact Person Name</label>
+                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Contact Person Name</label>
                     <input 
                       type="text"
                       placeholder="e.g. Rahul Sharma"
-                      className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
+                      className="w-full bg-surface-raised border border-border rounded-xl py-4 px-4 focus:border-accent outline-none"
                       value={formData.contact_person_name}
                       onChange={(e) => setFormData({...formData, contact_person_name: e.target.value})}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Established Year</label>
+                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Established Year</label>
                     <input 
                       type="number"
                       placeholder="2024"
-                      className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
+                      className="w-full bg-surface-raised border border-border rounded-xl py-4 px-4 focus:border-accent outline-none"
                       value={formData.established_year}
                       onChange={(e) => setFormData({...formData, established_year: e.target.value})}
                     />
@@ -257,16 +257,16 @@ const AddGymPage = () => {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Contact Phone</label>
+                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Contact Phone</label>
                     <div className="relative flex items-center">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                        <Phone className="text-ink/20" size={18} />
-                        <span className="text-ink/60 font-bold text-sm border-r border-ink/10 pr-2">+91</span>
+                        <Phone className="text-ink-subtle" size={18} />
+                        <span className="text-ink-muted font-bold text-sm border-r border-border pr-2">+91</span>
                       </div>
                       <input 
                         type="tel"
                         placeholder="10-digit number"
-                        className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-[5.5rem] pr-4 focus:border-primary outline-none transition-all"
+                        className="w-full bg-surface-raised border border-border rounded-xl py-4 pl-[5.5rem] pr-4 focus:border-accent outline-none transition-all"
                         value={formData.contact_phone}
                         onChange={(e) => setFormData({...formData, contact_phone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
                         maxLength={10}
@@ -275,13 +275,13 @@ const AddGymPage = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Contact Email</label>
+                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Contact Email</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20" size={18} />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-subtle" size={18} />
                       <input 
                         type="email"
                         placeholder="contact@gymname.com"
-                        className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 pl-12 focus:border-primary outline-none"
+                        className="w-full bg-surface-raised border border-border rounded-xl py-4 pl-12 focus:border-accent outline-none"
                         value={formData.contact_email}
                         onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
                         required
@@ -296,7 +296,7 @@ const AddGymPage = () => {
                   type="button" 
                   onClick={nextStep}
                   disabled={!formData.name || !formData.description || !formData.contact_phone}
-                  className="btn-primary py-4 px-10 flex items-center gap-3 disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-10 flex items-center gap-3 disabled:opacity-50"
                 >
                   Next Step
                   <ArrowRight size={20} />
@@ -311,35 +311,35 @@ const AddGymPage = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="glass-card p-6 sm:p-10 space-y-8"
+              className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8"
             >
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Gym Location</label>
+                  <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Gym Location</label>
                   <button
                     type="button"
                     onClick={() => setIsMapOpen(true)}
-                    className="w-full flex items-center justify-between bg-ink/5 border border-ink/10 rounded-2xl p-6 hover:border-primary transition-all group"
+                    className="w-full flex items-center justify-between bg-surface-raised border border-border rounded-2xl p-6 hover:border-accent transition-all group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all shadow-inner">
+                      <div className="w-12 h-12 rounded-xl bg-accent-soft flex items-center justify-center text-accent-text group-hover:bg-accent group-hover:text-on-accent transition-all shadow-inner">
                         <MapPin size={24} />
                       </div>
                       <div className="text-left space-y-1">
-                        <span className={`block font-bold transition-colors ${formData.address_line1 ? 'text-ink text-lg' : 'text-ink/20'}`}>
+                        <span className={`block font-bold transition-colors ${formData.address_line1 ? 'text-ink text-lg' : 'text-ink-subtle'}`}>
                           {formData.address_line1 || 'Pin your gym location on map'}
                         </span>
                         {formData.address_line1 ? (
                            <div className="flex items-center gap-2">
-                             <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded font-black tracking-widest uppercase">Verified Location</span>
-                             <span className="text-[10px] text-ink/40">{formData.city}, {formData.pincode}</span>
+                             <span className="text-[10px] bg-accent-soft text-accent-text px-2 py-0.5 rounded font-black tracking-widest uppercase">Verified Location</span>
+                             <span className="text-[10px] text-ink-muted">{formData.city}, {formData.pincode}</span>
                            </div>
                         ) : (
-                           <span className="text-[10px] text-ink/20 uppercase tracking-widest font-bold">100% Accurate Pincode Identification</span>
+                           <span className="text-[10px] text-ink-subtle uppercase tracking-widest font-bold">100% Accurate Pincode Identification</span>
                         )}
                       </div>
                     </div>
-                    <div className="btn-primary py-2 px-4 text-[10px] h-fit">
+                    <div className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-4 text-[10px] h-fit">
                       {formData.address_line1 ? 'CHANGE' : 'OPEN MAP'}
                     </div>
                   </button>
@@ -347,11 +347,11 @@ const AddGymPage = () => {
 
                 <div className="grid sm:grid-cols-2 gap-6 pt-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Max Capacity</label>
+                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Max Capacity</label>
                     <input 
                       type="number"
                       placeholder="50"
-                      className="w-full bg-ink/5 border border-ink/10 rounded-xl py-4 px-4 focus:border-primary outline-none"
+                      className="w-full bg-surface-raised border border-border rounded-xl py-4 px-4 focus:border-accent outline-none"
                       value={formData.max_capacity}
                       onChange={(e) => setFormData({...formData, max_capacity: e.target.value})}
                     />
@@ -360,20 +360,20 @@ const AddGymPage = () => {
                      <button
                       type="button"
                       onClick={() => setFormData({...formData, is_24_hours: !formData.is_24_hours})}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${formData.is_24_hours ? 'bg-primary' : 'bg-ink/10'}`}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${formData.is_24_hours ? 'bg-accent' : 'bg-surface-sunken'}`}
                      >
-                       <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${formData.is_24_hours ? 'left-7' : 'left-1'}`} />
+                       <div className={`absolute top-1 w-4 h-4 rounded-full bg-ink transition-all ${formData.is_24_hours ? 'left-7' : 'left-1'}`} />
                      </button>
                      <span className="text-sm font-bold uppercase tracking-wider">OPEN 24 HOURS</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center bg-ink/5 -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 px-6 sm:px-10 py-8 rounded-b-3xl">
-                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors">
+              <div className="flex justify-between items-center bg-surface-raised -mx-6 sm:-mx-10 -mb-6 sm:-mb-10 px-6 sm:px-10 py-8 rounded-b-3xl">
+                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors">
                   <ArrowLeft size={16} /> Back
                 </button>
-                <button type="button" onClick={nextStep} className="btn-primary py-4 px-10 flex items-center gap-3">
+                <button type="button" onClick={nextStep} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-10 flex items-center gap-3">
                   Amenities & Facilities <ArrowRight size={20} />
                 </button>
               </div>
@@ -388,9 +388,9 @@ const AddGymPage = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-8"
             >
-              <div className="glass-card p-6 sm:p-10 space-y-8">
+              <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold italic tracking-tight">AMENITIES</h3>
+                  <h3 className="text-xl font-bold tracking-tight">AMENITIES</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {PRESET_AMENITIES.map((amenity) => (
                       <button
@@ -398,10 +398,10 @@ const AddGymPage = () => {
                         type="button"
                         onClick={() => toggleAmenity(amenity.name)}
                         className={`p-6 rounded-2xl border-2 flex flex-col items-center gap-3 transition-all ${
-                          formData.amenities.includes(amenity.name)
-                            ? 'border-primary bg-primary/10 text-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]'
-                            : 'border-ink/5 bg-ink/5 text-white/40 hover:border-ink/20'
-                        }`}
+ formData.amenities.includes(amenity.name)
+ ? 'border-accent bg-accent-soft text-accent-text shadow-[0_0_20px_rgba(var(--primary-rgb),0.1)]'
+ : 'border-border bg-surface-raised text-ink-muted hover:border-border-strong'
+ }`}
                       >
                         <amenity.icon size={28} />
                         <span className="text-xs font-bold uppercase tracking-widest">{amenity.name}</span>
@@ -410,47 +410,47 @@ const AddGymPage = () => {
                   </div>
                 </div>
 
-                <div className="h-px bg-ink/5" />
+                <div className="h-px bg-surface-raised" />
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold italic tracking-tight">FACILITIES</h3>
-                    <button type="button" onClick={addFacility} className="text-xs font-bold text-primary hover:underline flex items-center gap-1 uppercase tracking-widest">
+                    <h3 className="text-xl font-bold tracking-tight">FACILITIES</h3>
+                    <button type="button" onClick={addFacility} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 uppercase tracking-widest">
                       <Plus size={14} /> Add Facility
                     </button>
                   </div>
 
                   <div className="space-y-4">
                     {formData.facilities.map((fac, idx) => (
-                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={idx} className="glass-card p-6 space-y-4 relative border-ink/5 hover:border-ink/10 transition-colors">
-                        <button type="button" onClick={() => removeFacility(idx)} className="absolute top-4 right-4 text-ink/20 hover:text-red-400 transition-colors">
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={idx} className="bg-surface border border-border rounded-gm-xl shadow-card p-6 space-y-4 relative border-border hover:border-border transition-colors">
+                        <button type="button" onClick={() => removeFacility(idx)} className="absolute top-4 right-4 text-ink-subtle hover:text-danger transition-colors">
                           <Trash2 size={18} />
                         </button>
                         <div className="grid sm:grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Facility Name</label>
+                            <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Facility Name</label>
                             <input 
                               placeholder="e.g. Swimming Pool"
-                              className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none"
+                              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
                               value={fac.name}
                               onChange={(e) => updateFacility(idx, 'name', e.target.value)}
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Quantity</label>
+                            <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Quantity</label>
                             <input 
                               type="number"
-                              className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none"
+                              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
                               value={fac.quantity}
                               onChange={(e) => updateFacility(idx, 'quantity', parseInt(e.target.value))}
                             />
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Short Description</label>
+                          <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Short Description</label>
                           <input 
                             placeholder="e.g. Olympic-sized 25m pool with 4 lanes"
-                            className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none placeholder:text-ink/10"
+                            className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none placeholder:text-ink-subtle"
                             value={fac.description}
                             onChange={(e) => updateFacility(idx, 'description', e.target.value)}
                           />
@@ -461,11 +461,11 @@ const AddGymPage = () => {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center bg-ink/5 p-8 rounded-3xl border border-ink/5">
-                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
+              <div className="flex justify-between items-center bg-surface-raised p-8 rounded-3xl border border-border">
+                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
                   <ArrowLeft size={16} /> Back
                 </button>
-                <button type="button" onClick={nextStep} className="btn-primary py-4 px-12 flex items-center gap-3">
+                <button type="button" onClick={nextStep} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-12 flex items-center gap-3">
                   Step 4: Equipment <ArrowRight size={20} />
                 </button>
               </div>
@@ -480,46 +480,46 @@ const AddGymPage = () => {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-8"
             >
-              <div className="glass-card p-6 sm:p-10 space-y-8">
+              <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-display font-black italic tracking-tighter">EQUIPMENT INVENTORY</h3>
-                  <button type="button" onClick={addEquipment} className="text-xs font-bold text-primary hover:underline flex items-center gap-1 uppercase tracking-widest">
+                  <h3 className="text-2xl font-display font-black tracking-tighter">EQUIPMENT INVENTORY</h3>
+                  <button type="button" onClick={addEquipment} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 uppercase tracking-widest">
                     <Plus size={14} /> Add Equipment
                   </button>
                 </div>
 
                 <div className="space-y-4">
                   {formData.equipment.map((eq, idx) => (
-                    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} key={idx} className="glass-card p-6 grid sm:grid-cols-4 gap-4 relative">
-                      <button type="button" onClick={() => removeEquipment(idx)} className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all z-10">
+                    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} key={idx} className="bg-surface border border-border rounded-gm-xl shadow-card p-6 grid sm:grid-cols-4 gap-4 relative">
+                      <button type="button" onClick={() => removeEquipment(idx)} className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-danger-soft border border-danger/30 text-danger flex items-center justify-center hover:bg-danger hover:text-on-accent transition-all z-10">
                         <Trash2 size={14} />
                       </button>
                       <div className="sm:col-span-2 space-y-1">
-                        <label className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Machine Name</label>
+                        <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Machine Name</label>
                         <input 
                           placeholder="e.g. Curved Treadmill"
-                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none"
+                          className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
                           value={eq.name}
                           onChange={(e) => updateEquipment(idx, 'name', e.target.value)}
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Category</label>
+                        <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Category</label>
                         <select 
-                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none"
+                          className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
                           value={eq.category}
                           onChange={(e) => updateEquipment(idx, 'category', e.target.value)}
                         >
                           {EQUIPMENT_CATEGORIES.map(cat => (
-                            <option key={cat} value={cat} className="bg-black">{cat.replace('_', ' ')}</option>
+                            <option key={cat} value={cat} className="bg-surface">{cat.replace('_', ' ')}</option>
                           ))}
                         </select>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-ink/40 uppercase tracking-widest">Quantity</label>
+                        <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Quantity</label>
                         <input 
                           type="number"
-                          className="w-full bg-ink/5 border border-ink/10 rounded-xl py-3 px-4 focus:border-primary outline-none"
+                          className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
                           value={eq.quantity}
                           onChange={(e) => updateEquipment(idx, 'quantity', parseInt(e.target.value))}
                         />
@@ -527,23 +527,23 @@ const AddGymPage = () => {
                     </motion.div>
                   ))}
                   {formData.equipment.length === 0 && (
-                    <div className="p-12 border-2 border-dashed border-ink/5 rounded-3xl text-center text-ink/10 italic">
+                    <div className="p-12 border-2 border-dashed border-border rounded-3xl text-center text-ink-subtle ">
                       No specific equipment records added yet.
                     </div>
                   )}
                 </div>
               </div>
 
-              {error && <p className="text-red-400 text-sm text-center bg-red-500/10 py-4 rounded-2xl border border-red-500/20">{error}</p>}
+              {error && <p className="text-danger text-sm text-center bg-danger-soft py-4 rounded-2xl border border-danger/30">{error}</p>}
 
-              <div className="flex justify-between items-center bg-ink/5 p-10 rounded-3xl border border-ink/5">
-                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
+              <div className="flex justify-between items-center bg-surface-raised p-10 rounded-3xl border border-border">
+                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
                   <ArrowLeft size={16} /> Back
                 </button>
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="btn-primary py-5 px-16 flex items-center gap-3 font-display italic text-lg"
+                  className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-5 px-16 flex items-center gap-3 font-display text-lg"
                 >
                   {isLoading ? <Loader2 className="animate-spin" /> : (
                     <>

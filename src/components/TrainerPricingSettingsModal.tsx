@@ -89,68 +89,68 @@ export default function TrainerPricingSettingsModal({ isOpen, onClose, onSuccess
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Hourly Rate (₹)</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Hourly Rate (₹)</label>
               <input
                 type="number"
                 name="hourly_rate"
                 value={formData.hourly_rate}
                 onChange={handleChange}
-                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-emerald-400 font-bold placeholder:text-ink-subtle"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-success font-bold placeholder:text-ink-subtle"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Single Session (₹)</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Single Session (₹)</label>
               <input
                 type="number"
                 name="single_session_charges"
                 value={formData.single_session_charges}
                 onChange={handleChange}
-                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-emerald-400 font-bold placeholder:text-ink-subtle"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-success font-bold placeholder:text-ink-subtle"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Monthly Base (₹)</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Monthly Base (₹)</label>
               <input
                 type="number"
                 name="monthly_charges"
                 value={formData.monthly_charges}
                 onChange={handleChange}
-                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-emerald-400 font-bold placeholder:text-ink-subtle"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-success font-bold placeholder:text-ink-subtle"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Session Dur. (mins) *</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Session Dur. (mins) *</label>
               <input
                 type="number"
                 name="session_duration_mins"
                 value={formData.session_duration_mins}
                 onChange={handleChange}
-                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
                 required
               />
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-ink/5 p-4 rounded-xl border border-ink/10">
+          <div className="flex items-center gap-3 bg-surface-raised p-4 rounded-xl border border-border">
             <input
               type="checkbox"
               name="charges_negotiable"
               checked={formData.charges_negotiable}
               onChange={handleChange}
-              className="w-5 h-5 rounded-md border-ink/20 text-primary focus:ring-primary focus:ring-offset-zinc-900 bg-ink/10"
+              className="w-5 h-5 rounded-md border-border-strong text-accent-text focus:ring-accent focus:ring-offset-zinc-900 bg-surface-sunken"
             />
             <div>
               <p className="font-bold text-sm">Rates are negotiable</p>
-              <p className="text-[10px] text-ink/40 uppercase tracking-widest">Allow clients to discuss customized pricing</p>
+              <p className="text-[10px] text-ink-muted uppercase tracking-widest">Allow clients to discuss customized pricing</p>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4 border-t border-ink/10">
+          <div className="flex gap-4 pt-4 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 bg-ink/5 border border-ink/10 text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-ink/10 transition-colors"
+              className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
             >
               Cancel
             </button>
@@ -160,8 +160,8 @@ export default function TrainerPricingSettingsModal({ isOpen, onClose, onSuccess
               className={clsx(
                 "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
                 saving 
-                  ? "bg-primary/50 text-black/50 cursor-not-allowed" 
-                  : "bg-primary text-black hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                  ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
+                  : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
               )}
             >
               {saving ? (

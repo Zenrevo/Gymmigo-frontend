@@ -45,7 +45,7 @@ export default function ClubsTimelineReviewStep({
       <div className="shrink-0 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-text">
               {isPublished ? 'Published — Live' : 'Step 2 — Review'}
             </p>
             <h2 className="text-xl font-black text-ink">
@@ -57,20 +57,20 @@ export default function ClubsTimelineReviewStep({
               <button
                 type="button"
                 onClick={onRebuild}
-                className="rounded-lg border border-primary/30 px-3 py-2 text-[10px] font-black uppercase text-primary"
+                className="rounded-lg border border-accent-border px-3 py-2 text-[10px] font-black uppercase text-accent-text"
               >
                 Rebuild journey
               </button>
             ) : (
               <>
-                <button type="button" onClick={onBack} className="rounded-lg border border-ink/10 px-3 py-2 text-[10px] font-black uppercase text-ink/55">
+                <button type="button" onClick={onBack} className="rounded-lg border border-border px-3 py-2 text-[10px] font-black uppercase text-ink-muted">
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={onRegenerate}
                   disabled={regenerating}
-                  className="rounded-lg border border-primary/30 px-3 py-2 text-[10px] font-black uppercase text-primary disabled:opacity-50"
+                  className="rounded-lg border border-accent-border px-3 py-2 text-[10px] font-black uppercase text-accent-text disabled:opacity-50"
                 >
                   {regenerating ? 'Regenerating…' : 'Regenerate'}
                 </button>
@@ -78,7 +78,7 @@ export default function ClubsTimelineReviewStep({
                   type="button"
                   onClick={onContinue}
                   disabled={errors.length > 0}
-                  className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-[10px] font-black uppercase text-black disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-[10px] font-black uppercase text-on-accent disabled:opacity-50"
                 >
                   Publish <ChevronRight size={12} />
                 </button>
@@ -88,7 +88,7 @@ export default function ClubsTimelineReviewStep({
         </div>
 
         {summary && (
-          <p className="text-xs font-semibold text-ink/45">
+          <p className="text-xs font-semibold text-ink-muted">
             ₹{summary.total_estimated_cost_inr} est. cost · {summary.task_type_count} task types
             {summary.first_month_hook_tier ? ` · Month-1 hook: tier ${summary.first_month_hook_tier}` : ''}
             {(summary.protected_tiers || []).length ? ` · Protected: ${(summary.protected_tiers || []).join(', ')}` : ''}
@@ -96,25 +96,25 @@ export default function ClubsTimelineReviewStep({
         )}
 
         {isPublished && (
-          <p className="rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-100">
+          <p className="rounded-xl border border-success/30 bg-success-soft px-3 py-2 text-xs font-semibold text-success">
             Members see this ladder in the app. Tap a tier to view tasks and rewards, or edit a single club.
           </p>
         )}
 
         {!isPublished && errors.length > 0 && (
-          <div className="rounded-xl border border-red-400/25 bg-red-400/10 px-3 py-2 text-xs font-semibold text-red-100">
+          <div className="rounded-xl border border-danger/30 bg-danger-soft px-3 py-2 text-xs font-semibold text-danger">
             <p>{errors[0]?.message || 'Fix validation errors before publishing.'}</p>
             {errors.slice(1, 4).map((issue) => (
-              <p key={`${issue.code}-${issue.message}`} className="mt-1 text-red-100/85">
+              <p key={`${issue.code}-${issue.message}`} className="mt-1 text-danger">
                 · {issue.message}
               </p>
             ))}
-            {errors.length > 4 ? <p className="mt-1 text-red-100/70">+{errors.length - 4} more</p> : null}
+            {errors.length > 4 ? <p className="mt-1 text-danger">+{errors.length - 4} more</p> : null}
           </div>
         )}
 
         {!isPublished && warnings.length > 0 && !errors.length && (
-          <div className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-100">
+          <div className="rounded-xl border border-warning/30 bg-warning-soft px-3 py-2 text-xs font-semibold text-warning">
             {warnings.length} warning{warnings.length === 1 ? '' : 's'} — you can still publish
           </div>
         )}
@@ -137,8 +137,8 @@ export default function ClubsTimelineReviewStep({
               key={club.mission_code}
               className={clsx(
                 'overflow-hidden rounded-xl border transition-colors',
-                expanded ? 'border-primary/30 bg-ink/[0.05]' : 'border-ink/10 bg-ink/[0.02]',
-                tier === 1 && !expanded && 'border-primary/20'
+                expanded ? 'border-accent-border bg-surface-raised' : 'border-border bg-surface-raised',
+                tier === 1 && !expanded && 'border-accent-border'
               )}
             >
               <button
@@ -146,30 +146,30 @@ export default function ClubsTimelineReviewStep({
                 onClick={() => toggle(club.mission_code)}
                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-[11px] font-black text-primary">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[11px] font-black text-accent-text">
                   {tier}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm font-black text-ink">{club.club_name}</span>
-                <span className="hidden shrink-0 text-[10px] font-bold text-ink/35 sm:inline">
+                <span className="hidden shrink-0 text-[10px] font-bold text-ink-subtle sm:inline">
                   {club.timeline_label || '—'}
                 </span>
                 {savings && (
-                  <span className="shrink-0 rounded-md bg-emerald-400/10 px-2 py-0.5 text-[10px] font-black text-emerald-200">
+                  <span className="shrink-0 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-black text-success">
                     {savings}
                   </span>
                 )}
                 {isPublished && !club.is_active && (
-                  <span className="shrink-0 rounded-md bg-ink/10 px-2 py-0.5 text-[10px] font-black text-ink/45">
+                  <span className="shrink-0 rounded-md bg-surface-sunken px-2 py-0.5 text-[10px] font-black text-ink-muted">
                     Off
                   </span>
                 )}
-                {expanded ? <ChevronUp size={16} className="shrink-0 text-ink/40" /> : <ChevronDown size={16} className="shrink-0 text-ink/40" />}
+                {expanded ? <ChevronUp size={16} className="shrink-0 text-ink-muted" /> : <ChevronDown size={16} className="shrink-0 text-ink-muted" />}
               </button>
 
               {expanded && (
-                <div className="space-y-2 border-t border-ink/10 px-3 pb-3 pt-2">
+                <div className="space-y-2 border-t border-border px-3 pb-3 pt-2">
                   {club.club_definition && (
-                    <p className="text-xs font-semibold leading-5 text-ink/45">{club.club_definition}</p>
+                    <p className="text-xs font-semibold leading-5 text-ink-muted">{club.club_definition}</p>
                   )}
                   <div className="flex flex-wrap gap-1.5">
                     {club.first_month_renewal_hook && <Tag label="Month-1 hook" />}
@@ -185,7 +185,7 @@ export default function ClubsTimelineReviewStep({
                             key={`${club.mission_code}-task-${taskIndex}`}
                             className={clsx(
                               'text-xs font-semibold',
-                              isEasy ? 'text-sky-200/90' : 'text-ink/55'
+                              isEasy ? 'text-info' : 'text-ink-muted'
                             )}
                           >
                             {isEasy ? '○' : '●'} {task}
@@ -203,13 +203,13 @@ export default function ClubsTimelineReviewStep({
                             key={`${club.mission_code}-reward-${rewardIndex}`}
                             className={clsx(
                               'text-xs font-semibold',
-                              meaningful ? 'text-emerald-200/95' : 'text-ink/50'
+                              meaningful ? 'text-success' : 'text-ink-muted'
                             )}
                           >
                             {meaningful ? '★' : '·'}{' '}
                             {reward.value || reward.label}
                             {reward.value && reward.label && reward.label !== reward.value ? (
-                              <span className="text-ink/35"> ({reward.label})</span>
+                              <span className="text-ink-subtle"> ({reward.label})</span>
                             ) : null}
                           </p>
                         );
@@ -217,7 +217,7 @@ export default function ClubsTimelineReviewStep({
                     </DetailBlock>
                   )}
                   {ownerWarnings.slice(0, 1).map((warning) => (
-                    <p key={warning} className="flex items-center gap-1 text-[11px] font-bold text-amber-100">
+                    <p key={warning} className="flex items-center gap-1 text-[11px] font-bold text-warning">
                       <AlertTriangle size={11} /> {warning}
                     </p>
                   ))}
@@ -227,7 +227,7 @@ export default function ClubsTimelineReviewStep({
                       event.stopPropagation();
                       onEditTier(club);
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-ink/10 px-3 py-1.5 text-[10px] font-black uppercase text-ink/60 hover:text-ink"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[10px] font-black uppercase text-ink-muted hover:text-ink"
                   >
                     <Pencil size={12} /> Edit
                   </button>
@@ -242,14 +242,14 @@ export default function ClubsTimelineReviewStep({
 }
 
 const Tag = ({ label }: { label: string }) => (
-  <span className="rounded-md border border-ink/10 bg-surface-sunken px-2 py-0.5 text-[9px] font-black uppercase text-white/50">
+  <span className="rounded-md border border-border bg-surface-sunken px-2 py-0.5 text-[9px] font-black uppercase text-ink-muted">
     {label}
   </span>
 );
 
 const DetailBlock = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="space-y-1">
-    <p className="text-[10px] font-black uppercase tracking-wider text-ink/35">{title}</p>
+    <p className="text-[10px] font-black uppercase tracking-wider text-ink-subtle">{title}</p>
     <div className="space-y-0.5">{children}</div>
   </div>
 );

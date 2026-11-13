@@ -92,26 +92,26 @@ const GymManageDashboard = () => {
 
   if (error || !gym) return (
     <div className="text-center p-20 space-y-4">
-      <AlertCircle className="mx-auto text-red-500" size={48} />
+      <AlertCircle className="mx-auto text-danger" size={48} />
       <h2 className="text-2xl font-bold">Gym Not Found</h2>
-      <p className="text-ink/40">{error || "Could not load gym details."}</p>
-      <button onClick={() => navigate('/app/dashboard')} className="btn-primary px-6 py-2 mt-4">Back to Dashboard</button>
+      <p className="text-ink-muted">{error || "Could not load gym details."}</p>
+      <button onClick={() => navigate('/app/dashboard')} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 px-6 py-2 mt-4">Back to Dashboard</button>
     </div>
   );
 
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-100px)] gap-8">
       {/* Mobile Top Header (only visible on small screens) */}
-      <div className="md:hidden flex items-center justify-between mb-4 glass-card p-4">
+      <div className="md:hidden flex items-center justify-between mb-4 bg-surface border border-border rounded-gm-xl shadow-card p-4">
         <div className="flex items-center gap-3">
-          <Link to="/app/dashboard" className="text-ink/60 hover:text-ink">
+          <Link to="/app/dashboard" className="text-ink-muted hover:text-ink">
             <ArrowLeft size={20} />
           </Link>
-          <h2 className="font-bold text-lg truncate max-w-[200px] uppercase italic">{gym.gym.name}</h2>
+          <h2 className="font-bold text-lg truncate max-w-[200px] uppercase ">{gym.gym.name}</h2>
         </div>
         <button 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 hover:bg-ink/5 rounded-full"
+          className="p-2 hover:bg-surface-raised rounded-full"
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -120,38 +120,38 @@ const GymManageDashboard = () => {
       {/* Sidebar Navigation */}
       <div className={clsx(
         "md:w-64 shrink-0 flex flex-col gap-2",
-        "fixed md:static inset-0 z-40 bg-black/95 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 transition-transform duration-300 md:translate-x-0",
+        "fixed md:static inset-0 z-40 bg-overlay md:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 transition-transform duration-300 md:translate-x-0",
         mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="hidden md:block space-y-6 mb-8">
           <Link 
             to="/app/dashboard"
-            className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors group w-fit"
+            className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors group w-fit"
           >
             <ArrowLeft size={16} />
             <span className="text-xs font-bold uppercase tracking-widest">Back to Portfolio</span>
           </Link>
-          <div className="flex items-center gap-4 border-b border-ink/5 pb-6">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+          <div className="flex items-center gap-4 border-b border-border pb-6">
+            <div className="w-12 h-12 rounded-xl bg-accent-soft border border-accent-border flex items-center justify-center text-accent-text shrink-0">
               <Building2 size={24} />
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl font-display font-black tracking-tighter truncate italic uppercase">{gym.gym.name}</h1>
-              <p className="text-[10px] text-ink/40 uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
+              <h1 className="text-xl font-display font-black tracking-tighter truncate uppercase">{gym.gym.name}</h1>
+              <p className="text-[10px] text-ink-muted uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
               <div className="flex items-center gap-2 mt-2">
                 {gym.gym.is_verified ? (
-                  <span className="text-blue-400 text-[8px] font-bold bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20 uppercase tracking-widest flex items-center gap-1">
+                  <span className="text-info text-[8px] font-bold bg-info-soft px-2 py-0.5 rounded-full border border-info/30 uppercase tracking-widest flex items-center gap-1">
                     <Shield size={8} /> Verified
                   </span>
                 ) : (
-                  <span className="text-amber-400 text-[8px] font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 uppercase tracking-widest flex items-center gap-1">
+                  <span className="text-warning text-[8px] font-bold bg-warning-soft px-2 py-0.5 rounded-full border border-warning/30 uppercase tracking-widest flex items-center gap-1">
                     <AlertTriangle size={8} /> Unverified
                   </span>
                 )}
                 {gym.gym.is_active ? (
-                  <span className="text-emerald-500 text-[8px] font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-widest">Active</span>
+                  <span className="text-success text-[8px] font-bold bg-success-soft px-2 py-0.5 rounded-full border border-success/30 uppercase tracking-widest">Active</span>
                 ) : (
-                  <span className="text-red-500 text-[8px] font-bold bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20 uppercase tracking-widest">Inactive</span>
+                  <span className="text-danger text-[8px] font-bold bg-danger-soft px-2 py-0.5 rounded-full border border-danger/30 uppercase tracking-widest">Inactive</span>
                 )}
               </div>
             </div>
@@ -159,7 +159,7 @@ const GymManageDashboard = () => {
         </div>
 
         <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar md:pr-4">
-          <p className="text-[10px] font-bold text-ink/40 uppercase tracking-widest mb-2 px-3">Management</p>
+          <p className="text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-2 px-3">Management</p>
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -170,12 +170,12 @@ const GymManageDashboard = () => {
                 className={clsx(
                   "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all group",
                   isActive 
-                    ? "bg-primary/10 text-primary border border-primary/20" 
-                    : "text-ink/60 hover:text-ink hover:bg-ink/5 border border-transparent"
+                    ? "bg-accent-soft text-accent-text border border-accent-border" 
+                    : "text-ink-muted hover:text-ink hover:bg-surface-raised border border-transparent"
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon size={18} className={isActive ? "text-primary" : "text-ink/40 group-hover:text-ink"} />
+                  <item.icon size={18} className={isActive ? "text-accent-text" : "text-ink-muted group-hover:text-ink"} />
                   {item.name}
                 </div>
                 {isActive && <ChevronRight size={16} />}

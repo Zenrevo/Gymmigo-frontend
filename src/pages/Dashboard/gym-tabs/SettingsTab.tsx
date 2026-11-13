@@ -110,55 +110,55 @@ const SettingsTab = () => {
   return (
     <div className="space-y-12 pb-12">
       <div className="flex items-center justify-between">
-         <h2 className="text-3xl font-display font-black tracking-tight italic flex items-center gap-3">
-           <Settings className="text-primary" size={32} /> GYM SETTINGS
+         <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+           <Settings className="text-accent-text" size={32} /> GYM SETTINGS
          </h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* BASIC INFO */}
-        <section className="glass-card p-8">
-           <div className="flex items-center gap-2 text-primary font-bold mb-6 border-b border-ink/5 pb-4">
+        <section className="bg-surface border border-border rounded-gm-xl shadow-card p-8">
+           <div className="flex items-center gap-2 text-accent-text font-bold mb-6 border-b border-border pb-4">
              <Building size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Basic Info</h3>
            </div>
            
            <form onSubmit={handleBasicSave} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-ink/60 mb-2">Gym Name</label>
-                <input required type="text" value={basicInfo.name} onChange={e => setBasicInfo({...basicInfo, name: e.target.value})} className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none" />
+                <label className="block text-xs font-bold text-ink-muted mb-2">Gym Name</label>
+                <input required type="text" value={basicInfo.name} onChange={e => setBasicInfo({...basicInfo, name: e.target.value})} className="w-full bg-surface-sunken border border-border rounded-xl p-3 text-ink focus:border-accent outline-none" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-ink/60 mb-2">Description</label>
-                <textarea rows={4} value={basicInfo.description} onChange={e => setBasicInfo({...basicInfo, description: e.target.value})} className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none custom-scrollbar" placeholder="Tell members what makes your gym special..." />
+                <label className="block text-xs font-bold text-ink-muted mb-2">Description</label>
+                <textarea rows={4} value={basicInfo.description} onChange={e => setBasicInfo({...basicInfo, description: e.target.value})} className="w-full bg-surface-sunken border border-border rounded-xl p-3 text-ink focus:border-accent outline-none custom-scrollbar" placeholder="Tell members what makes your gym special..." />
               </div>
               <div className="grid grid-cols-2 gap-4">
                  <div>
-                   <label className="block text-xs font-bold text-ink/60 mb-2">Contact Phone</label>
+                   <label className="block text-xs font-bold text-ink-muted mb-2">Contact Phone</label>
                    <div className="relative flex items-center">
-                     <span className="absolute left-3 text-ink/40 font-bold text-xs border-r border-ink/10 pr-2">+91</span>
+                     <span className="absolute left-3 text-ink-muted font-bold text-xs border-r border-border pr-2">+91</span>
                      <input 
                        type="tel" 
                        value={basicInfo.contact_phone} 
                        onChange={e => setBasicInfo({...basicInfo, contact_phone: e.target.value.replace(/\D/g, '').slice(0, 10)})} 
                        maxLength={10}
-                       className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 pl-12 text-white focus:border-primary outline-none transition-all" 
+                       className="w-full bg-surface-sunken border border-border rounded-xl p-3 pl-12 text-ink focus:border-accent outline-none transition-all" 
                        placeholder="10-digit number"
                      />
                    </div>
                  </div>
                  <div>
-                   <label className="block text-xs font-bold text-ink/60 mb-2">Established</label>
-                   <input type="number" value={basicInfo.established_year} onChange={e => setBasicInfo({...basicInfo, established_year: e.target.value})} className="w-full bg-black/50 border border-ink/10 rounded-xl p-3 text-white focus:border-primary outline-none" placeholder="YYYY" />
+                   <label className="block text-xs font-bold text-ink-muted mb-2">Established</label>
+                   <input type="number" value={basicInfo.established_year} onChange={e => setBasicInfo({...basicInfo, established_year: e.target.value})} className="w-full bg-surface-sunken border border-border rounded-xl p-3 text-ink focus:border-accent outline-none" placeholder="YYYY" />
                  </div>
               </div>
-              <div className="pt-4 flex justify-end"><button type="submit" disabled={isSubmitting} className="btn-primary py-2 px-6 text-xs">{isSubmitting ? <Loader2 size={14} className="animate-spin" /> : 'Save Changes'}</button></div>
+              <div className="pt-4 flex justify-end"><button type="submit" disabled={isSubmitting} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-6 text-xs">{isSubmitting ? <Loader2 size={14} className="animate-spin" /> : 'Save Changes'}</button></div>
            </form>
         </section>
 
         {/* GYM MEDIA */}
-        <section className="glass-card p-8">
-           <div className="flex items-center gap-2 text-primary font-bold mb-6 border-b border-ink/5 pb-4">
+        <section className="bg-surface border border-border rounded-gm-xl shadow-card p-8">
+           <div className="flex items-center gap-2 text-accent-text font-bold mb-6 border-b border-border pb-4">
              <ImageIcon size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Gym Media</h3>
            </div>
            
@@ -178,7 +178,7 @@ const SettingsTab = () => {
                  />
               </div>
               <div className="pt-4 flex justify-end">
-                <button type="submit" disabled={isSubmitting} className="btn-primary py-2 px-6 text-xs transition-all">
+                <button type="submit" disabled={isSubmitting} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-6 text-xs transition-all">
                   {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : 'Update Branding'}
                 </button>
               </div>
@@ -186,16 +186,16 @@ const SettingsTab = () => {
         </section>
 
         {/* ADDRESS */}
-        <section className="glass-card p-8">
-           <div className="flex items-center gap-2 text-blue-500 font-bold mb-6 border-b border-ink/5 pb-4">
+        <section className="bg-surface border border-border rounded-gm-xl shadow-card p-8">
+           <div className="flex items-center gap-2 text-info font-bold mb-6 border-b border-border pb-4">
              <MapPin size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Location</h3>
            </div>
 
            <form onSubmit={handleAddressSave} className="space-y-6">
-              <div className="bg-ink/5 border border-ink/10 rounded-2xl p-6 space-y-4">
+              <div className="bg-surface-raised border border-border rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                    <div className="w-10 h-10 rounded-xl bg-info-soft flex items-center justify-center text-info">
                       <MapIcon size={20} />
                     </div>
                     <a 
@@ -204,7 +204,7 @@ const SettingsTab = () => {
                       rel="noopener noreferrer"
                       className="group/addr"
                     >
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-ink/40 group-hover/addr:text-primary transition-colors">Current Pin Location</span>
+                      <span className="block text-[10px] font-black uppercase tracking-widest text-ink-muted group-hover/addr:text-primary transition-colors">Current Pin Location</span>
                       <span className="block text-sm font-bold text-ink leading-tight group-hover/addr:text-primary group-hover/addr:underline underline-offset-2 transition-all">
                         {address.address_line1 || 'No location set yet'}
                       </span>
@@ -213,21 +213,21 @@ const SettingsTab = () => {
                   <button 
                     type="button" 
                     onClick={() => setIsMapOpen(true)}
-                    className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-blue-500/20"
+                    className="px-4 py-2 bg-info-soft hover:bg-info text-info hover:text-on-accent rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-info/30"
                   >
                     Open Map
                   </button>
                 </div>
 
                 {address.address_line1 && (
-                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-ink/5">
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
                     <div>
-                      <span className="block text-[8px] font-bold text-ink/20 uppercase mb-0.5">City & State</span>
-                      <span className="text-[10px] font-bold text-ink/60">{address.city}, {address.state}</span>
+                      <span className="block text-[8px] font-bold text-ink-subtle uppercase mb-0.5">City & State</span>
+                      <span className="text-[10px] font-bold text-ink-muted">{address.city}, {address.state}</span>
                     </div>
                     <div>
-                      <span className="block text-[8px] font-bold text-ink/20 uppercase mb-0.5">Pincode</span>
-                      <span className="text-[10px] font-bold text-blue-400">{address.pincode}</span>
+                      <span className="block text-[8px] font-bold text-ink-subtle uppercase mb-0.5">Pincode</span>
+                      <span className="text-[10px] font-bold text-info">{address.pincode}</span>
                     </div>
                   </div>
                 )}
@@ -237,7 +237,7 @@ const SettingsTab = () => {
                 <button 
                   type="submit" 
                   disabled={isSubmitting || !address.address_line1} 
-                  className="btn-primary py-3 px-8 text-xs bg-blue-600 hover:bg-blue-700 shadow-[0_0_15px_rgba(37,99,235,0.3)] disabled:opacity-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 px-8 text-xs bg-info hover:bg-info shadow-[0_0_15px_rgba(37,99,235,0.3)] disabled:opacity-50"
                 >
                   {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : 'Update Location'}
                 </button>
@@ -246,42 +246,42 @@ const SettingsTab = () => {
         </section>
 
         {/* OPERATIONS & CAPACITY */}
-        <section className="glass-card p-8 lg:col-span-2">
-           <div className="flex items-center gap-2 text-emerald-500 font-bold mb-6 border-b border-ink/5 pb-4">
+        <section className="bg-surface border border-border rounded-gm-xl shadow-card p-8 lg:col-span-2">
+           <div className="flex items-center gap-2 text-success font-bold mb-6 border-b border-border pb-4">
              <Settings size={20} /> <h3 className="uppercase tracking-widest text-sm text-ink">Operations & Capacity</h3>
            </div>
            
            <form onSubmit={handleCapacitySave} className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-             <div className="bg-ink/5 p-6 rounded-2xl border border-ink/5">
+             <div className="bg-surface-raised p-6 rounded-2xl border border-border">
                 <label className="block font-bold mb-1">Maximum Capacity</label>
-                <p className="text-xs text-ink/40 mb-4">Set the absolute maximum number of members allowed in the facility at once.</p>
-                <input required type="number" min="1" value={capacity.max_capacity} onChange={e => setCapacity({...capacity, max_capacity: e.target.value})} className="w-full max-w-[200px] bg-black border border-ink/20 rounded-xl p-3 text-white text-xl font-bold font-mono focus:border-emerald-500 outline-none" />
+                <p className="text-xs text-ink-muted mb-4">Set the absolute maximum number of members allowed in the facility at once.</p>
+                <input required type="number" min="1" value={capacity.max_capacity} onChange={e => setCapacity({...capacity, max_capacity: e.target.value})} className="w-full max-w-[200px] bg-surface border border-border-strong rounded-xl p-3 text-ink text-xl font-bold font-mono focus:border-success outline-none" />
              </div>
              
-             <div className="bg-ink/5 p-6 rounded-2xl border border-ink/5 flex flex-col justify-between">
+             <div className="bg-surface-raised p-6 rounded-2xl border border-border flex flex-col justify-between">
                 <div>
                    <label className="block font-bold mb-1">24/7 Operations</label>
-                   <p className="text-xs text-ink/40 mb-4">Toggle if your gym is open 24 hours a day, 7 days a week.</p>
+                   <p className="text-xs text-ink-muted mb-4">Toggle if your gym is open 24 hours a day, 7 days a week.</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" checked={capacity.is_24_hours} onChange={e => setCapacity({...capacity, is_24_hours: e.target.checked})} className="w-6 h-6 accent-emerald-500 cursor-pointer" />
-                  <span className="font-bold text-emerald-400">Yes, Gym is 24/7</span>
+                  <span className="font-bold text-success">Yes, Gym is 24/7</span>
                 </label>
              </div>
 
-             <div className="bg-ink/5 p-6 rounded-2xl border border-ink/5 flex flex-col justify-between border-primary/20 bg-primary/5">
+             <div className="bg-surface-raised p-6 rounded-2xl border border-border flex flex-col justify-between border-accent-border bg-accent-soft">
                 <div>
                    <label className="block font-bold mb-1">Performance Stats</label>
-                   <p className="text-xs text-ink/40 mb-4">Show or hide revenue and member count statistics on your dashboard.</p>
+                   <p className="text-xs text-ink-muted mb-4">Show or hide revenue and member count statistics on your dashboard.</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" checked={capacity.show_stats} onChange={e => setCapacity({...capacity, show_stats: e.target.checked})} className="w-6 h-6 accent-primary cursor-pointer" />
-                  <span className="font-bold text-primary">Show Dashboard Stats</span>
+                  <input type="checkbox" checked={capacity.show_stats} onChange={e => setCapacity({...capacity, show_stats: e.target.checked})} className="w-6 h-6 accent-accent cursor-pointer" />
+                  <span className="font-bold text-accent-text">Show Dashboard Stats</span>
                 </label>
              </div>
 
              <div className="sm:col-span-2 flex justify-end">
-                <button type="submit" disabled={isSubmitting} className="btn-primary py-2 px-8 bg-emerald-600 hover:bg-emerald-700 shadow-[0_0_15px_rgba(5,150,105,0.3)] text-sm">{isSubmitting ? <Loader2 size={16} className="animate-spin" /> : 'Save Operational Changes'}</button>
+                <button type="submit" disabled={isSubmitting} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-8 bg-success hover:bg-success shadow-[0_0_15px_rgba(5,150,105,0.3)] text-sm">{isSubmitting ? <Loader2 size={16} className="animate-spin" /> : 'Save Operational Changes'}</button>
              </div>
            </form>
         </section>

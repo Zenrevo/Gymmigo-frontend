@@ -29,11 +29,11 @@ type ReferralLead = {
 const statusOptions = ['all', 'new', 'contacted', 'trial_booked', 'converted', 'lost'];
 
 const statusClasses: Record<string, string> = {
-  new: 'border-primary/30 bg-primary/10 text-primary',
-  contacted: 'border-blue-400/30 bg-blue-400/10 text-blue-200',
-  trial_booked: 'border-amber-400/30 bg-amber-400/10 text-amber-200',
-  converted: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200',
-  lost: 'border-red-400/30 bg-red-400/10 text-red-200',
+  new: 'border-accent-border bg-accent-soft text-accent-text',
+  contacted: 'border-info/30 bg-info-soft text-info',
+  trial_booked: 'border-warning/30 bg-warning-soft text-warning',
+  converted: 'border-success/30 bg-success-soft text-success',
+  lost: 'border-danger/30 bg-danger-soft text-danger',
 };
 
 const formatStatus = (status: string) => status.replaceAll('_', ' ');
@@ -144,18 +144,18 @@ const ReferralLeadsTab = () => {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-ink/10 bg-[linear-gradient(135deg,rgba(241,130,44,0.14),rgba(255,255,255,0.035)_45%,rgba(59,130,246,0.10))] p-6 sm:p-8">
+      <section className="rounded-[2rem] border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.14),rgba(255,255,255,0.035)_45%,rgba(59,130,246,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent-border bg-accent-soft text-accent-text">
                 <UserPlus size={20} />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary">Growth Loop</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-accent-text">Growth Loop</p>
             </div>
             <div>
               <h1 className="text-4xl font-black tracking-tighter text-ink sm:text-5xl">FitCard Referral Leads</h1>
-              <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-ink/45">
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-ink-muted">
                 Members share badges, friends claim trials, and your team gets the lead here.
               </p>
             </div>
@@ -169,12 +169,12 @@ const ReferralLeadsTab = () => {
       </section>
 
       {nextLead && (
-        <section className="rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-5">
+        <section className="rounded-[1.5rem] border border-success/30 bg-success-soft p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-300">Next follow-up</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-success">Next follow-up</p>
               <h2 className="mt-2 truncate text-2xl font-black text-ink">{nextLead.full_name}</h2>
-              <p className="mt-1 text-sm font-semibold text-ink/50">
+              <p className="mt-1 text-sm font-semibold text-ink-muted">
                 {nextLead.status === 'trial_booked' && nextLead.trial_at
                   ? `Trial ${formatDate(nextLead.trial_at)}`
                   : nextLead.status === 'new'
@@ -184,7 +184,7 @@ const ReferralLeadsTab = () => {
             </div>
             <button
               onClick={() => messageLead(nextLead)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-xs font-black uppercase tracking-widest text-black transition hover:brightness-110"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-success px-5 py-3 text-xs font-black uppercase tracking-widest text-on-accent transition hover:brightness-110"
             >
               <MessageCircle size={15} /> WhatsApp
             </button>
@@ -200,8 +200,8 @@ const ReferralLeadsTab = () => {
             className={clsx(
               'shrink-0 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
               status === option
-                ? 'border-primary/50 bg-primary/10 text-primary'
-                : 'border-ink/10 bg-ink/[0.03] text-ink/40 hover:text-ink'
+                ? 'border-accent-border bg-accent-soft text-accent-text'
+                : 'border-border bg-surface-raised text-ink-muted hover:text-ink'
             )}
           >
             {formatStatus(option)}
@@ -210,7 +210,7 @@ const ReferralLeadsTab = () => {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200">
+        <div className="rounded-2xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
           {error}
         </div>
       )}
@@ -223,43 +223,43 @@ const ReferralLeadsTab = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.035 }}
-              className="rounded-[1.5rem] border border-ink/10 bg-ink/[0.04] p-5 transition hover:border-primary/25"
+              className="rounded-[1.5rem] border border-border bg-surface-raised p-5 transition hover:border-accent-border"
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-ink/10 bg-primary/10 text-primary">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-accent-soft text-accent-text">
                     <Users size={22} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
                       <h3 className="text-lg font-black text-ink">{lead.full_name}</h3>
-                      <span className={clsx('rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest', statusClasses[lead.status] || 'border-ink/10 bg-ink/5 text-ink/40')}>
+                      <span className={clsx('rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest', statusClasses[lead.status] || 'border-border bg-surface-raised text-ink-muted')}>
                         {formatStatus(lead.status)}
                       </span>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-4 text-xs font-bold text-ink/45">
-                      <span className="inline-flex items-center gap-1.5"><Phone size={13} className="text-primary" /> {lead.phone}</span>
-                      <span className="inline-flex items-center gap-1.5"><CalendarClock size={13} className="text-primary" /> {formatDate(lead.created_at)}</span>
-                      {lead.referrer?.name && <span className="inline-flex items-center gap-1.5"><MessageCircle size={13} className="text-primary" /> {lead.referrer.name}</span>}
+                    <div className="mt-2 flex flex-wrap gap-4 text-xs font-bold text-ink-muted">
+                      <span className="inline-flex items-center gap-1.5"><Phone size={13} className="text-accent-text" /> {lead.phone}</span>
+                      <span className="inline-flex items-center gap-1.5"><CalendarClock size={13} className="text-accent-text" /> {formatDate(lead.created_at)}</span>
+                      {lead.referrer?.name && <span className="inline-flex items-center gap-1.5"><MessageCircle size={13} className="text-accent-text" /> {lead.referrer.name}</span>}
                     </div>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <a href={`tel:${lead.phone}`} className="rounded-xl border border-ink/10 bg-ink/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-ink transition hover:border-primary/40">
+                  <a href={`tel:${lead.phone}`} className="rounded-xl border border-border bg-surface-raised px-4 py-3 text-xs font-black uppercase tracking-widest text-ink transition hover:border-accent-border">
                     Call
                   </a>
-                  <button onClick={() => messageLead(lead)} className="rounded-xl bg-emerald-500 px-4 py-3 text-xs font-black uppercase tracking-widest text-black transition hover:brightness-110">
+                  <button onClick={() => messageLead(lead)} className="rounded-xl bg-success px-4 py-3 text-xs font-black uppercase tracking-widest text-on-accent transition hover:brightness-110">
                     WhatsApp
                   </button>
                 </div>
               </div>
-              <div className="mt-5 rounded-2xl border border-ink/10 bg-surface-sunken p-4">
+              <div className="mt-5 rounded-2xl border border-border bg-surface-sunken p-4">
                 <textarea
                   value={noteDrafts[lead.id] || ''}
                   onChange={(event) => setNoteDrafts((current) => ({ ...current, [lead.id]: event.target.value }))}
                   placeholder="Add follow-up note"
                   rows={2}
-                  className="w-full resize-none rounded-xl border border-ink/10 bg-ink/[0.04] px-4 py-3 text-sm font-semibold leading-5 text-ink outline-none transition placeholder:text-ink/25 focus:border-primary/45"
+                  className="w-full resize-none rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm font-semibold leading-5 text-ink outline-none transition placeholder:text-ink-subtle focus:border-accent-border"
                 />
                 <div className="mt-3 flex flex-wrap gap-2">
                   <PipelineButton label="Contacted" active={lead.status === 'contacted'} loading={updatingId === lead.id} onClick={() => updateLead(lead, { status: 'contacted', note: noteDrafts[lead.id] || '' })} />
@@ -268,7 +268,7 @@ const ReferralLeadsTab = () => {
                   <PipelineButton label="Lost" danger active={lead.status === 'lost'} loading={updatingId === lead.id} onClick={() => updateLead(lead, { status: 'lost', lost_reason: noteDrafts[lead.id] || 'Not interested right now.' })} />
                 </div>
                 {lead.trial_at && (
-                  <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-amber-300">Trial: {formatDate(lead.trial_at)}</p>
+                  <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-warning">Trial: {formatDate(lead.trial_at)}</p>
                 )}
               </div>
             </motion.article>
@@ -286,8 +286,8 @@ const ReferralLeadsTab = () => {
 };
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="min-w-[92px] rounded-2xl border border-ink/10 bg-surface-sunken p-4">
-    <p className="text-[9px] font-black uppercase tracking-widest text-ink/30">{label}</p>
+  <div className="min-w-[92px] rounded-2xl border border-border bg-surface-sunken p-4">
+    <p className="text-[9px] font-black uppercase tracking-widest text-ink-subtle">{label}</p>
     <p className="mt-1 text-3xl font-black text-ink">{value}</p>
   </div>
 );
@@ -312,10 +312,10 @@ const PipelineButton = ({
     className={clsx(
       'inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-4 text-[10px] font-black uppercase tracking-widest transition disabled:opacity-60',
       active
-        ? 'border-primary bg-primary text-black'
+        ? 'border-accent bg-accent text-on-accent'
         : danger
-        ? 'border-red-400/25 bg-red-400/10 text-red-200 hover:border-red-400/40'
-        : 'border-ink/10 bg-ink/[0.04] text-ink/55 hover:border-primary/30 hover:text-ink'
+        ? 'border-danger/30 bg-danger-soft text-danger hover:border-danger/30'
+        : 'border-border bg-surface-raised text-ink-muted hover:border-accent-border hover:text-ink'
     )}
   >
     {loading ? <CheckCircle2 size={13} /> : null}

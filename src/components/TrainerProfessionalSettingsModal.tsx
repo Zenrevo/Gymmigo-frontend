@@ -87,24 +87,24 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Years of Experience</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Years of Experience</label>
               <input
                 type="number"
                 name="experience_years"
                 value={formData.experience_years}
                 onChange={handleChange}
                 placeholder="e.g. 5"
-                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
               />
             </div>
             
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Level</label>
+              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Level</label>
               <select
                 name="experience_level"
                 value={formData.experience_level}
                 onChange={handleChange}
-                className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink appearance-none cursor-pointer"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink appearance-none cursor-pointer"
               >
                 <option value="beginner" className="bg-surface">Beginner</option>
                 <option value="intermediate" className="bg-surface">Intermediate</option>
@@ -115,35 +115,35 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
           </div>
 
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Languages Spoken</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Languages Spoken</label>
             <input
               type="text"
               name="languages_spoken"
               value={formData.languages_spoken}
               onChange={handleChange}
               placeholder="English, Hindi, Marathi (comma separated)"
-              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink/40 uppercase mb-2">Brief Bio</label>
+            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Brief Bio</label>
             <textarea
               name="bio"
               value={formData.bio}
               onChange={handleChange}
               placeholder="Tell clients about your methodology and approach..."
               rows={4}
-              className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-ink placeholder:text-ink-subtle resize-none"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle resize-none"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4 border-t border-ink/10">
+          <div className="flex gap-4 pt-4 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-4 bg-ink/5 border border-ink/10 text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-ink/10 transition-colors"
+              className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
             >
               Cancel
             </button>
@@ -153,8 +153,8 @@ export default function TrainerProfessionalSettingsModal({ isOpen, onClose, onSu
               className={clsx(
                 "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
                 saving 
-                  ? "bg-primary/50 text-black/50 cursor-not-allowed" 
-                  : "bg-primary text-black hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                  ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
+                  : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
               )}
             >
               {saving ? (
