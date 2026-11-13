@@ -116,17 +116,17 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
                  : 'Titan Elite';
 
   const glowColor = currentTier <= 2 ? 'shadow-[#f1822c]/20 border-[#f1822c]/40'
-                  : currentTier <= 4 ? 'shadow-amber-500/20 border-amber-500/40'
-                  : 'shadow-cyan-500/20 border-cyan-500/40';
+                  : currentTier <= 4 ? 'shadow-amber-500/20 border-warning/30'
+                  : 'shadow-cyan-500/20 border-info/30';
 
   const tierTagColor = currentTier <= 2 ? 'bg-[#f1822c]/15 text-[#f1822c] border-[#f1822c]/30'
-                     : currentTier <= 4 ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
-                     : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
+                     : currentTier <= 4 ? 'bg-warning-soft text-warning border-warning/30'
+                     : 'bg-info-soft text-info border-info/30';
 
   if (loading) {
     return (
       <div className="w-full flex flex-col items-center justify-center p-8 bg-surface/40 rounded-3xl border border-ink/5 animate-pulse min-h-[300px]">
-        <RefreshCw className="animate-spin text-primary/50 mb-3" size={24} />
+        <RefreshCw className="animate-spin text-accent-text mb-3" size={24} />
         <span className="text-xs text-ink/30 tracking-widest font-black uppercase">FUSING HOLOGRAPHIC LAYERS...</span>
       </div>
     );
@@ -142,15 +142,16 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
       >
         <motion.div
           ref={cardRef}
+          data-theme="dark"
           style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
           className={clsx(
             "relative w-full aspect-[1.58/1] rounded-[24px] overflow-hidden border p-5 sm:p-6 shadow-2xl flex flex-col justify-between transition-shadow duration-300 group select-none cursor-pointer",
             glowColor,
-            "bg-gradient-to-br from-background via-background/90 to-background"
+            "bg-signature text-ink"
           )}
         >
           {/* Holographic background gradients & animations */}
-          <div className="absolute inset-0 opacity-40 mix-blend-color-dodge bg-gradient-to-tr from-primary via-indigo-500/30 to-cyan-400/50 pointer-events-none group-hover:opacity-60 transition-opacity duration-500" />
+          <div className="absolute inset-0 opacity-40 mix-blend-color-dodge bg-gradient-to-tr from-accent-soft via-indigo-500/30 to-info-soft pointer-events-none group-hover:opacity-60 transition-opacity duration-500" />
           
           {/* Holographic Scanlines */}
           <div className="absolute inset-0 opacity-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_4px,3px_100%] pointer-events-none" />
@@ -189,9 +190,9 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
           {/* Card Top Row */}
           <div className="flex justify-between items-start z-10" style={{ transform: "translateZ(30px)" }}>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-orange-500/10" />
-                <Zap size={18} className="animate-pulse text-primary relative z-10" />
+              <div className="w-9 h-9 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-accent-text relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-tr from-accent-soft to-warning-soft" />
+                <Zap size={18} className="animate-pulse text-accent-text relative z-10" />
               </div>
               <div>
                 <div className="text-[8px] font-black uppercase tracking-[0.2em] text-ink/30 leading-none">Fitness Card</div>
@@ -216,16 +217,16 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
 
             {/* Points Stat */}
             <div className="flex flex-col items-center bg-ink/[0.03] border border-ink/5 rounded-2xl py-2 px-1 text-center relative overflow-hidden group/stat">
-              <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover/stat:opacity-100 transition-opacity" />
-              <Trophy size={18} className="text-amber-400 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
+              <div className="absolute inset-0 bg-warning-soft opacity-0 group-hover/stat:opacity-100 transition-opacity" />
+              <Trophy size={18} className="text-warning filter drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
               <span className="text-lg font-display font-black mt-1 text-ink leading-none">{totalPoints}</span>
               <span className="text-[8px] font-black text-ink/40 uppercase tracking-widest mt-1">Points</span>
             </div>
 
             {/* Check-ins Stat */}
             <div className="flex flex-col items-center bg-ink/[0.03] border border-ink/5 rounded-2xl py-2 px-1 text-center relative overflow-hidden group/stat">
-              <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover/stat:opacity-100 transition-opacity" />
-              <CalendarCheck size={18} className="text-cyan-400 filter drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]" />
+              <div className="absolute inset-0 bg-info-soft opacity-0 group-hover/stat:opacity-100 transition-opacity" />
+              <CalendarCheck size={18} className="text-info filter drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]" />
               <span className="text-lg font-display font-black mt-1 text-ink leading-none">{totalCheckIns}</span>
               <span className="text-[8px] font-black text-ink/40 uppercase tracking-widest mt-1">Check-ins</span>
             </div>
@@ -238,7 +239,7 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
                 {user?.avatar_url ? (
                   <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-xs font-black text-primary">{displayName[0]}</span>
+                  <span className="text-xs font-black text-accent-text">{displayName[0]}</span>
                 )}
               </div>
               <div className="min-w-0">
@@ -246,7 +247,7 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
                   {displayName}
                 </div>
                 <div className="text-[8px] font-black text-ink/45 uppercase tracking-widest mt-0.5 flex items-center gap-1">
-                  <ShieldCheck size={10} className="text-emerald-400" /> Fitness ID {cardCode}
+                  <ShieldCheck size={10} className="text-success" /> Fitness ID {cardCode}
                 </div>
               </div>
             </div>
@@ -266,12 +267,12 @@ export default function PremiumFitCard({ compact = false }: PremiumFitCardProps)
             onClick={handleCopyLink}
             className="flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-ink/5 border border-ink/10 text-ink hover:bg-ink/10 hover:border-ink/20 active:scale-95 transition-all text-xs font-display font-black uppercase tracking-widest"
           >
-            <Share2 size={15} className="text-primary" />
+            <Share2 size={15} className="text-accent-text" />
             {isCopied ? 'COPIED!' : 'SHARE LINK'}
           </button>
           <button
             onClick={fetchCardData}
-            className="flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-primary text-black hover:brightness-110 active:scale-95 transition-all text-xs font-display font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+            className="flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-accent text-on-accent hover:brightness-110 active:scale-95 transition-all text-xs font-display font-black uppercase tracking-widest shadow-lg shadow-accent/10"
           >
             <RefreshCw size={15} />
             SYNC STATS

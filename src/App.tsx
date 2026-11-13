@@ -123,7 +123,7 @@ const AppRoutes = () => (
       <Route path="devices" element={<WatchGuidePage />} />
       <Route path="memberships" element={<MyMembershipsPage />} />
       <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
-      <Route path="clubs" element={<L><GymmigoClubsPage /></L>} />
+      <Route path="clubs" element={<GymmigoClubsPage />} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
       {activityRoutes}

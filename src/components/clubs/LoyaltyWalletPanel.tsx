@@ -69,24 +69,24 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
   return (
     <section
       className={clsx(
-        'rounded-lg border border-emerald-300/20 bg-gradient-to-r from-emerald-500/10 via-background/80 to-background/80 p-4 sm:p-5',
+        'rounded-lg border border-success/30 bg-gradient-to-r from-success-soft via-background/80 to-background/80 p-4 sm:p-5',
         className
       )}
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-emerald-300/25 bg-emerald-400/15 text-emerald-200">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-success/30 bg-success-soft text-success">
               <Wallet size={20} />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-emerald-200/70">Gymmigo loyalty wallet</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-success">Gymmigo loyalty wallet</p>
               {loading ? (
                 <p className="mt-2 text-sm font-semibold text-ink/45">Loading balance…</p>
               ) : (
                 <>
                   <p className="mt-1 flex items-center gap-1 text-2xl font-black text-ink">
-                    <IndianRupee size={22} className="text-emerald-300" />
+                    <IndianRupee size={22} className="text-success" />
                     {wallet.balance_inr.toLocaleString('en-IN')}
                     <span className="text-sm font-bold text-ink/40">cash balance</span>
                   </p>
@@ -103,7 +103,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
               href={SHOP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-emerald-300/25 bg-emerald-400 px-3 py-2 text-[10px] font-black uppercase text-black transition hover:brightness-110"
+              className="inline-flex items-center gap-2 rounded-lg border border-success/30 bg-success px-3 py-2 text-[10px] font-black uppercase text-on-accent transition hover:brightness-110"
             >
               <ShoppingBag size={14} /> Shop
             </a>
@@ -111,7 +111,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
               type="button"
               onClick={() => void loadWallet()}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-2 text-[10px] font-black uppercase text-white/55 hover:border-emerald-300/30 hover:text-emerald-100 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-2 text-[10px] font-black uppercase text-ink-muted hover:border-success/30 hover:text-success disabled:opacity-50"
             >
               <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
             </button>
@@ -119,13 +119,13 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
         </div>
 
         {notice && (
-          <p className="rounded-lg border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-emerald-100">
+          <p className="rounded-lg border border-success/30 bg-success-soft px-3 py-2 text-sm font-bold text-success">
             {notice}
           </p>
         )}
 
         {error && (
-          <p className="rounded-lg border border-amber-400/25 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-100">
+          <p className="rounded-lg border border-warning/30 bg-warning-soft px-3 py-2 text-xs font-semibold text-warning">
             {error}. If this persists, the wallet database migration may need to run on the server.
           </p>
         )}
@@ -135,7 +135,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
           {loading ? (
             <p className="mt-3 text-xs font-semibold text-ink/40">Loading…</p>
           ) : transactions.length === 0 ? (
-            <p className="mt-3 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-3 text-xs font-semibold text-white/45">
+            <p className="mt-3 rounded-lg border border-ink/10 bg-surface-sunken px-3 py-3 text-xs font-semibold text-ink-muted">
               No credits yet. Unlock a club tier and tap <strong className="text-ink/70">Claim reward</strong> to add ₹ cash here.
             </p>
           ) : (
@@ -153,7 +153,7 @@ export default function LoyaltyWalletPanel({ refreshKey = 0, notice, className }
                     <p
                       className={clsx(
                         'text-sm font-black',
-                        tx.direction === 'credit' ? 'text-emerald-300' : 'text-red-300'
+                        tx.direction === 'credit' ? 'text-success' : 'text-danger'
                       )}
                     >
                       {tx.direction === 'credit' ? '+' : '−'}₹{tx.amount_inr.toLocaleString('en-IN')}
