@@ -5,11 +5,11 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#131315" />
+    <meta name="theme-color" content="#F1F1F3" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Gymmigo | powered by Zenrevo</title>
+    <title>Gymmigo: gyms, runs and an AI coach in one app</title>
     <meta name="google-site-verification" content="YdyX_6hOk44soE0-Ihyn7oNJn44Ds7pdr4D7uloScds" />
 
     <!-- Obsidian Kinetic type: Epilogue (headlines) + Inter (UI), same as the mobile app. -->
@@ -17,20 +17,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <meta name="description" content="Gymmigo - Find gyms, track runs, run together and train with Migo, your AI coach. Powered by Zenrevo." />
+    <meta name="description" content="Find a gym near you, check in with QR, follow training plans you approve, and run with friends on a live map. Free for members." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Gymmigo" />
+    <meta property="og:title" content="Gymmigo: gyms, runs and an AI coach in one app" />
+    <meta property="og:description" content="Find a gym near you, check in with QR, follow training plans you approve, and run with friends on a live map." />
+    <meta property="og:image" content="https://gymmigo.in/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://gymmigo.in/og-image.png" />
 
     <!-- Apply the saved theme before first paint (no light/dark flash). Mirrors ThemeProvider. -->
     <script>
       (function () {
         try {
-          var pref = localStorage.getItem('gymmigo_theme') || 'system';
+          var pref = localStorage.getItem('gymmigo_theme') || 'light';
           var dark = pref === 'dark' || (pref !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           var scheme = dark ? 'dark' : 'light';
           document.documentElement.setAttribute('data-theme', scheme);
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute('content', dark ? '#131315' : '#F1F1F3');
         } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.setAttribute('data-theme', 'light');
         }
       })();
     </script>

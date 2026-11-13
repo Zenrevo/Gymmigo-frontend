@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { applyScheme, parsePreference, readPreference, resolveScheme, THEME_COLOR, THEME_STORAGE_KEY } from './theme';
 
 describe('theme resolution', () => {
-  it('parses stored preferences and falls back to system', () => {
+  it('parses stored preferences and falls back to light', () => {
     expect(parsePreference('dark')).toBe('dark');
     expect(parsePreference('light')).toBe('light');
     expect(parsePreference('system')).toBe('system');
-    expect(parsePreference('neon')).toBe('system');
-    expect(parsePreference(null)).toBe('system');
+    expect(parsePreference('neon')).toBe('light');
+    expect(parsePreference(null)).toBe('light');
   });
 
   it('resolves system against the OS setting and honours explicit choices', () => {
@@ -19,14 +19,14 @@ describe('theme resolution', () => {
 
   it('reads from storage and survives a throwing or missing storage', () => {
     expect(readPreference({ getItem: k => (k === THEME_STORAGE_KEY ? 'light' : null) })).toBe('light');
-    expect(readPreference(undefined)).toBe('system');
+    expect(readPreference(undefined)).toBe('light');
     expect(
       readPreference({
         getItem: () => {
           throw new Error('blocked');
         },
       }),
-    ).toBe('system');
+    ).toBe('light');
   });
 
   it('applies data-theme and meta theme-color', () => {
