@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
-import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock } from 'lucide-react';
+import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download, Maximize2, Clock, Megaphone, IndianRupee, Layers, Trophy, BarChart3, Settings, CalendarClock, Image as ImageIcon, Wifi, Dumbbell, UserCog, ChevronRight, type LucideIcon } from 'lucide-react';
 import api from '../../../utils/api';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -304,8 +304,66 @@ const OverviewTab = () => {
           </button>
         </div>
       </Sheet>
+      <ToolGroups base={`/app/gym-owner/gyms/${gymId}`} />
     </div>
   );
 };
 
 export default OverviewTab;
+
+
+type Tool = { to: string; label: string; hint: string; icon: LucideIcon };
+
+/** The app's GymHub tool groups, as quick links to each section. */
+const GROUPS: { title: string; tools: Tool[] }[] = [
+  { title: 'Operate', tools: [
+    { to: 'members', label: 'Members', hint: 'Enroll and renew', icon: Users },
+    { to: 'leads', label: 'Leads', hint: 'Trial requests', icon: Megaphone },
+  ] },
+  { title: 'Money', tools: [
+    { to: 'finance', label: 'Finance', hint: 'Invoices and costs', icon: IndianRupee },
+    { to: 'plans', label: 'Plans', hint: 'Plans and add-ons', icon: Layers },
+  ] },
+  { title: 'Growth', tools: [
+    { to: 'clubs', label: 'Clubs', hint: 'Retention ladder', icon: Trophy },
+    { to: 'reviews', label: 'Reviews', hint: 'Member ratings', icon: Star },
+    { to: 'stats', label: 'Stats', hint: 'Traffic trends', icon: BarChart3 },
+  ] },
+  { title: 'Gym profile', tools: [
+    { to: 'settings', label: 'Settings', hint: 'Info and location', icon: Settings },
+    { to: 'schedule', label: 'Schedule', hint: 'Hours and rush', icon: CalendarClock },
+    { to: 'gallery', label: 'Gallery', hint: 'Photos', icon: ImageIcon },
+    { to: 'amenities', label: 'Amenities', hint: 'Wi-Fi, lockers…', icon: Wifi },
+    { to: 'equipment', label: 'Equipment', hint: 'Machines', icon: Dumbbell },
+  ] },
+  { title: 'Admin', tools: [{ to: 'team', label: 'Team', hint: 'Managers', icon: UserCog }] },
+];
+
+function ToolGroups({ base }: { base: string }) {
+  return (
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {GROUPS.map(group => (
+        <section key={group.title} className="space-y-2">
+          <h2 className="t-label text-ink-subtle">{group.title}</h2>
+          <div className="overflow-hidden rounded-gm-xl border border-border bg-surface shadow-card">
+            {group.tools.map((tool, i) => (
+              <Link
+                key={tool.to}
+                to={`${base}/${tool.to}`}
+                className={clsx('flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-raised', i > 0 && 'border-t border-border')}>
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-gm-md bg-accent-soft text-accent-text">
+                  <tool.icon size={18} aria-hidden />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="t-subtitle block text-ink">{tool.label}</span>
+                  <span className="t-caption block text-ink-subtle">{tool.hint}</span>
+                </span>
+                <ChevronRight size={16} className="text-ink-subtle" aria-hidden />
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}

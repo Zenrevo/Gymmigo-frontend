@@ -4,6 +4,8 @@ import { PageHeader, SegmentedControl } from '../../components/kit';
 import { useAuth } from '../../context/AuthContext';
 import { Legacy } from '../../layouts/LegacyTheme';
 import Dashboard from '../Dashboard/Dashboard';
+import TrainerDashboard from '../Dashboard/TrainerDashboard';
+import OwnerHome from '../Owner/OwnerHome';
 import GymHome from './GymHome';
 import SportsHome from './SportsHome';
 import { HOME_MODE_KEY, readHomeMode, type HomeMode } from './homeMode';
@@ -41,6 +43,8 @@ function MemberHome() {
 export default function HomePage() {
   const { user } = useAuth();
   if (user?.active_role === 'user') return <MemberHome />;
+  if (user?.active_role === 'gym_owner' || user?.active_role === 'gym_manager') return <OwnerHome />;
+  if (user?.active_role === 'trainer') return <TrainerDashboard />;
   return (
     <Legacy>
       <Dashboard />

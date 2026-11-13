@@ -24,6 +24,7 @@ import {
   Users,
   Zap,
   type LucideIcon,
+  Wifi,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -132,6 +133,7 @@ export function gymNav(gymId: string): NavItem[] {
     l('reviews', 'Reviews', Star),
     l('gallery', 'Gallery', Image),
     l('equipment', 'Equipment', Dumbbell),
+    l('amenities', 'Amenities', Wifi),
     l('settings', 'Settings', Settings),
   ];
 }

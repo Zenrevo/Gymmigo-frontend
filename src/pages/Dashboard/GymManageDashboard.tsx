@@ -1,39 +1,37 @@
-import { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
-import { 
-  Building2, ArrowLeft, Users, Dumbbell, 
-  TrendingUp, Star, Settings, Image as ImageIcon,
-  Clock, Wifi, CreditCard, ChevronRight, Menu, X, AlertCircle, Activity, Shield, AlertTriangle, UserPlus, Trophy
+import { useEffect } from 'react';
+import { Outlet, useLocation, NavLink, Link } from 'react-router-dom';
+import {
+  ArrowLeft, Users, Dumbbell, LayoutDashboard, Star, Settings, Image as ImageIcon,
+  CalendarDays, Wifi, Tags, IndianRupee, BarChart3, Shield, AlertTriangle, UserPlus, Trophy, Building2,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import PageLoader from '../../components/PageLoader';
+import { Badge, Button, ErrorState, Skeleton, Text } from '../../components/kit';
+import { gymWarning } from '../Owner/ownerFormat';
 import { useGym } from '../../context/GymContext';
 import clsx from 'clsx';
 import { useNotification } from '../../context/NotificationContext';
 import { API_URL } from '../../utils/api';
 
-const navItems = [
-  { id: '', name: 'Overview', icon: TrendingUp },
+/** Same sections, order and labels as the owner sidebar (layouts/navConfig gymNav). */
+const sections = [
+  { id: '', name: 'Dashboard', icon: LayoutDashboard },
   { id: 'members', name: 'Members', icon: Users },
+  { id: 'plans', name: 'Plans', icon: Tags },
+  { id: 'schedule', name: 'Schedule', icon: CalendarDays },
+  { id: 'finance', name: 'Finance', icon: IndianRupee },
+  { id: 'stats', name: 'Stats', icon: BarChart3 },
   { id: 'clubs', name: 'Clubs', icon: Trophy },
   { id: 'leads', name: 'Leads', icon: UserPlus },
-  { id: 'plans', name: 'Plans', icon: CreditCard },
-  { id: 'equipment', name: 'Equipment', icon: Dumbbell },
-  { id: 'schedule', name: 'Schedule', icon: Clock },
-  { id: 'amenities', name: 'Amenities', icon: Wifi },
-  { id: 'gallery', name: 'Gallery', icon: ImageIcon },
+  { id: 'team', name: 'Team', icon: Shield },
   { id: 'reviews', name: 'Reviews', icon: Star },
-  { id: 'finance', name: 'Finance', icon: TrendingUp },
-  { id: 'stats', name: 'Stats', icon: Activity },
-  { id: 'team', name: 'Team', icon: Users },
+  { id: 'gallery', name: 'Gallery', icon: ImageIcon },
+  { id: 'equipment', name: 'Equipment', icon: Dumbbell },
+  { id: 'amenities', name: 'Amenities', icon: Wifi },
   { id: 'settings', name: 'Settings', icon: Settings },
 ];
 
 const GymManageDashboard = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { gym, loading, error, gymId } = useGym();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { gym, loading, error, gymId, refetch } = useGym();
   const { showNotification } = useNotification();
 
   // ── Global WebSockets for Live Updates ─────────────────────────────────────
@@ -82,124 +80,89 @@ const GymManageDashboard = () => {
     };
   }, [gymId, showNotification]);
 
-  // Helper to determine active tab based on URL path
-  // Since we are at /app/gym-owner/gyms/:gymId, the last segment is the tab
-  const segments = location.pathname.split('/');
-  const lastSegment = segments[segments.length - 1];
-  const activeTab = lastSegment === gymId ? '' : lastSegment;
+  const base = `/app/gym-owner/gyms/${gymId}`;
+  const current = sections.find(sec => sec.id && location.pathname.startsWith(`${base}/${sec.id}`)) ?? sections[0];
 
-  if (loading) return <PageLoader message="Synchronizing control center..." />;
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-20 rounded-gm-xl" />
+        <Skeleton className="h-64 rounded-gm-xl" />
+      </div>
+    );
+  }
 
-  if (error || !gym) return (
-    <div className="text-center p-20 space-y-4">
-      <AlertCircle className="mx-auto text-danger" size={48} />
-      <h2 className="text-2xl font-bold">Gym Not Found</h2>
-      <p className="text-ink-muted">{error || "Could not load gym details."}</p>
-      <button onClick={() => navigate('/app/dashboard')} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 px-6 py-2 mt-4">Back to Dashboard</button>
-    </div>
-  );
+  if (error || !gym) {
+    return (
+      <div className="space-y-4 py-10">
+        <ErrorState title="Gym not found" message="It may have been removed, or you no longer manage it." onRetry={refetch ? () => refetch() : undefined} />
+        <div className="flex justify-center">
+          <Button label="Back to portfolio" variant="secondary" icon={ArrowLeft} to="/app/dashboard" />
+        </div>
+      </div>
+    );
+  }
+
+  const warning = gymWarning(gym);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-100px)] gap-8">
-      {/* Mobile Top Header (only visible on small screens) */}
-      <div className="md:hidden flex items-center justify-between mb-4 bg-surface border border-border rounded-gm-xl shadow-card p-4">
-        <div className="flex items-center gap-3">
-          <Link to="/app/dashboard" className="text-ink-muted hover:text-ink">
-            <ArrowLeft size={20} />
-          </Link>
-          <h2 className="font-bold text-lg truncate max-w-[200px] uppercase ">{gym.gym.name}</h2>
+    <div className="space-y-5">
+      <header className="flex flex-wrap items-center gap-3 md:gap-4">
+        <Link
+          to="/app/dashboard"
+          aria-label="Back to portfolio"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-gm-md border border-border bg-surface text-ink transition-colors hover:bg-surface-raised">
+          <ArrowLeft size={18} aria-hidden />
+        </Link>
+        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-gm-lg bg-surface-sunken">
+          {gym.logo_url ? (
+            <img src={gym.logo_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-accent-text"><Building2 size={22} aria-hidden /></div>
+          )}
         </div>
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 hover:bg-surface-raised rounded-full"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Sidebar Navigation */}
-      <div className={clsx(
-        "md:w-64 shrink-0 flex flex-col gap-2",
-        "fixed md:static inset-0 z-40 bg-overlay md:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 transition-transform duration-300 md:translate-x-0",
-        mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="hidden md:block space-y-6 mb-8">
-          <Link 
-            to="/app/dashboard"
-            className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors group w-fit"
-          >
-            <ArrowLeft size={16} />
-            <span className="text-xs font-bold uppercase tracking-widest">Back to Portfolio</span>
-          </Link>
-          <div className="flex items-center gap-4 border-b border-border pb-6">
-            <div className="w-12 h-12 rounded-xl bg-accent-soft border border-accent-border flex items-center justify-center text-accent-text shrink-0">
-              <Building2 size={24} />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-xl font-display font-extrabold tracking-tight truncate">{gym.gym.name}</h1>
-              <p className="text-[10px] text-ink-muted uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
-              <div className="flex items-center gap-2 mt-2">
-                {gym.gym.is_verified ? (
-                  <span className="text-info text-[8px] font-bold bg-info-soft px-2 py-0.5 rounded-full border border-info/30 uppercase tracking-widest flex items-center gap-1">
-                    <Shield size={8} /> Verified
-                  </span>
-                ) : (
-                  <span className="text-warning text-[8px] font-bold bg-warning-soft px-2 py-0.5 rounded-full border border-warning/30 uppercase tracking-widest flex items-center gap-1">
-                    <AlertTriangle size={8} /> Unverified
-                  </span>
-                )}
-                {gym.gym.is_active ? (
-                  <span className="text-success text-[8px] font-bold bg-success-soft px-2 py-0.5 rounded-full border border-success/30 uppercase tracking-widest">Active</span>
-                ) : (
-                  <span className="text-danger text-[8px] font-bold bg-danger-soft px-2 py-0.5 rounded-full border border-danger/30 uppercase tracking-widest">Inactive</span>
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="min-w-0 flex-1">
+          <Text variant="labelSm" tone="subtle">{current.name === 'Dashboard' ? 'Management dashboard' : current.name}</Text>
+          <Text variant="h2" as="h1" truncate>{gym.name}</Text>
+          <Text variant="caption" tone="subtle" className="font-mono" truncate>ID {String(gym.id).slice(0, 8).toUpperCase()}</Text>
         </div>
-
-        <div className="flex flex-col gap-1 overflow-y-auto custom-scrollbar md:pr-4">
-          <p className="text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-2 px-3">Management</p>
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <Link
-                key={item.id}
-                to={item.id || "."}
-                onClick={() => setMobileMenuOpen(false)}
-                className={clsx(
-                  "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold transition-all group",
-                  isActive 
-                    ? "bg-accent-soft text-accent-text border border-accent-border" 
-                    : "text-ink-muted hover:text-ink hover:bg-surface-raised border border-transparent"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon size={18} className={isActive ? "text-accent-text" : "text-ink-muted group-hover:text-ink"} />
-                  {item.name}
-                </div>
-                {isActive && <ChevronRight size={16} />}
-              </Link>
-            );
-          })}
+        <div className="flex flex-wrap gap-1.5">
+          <Badge label={gym.is_verified ? 'Verified' : 'Unverified'} tone={gym.is_verified ? 'info' : 'warning'} />
+          <Badge label={gym.is_active === false ? 'Inactive' : 'Active'} tone={gym.is_active === false ? 'danger' : 'success'} dot />
         </div>
-      </div>
+      </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 w-full min-w-0">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="pb-24 max-w-5xl mx-auto"
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      {warning ? (
+        <div className="flex items-center gap-2 rounded-gm-lg bg-warning-soft px-4 py-2.5 text-warning">
+          <AlertTriangle size={16} aria-hidden />
+          <Text variant="footnote" className="text-warning">{warning}</Text>
+        </div>
+      ) : null}
+
+      {/* Phones: the sidebar is hidden, so sections scroll here. */}
+      <nav aria-label="Gym sections" className="-mx-4 overflow-x-auto px-4 md:hidden [scrollbar-width:none]">
+        <div className="flex w-max gap-2 pb-1">
+          {sections.map(sec => (
+            <NavLink
+              key={sec.id || 'overview'}
+              to={sec.id ? `${base}/${sec.id}` : base}
+              end={!sec.id}
+              className={({ isActive }) =>
+                clsx(
+                  'inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 t-button-sm transition-colors',
+                  isActive ? 'border-transparent bg-selection text-on-selection' : 'border-border bg-surface text-ink-muted hover:text-ink',
+                )
+              }>
+              <sec.icon size={15} aria-hidden />
+              {sec.name}
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+
+      <main className="min-w-0">
+        <Outlet />
+      </main>
     </div>
   );
 };

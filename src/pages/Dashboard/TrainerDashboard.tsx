@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -46,12 +47,23 @@ interface DashboardData {
 }
 
 type TabType = 'overview' | 'clients' | 'packages' | 'schedule' | 'sessions' | 'bookings' | 'certifications' | 'gallery' | 'reviews' | 'settings';
+const TAB_IDS: TabType[] = ['overview', 'clients', 'packages', 'schedule', 'sessions', 'bookings', 'certifications', 'gallery', 'reviews', 'settings'];
 
 const TrainerDashboard = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get('tab') as TabType | null;
+  const activeTab: TabType = requestedTab && TAB_IDS.includes(requestedTab) ? requestedTab : 'overview';
+  const setActiveTab = useCallback(
+    (tab: TabType) => setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (tab === 'overview') next.delete('tab'); else next.set('tab', tab);
+      return next;
+    }),
+    [setSearchParams],
+  );
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isCertModalOpen, setIsCertModalOpen] = useState(false);
@@ -333,7 +345,7 @@ const TrainerDashboard = () => {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
                 <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight truncate">
-                  {isOnline ? 'YOU\'RE ONLINE' : 'YOU\'RE OFFLINE'}
+                  {isOnline ? 'You’re online' : 'You’re offline'}
                 </h2>
                 {stats?.verification_status === 'verified' && (
                   <span className="text-info text-[8px] font-bold bg-info-soft px-2 py-0.5 rounded-full border border-info/30 uppercase tracking-widest flex items-center gap-1 shrink-0">
@@ -372,22 +384,22 @@ const TrainerDashboard = () => {
               <span className="flex items-center justify-center gap-2">
                 <Activity size={16} className="animate-spin" /> ...
               </span>
-            ) : isOnline ? 'GO OFFLINE' : 'GO ONLINE'}
+            ) : isOnline ? 'Go offline' : 'Go online'}
           </button>
         </div>
       </div>
 
       {/* ── Tabs Navigation ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div role="tablist" aria-label="Trainer sections" className="flex items-center gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
-              "flex items-center gap-2 px-5 py-3 rounded-gm-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
+              "inline-flex h-9 items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 t-button-sm transition-colors",
               activeTab === tab.id
-                ? "bg-accent text-on-accent shadow-lg shadow-raised"
-                : "bg-surface-raised border border-border text-ink-muted hover:bg-surface-sunken hover:text-ink"
+                ? "border-transparent bg-selection text-on-selection"
+                : "border-border bg-surface text-ink-muted hover:text-ink"
             )}
           >
             <tab.icon size={16} />

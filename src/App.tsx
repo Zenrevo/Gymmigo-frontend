@@ -129,8 +129,8 @@ const AppRoutes = () => (
       {activityRoutes}
       {runTogetherRoutes}
       <Route path="coming-soon" element={<L><ComingSoon /></L>} />
-      <Route path="gym-owner/add-gym" element={<L><AddGymPage /></L>} />
-      <Route path="gym-owner/gyms/:gymId" element={<GymProvider><L><GymManageDashboard /></L></GymProvider>}>
+      <Route path="gym-owner/add-gym" element={<AddGymPage />} />
+      <Route path="gym-owner/gyms/:gymId" element={<GymProvider><GymManageDashboard /></GymProvider>}>
         <Route index element={<OverviewTab />} />
         <Route path="members" element={<MembersTab />} />
         <Route path="clubs" element={<ClubsTab />} />
