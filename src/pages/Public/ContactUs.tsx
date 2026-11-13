@@ -1,9 +1,17 @@
 import { type FormEvent, useState } from 'react';
-import { Mail, MapPin, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
-import { PublicSiteFrame, buildEmailUrl } from './PublicSiteFrame';
+import { Mail, MessageCircle } from 'lucide-react';
+import { Container, Eyebrow } from '../../components/marketing/Site';
+import { Reveal } from '../../components/marketing/Motion';
+import { usePageMeta } from '../../components/marketing/usePageMeta';
+import { PublicSiteFrame } from './PublicSiteFrame';
+import { buildEmailUrl } from './publicLinks';
 import { CONTACT_EMAIL } from './publicSiteContent';
 
+const field =
+  'w-full rounded-xl border border-border bg-background px-4 py-3.5 text-[15px] text-ink placeholder:text-ink-subtle outline-none transition-colors focus:border-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent';
+
 export default function ContactUs() {
+  usePageMeta({ title: 'Contact Gymmigo', description: 'Reach the Gymmigo team on WhatsApp or email for gym listings, trainer access, pricing or support.' });
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
@@ -23,85 +31,60 @@ export default function ContactUs() {
 
   return (
     <PublicSiteFrame active="contact">
-      {(actions) => (
-        <>
-          <section className="border-b border-border bg-surface-sunken pt-32">
-            <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-20 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <p className="text-[11px] font-black uppercase tracking-[0.35em] text-primary">Contact</p>
-                  <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-ink sm:text-6xl lg:text-7xl">
-                    Talk to Gymmigo on WhatsApp first.
-                  </h1>
-                  <p className="max-w-2xl text-base font-semibold leading-7 text-ink-subtle sm:text-lg">
-                    For demos, pricing, setup, members, trainers, owners, shop, or support, WhatsApp is the fastest path. Email remains available for formal queries.
-                  </p>
+      {actions => (
+        <section className="pb-24 pt-14 sm:pt-20">
+          <Container className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr]">
+            <Reveal>
+              <Eyebrow>Contact</Eyebrow>
+              <h1 className="mt-4 font-display text-[40px] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[56px]">Talk to a person.</h1>
+              <p className="mt-5 max-w-lg text-[18px] leading-8 text-ink-muted">
+                WhatsApp is the quickest way to reach us, whether you run a gym, coach clients or need help with your account. We reply on working days.
+              </p>
+              <dl className="mt-10 divide-y divide-border border-y border-border">
+                <div className="flex items-center justify-between gap-6 py-5">
+                  <dt className="flex items-center gap-3 text-[15px] text-ink-subtle"><MessageCircle size={18} aria-hidden /> WhatsApp</dt>
+                  <dd>
+                    <button type="button" onClick={() => actions.openLead('general', 'contact page')} className="text-[15px] font-semibold text-ink underline decoration-border-strong underline-offset-4 hover:decoration-ink">
+                      +91 72082 21615
+                    </button>
+                  </dd>
                 </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button type="button" onClick={() => actions.openLead('general', 'contact page')} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
-                    Open WhatsApp <MessageCircle size={17} />
-                  </button>
-                  <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted hover:text-ink">
-                    Email us <Mail size={17} />
-                  </a>
+                <div className="flex items-center justify-between gap-6 py-5">
+                  <dt className="flex items-center gap-3 text-[15px] text-ink-subtle"><Mail size={18} aria-hidden /> Email</dt>
+                  <dd><a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-[15px] font-semibold text-ink underline decoration-border-strong underline-offset-4 hover:decoration-ink">{CONTACT_EMAIL}</a></dd>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  {[
-                    ['WhatsApp', '+91 72082 21615', MessageCircle],
-                    ['Email', CONTACT_EMAIL, Mail],
-                    ['Parent', 'Zenrevo', ShieldCheck],
-                  ].map(([label, value, Icon]) => (
-                    <div key={label as string} className="rounded-xl border border-border bg-white/[0.045] p-5">
-                      <Icon className="text-primary" size={22} />
-                      <p className="mt-4 text-[10px] font-black uppercase tracking-[0.24em] text-ink-subtle/70">{label as string}</p>
-                      <p className="mt-2 break-words text-sm font-black text-ink">{value as string}</p>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between gap-6 py-5">
+                  <dt className="text-[15px] text-ink-subtle">Company</dt>
+                  <dd className="text-[15px] font-semibold">Zenrevo, India</dd>
                 </div>
-              </div>
+              </dl>
+            </Reveal>
 
-              <div className="rounded-xl border border-border bg-white/[0.045] p-6 sm:p-8">
-                <div className="mb-6 flex items-start gap-4 rounded-lg border border-primary/20 bg-primary/10 p-5">
-                  <Sparkles className="shrink-0 text-primary" size={26} />
-                  <div>
-                    <h2 className="text-xl font-black text-ink">Prefer email?</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-ink-subtle">
-                      This form opens your email app with a prepared message. It does not submit to a backend.
-                    </p>
-                  </div>
+            <Reveal delay={0.08} className="rounded-3xl border border-border bg-surface p-7 sm:p-10">
+              <h2 className="font-display text-[24px] font-bold tracking-[-0.02em]">Write to us</h2>
+              <p className="mt-2 text-[15px] leading-6 text-ink-subtle">This opens your email app with the message ready to send.</p>
+              <form onSubmit={submitEmail} className="mt-7 space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-1.5 block text-[13px] font-medium text-ink-muted">Name</span>
+                    <input value={name} onChange={e => setName(e.target.value)} autoComplete="name" className={field} />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1.5 block text-[13px] font-medium text-ink-muted">Phone</span>
+                    <input value={phone} onChange={e => setPhone(e.target.value)} type="tel" autoComplete="tel" className={field} />
+                  </label>
                 </div>
-                <form onSubmit={submitEmail} className="space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="rounded-lg border border-border bg-surface-sunken px-4 py-4 text-sm outline-none focus:border-primary/60" />
-                    <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" className="rounded-lg border border-border bg-surface-sunken px-4 py-4 text-sm outline-none focus:border-primary/60" />
-                  </div>
-                  <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={6} placeholder="Tell us what you want to build with Gymmigo..." className="w-full resize-none rounded-lg border border-border bg-surface-sunken px-4 py-4 text-sm outline-none focus:border-primary/60" />
-                  <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
-                    Open email draft <Mail size={17} />
-                  </button>
-                </form>
-              </div>
-            </div>
-          </section>
-
-          <section className="py-20">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  ['For gym owners', 'Ask for demo, import workflows, QR setup, Club Road, pricing, or multi-gym rollout.'],
-                  ['For members', 'Ask about gym discovery, trainer bookings, wallet, shop, rewards, or Migo AI.'],
-                  ['For trainers', 'Ask about profile setup, packages, certifications, bookings, and session management.'],
-                ].map(([title, desc]) => (
-                  <div key={title} className="rounded-xl border border-border bg-white/[0.045] p-6">
-                    <MapPin className="text-primary" size={23} />
-                    <h3 className="mt-5 text-xl font-black text-ink">{title}</h3>
-                    <p className="mt-3 text-sm font-semibold leading-6 text-ink-subtle">{desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </>
+                <label className="block">
+                  <span className="mb-1.5 block text-[13px] font-medium text-ink-muted">Message</span>
+                  <textarea value={message} onChange={e => setMessage(e.target.value)} rows={6} placeholder="For example: I run a gym in Pune with about 300 members." className={`${field} resize-none`} />
+                </label>
+                <button type="submit" className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-ink text-[15px] font-semibold text-background transition-opacity hover:opacity-90">
+                  Open email draft <Mail size={16} />
+                </button>
+              </form>
+            </Reveal>
+          </Container>
+        </section>
       )}
     </PublicSiteFrame>
   );

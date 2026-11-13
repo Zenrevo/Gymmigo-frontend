@@ -539,6 +539,7 @@ const PublicFitCard = () => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- API payload is untyped here
 const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: string }) => {
   const fitnessId = String(card?.share?.card_code || card?.fitness_card?.card_code || cardCode || '').toUpperCase();
   const qrPayload = card?.share?.qr_payload || `gymmigo:fitness-card:${fitnessId}`;

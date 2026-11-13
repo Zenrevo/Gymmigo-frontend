@@ -1,374 +1,415 @@
-import { type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  Bot,
-  CheckCircle2,
-  Dumbbell,
-  ExternalLink,
-  MessageCircle,
-  PlayCircle,
-  QrCode,
-  ShieldCheck,
-  ShoppingBag,
-  Smartphone,
-  Sparkles,
-} from 'lucide-react';
-import premiumHero from '../../assets/clubs/premium-club-hero.jpg';
-import {
-  FAQBlock,
-  FeatureCard,
-  MetricStrip,
-  PublicSiteFrame,
-  SectionHeader,
-  TrustBand,
-  toneStyles,
-} from './PublicSiteFrame';
-import {
-  PLAY_STORE_URL,
-  SHOP_URL,
-  homeFaqs,
-  platformFlow,
-  productPillars,
-  roleCards,
-  trustStats,
-} from './publicSiteContent';
+import { ArrowRight, Check } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { LaptopFrame, PhoneFrame } from '../../components/marketing/Frames';
+import { Reveal } from '../../components/marketing/Motion';
+import { useParallax } from '../../components/marketing/motionUtils';
+import { RouteLine } from '../../components/marketing/RouteLine';
+import { Shot, type ShotName } from '../../components/marketing/Shot';
+import { Container, Eyebrow, Faq, Heading, StoreButtons } from '../../components/marketing/Site';
+import { usePageMeta } from '../../components/marketing/usePageMeta';
+import { cn } from '../../components/kit/cn';
+import { PublicSiteFrame, type PublicActions } from './PublicSiteFrame';
+import { homeFaqs } from './publicSiteContent';
+
+const STEPS = [
+  { title: 'Find a gym', body: 'Compare passes, facilities and how busy it is right now, for gyms around you.' },
+  { title: 'Check in with QR', body: 'Scan at the front desk. Visits, streaks and club progress update on their own.' },
+  { title: 'Train with a plan you approved', body: 'Migo drafts it, you review it, and only then does it land in your calendar.' },
+  { title: 'Run with friends', body: 'Record runs with GPS and see your friends on the same live map.' },
+];
 
 export default function LandingPage() {
+  usePageMeta({
+    title: 'Gymmigo: gyms, runs and an AI coach in one app',
+    description: 'Find a gym near you, check in with QR, follow training plans you approve, and run with friends on a live map. Free for members.',
+  });
+  return <PublicSiteFrame active="home">{actions => <Landing actions={actions} />}</PublicSiteFrame>;
+}
+
+function Landing({ actions }: { actions: PublicActions }) {
   return (
-    <PublicSiteFrame active="home">
-      {(actions) => (
-        <>
-          <section className="relative min-h-[92svh] overflow-hidden border-b border-border">
-            <img src={premiumHero} alt="Premium Gymmigo fitness facility" className="absolute inset-0 h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,15,29,0.96)_0%,rgba(9,15,29,0.82)_42%,rgba(9,15,29,0.36)_100%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,15,29,0.34)_0%,rgba(9,15,29,0.18)_58%,#0E0E10_100%)]" />
-            <div className="relative mx-auto flex min-h-[92svh] max-w-7xl items-center px-4 pb-20 pt-32 sm:px-6">
-              <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-4xl space-y-8">
-                <div className="inline-flex flex-wrap items-center gap-3 rounded-full border border-border bg-white/[0.08] px-4 py-2 backdrop-blur">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.32em] text-ink-muted">
-                    Gymmigo Fitness Operating System
-                  </span>
-                </div>
-                <div className="space-y-5">
-                  <h1 className="max-w-5xl text-5xl font-black leading-[0.88] tracking-tight text-ink sm:text-7xl lg:text-8xl">
-                    One platform for gyms, trainers, members, rewards, AI, and shop.
-                  </h1>
-                  <p className="max-w-2xl text-lg font-semibold leading-8 text-ink-muted sm:text-xl">
-                    Gymmigo connects the full fitness loop: discover, join, check in, train with Migo AI, book trainers, earn rewards, use wallet value, and shop.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                  <Link to={actions.getStartedPath} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black transition hover:brightness-110">
-                    Get started <ArrowRight size={18} />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => actions.openLead('owner', 'homepage hero demo')}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.08] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink transition hover:border-primary/40"
-                  >
-                    Book demo <MessageCircle size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={actions.openShop}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-300/25 bg-emerald-300/[0.12] px-6 py-4 text-sm font-black uppercase tracking-widest text-emerald-100 transition hover:bg-emerald-300/[0.18]"
-                  >
-                    Shop <ShoppingBag size={18} />
-                  </button>
-                  <Link
-                    to={actions.appLink('/app/discovery')}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-black/25 px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted transition hover:text-ink"
-                  >
-                    Explore gyms <Sparkles size={18} />
-                  </Link>
-                </div>
-                <MetricStrip stats={trustStats} />
-              </motion.div>
-            </div>
-          </section>
-
-          <TrustBand />
-
-          <section className="py-20 sm:py-28">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <SectionHeader
-                eyebrow="Who it serves"
-                title="Three roles. One connected fitness loop."
-                copy="The public site now explains every major role Gymmigo supports and points each audience toward the right conversion path."
-                align="center"
-              />
-              <div className="mt-12 grid gap-5 lg:grid-cols-3">
-                {roleCards.map((role, index) => {
-                  const Icon = role.icon;
-                  const tone = toneStyles[role.tone || 'orange'];
-                  return (
-                    <motion.div
-                      key={role.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.08 }}
-                      viewport={{ once: true }}
-                      className={`rounded-xl border bg-white/[0.045] p-6 transition hover:bg-white/[0.07] ${tone.border}`}
-                    >
-                      <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-lg border ${tone.bg} ${tone.border} ${tone.text}`}>
-                        <Icon size={26} />
-                      </div>
-                      <h3 className="text-2xl font-black text-ink">{role.title}</h3>
-                      <p className="mt-3 min-h-[96px] text-sm font-semibold leading-6 text-ink-subtle">{role.desc}</p>
-                      <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-                        <Link to={role.href} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/[0.07] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-ink-muted transition hover:bg-white/[0.11] hover:text-ink">
-                          {role.cta} <ArrowRight size={15} />
-                        </Link>
-                        <button type="button" onClick={() => actions.openLead(role.leadRole, `${role.title} card`)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/25 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-primary transition hover:bg-primary/10">
-                          WhatsApp
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          <section className="border-y border-border bg-white/[0.025] py-20 sm:py-28">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <SectionHeader
-                eyebrow="Platform flow"
-                title="From discovery to retention."
-                copy="This is the complete Gymmigo operating loop: member activity creates useful context, rewards create motivation, and owners/trainers get operational clarity."
-              />
-              <div className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
-                {platformFlow.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <motion.div
-                      key={item.title}
-                      initial={{ opacity: 0, y: 18 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
-                      viewport={{ once: true }}
-                      className="rounded-xl border border-border bg-background/72 p-5"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="text-[11px] font-black text-primary">{item.step}</span>
-                        <Icon size={20} className="text-ink-subtle" />
-                      </div>
-                      <h3 className="mt-5 text-lg font-black leading-tight text-ink">{item.title}</h3>
-                      <p className="mt-3 text-xs font-semibold leading-5 text-ink-subtle">{item.desc}</p>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          <section className="py-20 sm:py-28">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
-                <SectionHeader
-                  eyebrow="Features"
-                  title="All points covered in one public story."
-                  copy="The feature grid covers members, gym owners, trainers, shop, AI, wallet, finance, CRM, bookings, and legal trust without adding backend scope."
-                />
-                <div className="rounded-xl border border-border bg-white/[0.045] p-5">
-                  <div className="flex items-start gap-4">
-                    <Bot className="shrink-0 text-primary" size={30} />
-                    <div>
-                      <h3 className="text-xl font-black text-ink">Migo AI stays polished.</h3>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-ink-subtle">
-                        The public site explains AI coaching while the app and backend sanitizer keep tool traces out of user-facing messages.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-                {productPillars.map((item) => (
-                  <FeatureCard
-                    key={item.title}
-                    {...item}
-                    onClick={item.detailId ? () => actions.openFeature(item.detailId!) : undefined}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="border-y border-border bg-surface-sunken py-20 sm:py-28">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6">
-              <SectionHeader
-                eyebrow="Product previews"
-                title="A platform that feels connected from every side."
-                copy="Instead of separate marketing claims, each preview maps to an actual dashboard or app area."
-                align="center"
-              />
-              <div className="mt-12 grid gap-5 lg:grid-cols-3">
-                <PreviewPanel
-                  label="Member app"
-                  title="AI score, schedule, clubs, and rewards"
-                  icon={<Smartphone size={24} />}
-                  tone="cyan"
-                  items={['Migo AI workout and diet context', 'Daily fitness score and streaks', 'Club Road, FitCard, wallet, shop']}
-                  action={<Link to="/members" className="text-cyan-200">See members <ArrowRight size={14} /></Link>}
-                />
-                <PreviewPanel
-                  label="Owner console"
-                  title="Members, finance, leads, attendance"
-                  icon={<QrCode size={24} />}
-                  tone="orange"
-                  items={['Member import/export and edits', 'QR check-ins, occupancy, reviews', 'Products, plans, invoices, referrals']}
-                  action={<Link to="/gym-owners" className="text-primary">See owners <ArrowRight size={14} /></Link>}
-                />
-                <PreviewPanel
-                  label="Trainer business"
-                  title="Profile, packages, clients, sessions"
-                  icon={<Dumbbell size={24} />}
-                  tone="emerald"
-                  items={['Certifications, gallery, pricing', 'Bookings and package progress', 'Online, offline, and home visits']}
-                  action={<Link to="/trainers" className="text-emerald-200">See trainers <ArrowRight size={14} /></Link>}
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="py-20 sm:py-28">
-            <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-              <div className="space-y-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.35em] text-emerald-300">Shop and wallet</p>
-                <h2 className="text-4xl font-black leading-tight text-ink sm:text-6xl">
-                  Rewards should lead somewhere useful.
-                </h2>
-                <p className="max-w-xl text-base font-semibold leading-7 text-ink-subtle">
-                  Gymmigo connects Club Road, wallet value, reward claims, and supplement partner offers to a dedicated external shop.
-                </p>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button type="button" onClick={actions.openShop} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-300 px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
-                    Open shop popup <ShoppingBag size={17} />
-                  </button>
-                  <a href={SHOP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted hover:text-ink">
-                    Direct shop <ExternalLink size={17} />
-                  </a>
-                </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {['Wallet balance', 'Lifetime earned value', 'Reward claims', 'Supplement partner offers'].map((item, index) => (
-                  <div key={item} className="rounded-xl border border-emerald-300/20 bg-emerald-300/[0.08] p-6">
-                    <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg border border-emerald-300/25 bg-emerald-300/[0.12] text-emerald-200">
-                      {index === 0 ? <ShoppingBag size={21} /> : index === 1 ? <Sparkles size={21} /> : index === 2 ? <CheckCircle2 size={21} /> : <PlayCircle size={21} />}
-                    </div>
-                    <h3 className="text-lg font-black text-ink">{item}</h3>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-ink-subtle">Visible value that keeps the member reward loop concrete.</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="border-y border-border bg-white/[0.025] py-20 sm:py-28">
-            <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
-              <SectionHeader
-                eyebrow="Trust and support"
-                title="Built for real deployment."
-                copy="Public pages route users to the right protected app path, WhatsApp conversation, email fallback, Play Store, or external shop."
-              />
-              <div className="grid gap-4 md:grid-cols-2">
-                {[
-                  ['Secure access', 'OTP login, role onboarding, protected dashboards, privacy and terms pages.', ShieldCheck],
-                  ['PWA and Android', 'Members can use web/PWA and Android app pathways.', Smartphone],
-                  ['WhatsApp-first', 'Demo, pricing, role questions, and setup support open direct WhatsApp.', MessageCircle],
-                  ['Email fallback', 'Official email fallback is available for formal queries and support.', Sparkles],
-                ].map(([title, desc, Icon]) => (
-                  <div key={title as string} className="rounded-xl border border-border bg-white/[0.045] p-6">
-                    <Icon className="text-primary" size={24} />
-                    <h3 className="mt-5 text-xl font-black text-ink">{title as string}</h3>
-                    <p className="mt-3 text-sm font-semibold leading-6 text-ink-subtle">{desc as string}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="py-20 sm:py-28">
-            <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
-              <SectionHeader eyebrow="FAQ" title="Everything before the first click." copy="Short answers for members, owners, trainers, shop, and backend scope." />
-              <FAQBlock faqs={homeFaqs} />
-            </div>
-          </section>
-
-          <section className="px-4 pb-20 sm:px-6">
-            <div className="mx-auto max-w-7xl overflow-hidden rounded-xl border border-primary/25 bg-surface-sunken">
-              <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="p-8 sm:p-12">
-                  <p className="text-[11px] font-black uppercase tracking-[0.35em] text-primary">Start now</p>
-                  <h2 className="mt-5 text-4xl font-black leading-tight text-ink sm:text-6xl">
-                    Bring your fitness ecosystem into one connected platform.
-                  </h2>
-                  <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-ink-subtle">
-                    Members get motivation. Owners get control. Trainers get business tools. Gymmigo ties the loop together.
-                  </p>
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <button type="button" onClick={() => actions.openLead('general', 'homepage final CTA')} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
-                      Talk on WhatsApp <MessageCircle size={17} />
-                    </button>
-                    <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted hover:text-ink">
-                      Play Store <ExternalLink size={17} />
-                    </a>
-                  </div>
-                </div>
-                <div
-                  className="min-h-[320px] bg-cover bg-center"
-                  style={{ backgroundImage: `linear-gradient(135deg,rgba(255,87,34,0.24),rgba(52,211,153,0.16)),url(${premiumHero})` }}
-                />
-              </div>
-            </div>
-          </section>
-        </>
-      )}
-    </PublicSiteFrame>
+    <>
+      <Hero actions={actions} />
+      <HowItWorks />
+      <FeatureRow
+        eyebrow="Gyms"
+        title="Pick a gym the way you'd pick a café."
+        body="Explore shows partner gyms near you with their passes, facilities, reviews and live occupancy. Choose a plan in the app, pay at the front desk, and your pass is ready."
+        points={['Monthly, quarterly and day passes side by side', 'Live occupancy, so you skip the 7 pm rush', 'A QR check-in that works at every partner gym']}
+        shots={['gym-profile', 'checkout']}
+        alts={['Iron Haus Fitness gym page with passes, facilities and occupancy', 'Checkout review showing the monthly plan and total due at the gym']}
+      />
+      <FeatureRow
+        flip
+        eyebrow="Migo, your AI coach"
+        title="A coach that asks before it plans."
+        body="Migo knows your goal, injuries and training history. Ask about a workout, a meal or your form. When you want structure, it drafts a 7, 30, 45 or 90-day plan, and nothing reaches your calendar until you approve it."
+        points={['Review the phases and first week, then approve, change or discard', 'Log each day as done, partly done or skipped', 'Diet plans broken into meals with calories and protein']}
+        shots={['plan-review', 'migo-meal-plan']}
+        alts={['Review screen for a 45-day lean muscle plan', 'Today’s meal plan with breakfast and lunch, calories and protein']}
+      />
+      <RunsRow />
+      <SmallThings />
+      <OnTheWeb actions={actions} />
+      <Owners actions={actions} />
+      <Trainers actions={actions} />
+      <PricingTeaser />
+      <section className="py-24 sm:py-32" aria-labelledby="faq-title">
+        <Container className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <Eyebrow>Questions</Eyebrow>
+            <h2 id="faq-title" className="mt-3 font-display text-[34px] font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[44px]">
+              Straight answers.
+            </h2>
+            <p className="mt-4 text-[17px] leading-7 text-ink-muted">
+              Something else on your mind?{' '}
+              <Link to="/contact" className="font-semibold text-ink underline decoration-border-strong underline-offset-4 hover:decoration-ink">
+                Ask us
+              </Link>
+              .
+            </p>
+          </div>
+          <Faq items={homeFaqs} />
+        </Container>
+      </section>
+      <FinalCta actions={actions} />
+    </>
   );
 }
 
-function PreviewPanel({
-  label,
-  title,
-  icon,
-  tone,
-  items,
-  action,
-}: {
-  label: string;
-  title: string;
-  icon: ReactNode;
-  tone: keyof typeof toneStyles;
-  items: string[];
-  action: ReactNode;
-}) {
-  const toneClass = toneStyles[tone];
+function Hero({ actions }: { actions: PublicActions }) {
+  const { ref, y } = useParallax(60);
   return (
-    <div className={`rounded-xl border bg-white/[0.045] p-6 ${toneClass.border}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg border ${toneClass.bg} ${toneClass.border} ${toneClass.text}`}>
-          {icon}
+    <section ref={ref} className="relative overflow-hidden pb-20 pt-12 sm:pt-16 lg:pb-28">
+      <div aria-hidden className="pointer-events-none absolute right-[-12%] top-[-10%] h-[680px] w-[680px] rounded-full bg-accent-soft opacity-70 blur-3xl [[data-theme=dark]_&]:opacity-40" />
+      <Container className="relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="max-w-xl">
+          <Reveal>
+            <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[13px] font-medium text-ink-muted">
+              <span className="h-1.5 w-1.5 rounded-full bg-success" /> New: Gymmigo Run Club, a shared map for every run
+            </p>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <h1 className="mt-6 font-display text-[44px] font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-[60px] lg:text-[68px]">
+              Your gym, your runs and a coach that knows both.
+            </h1>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p className="mt-6 text-[18px] leading-8 text-ink-muted">
+              Find a gym near you, check in with a QR code, follow a training plan you approved, and run with friends on a live map. One app, free for members.
+            </p>
+          </Reveal>
+          <Reveal delay={0.15}>
+            <StoreButtons className="mt-8" />
+            <Link to={actions.getStartedPath} className="group mt-5 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink">
+              Or open the web app <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </Reveal>
         </div>
-        <span className="rounded-full border border-border bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-ink-subtle">
-          {label}
-        </span>
-      </div>
-      <h3 className="mt-6 text-2xl font-black leading-tight text-ink">{title}</h3>
-      <div className="mt-6 space-y-3">
-        {items.map((item) => (
-          <div key={item} className="flex gap-3 text-sm font-semibold leading-6 text-ink-subtle">
-            <CheckCircle2 className={toneClass.text} size={16} />
-            <span>{item}</span>
+
+        <div className="relative mx-auto h-[540px] w-full max-w-[460px] sm:h-[600px]">
+          <RouteLine className="absolute -left-10 top-6 h-[420px] w-[420px] text-ink sm:-left-16" />
+          <motion.div style={{ y }} className="absolute left-0 top-12 w-[52%] sm:w-[240px]">
+            <Reveal delay={0.25} y={30}>
+              <PhoneFrame className="-rotate-[4deg]">
+                <Shot name="run-together" priority alt="Live room map with four runners, their routes and a leaderboard" />
+              </PhoneFrame>
+            </Reveal>
+          </motion.div>
+          <div className="absolute right-0 top-0 w-[56%] sm:w-[262px]">
+            <Reveal delay={0.15} y={30}>
+              <PhoneFrame className="rotate-[2deg]">
+                <Shot name="sports-home" priority alt="Sports home with this week's distance, active time and the Gymmigo Run Club" />
+              </PhoneFrame>
+            </Reveal>
           </div>
-        ))}
-      </div>
-      <div className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-        {action}
-      </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <section className="border-y border-border bg-surface py-20 sm:py-24" aria-labelledby="how-title">
+      <Container>
+        <Heading eyebrow="How it works" title={<span id="how-title">From your first visit to your hundredth.</span>} />
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s, i) => (
+            <Reveal as="li" key={s.title} delay={i * 0.06} className="bg-surface p-7">
+              <span className="font-display text-[15px] font-bold text-accent">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="mt-6 text-[19px] font-semibold tracking-[-0.01em]">{s.title}</h3>
+              <p className="mt-2 text-[15px] leading-6 text-ink-subtle">{s.body}</p>
+            </Reveal>
+          ))}
+        </ol>
+      </Container>
+    </section>
+  );
+}
+
+function Points({ items }: { items: string[] }) {
+  return (
+    <ul className="mt-8 space-y-3.5">
+      {items.map(p => (
+        <li key={p} className="flex gap-3 text-[16px] leading-6 text-ink-muted">
+          <Check size={18} className="mt-0.5 shrink-0 text-accent" aria-hidden />
+          {p}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PhonePair({ shots, alts, children }: { shots: [ShotName, ShotName]; alts: [string, string]; children?: ReactNode }) {
+  return (
+    <div className="relative mx-auto flex w-full max-w-[520px] items-start justify-center gap-5 sm:gap-7">
+      {children}
+      <Reveal delay={0.05} y={28} className="w-[46%] max-w-[238px]">
+        <PhoneFrame>
+          <Shot name={shots[0]} alt={alts[0]} />
+        </PhoneFrame>
+      </Reveal>
+      <Reveal delay={0.15} y={28} className="mt-14 w-[46%] max-w-[238px]">
+        <PhoneFrame>
+          <Shot name={shots[1]} alt={alts[1]} />
+        </PhoneFrame>
+      </Reveal>
     </div>
+  );
+}
+
+function FeatureRow(props: { eyebrow: string; title: string; body: string; points: string[]; shots: [ShotName, ShotName]; alts: [string, string]; flip?: boolean }) {
+  return (
+    <section className="py-24 sm:py-32">
+      <Container className="grid items-center gap-16 lg:grid-cols-2">
+        <div className={cn('max-w-xl', props.flip && 'lg:order-2')}>
+          <Reveal>
+            <Heading eyebrow={props.eyebrow} title={props.title} />
+            <p className="mt-5 text-[17px] leading-7 text-ink-muted">{props.body}</p>
+            <Points items={props.points} />
+          </Reveal>
+        </div>
+        <PhonePair shots={props.shots} alts={props.alts} />
+      </Container>
+    </section>
+  );
+}
+
+function RunsRow() {
+  return (
+    <section className="relative overflow-hidden border-y border-border bg-surface py-24 sm:py-32">
+      <Container className="grid items-center gap-16 lg:grid-cols-2">
+        <div className="max-w-xl">
+          <Reveal>
+            <Heading
+              eyebrow="Runs and the Run Club"
+              title="Run alone, or with half the city."
+            />
+            <p className="mt-5 text-[17px] leading-7 text-ink-muted">
+              Record runs, walks and rides with GPS, even with the screen locked. Every day the Gymmigo Run Club starts a fresh shared map: see who is out right now and every route from today. Or open a room for your friends, live or open for up to 30 days.
+            </p>
+            <Points
+              items={[
+                'Splits, pace and climb for every kilometre',
+                'Cheer runners from the sidelines',
+                'The first and last 200 m of your route stay hidden from others',
+              ]}
+            />
+          </Reveal>
+        </div>
+        <PhonePair shots={['run-club', 'gps-run']} alts={['Gymmigo Run Club map for today with routes from three runners', 'Active GPS run showing 4.43 km, pace and splits']}>
+          <RouteLine className="absolute -right-20 -top-16 h-[380px] w-[380px] text-ink opacity-90" delay={0.4} />
+        </PhonePair>
+      </Container>
+    </section>
+  );
+}
+
+function SmallThings() {
+  const cards: Array<{ title: string; body: string; shot: ShotName; alt: string }> = [
+    {
+      title: 'Share a run that looks like a run',
+      body: 'Route cards on a real map, story cards and stickers for Instagram. The link opens the run in Gymmigo.',
+      shot: 'share-card',
+      alt: 'Share studio with a route card for a 6.24 km run',
+    },
+    {
+      title: 'Heart rate from your watch',
+      body: 'Optional. Read through Health Connect on Android or Apple Health on iPhone, with zones for each run.',
+      shot: 'watch-data',
+      alt: 'Run summary with average heart rate 158 bpm and time in zones',
+    },
+    {
+      title: 'Clubs that reward showing up',
+      body: 'Check-ins move you up your gym’s club ladder, with perks your gym sets, like renewal discounts.',
+      shot: 'clubs',
+      alt: 'Rhythm Club tier with streak, progress and reward wallet',
+    },
+  ];
+  return (
+    <section className="py-24 sm:py-32">
+      <Container>
+        <Heading eyebrow="And the small things" title="Details you notice on day thirty." />
+        <div className="mt-14 grid gap-5 md:grid-cols-3">
+          {cards.map((c, i) => (
+            <Reveal key={c.title} delay={i * 0.08} className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-surface">
+              <div className="p-7 pb-0">
+                <h3 className="text-[19px] font-semibold tracking-[-0.01em]">{c.title}</h3>
+                <p className="mt-2 text-[15px] leading-6 text-ink-subtle">{c.body}</p>
+              </div>
+              <div className="relative mt-7 h-[300px] overflow-hidden px-10">
+                <div className="mx-auto w-[230px] translate-y-2 transition-transform duration-500 ease-out group-hover:translate-y-0">
+                  <PhoneFrame>
+                    <Shot name={c.shot} alt={c.alt} />
+                  </PhoneFrame>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function OnTheWeb({ actions }: { actions: PublicActions }) {
+  return (
+    <section className="border-y border-border bg-surface py-24 sm:py-32">
+      <Container className="grid items-center gap-14 lg:grid-cols-[0.8fr_1.2fr]">
+        <Reveal>
+          <Heading
+            eyebrow="On the web"
+            title="The same account on a bigger screen."
+            lead="Plans, calendar, Migo, gyms and your runs are all on the web app. Recording a GPS run needs the phone, because browsers stop tracking when the screen locks."
+          />
+          <Link to={actions.getStartedPath} className="mt-8 inline-flex h-12 items-center gap-2 rounded-full border border-border-strong px-6 text-[15px] font-semibold transition-colors hover:bg-surface-sunken">
+            Open the web app <ArrowRight size={16} />
+          </Link>
+        </Reveal>
+        <Reveal delay={0.1} y={30}>
+          <LaptopFrame>
+            <Shot name="web-plans" alt="Gymmigo web app showing Migo training plans and today’s plan" />
+          </LaptopFrame>
+        </Reveal>
+      </Container>
+    </section>
+  );
+}
+
+function Owners({ actions }: { actions: PublicActions }) {
+  return (
+    <section data-theme="dark" className="relative overflow-hidden bg-background py-24 text-ink sm:py-32" aria-labelledby="owners-title">
+      <Container className="grid items-center gap-16 lg:grid-cols-[1fr_1.1fr]">
+        <Reveal className="max-w-xl">
+          <Eyebrow>For gym owners</Eyebrow>
+          <h2 id="owners-title" className="mt-3 font-display text-[34px] font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[44px]">
+            Run the gym from your phone. Keep the desk for welcoming people.
+          </h2>
+          <p className="mt-5 text-[17px] leading-7 text-ink-muted">
+            Approve memberships, check members in, raise invoices and see today’s occupancy, for one gym or several. Bring your members over from Excel on day one.
+          </p>
+          <Points items={['Members, plans and renewals in one list', 'A club ladder that turns check-ins into referrals', 'Revenue, expenses and products per gym']} />
+          <div className="mt-9 flex flex-wrap gap-3">
+            <button type="button" onClick={() => actions.openLead('owner', 'landing owners')} className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-accent-pressed">
+              List your gym
+            </button>
+            <Link to="/gym-owners" className="inline-flex h-12 items-center gap-2 rounded-full border border-border-strong px-6 text-[15px] font-semibold transition-colors hover:bg-surface">
+              How it works for owners <ArrowRight size={16} />
+            </Link>
+          </div>
+        </Reveal>
+        <div className="relative mx-auto flex w-full max-w-[560px] items-start justify-center gap-4">
+          {(
+            [
+              ['owner-members', 'Members list with active and pending memberships', 'mt-16'],
+              ['owner-home', 'Owner home with members, revenue and occupancy per gym', ''],
+              ['owner-clubs', 'Published club ladder with eight tiers', 'mt-24'],
+            ] as Array<[ShotName, string, string]>
+          ).map(([name, alt, offset], i) => (
+            <Reveal key={name} delay={i * 0.08} y={30} className={cn('w-[32%] max-w-[190px]', offset)}>
+              <PhoneFrame>
+                <Shot name={name} scheme="dark" alt={alt} />
+              </PhoneFrame>
+            </Reveal>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+function Trainers({ actions }: { actions: PublicActions }) {
+  return (
+    <section className="py-24 sm:py-28">
+      <Container>
+        <Reveal className="grid items-center gap-10 overflow-hidden rounded-[2rem] border border-border bg-surface p-8 sm:p-12 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="max-w-xl">
+            <Eyebrow>For trainers</Eyebrow>
+            <h2 className="mt-3 font-display text-[30px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[38px]">Packages, bookings and sessions, without the spreadsheet.</h2>
+            <p className="mt-4 text-[17px] leading-7 text-ink-muted">
+              Publish session packs, take booking requests and keep every client in one calendar. Trainer accounts are opening in stages.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <button type="button" onClick={() => actions.openLead('trainer', 'landing trainers')} className="inline-flex h-12 items-center rounded-full bg-ink px-6 text-[15px] font-semibold text-background">
+                Request early access
+              </button>
+              <Link to="/trainers" className="inline-flex h-12 items-center gap-2 rounded-full px-4 text-[15px] font-semibold text-ink-muted hover:text-ink">
+                Learn more <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+          <div className="relative -mb-24 mx-auto w-[230px] sm:-mb-28">
+            <PhoneFrame>
+              <Shot name="trainer-home" alt="Trainer home with clients, sessions delivered and new requests" />
+            </PhoneFrame>
+          </div>
+        </Reveal>
+      </Container>
+    </section>
+  );
+}
+
+function PricingTeaser() {
+  return (
+    <section className="border-y border-border bg-surface py-20 sm:py-24">
+      <Container className="grid gap-5 md:grid-cols-2">
+        <Reveal className="rounded-3xl border border-border bg-background p-8">
+          <Eyebrow>Members</Eyebrow>
+          <p className="mt-4 font-display text-[40px] font-extrabold tracking-[-0.03em]">Free</p>
+          <p className="mt-3 text-[16px] leading-7 text-ink-muted">The app costs nothing. Gyms and trainers set their own prices, and you see the full amount before you confirm.</p>
+        </Reveal>
+        <Reveal delay={0.08} className="rounded-3xl border border-border bg-background p-8">
+          <Eyebrow>Gyms</Eyebrow>
+          <p className="mt-4 font-display text-[40px] font-extrabold tracking-[-0.03em]">Priced to your size</p>
+          <p className="mt-3 text-[16px] leading-7 text-ink-muted">Three setups, Launch, Growth and Network, agreed on a short call after we understand your gym.</p>
+          <Link to="/pricing" className="mt-6 inline-flex items-center gap-1.5 text-[15px] font-semibold text-ink">
+            See what each includes <ArrowRight size={16} />
+          </Link>
+        </Reveal>
+      </Container>
+    </section>
+  );
+}
+
+function FinalCta({ actions }: { actions: PublicActions }) {
+  return (
+    <section id="get-the-app" className="scroll-mt-20 py-24 sm:py-32">
+      <Container>
+        <Reveal className="relative overflow-hidden rounded-[2rem] bg-[#131315] px-8 py-16 text-white sm:px-14 sm:py-20">
+          <RouteLine className="absolute -right-24 -top-10 h-[460px] w-[460px] text-white opacity-60" />
+          <div className="relative max-w-xl">
+            <h2 className="font-display text-[36px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">Your next workout starts with one tap.</h2>
+            <p className="mt-5 text-[17px] leading-7 text-white/70">Get Gymmigo on Android today. The iPhone app is coming soon, and the web app works everywhere.</p>
+            <StoreButtons tone="inverse" className="mt-9" />
+            <Link to={actions.getStartedPath} className="mt-6 inline-flex items-center gap-1.5 text-[15px] font-semibold text-white">
+              Open the web app <ArrowRight size={16} />
+            </Link>
+          </div>
+        </Reveal>
+      </Container>
+    </section>
   );
 }

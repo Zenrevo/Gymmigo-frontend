@@ -90,18 +90,18 @@ const L = ({ children }: { children: ReactNode }) => <Legacy>{children}</Legacy>
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<L><LandingPage /></L>} />
+    <Route path="/" element={<LandingPage />} />
     <Route path="/welcome" element={<WelcomePage />} />
     <Route path="/login" element={<LoginPage />} />
-    <Route path="/privacy" element={<L><PrivacyPolicy /></L>} />
-    <Route path="/terms" element={<L><TermsConditions /></L>} />
-    <Route path="/contact" element={<L><ContactUs /></L>} />
-    <Route path="/members" element={<L><MembersPage /></L>} />
-    <Route path="/gym-owners" element={<L><GymOwnersPage /></L>} />
-    <Route path="/trainers" element={<L><TrainersPage /></L>} />
-    <Route path="/pricing" element={<L><PricingPage /></L>} />
-    <Route path="/fitcard/:inviteCode" element={<L><PublicFitCard /></L>} />
-    <Route path="/fitness-card/:cardCode" element={<L><PublicFitCard /></L>} />
+    <Route path="/privacy" element={<PrivacyPolicy />} />
+    <Route path="/terms" element={<TermsConditions />} />
+    <Route path="/contact" element={<ContactUs />} />
+    <Route path="/members" element={<MembersPage />} />
+    <Route path="/gym-owners" element={<GymOwnersPage />} />
+    <Route path="/trainers" element={<TrainersPage />} />
+    <Route path="/pricing" element={<PricingPage />} />
+    <Route path="/fitcard/:inviteCode" element={<PublicFitCard />} />
+    <Route path="/fitness-card/:cardCode" element={<PublicFitCard />} />
 
     <Route path="/register-role" element={<RegisterRoleRedirect />} />
     <Route path="/onboarding" element={<Navigate to="/onboarding/role" replace />} />

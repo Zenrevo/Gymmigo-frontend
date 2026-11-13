@@ -3,11 +3,14 @@ export type ColorScheme = 'light' | 'dark';
 
 export const THEME_STORAGE_KEY = 'gymmigo_theme';
 
+/** The web opens in light until the person picks System or Dark. */
+export const DEFAULT_PREFERENCE: ThemePreference = 'light';
+
 /** Meta theme-color per scheme: the app's background tokens. */
 export const THEME_COLOR: Record<ColorScheme, string> = { light: '#F1F1F3', dark: '#131315' };
 
 export function parsePreference(value: string | null | undefined): ThemePreference {
-  return value === 'light' || value === 'dark' || value === 'system' ? value : 'system';
+  return value === 'light' || value === 'dark' || value === 'system' ? value : DEFAULT_PREFERENCE;
 }
 
 export function resolveScheme(preference: ThemePreference, systemPrefersDark: boolean): ColorScheme {
@@ -19,7 +22,7 @@ export function readPreference(storage: Pick<Storage, 'getItem'> | undefined): T
   try {
     return parsePreference(storage?.getItem(THEME_STORAGE_KEY));
   } catch {
-    return 'system';
+    return DEFAULT_PREFERENCE;
   }
 }
 
