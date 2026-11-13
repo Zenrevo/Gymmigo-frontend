@@ -15,7 +15,6 @@ import {
 import DailyDrop from './DailyDrop';
 import BookingDetailModal from '../../components/BookingDetailModal';
 import QRScannerModal from '../../components/QRScannerModal';
-import { Legacy } from '../../layouts/LegacyTheme';
 import MembershipDetailView from '../Dashboard/MembershipDetailView';
 import api from '../../utils/api';
 
@@ -147,9 +146,7 @@ export default function GymHome() {
 
   if (selectedMembership) {
     return (
-      <Legacy>
-        <MembershipDetailView gymGroup={selectedMembership} onBack={() => setSelectedMembership(null)} />
-      </Legacy>
+      <MembershipDetailView gymGroup={selectedMembership} onBack={() => setSelectedMembership(null)} />
     );
   }
 

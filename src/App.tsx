@@ -36,6 +36,7 @@ import SessionDetail from './pages/Dashboard/SessionDetail';
 import Profile from './pages/Profile/Profile';
 import WalletTransactionsPage from './pages/Profile/WalletTransactionsPage';
 import WatchGuidePage from './pages/Devices/WatchGuidePage';
+import MyMembershipsPage from './pages/Memberships/MyMembershipsPage';
 import GymmigoClubsPage from './pages/Clubs/GymmigoClubsPage';
 import { migoRoutes } from './routes/migoRoutes';
 import { runTogetherRoutes } from './routes/runTogetherRoutes';
@@ -120,6 +121,7 @@ const AppRoutes = () => (
       <Route path="sessions/:sessionId" element={<SessionDetail />} />
       <Route path="profile" element={<Profile />} />
       <Route path="devices" element={<WatchGuidePage />} />
+      <Route path="memberships" element={<MyMembershipsPage />} />
       <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
       <Route path="clubs" element={<L><GymmigoClubsPage /></L>} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />

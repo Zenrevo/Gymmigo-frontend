@@ -346,7 +346,7 @@ export default function Profile() {
               </Card>
 
               <section>
-                <GroupLabel label="Active memberships & access" meta="View all" metaTo="/app/dashboard" />
+                <GroupLabel label="Active memberships & access" meta="View all" metaTo="/app/memberships" />
                 {memberships.isLoading ? (
                   <Skeleton className="h-[130px] rounded-gm-xl" />
                 ) : activeMemberships.length ? (
@@ -398,7 +398,7 @@ export default function Profile() {
                 <ListItem icon={Trophy} title="Clubs & badges" to="/app/clubs" />
               </Group>
               <Group label="Membership & wallet">
-                <ListItem icon={CreditCard} title="My memberships" to="/app/dashboard" />
+                <ListItem icon={CreditCard} title="My memberships" to="/app/memberships" />
                 <ListItem icon={Wallet} title="Wallet transactions" to="/app/wallet-transactions" />
                 <ListItem
                   icon={MapPin}
