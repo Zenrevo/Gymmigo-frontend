@@ -215,8 +215,8 @@ export default function MainLayout() {
         {/* Mobile bottom tab bar (Migo raised in the centre, like the app) */}
         <nav
           aria-label="Tabs"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-tab-bar pb-[env(safe-area-inset-bottom)] md:hidden"
-          style={{ display: 'grid', gridTemplateColumns: `repeat(${primary.length}, minmax(0, 1fr))` }}>
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-tab-bar pb-[env(safe-area-inset-bottom)] grid md:hidden"
+          style={{ gridTemplateColumns: `repeat(${primary.length}, minmax(0, 1fr))` }}>
           {primary.map(item => {
             const active = isActive(item, location.pathname);
             if (item.center) {
