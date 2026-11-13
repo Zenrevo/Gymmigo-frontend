@@ -4,42 +4,36 @@ import { CheckCircle2, AlertCircle, XCircle, Info, X } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 import type { Notification as NotificationType } from '../context/NotificationContext';
 
-const ICON_MAP = {
-  success: <CheckCircle2 className="text-emerald-400" size={20} />,
-  error: <XCircle className="text-rose-400" size={20} />,
-  warning: <AlertCircle className="text-amber-400" size={20} />,
-  info: <Info className="text-blue-400" size={20} />,
-};
+const TONE = {
+  success: { icon: CheckCircle2, chip: 'bg-success-soft text-success' },
+  error: { icon: XCircle, chip: 'bg-danger-soft text-danger' },
+  warning: { icon: AlertCircle, chip: 'bg-warning-soft text-warning' },
+  info: { icon: Info, chip: 'bg-info-soft text-info' },
+} as const;
 
-const BORDER_MAP = {
-  success: 'border-emerald-500/20 bg-emerald-500/10',
-  error: 'border-rose-500/20 bg-rose-500/10',
-  warning: 'border-amber-500/20 bg-amber-500/10',
-  info: 'border-blue-500/20 bg-blue-500/10',
-};
-
+/** App `ToastCard`: surface card, tone icon chip, message, close. */
 const Toast: React.FC<{ notification: NotificationType }> = ({ notification }) => {
   const { removeNotification } = useNotification();
-
+  const tone = TONE[notification.type];
+  const Icon = tone.icon;
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: -20, scale: 0.9 }}
+      role={notification.type === 'error' ? 'alert' : 'status'}
+      initial={{ opacity: 0, y: -16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-      className={`flex items-center gap-3 p-4 pr-12 rounded-2xl border backdrop-blur-md shadow-2xl pointer-events-auto relative min-w-[300px] max-w-md ${BORDER_MAP[notification.type]}`}
-    >
-      <div className="shrink-0">
-        {ICON_MAP[notification.type]}
-      </div>
-      <p className="text-sm font-medium text-white/90">
-        {notification.message}
-      </p>
-      <button 
+      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
+      className="pointer-events-auto relative flex w-full max-w-md items-center gap-3 rounded-gm-xl border border-border bg-surface p-3 pr-11 shadow-float md:min-w-[320px]">
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-gm-md ${tone.chip}`}>
+        <Icon size={18} aria-hidden />
+      </span>
+      <p className="t-callout text-ink">{notification.message}</p>
+      <button
+        type="button"
+        aria-label="Dismiss"
         onClick={() => removeNotification(notification.id)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-white/5 text-white/20 hover:text-white transition-colors"
-      >
-        <X size={14} />
+        className="absolute right-2.5 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-gm-sm text-ink-subtle transition-colors hover:bg-surface-sunken hover:text-ink">
+        <X size={14} aria-hidden />
       </button>
     </motion.div>
   );
@@ -47,11 +41,10 @@ const Toast: React.FC<{ notification: NotificationType }> = ({ notification }) =
 
 export const NotificationContainer: React.FC = () => {
   const { notifications } = useNotification();
-
   return (
-    <div className="fixed top-6 right-6 left-6 md:left-auto z-[9999] flex flex-col items-center md:items-end gap-3 pointer-events-none">
+    <div className="pointer-events-none fixed left-4 right-4 top-4 z-[9999] flex flex-col items-center gap-2 md:left-auto md:right-6 md:top-6 md:items-end">
       <AnimatePresence mode="popLayout">
-        {notifications.map((n) => (
+        {notifications.map(n => (
           <Toast key={n.id} notification={n} />
         ))}
       </AnimatePresence>

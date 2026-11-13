@@ -206,11 +206,11 @@ const PublicFitCard = () => {
 
   if (!card) {
     return (
-      <main className="min-h-screen px-5 py-16 text-white">
-        <div className="mx-auto max-w-xl rounded-lg border border-slate-300/10 bg-slate-900/55 p-8 text-center backdrop-blur-xl">
+      <main className="min-h-screen px-5 py-16 text-ink">
+        <div className="mx-auto max-w-xl rounded-lg border border-border bg-surface/55 p-8 text-center backdrop-blur-xl">
           <Trophy size={42} className="mx-auto text-primary" />
           <h1 className="mt-5 text-3xl font-black tracking-tight">FitCard unavailable</h1>
-          <p className="mt-3 text-sm font-semibold text-white/50">{error || 'This invite link is no longer active.'}</p>
+          <p className="mt-3 text-sm font-semibold text-ink-subtle">{error || 'This invite link is no longer active.'}</p>
           <Link to="/" className="btn-primary mt-6 inline-flex items-center gap-2">Go to Gymmigo <ArrowRight size={16} /></Link>
         </div>
       </main>
@@ -222,7 +222,7 @@ const PublicFitCard = () => {
   }
 
   return (
-    <main className="min-h-screen text-white">
+    <main className="min-h-screen text-ink">
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-5 sm:px-6 sm:py-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <Link to="/">
@@ -233,9 +233,9 @@ const PublicFitCard = () => {
           </span>
         </header>
 
-        <section className="relative overflow-hidden rounded-2xl border border-slate-300/10 bg-[#111827] shadow-2xl">
+        <section className="relative overflow-hidden rounded-2xl border border-border bg-surface-sunken shadow-2xl">
           <img src={clubHeroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#0F172A_0%,rgba(15,23,42,0.92)_42%,rgba(15,23,42,0.55)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#131315_0%,rgba(15,23,42,0.92)_42%,rgba(15,23,42,0.55)_100%)]" />
           <div className="relative grid gap-6 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -246,9 +246,9 @@ const PublicFitCard = () => {
                 <Crown size={14} /> {activeClub ? 'Club member' : 'Building their journey'}
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-white/45">{card.gym.name}</p>
-                <h1 className="mt-2 text-3xl font-black leading-tight text-white sm:text-5xl">{highlightedClubName}</h1>
-                <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/60">
+                <p className="text-[10px] font-black uppercase tracking-[0.35em] text-ink-subtle">{card.gym.name}</p>
+                <h1 className="mt-2 text-3xl font-black leading-tight text-ink sm:text-5xl">{highlightedClubName}</h1>
+                <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-ink-subtle">
                   {card.trial_offer?.headline || `${card.member.name} invited you for a free trial workout.`}
                 </p>
               </div>
@@ -263,30 +263,30 @@ const PublicFitCard = () => {
                   </span>
                 ))}
                 {!activeClub?.rewards?.length && nextMission?.rewards?.slice(0, 2).map((reward) => (
-                  <span key={reward.label} className="rounded-full border border-slate-300/10 bg-slate-950/45 px-3 py-1.5 text-[10px] font-black uppercase text-white/55">
+                  <span key={reward.label} className="rounded-full border border-border bg-surface-sunken/45 px-3 py-1.5 text-[10px] font-black uppercase text-ink-subtle">
                     Locked: {reward.label}
                   </span>
                 ))}
               </motion.div>
 
               {nextMission && (
-                <div className="rounded-lg border border-slate-300/10 bg-slate-950/45 p-4 backdrop-blur-xl">
+                <div className="rounded-lg border border-border bg-surface-sunken/45 p-4 backdrop-blur-xl">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Club journey</p>
                   <div className="mt-3 grid gap-3 sm:grid-cols-3">
                     <div>
-                      <p className="text-xs font-bold text-white/40">Current club</p>
-                      <p className="text-sm font-black text-white">{highlightedClubName}</p>
+                      <p className="text-xs font-bold text-ink-subtle">Current club</p>
+                      <p className="text-sm font-black text-ink">{highlightedClubName}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white/40">Next unlock</p>
+                      <p className="text-xs font-bold text-ink-subtle">Next unlock</p>
                       <p className="text-sm font-black text-primary">{nextMission.badge?.name || nextMission.mission.title}</p>
                     </div>
                     <div className="sm:text-right">
-                      <p className="text-xs font-bold text-white/40">Progress</p>
-                      <p className="text-sm font-black text-white">{clampPercent(nextMission.progress_percent)}%</p>
+                      <p className="text-xs font-bold text-ink-subtle">Progress</p>
+                      <p className="text-sm font-black text-ink">{clampPercent(nextMission.progress_percent)}%</p>
                     </div>
                   </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/40">
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-sunken/40">
                     <motion.div className="h-full rounded-full bg-primary" style={{ width: `${clampPercent(nextMission.progress_percent)}%` }} />
                   </div>
                 </div>
@@ -296,13 +296,13 @@ const PublicFitCard = () => {
             <motion.div
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
-              className="rounded-lg border border-slate-300/15 bg-slate-900/75 p-4 backdrop-blur-xl"
+              className="rounded-lg border border-border bg-surface/75 p-4 backdrop-blur-xl"
             >
               <div className="flex items-center gap-3">
                 <GymLogo src={card.gym.logo_url} name={card.gym.name} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-black text-white">{card.gym.name}</p>
-                  <p className="text-xs font-bold text-white/45">{card.member.name}&apos;s FitCard</p>
+                  <p className="truncate text-sm font-black text-ink">{card.gym.name}</p>
+                  <p className="text-xs font-bold text-ink-subtle">{card.member.name}&apos;s FitCard</p>
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2">
@@ -311,25 +311,25 @@ const PublicFitCard = () => {
                 <StatTile label="Clubs" value={card.clubs.length} tone="green" />
               </div>
               <div className="mt-4">
-                <motion.div className="flex items-center justify-between text-xs font-black text-white/55">
+                <motion.div className="flex items-center justify-between text-xs font-black text-ink-subtle">
                   <span>Club progress</span>
                   <span>{journey?.completed_count ?? 0}/{journey?.total_missions ?? totalTiers}</span>
                 </motion.div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-950/40">
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-sunken/40">
                   <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${clubProgress}%` }} />
                 </div>
               </div>
               {activeBadge && (
                 <div className="mt-4 flex items-center gap-3 rounded-lg border border-primary/25 bg-primary/10 p-3">
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/30 bg-slate-950/40"
-                    style={{ color: activeBadge.badge?.color || '#f1822c' }}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/30 bg-surface-sunken/40"
+                    style={{ color: activeBadge.badge?.color || '#FF5722' }}
                   >
                     {renderMissionIcon(activeBadge.badge?.icon, activeBadge.mission?.mission_type)}
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-widest text-primary">Active badge</p>
-                    <p className="truncate text-sm font-black text-white">{activeBadge.badge?.name}</p>
+                    <p className="truncate text-sm font-black text-ink">{activeBadge.badge?.name}</p>
                   </div>
                 </div>
               )}
@@ -339,9 +339,9 @@ const PublicFitCard = () => {
 
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="space-y-6">
-            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl sm:p-6">
+            <section className="rounded-lg border border-border bg-surface/55 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300/10 bg-slate-950/35">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-surface-sunken/35">
                   {card.member.avatar_url ? (
                     <img src={card.member.avatar_url} alt="" className="h-full w-full object-cover" />
                   ) : (
@@ -349,9 +349,9 @@ const PublicFitCard = () => {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/35">Member profile</p>
-                  <h2 className="mt-1 text-2xl font-black text-white">{card.member.name}</h2>
-                  <p className="mt-1 text-sm font-semibold text-white/45">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-ink-subtle/70">Member profile</p>
+                  <h2 className="mt-1 text-2xl font-black text-ink">{card.member.name}</h2>
+                  <p className="mt-1 text-sm font-semibold text-ink-subtle">
                     {card.fitcard.frame} frame · {card.fitcard.title}
                     {card.member.city ? ` · ${card.member.city}` : ''}
                   </p>
@@ -365,11 +365,11 @@ const PublicFitCard = () => {
               </div>
             </section>
 
-            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl sm:p-6">
+            <section className="rounded-lg border border-border bg-surface/55 p-5 backdrop-blur-xl sm:p-6">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Progress analysis</p>
-                  <h3 className="text-lg font-black text-white">Activity & tier momentum</h3>
+                  <h3 className="text-lg font-black text-ink">Activity & tier momentum</h3>
                 </div>
                 <Sparkles size={20} className="text-primary" />
               </div>
@@ -377,10 +377,10 @@ const PublicFitCard = () => {
                 {analysisBars.map((bar) => (
                   <div key={bar.label}>
                     <div className="mb-1 flex items-center justify-between text-xs font-bold">
-                      <span className="text-white/50">{bar.label}</span>
-                      <span className="text-white">{bar.value}</span>
+                      <span className="text-ink-subtle">{bar.label}</span>
+                      <span className="text-ink">{bar.value}</span>
                     </div>
-                    <div className="h-2.5 overflow-hidden rounded-full bg-slate-950/40">
+                    <div className="h-2.5 overflow-hidden rounded-full bg-surface-sunken/40">
                       <div
                         className={clsx('h-full rounded-full transition-all', bar.tone)}
                         style={{ width: `${bar.max ? Math.round((bar.value / bar.max) * 100) : 0}%` }}
@@ -390,7 +390,7 @@ const PublicFitCard = () => {
                 ))}
               </div>
               <div className="mt-6">
-                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-white/35">8-tier club ladder</p>
+                <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-ink-subtle/70">8-tier club ladder</p>
                 <div className="flex gap-1.5">
                   {Array.from({ length: totalTiers }, (_, i) => {
                     const tier = i + 1;
@@ -403,7 +403,7 @@ const PublicFitCard = () => {
                           'flex h-9 flex-1 items-center justify-center rounded-lg border text-[10px] font-black',
                           done && 'border-emerald-400/30 bg-emerald-400/15 text-emerald-200',
                           active && !done && 'border-primary/40 bg-primary/15 text-primary',
-                          !done && !active && 'border-slate-300/10 bg-slate-950/35 text-white/25'
+                          !done && !active && 'border-border bg-surface-sunken/35 text-ink-subtle/70'
                         )}
                       >
                         {tier}
@@ -414,14 +414,14 @@ const PublicFitCard = () => {
               </div>
               <div className="mt-6 grid gap-2 sm:grid-cols-2">
                 {chartMissions.map((row) => (
-                  <div key={row.label} className="rounded-xl border border-slate-300/10 bg-slate-950/35 px-3 py-2.5">
+                  <div key={row.label} className="rounded-xl border border-border bg-surface-sunken/35 px-3 py-2.5">
                     <motion.div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-[10px] font-black uppercase text-white/45">{row.label}</p>
-                      <span className="text-[10px] font-black text-white/70">
+                      <p className="truncate text-[10px] font-black uppercase text-ink-subtle">{row.label}</p>
+                      <span className="text-[10px] font-black text-ink-muted">
                         {row.done ? '✓' : row.locked ? <LockKeyhole size={10} className="inline" /> : `${row.percent}%`}
                       </span>
                     </motion.div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-950/40">
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-sunken/40">
                       <div
                         className={clsx('h-full rounded-full', row.done ? 'bg-emerald-400' : row.locked ? 'bg-white/20' : 'bg-primary')}
                         style={{ width: `${row.percent}%` }}
@@ -434,18 +434,18 @@ const PublicFitCard = () => {
 
             <section className="grid gap-4 sm:grid-cols-2">
               {activeBadge && (
-                <div className="rounded-lg border border-primary/25 bg-[linear-gradient(135deg,rgba(241,130,44,0.18),rgba(255,255,255,0.035))] p-5 backdrop-blur-xl">
+                <div className="rounded-lg border border-primary/25 bg-[linear-gradient(135deg,rgba(255,87,34,0.18),rgba(255,255,255,0.035))] p-5 backdrop-blur-xl">
                   <p className="text-[10px] font-black uppercase tracking-widest text-primary">Current badge</p>
                   <div className="mt-3 flex items-center gap-3">
                     <div
-                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300/10 bg-slate-950/45"
-                      style={{ color: activeBadge.badge?.color || '#f1822c' }}
+                      className="flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-surface-sunken/45"
+                      style={{ color: activeBadge.badge?.color || '#FF5722' }}
                     >
                       {renderMissionIcon(activeBadge.badge?.icon, activeBadge.mission?.mission_type, 22)}
                     </div>
                     <div>
-                      <p className="text-lg font-black text-white">{activeBadge.badge?.name}</p>
-                      <p className="text-xs font-semibold text-white/45">{activeBadge.mission?.title}</p>
+                      <p className="text-lg font-black text-ink">{activeBadge.badge?.name}</p>
+                      <p className="text-xs font-semibold text-ink-subtle">{activeBadge.mission?.title}</p>
                     </div>
                   </div>
                 </div>
@@ -456,9 +456,9 @@ const PublicFitCard = () => {
                   <div className="mt-3 flex items-start gap-3">
                     <Users className="shrink-0 text-emerald-300" size={22} />
                     <div>
-                      <p className="text-lg font-black text-white">{activeClub.name}</p>
+                      <p className="text-lg font-black text-ink">{activeClub.name}</p>
                       {activeClub.definition && (
-                        <p className="mt-1 text-xs font-semibold leading-5 text-white/50 line-clamp-3">{activeClub.definition}</p>
+                        <p className="mt-1 text-xs font-semibold leading-5 text-ink-subtle line-clamp-3">{activeClub.definition}</p>
                       )}
                       {!!activeClub.facilities?.length && (
                         <div className="mt-2 flex flex-wrap gap-1">
@@ -473,24 +473,24 @@ const PublicFitCard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/35">Club status</p>
-                  <p className="mt-2 text-sm font-semibold text-white/55">
+                <div className="rounded-lg border border-border bg-surface/55 p-5 backdrop-blur-xl">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-ink-subtle/70">Club status</p>
+                  <p className="mt-2 text-sm font-semibold text-ink-subtle">
                     {card.member.name} is working toward their first club unlock at {card.gym.name}.
                   </p>
                 </div>
               )}
             </section>
 
-            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-5 backdrop-blur-xl">
+            <section className="rounded-lg border border-border bg-surface/55 p-5 backdrop-blur-xl">
               <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
-                <div className="mx-auto rounded-xl border border-slate-300/15 bg-white p-3">
-                  <QRCodeSVG value={invitePayload} size={108} fgColor="#0F172A" />
+                <div className="mx-auto rounded-xl border border-border bg-white p-3">
+                  <QRCodeSVG value={invitePayload} size={108} fgColor="#131315" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Scan to join</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-ink-subtle/70">Scan to join</p>
                   <p className="mt-1 text-lg font-black">{card.member.name}&apos;s challenge</p>
-                  <p className="mt-2 text-sm font-semibold text-white/45">{card.trial_offer?.description}</p>
+                  <p className="mt-2 text-sm font-semibold text-ink-subtle">{card.trial_offer?.description}</p>
                   {card.share?.share_url && (
                     <p className="mt-2 truncate text-xs font-bold text-primary/80">{card.share.share_url}</p>
                   )}
@@ -500,12 +500,12 @@ const PublicFitCard = () => {
           </div>
 
           <div className="space-y-6">
-            <section className="rounded-lg border border-slate-300/10 bg-slate-900/55 p-6 backdrop-blur-xl sm:p-8 lg:sticky lg:top-6">
+            <section className="rounded-lg border border-border bg-surface/55 p-6 backdrop-blur-xl sm:p-8 lg:sticky lg:top-6">
               <div className="flex items-center gap-3">
                 <UserPlus className="text-primary" size={22} />
                 <div>
                   <h2 className="text-2xl font-black tracking-tight">Claim your trial workout</h2>
-                  <p className="mt-1 text-sm font-semibold text-white/45">Share your contact and the gym team will follow up.</p>
+                  <p className="mt-1 text-sm font-semibold text-ink-subtle">Share your contact and the gym team will follow up.</p>
                 </div>
               </div>
               <form onSubmit={submitLead} className="mt-6 space-y-4">
@@ -527,7 +527,7 @@ const PublicFitCard = () => {
                   <Gift size={16} />
                   <p className="text-xs font-black uppercase tracking-widest">Why join</p>
                 </div>
-                <p className="mt-2 text-sm font-semibold leading-6 text-white/55">
+                <p className="mt-2 text-sm font-semibold leading-6 text-ink-subtle">
                   Earn badges, unlock real gym clubs, and collect ₹ loyalty credits in your Gymmigo wallet — on any membership plan.
                 </p>
               </div>
@@ -547,7 +547,7 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
   const memberName = card?.member?.name || 'Gymmigo Member';
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#07111f] text-white">
+    <main className="min-h-screen overflow-hidden bg-surface-sunken text-ink">
       <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
         <header className="flex items-center justify-between gap-4">
           <Link to="/">
@@ -558,8 +558,8 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
           </span>
         </header>
 
-        <section className="relative mt-8 overflow-hidden rounded-2xl border border-cyan-300/15 bg-slate-950/70 p-5 shadow-2xl shadow-cyan-950/30 sm:p-8">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.18),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(241,130,44,0.18),transparent_35%)]" />
+        <section className="relative mt-8 overflow-hidden rounded-2xl border border-cyan-300/15 bg-surface-sunken/70 p-5 shadow-2xl shadow-cyan-950/30 sm:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.18),transparent_34%),radial-gradient(circle_at_82%_12%,rgba(255,87,34,0.18),transparent_35%)]" />
           <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
@@ -567,7 +567,7 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
               </div>
               <div>
                 <h1 className="text-4xl font-display font-black tracking-tight sm:text-6xl">{memberName}</h1>
-                <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/50">
+                <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-ink-subtle">
                   Permanent Gymmigo Fitness Card profile with verified progress, social gallery, and a six-character Fitness ID.
                 </p>
               </div>
@@ -588,22 +588,22 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
                 </a>
                 <Link
                   to="/"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-white/70 transition hover:border-primary/30 hover:text-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-ink-muted transition hover:border-primary/30 hover:text-ink"
                 >
                   Join Gymmigo <ArrowRight size={16} />
                 </Link>
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[360px] rounded-[28px] border border-cyan-200/20 bg-gradient-to-br from-slate-950 via-[#121a2a] to-slate-950 p-5 shadow-2xl shadow-cyan-500/20">
+            <div className="relative mx-auto w-full max-w-[360px] rounded-[28px] border border-cyan-200/20 bg-gradient-to-br from-background via-[#1B1B1D] to-background p-5 shadow-2xl shadow-cyan-500/20">
               <div className="absolute inset-0 rounded-[28px] bg-gradient-to-tr from-primary/25 via-cyan-400/15 to-fuchsia-400/10 opacity-80" />
               <div className="relative flex aspect-[1.58/1] flex-col justify-between">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[8px] font-black uppercase tracking-[0.24em] text-white/40">Fitness Card</p>
+                    <p className="text-[8px] font-black uppercase tracking-[0.24em] text-ink-subtle">Fitness Card</p>
                     <p className="mt-1 text-sm font-black tracking-widest">GYMMIGO CORE</p>
                   </div>
-                  <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[9px] font-black uppercase text-white/80">
+                  <span className="rounded-full border border-border bg-white/10 px-3 py-1 text-[9px] font-black uppercase text-ink-muted">
                     {tierLabel}
                   </span>
                 </div>
@@ -615,7 +615,7 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
 
                 <div className="flex items-end justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10">
+                    <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-border bg-white/10">
                       {card?.member?.avatar_url ? (
                         <img src={card.member.avatar_url} alt="" className="h-full w-full object-cover" />
                       ) : (
@@ -623,12 +623,12 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
                       )}
                     </div>
                     <div>
-                      <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Verified</p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-ink-subtle">Verified</p>
                       <p className="text-xs font-black text-emerald-200">Active profile</p>
                     </div>
                   </div>
                   <div className="rounded-xl bg-white p-2">
-                    <QRCodeSVG value={qrPayload} size={44} fgColor="#0F172A" />
+                    <QRCodeSVG value={qrPayload} size={44} fgColor="#131315" />
                   </div>
                 </div>
               </div>
@@ -643,7 +643,7 @@ const PublicFitnessCardProfile = ({ card, cardCode }: { card: any; cardCode: str
 const GymLogo = ({ src, name }: { src?: string | null; name: string }) => {
   const [failed, setFailed] = useState(false);
   return (
-    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-300/15 bg-slate-950/45 p-1">
+    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-sunken/45 p-1">
       {src && !failed ? (
         <img src={src} alt={`${name} logo`} className="h-full w-full object-contain" onError={() => setFailed(true)} />
       ) : (
@@ -654,20 +654,20 @@ const GymLogo = ({ src, name }: { src?: string | null; name: string }) => {
 };
 
 const StatTile = ({ label, value, tone = 'white' }: { label: string; value: number | string; tone?: 'white' | 'orange' | 'green' }) => (
-  <div className="rounded-lg border border-slate-300/10 bg-slate-950/45 p-3">
-    <p className="text-[10px] font-black uppercase text-white/35">{label}</p>
+  <div className="rounded-lg border border-border bg-surface-sunken/45 p-3">
+    <p className="text-[10px] font-black uppercase text-ink-subtle/70">{label}</p>
     <p className={clsx(
       'mt-1 text-xl font-black',
       tone === 'orange' && 'text-primary',
       tone === 'green' && 'text-emerald-300',
-      tone === 'white' && 'text-white'
+      tone === 'white' && 'text-ink'
     )}>{value}</p>
   </div>
 );
 
 const Metric = ({ label, value }: { label: string; value: number | string }) => (
-  <div className="rounded-xl border border-slate-300/10 bg-slate-950/35 p-3">
-    <p className="text-[9px] font-black uppercase tracking-widest text-white/30">{label}</p>
+  <div className="rounded-xl border border-border bg-surface-sunken/35 p-3">
+    <p className="text-[9px] font-black uppercase tracking-widest text-ink-subtle/70">{label}</p>
     <p className="mt-1 text-xl font-black">{value}</p>
   </div>
 );
@@ -688,7 +688,7 @@ const Field = ({
   type?: string;
 }) => (
   <label className="block">
-    <span className="text-[10px] font-black uppercase tracking-widest text-white/30">{label}</span>
+    <span className="text-[10px] font-black uppercase tracking-widest text-ink-subtle/70">{label}</span>
     <input
       type={type}
       value={value}
@@ -696,7 +696,7 @@ const Field = ({
       required={required}
       minLength={required ? 2 : undefined}
       placeholder={placeholder}
-      className="mt-2 w-full rounded-2xl border border-slate-300/10 bg-slate-950/55 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-white/25 focus:border-primary/50"
+      className="mt-2 w-full rounded-2xl border border-border bg-surface-sunken/55 px-4 py-3 text-sm font-bold text-ink outline-none transition placeholder:text-ink-subtle/70 focus:border-primary/50"
     />
   </label>
 );

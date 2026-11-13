@@ -40,23 +40,23 @@ export default function LandingPage() {
     <PublicSiteFrame active="home">
       {(actions) => (
         <>
-          <section className="relative min-h-[92svh] overflow-hidden border-b border-white/10">
+          <section className="relative min-h-[92svh] overflow-hidden border-b border-border">
             <img src={premiumHero} alt="Premium Gymmigo fitness facility" className="absolute inset-0 h-full w-full object-cover" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,15,29,0.96)_0%,rgba(9,15,29,0.82)_42%,rgba(9,15,29,0.36)_100%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,15,29,0.34)_0%,rgba(9,15,29,0.18)_58%,#090f1d_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,15,29,0.34)_0%,rgba(9,15,29,0.18)_58%,#0E0E10_100%)]" />
             <div className="relative mx-auto flex min-h-[92svh] max-w-7xl items-center px-4 pb-20 pt-32 sm:px-6">
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-4xl space-y-8">
-                <div className="inline-flex flex-wrap items-center gap-3 rounded-full border border-white/15 bg-white/[0.08] px-4 py-2 backdrop-blur">
+                <div className="inline-flex flex-wrap items-center gap-3 rounded-full border border-border bg-white/[0.08] px-4 py-2 backdrop-blur">
                   <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-300" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.32em] text-white/70">
+                  <span className="text-[11px] font-black uppercase tracking-[0.32em] text-ink-muted">
                     Gymmigo Fitness Operating System
                   </span>
                 </div>
                 <div className="space-y-5">
-                  <h1 className="max-w-5xl text-5xl font-black leading-[0.88] tracking-tight text-white sm:text-7xl lg:text-8xl">
+                  <h1 className="max-w-5xl text-5xl font-black leading-[0.88] tracking-tight text-ink sm:text-7xl lg:text-8xl">
                     One platform for gyms, trainers, members, rewards, AI, and shop.
                   </h1>
-                  <p className="max-w-2xl text-lg font-semibold leading-8 text-white/70 sm:text-xl">
+                  <p className="max-w-2xl text-lg font-semibold leading-8 text-ink-muted sm:text-xl">
                     Gymmigo connects the full fitness loop: discover, join, check in, train with Migo AI, book trainers, earn rewards, use wallet value, and shop.
                   </p>
                 </div>
@@ -67,7 +67,7 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={() => actions.openLead('owner', 'homepage hero demo')}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.08] px-6 py-4 text-sm font-black uppercase tracking-widest text-white transition hover:border-primary/40"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.08] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink transition hover:border-primary/40"
                   >
                     Book demo <MessageCircle size={18} />
                   </button>
@@ -80,7 +80,7 @@ export default function LandingPage() {
                   </button>
                   <Link
                     to={actions.appLink('/app/discovery')}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-black/25 px-6 py-4 text-sm font-black uppercase tracking-widest text-white/75 transition hover:text-white"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-black/25 px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted transition hover:text-ink"
                   >
                     Explore gyms <Sparkles size={18} />
                   </Link>
@@ -116,10 +116,10 @@ export default function LandingPage() {
                       <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-lg border ${tone.bg} ${tone.border} ${tone.text}`}>
                         <Icon size={26} />
                       </div>
-                      <h3 className="text-2xl font-black text-white">{role.title}</h3>
-                      <p className="mt-3 min-h-[96px] text-sm font-semibold leading-6 text-white/50">{role.desc}</p>
+                      <h3 className="text-2xl font-black text-ink">{role.title}</h3>
+                      <p className="mt-3 min-h-[96px] text-sm font-semibold leading-6 text-ink-subtle">{role.desc}</p>
                       <div className="mt-6 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-                        <Link to={role.href} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/[0.07] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white/75 transition hover:bg-white/[0.11] hover:text-white">
+                        <Link to={role.href} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/[0.07] px-4 py-3 text-[11px] font-black uppercase tracking-widest text-ink-muted transition hover:bg-white/[0.11] hover:text-ink">
                           {role.cta} <ArrowRight size={15} />
                         </Link>
                         <button type="button" onClick={() => actions.openLead(role.leadRole, `${role.title} card`)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/25 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-primary transition hover:bg-primary/10">
@@ -133,7 +133,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="border-y border-white/10 bg-white/[0.025] py-20 sm:py-28">
+          <section className="border-y border-border bg-white/[0.025] py-20 sm:py-28">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
               <SectionHeader
                 eyebrow="Platform flow"
@@ -150,14 +150,14 @@ export default function LandingPage() {
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.04 }}
                       viewport={{ once: true }}
-                      className="rounded-xl border border-white/10 bg-[#0f172a]/72 p-5"
+                      className="rounded-xl border border-border bg-background/72 p-5"
                     >
                       <div className="flex items-center justify-between gap-4">
                         <span className="text-[11px] font-black text-primary">{item.step}</span>
-                        <Icon size={20} className="text-white/40" />
+                        <Icon size={20} className="text-ink-subtle" />
                       </div>
-                      <h3 className="mt-5 text-lg font-black leading-tight text-white">{item.title}</h3>
-                      <p className="mt-3 text-xs font-semibold leading-5 text-white/50">{item.desc}</p>
+                      <h3 className="mt-5 text-lg font-black leading-tight text-ink">{item.title}</h3>
+                      <p className="mt-3 text-xs font-semibold leading-5 text-ink-subtle">{item.desc}</p>
                     </motion.div>
                   );
                 })}
@@ -173,12 +173,12 @@ export default function LandingPage() {
                   title="All points covered in one public story."
                   copy="The feature grid covers members, gym owners, trainers, shop, AI, wallet, finance, CRM, bookings, and legal trust without adding backend scope."
                 />
-                <div className="rounded-xl border border-white/10 bg-white/[0.045] p-5">
+                <div className="rounded-xl border border-border bg-white/[0.045] p-5">
                   <div className="flex items-start gap-4">
                     <Bot className="shrink-0 text-primary" size={30} />
                     <div>
-                      <h3 className="text-xl font-black text-white">Migo AI stays polished.</h3>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-white/50">
+                      <h3 className="text-xl font-black text-ink">Migo AI stays polished.</h3>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-ink-subtle">
                         The public site explains AI coaching while the app and backend sanitizer keep tool traces out of user-facing messages.
                       </p>
                     </div>
@@ -197,7 +197,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="border-y border-white/10 bg-[#0b1222] py-20 sm:py-28">
+          <section className="border-y border-border bg-surface-sunken py-20 sm:py-28">
             <div className="mx-auto max-w-7xl px-4 sm:px-6">
               <SectionHeader
                 eyebrow="Product previews"
@@ -238,17 +238,17 @@ export default function LandingPage() {
             <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div className="space-y-6">
                 <p className="text-[11px] font-black uppercase tracking-[0.35em] text-emerald-300">Shop and wallet</p>
-                <h2 className="text-4xl font-black leading-tight text-white sm:text-6xl">
+                <h2 className="text-4xl font-black leading-tight text-ink sm:text-6xl">
                   Rewards should lead somewhere useful.
                 </h2>
-                <p className="max-w-xl text-base font-semibold leading-7 text-white/50">
+                <p className="max-w-xl text-base font-semibold leading-7 text-ink-subtle">
                   Gymmigo connects Club Road, wallet value, reward claims, and supplement partner offers to a dedicated external shop.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <button type="button" onClick={actions.openShop} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-300 px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
                     Open shop popup <ShoppingBag size={17} />
                   </button>
-                  <a href={SHOP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-white/75 hover:text-white">
+                  <a href={SHOP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted hover:text-ink">
                     Direct shop <ExternalLink size={17} />
                   </a>
                 </div>
@@ -259,15 +259,15 @@ export default function LandingPage() {
                     <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-lg border border-emerald-300/25 bg-emerald-300/[0.12] text-emerald-200">
                       {index === 0 ? <ShoppingBag size={21} /> : index === 1 ? <Sparkles size={21} /> : index === 2 ? <CheckCircle2 size={21} /> : <PlayCircle size={21} />}
                     </div>
-                    <h3 className="text-lg font-black text-white">{item}</h3>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-white/50">Visible value that keeps the member reward loop concrete.</p>
+                    <h3 className="text-lg font-black text-ink">{item}</h3>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-ink-subtle">Visible value that keeps the member reward loop concrete.</p>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="border-y border-white/10 bg-white/[0.025] py-20 sm:py-28">
+          <section className="border-y border-border bg-white/[0.025] py-20 sm:py-28">
             <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
               <SectionHeader
                 eyebrow="Trust and support"
@@ -281,10 +281,10 @@ export default function LandingPage() {
                   ['WhatsApp-first', 'Demo, pricing, role questions, and setup support open direct WhatsApp.', MessageCircle],
                   ['Email fallback', 'Official email fallback is available for formal queries and support.', Sparkles],
                 ].map(([title, desc, Icon]) => (
-                  <div key={title as string} className="rounded-xl border border-white/10 bg-white/[0.045] p-6">
+                  <div key={title as string} className="rounded-xl border border-border bg-white/[0.045] p-6">
                     <Icon className="text-primary" size={24} />
-                    <h3 className="mt-5 text-xl font-black text-white">{title as string}</h3>
-                    <p className="mt-3 text-sm font-semibold leading-6 text-white/50">{desc as string}</p>
+                    <h3 className="mt-5 text-xl font-black text-ink">{title as string}</h3>
+                    <p className="mt-3 text-sm font-semibold leading-6 text-ink-subtle">{desc as string}</p>
                   </div>
                 ))}
               </div>
@@ -299,28 +299,28 @@ export default function LandingPage() {
           </section>
 
           <section className="px-4 pb-20 sm:px-6">
-            <div className="mx-auto max-w-7xl overflow-hidden rounded-xl border border-primary/25 bg-[#0b1222]">
+            <div className="mx-auto max-w-7xl overflow-hidden rounded-xl border border-primary/25 bg-surface-sunken">
               <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
                 <div className="p-8 sm:p-12">
                   <p className="text-[11px] font-black uppercase tracking-[0.35em] text-primary">Start now</p>
-                  <h2 className="mt-5 text-4xl font-black leading-tight text-white sm:text-6xl">
+                  <h2 className="mt-5 text-4xl font-black leading-tight text-ink sm:text-6xl">
                     Bring your fitness ecosystem into one connected platform.
                   </h2>
-                  <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-white/50">
+                  <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-ink-subtle">
                     Members get motivation. Owners get control. Trainers get business tools. Gymmigo ties the loop together.
                   </p>
                   <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                     <button type="button" onClick={() => actions.openLead('general', 'homepage final CTA')} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-4 text-sm font-black uppercase tracking-widest text-black">
                       Talk on WhatsApp <MessageCircle size={17} />
                     </button>
-                    <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-white/75 hover:text-white">
+                    <a href={PLAY_STORE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white/[0.06] px-6 py-4 text-sm font-black uppercase tracking-widest text-ink-muted hover:text-ink">
                       Play Store <ExternalLink size={17} />
                     </a>
                   </div>
                 </div>
                 <div
                   className="min-h-[320px] bg-cover bg-center"
-                  style={{ backgroundImage: `linear-gradient(135deg,rgba(241,130,44,0.24),rgba(52,211,153,0.16)),url(${premiumHero})` }}
+                  style={{ backgroundImage: `linear-gradient(135deg,rgba(255,87,34,0.24),rgba(52,211,153,0.16)),url(${premiumHero})` }}
                 />
               </div>
             </div>
@@ -353,14 +353,14 @@ function PreviewPanel({
         <div className={`flex h-12 w-12 items-center justify-center rounded-lg border ${toneClass.bg} ${toneClass.border} ${toneClass.text}`}>
           {icon}
         </div>
-        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/40">
+        <span className="rounded-full border border-border bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-ink-subtle">
           {label}
         </span>
       </div>
-      <h3 className="mt-6 text-2xl font-black leading-tight text-white">{title}</h3>
+      <h3 className="mt-6 text-2xl font-black leading-tight text-ink">{title}</h3>
       <div className="mt-6 space-y-3">
         {items.map((item) => (
-          <div key={item} className="flex gap-3 text-sm font-semibold leading-6 text-white/50">
+          <div key={item} className="flex gap-3 text-sm font-semibold leading-6 text-ink-subtle">
             <CheckCircle2 className={toneClass.text} size={16} />
             <span>{item}</span>
           </div>

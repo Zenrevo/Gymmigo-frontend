@@ -35,7 +35,7 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: Moda
           />
           
           {/* Modal Container */}
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+          <div data-theme="dark" className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

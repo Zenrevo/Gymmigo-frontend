@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 .env
 .env.local
-firebaseConfig.js
+firebaseConfig.jstest-results/
+playwright-report/

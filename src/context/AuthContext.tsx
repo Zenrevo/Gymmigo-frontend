@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api, { getApiErrorMessage } from '../utils/api';
+import { COMPLETED_ROLES_KEY, readLocalCompletions, rememberCompletion, withLocalCompletions } from '../auth/onboarding';
+
+const storage = () => (typeof window !== 'undefined' ? window.localStorage : undefined);
+const mergeLocal = <T extends Parameters<typeof withLocalCompletions>[0] & { id: string }>(u: T): T => (u?.id ? withLocalCompletions(u, readLocalCompletions(storage(), u.id)) : u);
 
 interface User {
   id: string;
@@ -19,6 +23,8 @@ interface AuthContextType {
   logout: () => void;
   switchRole: (role: string) => Promise<void>;
   refreshUser: () => Promise<void>;
+  /** Records a finished onboarding for `role` (survives a stale /auth/me) and makes it active locally. */
+  markRoleCompleted: (role: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,7 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);
     setToken(accessToken);
-    setUser(userData);
+    setUser(mergeLocal(userData));
     setIsLoading(false);
   };
 
@@ -69,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem(COMPLETED_ROLES_KEY);
     setToken(null);
     setUser(null);
     setIsLoading(false);
@@ -84,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.get('/auth/me');
       if (response.data.success) {
-        setUser(response.data.data);
+        setUser(mergeLocal(response.data.data));
       } else {
         // If /me fails with success=false, try a refresh first before giving up
         const newToken = await attemptTokenRefresh();
@@ -124,12 +131,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const markRoleCompleted = async (role: string) => {
+    if (user?.id) rememberCompletion(storage(), user.id, role);
+    await refreshUser();
+    setUser(prev => {
+      if (!prev) return prev;
+      const roles = prev.roles?.some((r: { role: string }) => r.role === role)
+        ? prev.roles.map((r: { role: string; is_completed?: boolean }) => (r.role === role ? { ...r, is_completed: true } : r))
+        : [...(prev.roles ?? []), { role, is_completed: true }];
+      return { ...prev, active_role: role, roles };
+    });
+  };
+
   useEffect(() => {
     refreshUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout, switchRole, refreshUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, logout, switchRole, refreshUser, markRoleCompleted }}>
       {children}
     </AuthContext.Provider>
   );
