@@ -200,7 +200,7 @@ function Studio({ data }: { data: ShareCardData }) {
           </ListGroup>
 
           <Card padding="lg" className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2">
               <Button label="Download" icon={Download} size="md" onClick={download} loading={busy === 'download'} />
               <Button label="Copy link" icon={Copy} size="md" variant="secondary" onClick={copyLink} loading={busy === 'copy'} />
               <Button label="WhatsApp" icon={MessageCircle} size="md" variant="secondary" onClick={() => openIntent('whatsapp')} loading={busy === 'whatsapp'} />

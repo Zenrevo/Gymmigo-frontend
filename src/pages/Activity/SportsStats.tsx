@@ -109,12 +109,21 @@ export function PaceTrendCard({ list }: { list: ActivityLike[] }) {
             </Text>
           ) : null}
         </div>
-        <svg viewBox={`0 0 ${W} ${H}`} className="h-28 w-full" role="img" aria-label="Pace of recent runs">
-          <polyline points={xy.map(([x, y]) => `${x},${y}`).join(' ')} fill="none" stroke="var(--gm-accent)" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
-          {xy.map(([x, y], i) => (
-            <circle key={i} cx={x} cy={y} r={i === xy.length - 1 ? 6 : 4} fill={i === xy.length - 1 ? 'var(--gm-accent)' : 'var(--gm-surface)'} stroke="var(--gm-accent)" strokeWidth={2} />
-          ))}
-        </svg>
+        <div className="relative h-28 w-full" role="img" aria-label="Pace of recent runs">
+          <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden>
+            <polyline points={xy.map(([x, y]) => `${x},${y}`).join(' ')} fill="none" stroke="var(--gm-accent)" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          </svg>
+          {xy.map(([x, y], i) => {
+            const last = i === xy.length - 1;
+            return (
+              <span
+                key={i}
+                className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent ${last ? 'h-3 w-3 bg-accent' : 'h-2 w-2 bg-surface'}`}
+                style={{ left: `${(x / W) * 100}%`, top: `${(y / H) * 100}%` }}
+              />
+            );
+          })}
+        </div>
         <Text variant="caption" tone="subtle">
           Best {formatPace(lo)}/km · slowest {formatPace(hi)}/km
         </Text>
