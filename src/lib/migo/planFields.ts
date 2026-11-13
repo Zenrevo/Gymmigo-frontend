@@ -64,3 +64,10 @@ export function planMeta(rec: Recommendation) {
     ).filter((m): m is [string, string] => !!m[1]),
   };
 }
+
+/** Program rest days arrive as type "workout"; tell them apart by the outline's day type or the title. */
+export function isRestDay(rec: Recommendation): boolean {
+  const raw = (rec.structured_data ?? {}) as Record<string, unknown>;
+  if (raw.day_type === 'rest' || raw.type === 'rest') return true;
+  return /\b(rest|recovery)\b/i.test(`${rec.title ?? ''} ${typeof raw.focus === 'string' ? raw.focus : ''}`);
+}

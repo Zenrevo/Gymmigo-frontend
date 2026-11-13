@@ -44,3 +44,10 @@ test('plan titles never show table headers or meter tags', () => {
   expect(plainTitle('[METER:7/10:Workout Intensity]\n**Full Body Fat-Loss Starter - 25 min**')).toBe('Full Body Fat-Loss Starter - 25 min');
   expect(plainTitle('Leg day')).toBe('Leg day');
 });
+
+test('quote lines become one quote block', () => {
+  expect(parseMarkdown('> Keep 1–2 reps in reserve\n> on every set.\nDone')).toEqual([
+    { kind: 'quote', text: 'Keep 1–2 reps in reserve on every set.' },
+    { kind: 'paragraph', text: 'Done' },
+  ]);
+});

@@ -5,6 +5,7 @@ export type MdBlock =
   | { kind: 'heading'; level: number; text: string }
   | { kind: 'bullet'; text: string; ordinal: string | null; indent: boolean }
   | { kind: 'paragraph'; text: string }
+  | { kind: 'quote'; text: string }
   | { kind: 'meter'; value: number; max: number; label: string }
   | { kind: 'image'; url: string; alt: string }
   | { kind: 'table'; headers: string[]; rows: string[][] }
@@ -82,6 +83,14 @@ export function parseMarkdown(content: string): MdBlock[] {
     }
     if (/^(-{3,}|\*{3,}|_{3,})$/.test(t)) {
       out.push({ kind: 'rule' });
+      continue;
+    }
+    if (/^>\s?/.test(t)) {
+      const parts: string[] = [];
+      while (i < lines.length && /^>\s?/.test(lines[i].trim())) parts.push(lines[i++].trim().replace(/^>\s?/, ''));
+      i--;
+      const text = parts.join(' ').trim();
+      if (text) out.push({ kind: 'quote', text });
       continue;
     }
     const bullet = /^\s*[-*•]\s+(.*)$/.exec(line);
