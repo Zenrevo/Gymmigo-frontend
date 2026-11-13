@@ -74,7 +74,7 @@ const ScheduleTab = () => {
     <div className="space-y-12">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+          <h2 className="text-3xl font-display font-extrabold tracking-tight flex items-center gap-3">
              <Clock className="text-accent-text" size={32} /> TIMINGS
           </h2>
           <p className="text-ink-muted text-sm">Manage your daily operating hours.</p>
@@ -132,7 +132,7 @@ const ScheduleTab = () => {
       </div>
 
       <div className="pt-8 border-t border-border">
-        <h3 className="text-2xl font-black tracking-tight mb-6 flex items-center gap-3">
+        <h3 className="text-2xl font-bold tracking-tight mb-6 flex items-center gap-3">
           <Activity className="text-success" /> BUSY PROFILING
         </h3>
         

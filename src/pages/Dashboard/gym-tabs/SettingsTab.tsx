@@ -110,7 +110,7 @@ const SettingsTab = () => {
   return (
     <div className="space-y-12 pb-12">
       <div className="flex items-center justify-between">
-         <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+         <h2 className="text-3xl font-display font-extrabold tracking-tight flex items-center gap-3">
            <Settings className="text-accent-text" size={32} /> GYM SETTINGS
          </h2>
       </div>
@@ -192,7 +192,7 @@ const SettingsTab = () => {
            </div>
 
            <form onSubmit={handleAddressSave} className="space-y-6">
-              <div className="bg-surface-raised border border-border rounded-2xl p-6 space-y-4">
+              <div className="bg-surface-raised border border-border rounded-gm-lg p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-info-soft flex items-center justify-center text-info">
@@ -204,7 +204,7 @@ const SettingsTab = () => {
                       rel="noopener noreferrer"
                       className="group/addr"
                     >
-                      <span className="block text-[10px] font-black uppercase tracking-widest text-ink-muted group-hover/addr:text-primary transition-colors">Current Pin Location</span>
+                      <span className="block text-[10px] font-bold uppercase tracking-widest text-ink-muted group-hover/addr:text-primary transition-colors">Current Pin Location</span>
                       <span className="block text-sm font-bold text-ink leading-tight group-hover/addr:text-primary group-hover/addr:underline underline-offset-2 transition-all">
                         {address.address_line1 || 'No location set yet'}
                       </span>
@@ -213,7 +213,7 @@ const SettingsTab = () => {
                   <button 
                     type="button" 
                     onClick={() => setIsMapOpen(true)}
-                    className="px-4 py-2 bg-info-soft hover:bg-info text-info hover:text-on-accent rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-info/30"
+                    className="px-4 py-2 bg-info-soft hover:bg-info text-info hover:text-on-accent rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border border-info/30"
                   >
                     Open Map
                   </button>
@@ -252,13 +252,13 @@ const SettingsTab = () => {
            </div>
            
            <form onSubmit={handleCapacitySave} className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-             <div className="bg-surface-raised p-6 rounded-2xl border border-border">
+             <div className="bg-surface-raised p-6 rounded-gm-lg border border-border">
                 <label className="block font-bold mb-1">Maximum Capacity</label>
                 <p className="text-xs text-ink-muted mb-4">Set the absolute maximum number of members allowed in the facility at once.</p>
                 <input required type="number" min="1" value={capacity.max_capacity} onChange={e => setCapacity({...capacity, max_capacity: e.target.value})} className="w-full max-w-[200px] bg-surface border border-border-strong rounded-xl p-3 text-ink text-xl font-bold font-mono focus:border-success outline-none" />
              </div>
              
-             <div className="bg-surface-raised p-6 rounded-2xl border border-border flex flex-col justify-between">
+             <div className="bg-surface-raised p-6 rounded-gm-lg border border-border flex flex-col justify-between">
                 <div>
                    <label className="block font-bold mb-1">24/7 Operations</label>
                    <p className="text-xs text-ink-muted mb-4">Toggle if your gym is open 24 hours a day, 7 days a week.</p>
@@ -269,7 +269,7 @@ const SettingsTab = () => {
                 </label>
              </div>
 
-             <div className="bg-surface-raised p-6 rounded-2xl border border-border flex flex-col justify-between border-accent-border bg-accent-soft">
+             <div className="bg-surface-raised p-6 rounded-gm-lg border border-border flex flex-col justify-between border-accent-border bg-accent-soft">
                 <div>
                    <label className="block font-bold mb-1">Performance Stats</label>
                    <p className="text-xs text-ink-muted mb-4">Show or hide revenue and member count statistics on your dashboard.</p>

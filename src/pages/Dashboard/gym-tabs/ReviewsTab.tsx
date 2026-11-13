@@ -63,7 +63,7 @@ const ReviewsTab = () => {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-         <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+         <h2 className="text-3xl font-display font-extrabold tracking-tight flex items-center gap-3">
            <MessageCircle className="text-accent-text" /> REVIEWS & FEEDBACK
          </h2>
       </div>
@@ -72,9 +72,9 @@ const ReviewsTab = () => {
         {/* Rating Summary */}
         <div className="bg-surface border border-border rounded-gm-xl shadow-card p-8 h-fit sticky top-24 space-y-6">
            <h3 className="font-bold text-sm uppercase tracking-widest text-ink-muted mb-4">Overall Score</h3>
-           <div className="flex flex-col items-center justify-center py-4 bg-surface-raised rounded-2xl border border-border">
+           <div className="flex flex-col items-center justify-center py-4 bg-surface-raised rounded-gm-lg border border-border">
              <div className="flex items-baseline gap-1">
-                <span className="text-6xl font-black text-accent-text">{avgRating.toFixed(1)}</span>
+                <span className="text-6xl font-bold text-accent-text">{avgRating.toFixed(1)}</span>
                 <span className="text-ink-subtle text-xl font-bold">/5</span>
              </div>
              <div className="flex gap-1 mt-2 mb-1">{renderStars(Math.round(avgRating))}</div>

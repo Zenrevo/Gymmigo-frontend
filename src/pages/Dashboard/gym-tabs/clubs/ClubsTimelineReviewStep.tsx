@@ -45,10 +45,10 @@ export default function ClubsTimelineReviewStep({
       <div className="shrink-0 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-text">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-text">
               {isPublished ? 'Published — Live' : 'Step 2 — Review'}
             </p>
-            <h2 className="text-xl font-black text-ink">
+            <h2 className="text-xl font-bold text-ink">
               {isPublished ? `${clubs.length} clubs active for members` : 'Tap a club to expand'}
             </h2>
           </div>
@@ -57,20 +57,20 @@ export default function ClubsTimelineReviewStep({
               <button
                 type="button"
                 onClick={onRebuild}
-                className="rounded-lg border border-accent-border px-3 py-2 text-[10px] font-black uppercase text-accent-text"
+                className="rounded-lg border border-accent-border px-3 py-2 text-[10px] font-bold uppercase text-accent-text"
               >
                 Rebuild journey
               </button>
             ) : (
               <>
-                <button type="button" onClick={onBack} className="rounded-lg border border-border px-3 py-2 text-[10px] font-black uppercase text-ink-muted">
+                <button type="button" onClick={onBack} className="rounded-lg border border-border px-3 py-2 text-[10px] font-bold uppercase text-ink-muted">
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={onRegenerate}
                   disabled={regenerating}
-                  className="rounded-lg border border-accent-border px-3 py-2 text-[10px] font-black uppercase text-accent-text disabled:opacity-50"
+                  className="rounded-lg border border-accent-border px-3 py-2 text-[10px] font-bold uppercase text-accent-text disabled:opacity-50"
                 >
                   {regenerating ? 'Regenerating…' : 'Regenerate'}
                 </button>
@@ -78,7 +78,7 @@ export default function ClubsTimelineReviewStep({
                   type="button"
                   onClick={onContinue}
                   disabled={errors.length > 0}
-                  className="inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-[10px] font-black uppercase text-on-accent disabled:opacity-50"
+                  className="inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-[10px] font-bold uppercase text-on-accent disabled:opacity-50"
                 >
                   Publish <ChevronRight size={12} />
                 </button>
@@ -146,20 +146,20 @@ export default function ClubsTimelineReviewStep({
                 onClick={() => toggle(club.mission_code)}
                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[11px] font-black text-accent-text">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[11px] font-bold text-accent-text">
                   {tier}
                 </span>
-                <span className="min-w-0 flex-1 truncate text-sm font-black text-ink">{club.club_name}</span>
+                <span className="min-w-0 flex-1 truncate text-sm font-bold text-ink">{club.club_name}</span>
                 <span className="hidden shrink-0 text-[10px] font-bold text-ink-subtle sm:inline">
                   {club.timeline_label || '—'}
                 </span>
                 {savings && (
-                  <span className="shrink-0 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-black text-success">
+                  <span className="shrink-0 rounded-md bg-success-soft px-2 py-0.5 text-[10px] font-bold text-success">
                     {savings}
                   </span>
                 )}
                 {isPublished && !club.is_active && (
-                  <span className="shrink-0 rounded-md bg-surface-sunken px-2 py-0.5 text-[10px] font-black text-ink-muted">
+                  <span className="shrink-0 rounded-md bg-surface-sunken px-2 py-0.5 text-[10px] font-bold text-ink-muted">
                     Off
                   </span>
                 )}
@@ -227,7 +227,7 @@ export default function ClubsTimelineReviewStep({
                       event.stopPropagation();
                       onEditTier(club);
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[10px] font-black uppercase text-ink-muted hover:text-ink"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[10px] font-bold uppercase text-ink-muted hover:text-ink"
                   >
                     <Pencil size={12} /> Edit
                   </button>
@@ -242,14 +242,14 @@ export default function ClubsTimelineReviewStep({
 }
 
 const Tag = ({ label }: { label: string }) => (
-  <span className="rounded-md border border-border bg-surface-sunken px-2 py-0.5 text-[9px] font-black uppercase text-ink-muted">
+  <span className="rounded-md border border-border bg-surface-sunken px-2 py-0.5 text-[9px] font-bold uppercase text-ink-muted">
     {label}
   </span>
 );
 
 const DetailBlock = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="space-y-1">
-    <p className="text-[10px] font-black uppercase tracking-wider text-ink-subtle">{title}</p>
+    <p className="text-[10px] font-bold uppercase tracking-wider text-ink-subtle">{title}</p>
     <div className="space-y-0.5">{children}</div>
   </div>
 );

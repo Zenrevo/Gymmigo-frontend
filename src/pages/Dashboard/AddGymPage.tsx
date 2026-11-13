@@ -185,7 +185,7 @@ const AddGymPage = () => {
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-5xl sm:text-6xl font-display font-black tracking-tighter text-accent-text">
+        <h1 className="text-5xl sm:text-6xl font-display font-extrabold tracking-tight text-accent-text">
           LIST YOUR GYM
         </h1>
         <p className="text-ink-muted max-w-lg">
@@ -211,7 +211,7 @@ const AddGymPage = () => {
                     <input 
                       type="text"
                       placeholder="e.g. Iron Paradise Gym"
-                      className="w-full bg-surface-raised border border-border rounded-2xl py-4 pl-12 pr-4 focus:border-accent outline-none transition-all text-xl font-bold"
+                      className="w-full bg-surface-raised border border-border rounded-gm-lg py-4 pl-12 pr-4 focus:border-accent outline-none transition-all text-xl font-bold"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       required
@@ -224,7 +224,7 @@ const AddGymPage = () => {
                   <textarea 
                     placeholder="Tell your future members what makes your gym special..."
                     rows={4}
-                    className="w-full bg-surface-raised border border-border rounded-2xl py-4 px-4 focus:border-accent outline-none transition-all resize-none"
+                    className="w-full bg-surface-raised border border-border rounded-gm-lg py-4 px-4 focus:border-accent outline-none transition-all resize-none"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     required
@@ -319,7 +319,7 @@ const AddGymPage = () => {
                   <button
                     type="button"
                     onClick={() => setIsMapOpen(true)}
-                    className="w-full flex items-center justify-between bg-surface-raised border border-border rounded-2xl p-6 hover:border-accent transition-all group"
+                    className="w-full flex items-center justify-between bg-surface-raised border border-border rounded-gm-lg p-6 hover:border-accent transition-all group"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-xl bg-accent-soft flex items-center justify-center text-accent-text group-hover:bg-accent group-hover:text-on-accent transition-all shadow-inner">
@@ -331,7 +331,7 @@ const AddGymPage = () => {
                         </span>
                         {formData.address_line1 ? (
                            <div className="flex items-center gap-2">
-                             <span className="text-[10px] bg-accent-soft text-accent-text px-2 py-0.5 rounded font-black tracking-widest uppercase">Verified Location</span>
+                             <span className="text-[10px] bg-accent-soft text-accent-text px-2 py-0.5 rounded font-bold tracking-widest uppercase">Verified Location</span>
                              <span className="text-[10px] text-ink-muted">{formData.city}, {formData.pincode}</span>
                            </div>
                         ) : (
@@ -461,7 +461,7 @@ const AddGymPage = () => {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center bg-surface-raised p-8 rounded-3xl border border-border">
+              <div className="flex justify-between items-center bg-surface-raised p-8 rounded-gm-xl border border-border">
                 <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
                   <ArrowLeft size={16} /> Back
                 </button>
@@ -482,7 +482,7 @@ const AddGymPage = () => {
             >
               <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-display font-black tracking-tighter">EQUIPMENT INVENTORY</h3>
+                  <h3 className="text-2xl font-display font-extrabold tracking-tight">EQUIPMENT INVENTORY</h3>
                   <button type="button" onClick={addEquipment} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 uppercase tracking-widest">
                     <Plus size={14} /> Add Equipment
                   </button>
@@ -527,16 +527,16 @@ const AddGymPage = () => {
                     </motion.div>
                   ))}
                   {formData.equipment.length === 0 && (
-                    <div className="p-12 border-2 border-dashed border-border rounded-3xl text-center text-ink-subtle ">
+                    <div className="p-12 border-2 border-dashed border-border rounded-gm-xl text-center text-ink-subtle ">
                       No specific equipment records added yet.
                     </div>
                   )}
                 </div>
               </div>
 
-              {error && <p className="text-danger text-sm text-center bg-danger-soft py-4 rounded-2xl border border-danger/30">{error}</p>}
+              {error && <p className="text-danger text-sm text-center bg-danger-soft py-4 rounded-gm-lg border border-danger/30">{error}</p>}
 
-              <div className="flex justify-between items-center bg-surface-raised p-10 rounded-3xl border border-border">
+              <div className="flex justify-between items-center bg-surface-raised p-10 rounded-gm-xl border border-border">
                 <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
                   <ArrowLeft size={16} /> Back
                 </button>

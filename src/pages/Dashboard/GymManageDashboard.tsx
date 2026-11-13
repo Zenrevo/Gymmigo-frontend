@@ -136,7 +136,7 @@ const GymManageDashboard = () => {
               <Building2 size={24} />
             </div>
             <div className="min-w-0">
-              <h1 className="text-xl font-display font-black tracking-tighter truncate uppercase">{gym.gym.name}</h1>
+              <h1 className="text-xl font-display font-extrabold tracking-tight truncate">{gym.gym.name}</h1>
               <p className="text-[10px] text-ink-muted uppercase tracking-widest font-mono">ID: {gym.gym.id.slice(0, 8)}</p>
               <div className="flex items-center gap-2 mt-2">
                 {gym.gym.is_verified ? (

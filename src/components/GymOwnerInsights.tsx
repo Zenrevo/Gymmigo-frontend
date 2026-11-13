@@ -53,7 +53,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
   return (
     <div className="space-y-8 mt-12">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black tracking-tighter uppercase">Gym Analytics</h2>
+        <h2 className="text-xl font-bold tracking-tight">Gym Analytics</h2>
         {gyms.length > 1 && (
           <select 
             value={selectedGymId || ''} 
@@ -88,7 +88,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
               </div>
               <div className="flex items-center gap-2 px-3 py-1 bg-success-soft border border-success/30 rounded-full">
                 <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                <span className="text-[10px] font-black tracking-widest text-success uppercase">Live</span>
+                <span className="text-[10px] font-bold tracking-widest text-success uppercase">Live</span>
               </div>
             </div>
             
@@ -130,7 +130,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                 <p className="text-xs text-ink-muted">Month-to-date breakdown</p>
               </div>
               <div className="text-right">
-                <span className="text-2xl font-black">₹{totalRevenue.toLocaleString()}</span>
+                <span className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</span>
                 <div className={clsx("text-[10px] font-bold tracking-widest uppercase flex items-center justify-end gap-1", momGrowth >= 0 ? "text-success" : "text-danger")}>
                   <TrendingUp size={10} className={momGrowth < 0 ? "rotate-180" : ""} /> {momGrowth > 0 ? '+' : ''}{momGrowth}% MoM
                 </div>
@@ -170,7 +170,7 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                 </h3>
                 <p className="text-xs text-ink-muted">Take action to prevent churn</p>
               </div>
-              <span className="bg-danger-soft text-danger border border-danger/30 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+              <span className="bg-danger-soft text-danger border border-danger/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                 {atRiskMembers.length} Action Needed
               </span>
             </div>
@@ -230,14 +230,14 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                   className="flex flex-col items-center justify-center gap-2 p-4 bg-surface-raised hover:bg-surface-sunken border border-border rounded-xl transition-all group"
                 >
                   <BellRing size={20} className="text-ink-muted group-hover:text-accent-text transition-colors" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Broadcast</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Broadcast</span>
                 </button>
                 <button 
                   onClick={() => handleAction('Flash Sale UI opened')}
                   className="flex flex-col items-center justify-center gap-2 p-4 bg-surface-raised hover:bg-surface-sunken border border-border rounded-xl transition-all group"
                 >
                   <TrendingUp size={20} className="text-ink-muted group-hover:text-success transition-colors" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Flash Sale</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Flash Sale</span>
                 </button>
               </div>
             </div>

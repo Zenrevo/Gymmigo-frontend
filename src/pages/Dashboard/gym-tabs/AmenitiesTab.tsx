@@ -50,7 +50,7 @@ const AmenitiesTab = () => {
     <div className="space-y-12">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+          <h2 className="text-3xl font-display font-extrabold tracking-tight flex items-center gap-3">
              <Wifi className="text-accent-text" size={32} /> AMENITIES
           </h2>
           <p className="text-ink-muted text-sm">Add perks and conveniences available to all members.</p>

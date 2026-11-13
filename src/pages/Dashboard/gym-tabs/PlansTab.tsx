@@ -1,10 +1,9 @@
+import { ConfirmDialog, Sheet } from '../../../components/kit';
 import { useState, useRef, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { CreditCard, Plus, CheckCircle2, MoreVertical, Edit3, Trash2, Clock, Package, X } from 'lucide-react';
 import api from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
-import Modal from '../../../components/Modal';
-import ConfirmDialog from '../../../components/ConfirmDialog';
 import EmptyState from '../../../components/EmptyState';
 
 const PlansTab = () => {
@@ -236,7 +235,7 @@ const PlansTab = () => {
       {/* Header & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight ">MEMBERSHIP & SERVICES</h2>
+          <h2 className="text-3xl font-display font-extrabold tracking-tight ">MEMBERSHIP & SERVICES</h2>
           <p className="text-ink-muted text-sm">Configure your time-slots, pricing, and add-ons.</p>
           
           <div className="flex gap-4 mt-6">
@@ -279,7 +278,7 @@ const PlansTab = () => {
                   <div className="h-px flex-1 bg-surface-sunken" />
                   <div className="flex items-center gap-2 px-4 py-1.5 bg-surface-raised border border-border rounded-full">
                     <Clock size={14} className="text-accent-text" />
-                    <span className="text-sm font-black uppercase tracking-widest">{slotName}</span>
+                    <span className="text-sm font-bold uppercase tracking-widest">{slotName}</span>
                   </div>
                   <div className="h-px flex-1 bg-surface-sunken" />
                 </div>
@@ -288,7 +287,7 @@ const PlansTab = () => {
                   {groupedPlans[slotName].map((plan: any) => (
                     <div key={plan.id} className="bg-surface border border-border rounded-gm-xl shadow-card p-6 relative flex flex-col h-full group overflow-hidden border-border hover:border-accent-border transition-all">
                       {plan.is_popular && (
-                        <div className="absolute top-0 right-0 bg-accent text-on-accent text-[10px] font-black px-4 py-1 rounded-bl-xl uppercase tracking-widest z-10 shadow-lg">
+                        <div className="absolute top-0 right-0 bg-accent text-on-accent text-[10px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest z-10 shadow-lg">
                           Most Popular
                         </div>
                       )}
@@ -297,7 +296,7 @@ const PlansTab = () => {
                         <div className="flex items-start justify-between">
                           <div>
                             <h4 className="text-xl font-bold uppercase tracking-tight">{plan.name}</h4>
-                            <p className="text-ink-muted text-[10px] uppercase font-bold tracking-tighter">
+                            <p className="text-ink-muted text-[10px] uppercase font-bold tracking-tight">
                               {plan.duration_type} ACCESS • {plan.duration_days} DAYS
                             </p>
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
@@ -326,7 +325,7 @@ const PlansTab = () => {
 
                         <div className="flex items-baseline gap-1">
                           <span className="text-ink-muted text-sm">₹</span>
-                          <span className="text-3xl font-black text-accent-text">{plan.discounted_price || plan.price}</span>
+                          <span className="text-3xl font-bold text-accent-text">{plan.discounted_price || plan.price}</span>
                           {plan.discounted_price && plan.discounted_price < plan.price && (
                             <span className="text-ink-subtle line-through text-xs ml-2">₹{plan.price}</span>
                           )}
@@ -394,10 +393,10 @@ const PlansTab = () => {
                   <div className="flex items-center justify-between pt-3 border-t border-border">
                     <div className="flex items-baseline gap-0.5">
                       <span className="text-[10px] text-ink-muted">₹</span>
-                      <span className="text-xl font-black text-accent-text">{addon.price}</span>
+                      <span className="text-xl font-bold text-accent-text">{addon.price}</span>
                       <span className="text-[8px] text-ink-muted ml-1 uppercase">/{addon.duration_type}</span>
                     </div>
-                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase ${addon.is_active ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
+                    <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase ${addon.is_active ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                       {addon.is_active ? 'Active' : 'Hidden'}
                     </span>
                   </div>
@@ -411,7 +410,7 @@ const PlansTab = () => {
       {/* --- MODALS --- */}
 
       {/* Plan Modal */}
-      <Modal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} title={selectedPlan ? "Edit Membership Plan" : "New Membership Plan"}>
+      <Sheet open={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} title={selectedPlan ? "Edit Membership Plan" : "New Membership Plan"}>
         <form onSubmit={handlePlanSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 md:col-span-1 relative">
@@ -470,7 +469,7 @@ const PlansTab = () => {
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Clock size={14} className="text-accent-text" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Access Time Slots</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Access Time Slots</span>
                 </div>
                 <button
                   type="button"
@@ -585,10 +584,10 @@ const PlansTab = () => {
              {isSubmitting ? 'Processing...' : (selectedPlan ? 'Save Changes' : 'Publish Plan')}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* Addon Modal */}
-      <Modal isOpen={isAddonModalOpen} onClose={() => setIsAddonModalOpen(false)} title={selectedAddon ? "Edit Add-on Service" : "New Add-on Service"}>
+      <Sheet open={isAddonModalOpen} onClose={() => setIsAddonModalOpen(false)} title={selectedAddon ? "Edit Add-on Service" : "New Add-on Service"}>
         <form onSubmit={handleAddonSave} className="space-y-4">
           <div>
             <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Service Name *</label>
@@ -619,26 +618,24 @@ const PlansTab = () => {
              {isSubmitting ? 'Processing...' : (selectedAddon ? 'Update Service' : 'Add Service')}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       <ConfirmDialog
-        isOpen={isPlanConfirmOpen}
+        open={isPlanConfirmOpen}
         onClose={() => setIsPlanConfirmOpen(false)}
         onConfirm={handlePlanDelete}
         title="Delete Plan"
-        message={<>Delete <strong>{selectedPlan?.name}</strong>? Existing active memberships won't be affected.</>}
-        isDangerous={true}
-        isLoading={isSubmitting}
+        message={`Delete ${selectedPlan?.name ?? 'this plan'}? Existing active memberships won't be affected.`}
+        tone="danger"
       />
 
       <ConfirmDialog
-        isOpen={isAddonConfirmOpen}
+        open={isAddonConfirmOpen}
         onClose={() => setIsAddonConfirmOpen(false)}
         onConfirm={handleAddonDelete}
         title="Delete Service"
-        message={<>Remove <strong>{selectedAddon?.name}</strong> from your secondary offerings?</>}
-        isDangerous={true}
-        isLoading={isSubmitting}
+        message={`Remove ${selectedAddon?.name ?? 'this service'} from your secondary offerings?`}
+        tone="danger"
       />
     </div>
   );

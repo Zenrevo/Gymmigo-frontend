@@ -319,20 +319,20 @@ const TrainerDashboard = () => {
         <div className="relative p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-4 sm:gap-6">
             <div className={clsx(
-              "w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl flex items-center justify-center relative transition-all duration-500 border-2 shrink-0",
+              "w-14 h-14 sm:w-20 sm:h-20 rounded-gm-lg sm:rounded-gm-xl flex items-center justify-center relative transition-all duration-500 border-2 shrink-0",
               isOnline 
                 ? "bg-success-soft border-success/30" 
                 : "bg-danger-soft border-danger/30"
             )}>
               {isOnline && (
-                <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-success-soft animate-ping" style={{ animationDuration: '2s' }} />
+                <div className="absolute inset-0 rounded-gm-lg sm:rounded-gm-xl bg-success-soft animate-ping" style={{ animationDuration: '2s' }} />
               )}
               <Zap size={28} className={clsx("relative z-10 sm:w-8 sm:h-8", isOnline ? "text-success" : "text-danger")} />
             </div>
             
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1">
-                <h2 className="text-xl sm:text-2xl font-display font-black tracking-tighter uppercase truncate">
+                <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight truncate">
                   {isOnline ? 'YOU\'RE ONLINE' : 'YOU\'RE OFFLINE'}
                 </h2>
                 {stats?.verification_status === 'verified' && (
@@ -362,7 +362,7 @@ const TrainerDashboard = () => {
             onClick={handleToggleAvailability}
             disabled={toggling}
             className={clsx(
-              "w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all border-2 min-w-[160px] sm:min-w-[180px]",
+              "w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-gm-lg font-bold text-xs sm:text-sm uppercase tracking-widest transition-all border-2 min-w-[160px] sm:min-w-[180px]",
               isOnline 
                 ? "bg-danger-soft border-danger/30 text-danger hover:bg-danger-soft" 
                 : "bg-success-soft border-success/30 text-success hover:bg-success-soft"
@@ -384,7 +384,7 @@ const TrainerDashboard = () => {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
-              "flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
+              "flex items-center gap-2 px-5 py-3 rounded-gm-lg text-xs font-bold uppercase tracking-widest transition-all whitespace-nowrap",
               activeTab === tab.id
                 ? "bg-accent text-on-accent shadow-lg shadow-raised"
                 : "bg-surface-raised border border-border text-ink-muted hover:bg-surface-sunken hover:text-ink"
@@ -413,18 +413,18 @@ const TrainerDashboard = () => {
                 {/* Earnings & Rating Strip */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="bg-surface border border-border rounded-gm-xl shadow-card p-4 sm:p-6 text-center hover:border-success/30 transition-colors">
-                    <p className="text-[10px] font-black text-ink-subtle uppercase tracking-widest mb-2">Today\'s Earnings</p>
-                    <p className="text-2xl sm:text-3xl font-black text-success">₹{(stats?.today_earnings || 0).toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-2">Today\'s Earnings</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-success">₹{(stats?.today_earnings || 0).toLocaleString()}</p>
                   </div>
                   <div className="bg-surface border border-border rounded-gm-xl shadow-card p-4 sm:p-6 text-center hover:border-border-strong transition-colors">
-                    <p className="text-[10px] font-black text-ink-subtle uppercase tracking-widest mb-2">This Month</p>
-                    <p className="text-2xl sm:text-3xl font-black text-ink">₹{(stats?.this_month_earnings || 0).toLocaleString()}</p>
+                    <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-2">This Month</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-ink">₹{(stats?.this_month_earnings || 0).toLocaleString()}</p>
                   </div>
                   <div className="bg-surface border border-border rounded-gm-xl shadow-card p-4 sm:p-6 text-center hover:border-accent-border transition-colors">
-                    <p className="text-[10px] font-black text-ink-subtle uppercase tracking-widest mb-2">Rating</p>
+                    <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-2">Rating</p>
                     <div className="flex items-center justify-center gap-2">
                       <Star size={20} className="text-accent-text fill-accent w-4 h-4 sm:w-5 sm:h-5" />
-                      <p className="text-2xl sm:text-3xl font-black text-accent-text">{stats?.rating_avg?.toFixed(1) || '—'}</p>
+                      <p className="text-2xl sm:text-3xl font-bold text-accent-text">{stats?.rating_avg?.toFixed(1) || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -445,11 +445,11 @@ const TrainerDashboard = () => {
                       className="bg-surface border border-border rounded-gm-xl shadow-card p-5 relative overflow-hidden group hover:border-border transition-colors"
                     >
                       <stat.icon size={60} className={`absolute -right-3 -bottom-3 ${stat.bg}/5 group-hover:${stat.bg}/10 transition-all`} />
-                      <p className="text-[10px] font-black text-ink-subtle uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-3 flex items-center gap-2">
                         <stat.icon size={12} className={stat.color} />
                         {stat.label}
                       </p>
-                      <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
+                      <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
                     </motion.div>
                   ))}
                 </div>
@@ -465,7 +465,7 @@ const TrainerDashboard = () => {
                         Today's Schedule
                       </h3>
                       <div className="flex gap-4">
-                        <button onClick={() => setActiveTab('clients')} className="text-[10px] text-accent-text hover:text-ink uppercase tracking-widest font-black">My Clients</button>
+                        <button onClick={() => setActiveTab('clients')} className="text-[10px] text-accent-text hover:text-ink uppercase tracking-widest font-bold">My Clients</button>
                         <button onClick={() => setActiveTab('schedule')} className="text-[10px] text-ink-muted hover:text-ink uppercase tracking-widest font-bold">Full Schedule</button>
                       </div>
                     </div>
@@ -478,7 +478,7 @@ const TrainerDashboard = () => {
                               <div className="w-8 h-8 rounded-full bg-accent-soft border border-accent-border flex items-center justify-center">
                                 <User size={14} className="text-accent-text" />
                               </div>
-                              <h4 className="text-sm font-black text-ink-muted tracking-widest uppercase">{group.client_name}</h4>
+                              <h4 className="text-sm font-bold text-ink-muted tracking-widest uppercase">{group.client_name}</h4>
                               <div className="flex-1 h-px bg-surface-sunken" />
                             </div>
                             <div className="space-y-3">
@@ -505,14 +505,14 @@ const TrainerDashboard = () => {
                                   {/* Time & Client */}
                                   <div className="flex-1 min-w-0 flex items-center gap-3 sm:gap-4">
                                     <div className="w-14 sm:w-16 shrink-0 text-left sm:text-center">
-                                      <p className="text-xs sm:text-sm font-black">{session.scheduled_time}</p>
+                                      <p className="text-xs sm:text-sm font-bold">{session.scheduled_time}</p>
                                       <p className="text-[8px] sm:text-[9px] text-ink-subtle font-bold uppercase">{session.duration_minutes}m</p>
                                     </div>
                                     <div className="w-px h-6 sm:h-8 bg-surface-sunken shrink-0" />
                                     <div className="flex-1 min-w-0">
                                       <div className="flex flex-wrap items-center gap-2">
                                         <span className={clsx(
-                                          "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                                          "text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border",
                                           session.session_type === 'online' ? "text-info bg-info-soft border-info/30" :
                                           session.session_type === 'home' ? "text-info bg-info-soft border-info/30" :
                                           "text-success bg-success-soft border-success/30"
@@ -530,7 +530,7 @@ const TrainerDashboard = () => {
                                   
                                   {/* Status Pill */}
                                   <div className={clsx(
-                                    "hidden sm:block px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shrink-0",
+                                    "hidden sm:block px-2 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shrink-0",
                                     session.status === 'completed' ? "text-success border border-success/30 bg-success-soft" :
                                     session.status === 'in_progress' ? "text-accent-text border border-accent-border bg-accent-soft" :
                                     "text-ink-muted border border-border bg-surface-raised"
@@ -561,7 +561,7 @@ const TrainerDashboard = () => {
                         Recent Purchases
                       </h3>
                       {data?.pending_bookings && data.pending_bookings.length > 0 && (
-                        <span className="text-[10px] font-black bg-accent-soft text-accent-text px-2 py-0.5 rounded-full border border-accent-border">
+                        <span className="text-[10px] font-bold bg-accent-soft text-accent-text px-2 py-0.5 rounded-full border border-accent-border">
                           {data.pending_bookings.length}
                         </span>
                       )}
@@ -574,9 +574,9 @@ const TrainerDashboard = () => {
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <p className="font-bold text-sm truncate">{booking.client_name}</p>
-                                <p className="text-[10px] text-ink-muted uppercase font-black">{booking.package_name}</p>
+                                <p className="text-[10px] text-ink-muted uppercase font-bold">{booking.package_name}</p>
                               </div>
-                              <p className="text-sm font-black text-success">₹{booking.total_amount}</p>
+                              <p className="text-sm font-bold text-success">₹{booking.total_amount}</p>
                             </div>
                             <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
                               Package paid. Sessions should be confirmed from the Sessions tab.
@@ -621,12 +621,12 @@ const TrainerDashboard = () => {
                         <div className="flex justify-between items-start">
                           <div>
                             <h4 className="font-bold text-lg">{pkg.name}</h4>
-                            <span className="text-[9px] font-black uppercase tracking-widest text-accent-text bg-accent-soft px-2 py-0.5 rounded border border-accent-border">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-accent-text bg-accent-soft px-2 py-0.5 rounded border border-accent-border">
                               {pkg.package_type}
                             </span>
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-black text-success">₹{pkg.price}</p>
+                            <p className="text-xl font-bold text-success">₹{pkg.price}</p>
                             <p className="text-[10px] text-ink-subtle font-bold uppercase">{pkg.total_sessions} Sessions</p>
                           </div>
                         </div>
@@ -674,7 +674,7 @@ const TrainerDashboard = () => {
                      <button 
                        onClick={() => setBookingFilter('active')}
                        className={clsx(
-                         "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                         "px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
                          bookingFilter === 'active' ? "bg-accent text-on-accent shadow-lg" : "text-ink-muted hover:text-ink"
                        )}
                      >
@@ -683,7 +683,7 @@ const TrainerDashboard = () => {
                      <button 
                        onClick={() => setBookingFilter('past')}
                        className={clsx(
-                         "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
+                         "px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
                          bookingFilter === 'past' ? "bg-accent text-on-accent shadow-lg" : "text-ink-muted hover:text-ink"
                        )}
                      >
@@ -719,8 +719,8 @@ const TrainerDashboard = () => {
                         
                         <div className="text-right flex items-center gap-6">
                           <div className="hidden sm:block">
-                            <p className="text-[10px] text-ink-subtle font-black uppercase tracking-widest mb-1">Sessions</p>
-                            <p className="text-sm font-black">
+                            <p className="text-[10px] text-ink-subtle font-bold uppercase tracking-widest mb-1">Sessions</p>
+                            <p className="text-sm font-bold">
                               {booking.sessions_completed} <span className="text-ink-subtle font-medium">/ {booking.total_sessions}</span>
                             </p>
                           </div>
@@ -857,7 +857,7 @@ const TrainerDashboard = () => {
 
                     {/* Gallery Images */}
                     {galleryImages.map((img: any) => (
-                      <div key={img.id} className="aspect-square rounded-2xl overflow-hidden relative group border border-border hover:border-border-strong transition-all">
+                      <div key={img.id} className="aspect-square rounded-gm-lg overflow-hidden relative group border border-border hover:border-border-strong transition-all">
                         <img src={img.image_url} alt={img.caption || 'Portfolio'} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-overlay opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
                           <button
@@ -894,7 +894,7 @@ const TrainerDashboard = () => {
                 <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 flex items-center justify-between">
                   <div className="flex items-center gap-6">
                     <div className="text-center">
-                      <p className="text-3xl font-black text-accent-text">{reviewsMeta.avg_rating?.toFixed(1) || '—'}</p>
+                      <p className="text-3xl font-bold text-accent-text">{reviewsMeta.avg_rating?.toFixed(1) || '—'}</p>
                       <div className="flex items-center gap-1 mt-1">
                         {[1,2,3,4,5].map(i => (
                           <Star key={i} size={12} className={clsx(i <= Math.round(reviewsMeta.avg_rating) ? 'text-accent-text fill-accent' : 'text-ink-subtle')} />
@@ -903,7 +903,7 @@ const TrainerDashboard = () => {
                     </div>
                     <div className="h-12 w-px bg-surface-sunken" />
                     <div>
-                      <p className="text-lg font-black">{reviewsMeta.total}</p>
+                      <p className="text-lg font-bold">{reviewsMeta.total}</p>
                       <p className="text-[10px] text-ink-subtle font-bold uppercase tracking-widest">Total Reviews</p>
                     </div>
                   </div>
@@ -1043,8 +1043,8 @@ const ClientsSection = ({ clients, onSelectClient }: { clients: any[]; onSelectC
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-bold uppercase tracking-tighter">My Clients</h3>
-        <p className="text-[10px] text-ink-subtle font-black uppercase tracking-widest">{clients.length} Active Client{clients.length !== 1 && 's'}</p>
+        <h3 className="text-xl font-bold tracking-tight">My Clients</h3>
+        <p className="text-[10px] text-ink-subtle font-bold uppercase tracking-widest">{clients.length} Active Client{clients.length !== 1 && 's'}</p>
       </div>
 
       {clients.length > 0 ? (
@@ -1056,12 +1056,12 @@ const ClientsSection = ({ clients, onSelectClient }: { clients: any[]; onSelectC
               className="bg-surface border border-border rounded-gm-xl shadow-card p-6 flex items-center justify-between group cursor-pointer hover:border-accent-border transition-all border border-transparent"
             >
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-surface-raised border border-border flex items-center justify-center text-accent-text group-hover:bg-accent-soft transition-all overflow-hidden">
+                <div className="w-14 h-14 rounded-gm-lg bg-surface-raised border border-border flex items-center justify-center text-accent-text group-hover:bg-accent-soft transition-all overflow-hidden">
                   <User size={28} />
                 </div>
                 <div>
                   <h4 className="font-bold text-lg group-hover:text-accent-text transition-colors">{client.user_name}</h4>
-                  <p className="text-[10px] text-ink-muted font-black uppercase tracking-widest">
+                  <p className="text-[10px] text-ink-muted font-bold uppercase tracking-widest">
                     {client.bookings.length} Package{client.bookings.length !== 1 && 's'} • {client.sessions.length} Session{client.sessions.length !== 1 && 's'}
                   </p>
                 </div>
@@ -1104,28 +1104,28 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
             {/* Left Panel: Client Info */}
             <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border p-6 sm:p-8 bg-surface-raised">
               <div className="text-center lg:text-left">
-                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-accent-soft border-2 border-accent-border flex items-center justify-center mx-auto lg:mx-0 mb-4 sm:mb-6 text-accent-text">
+                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-gm-lg sm:rounded-gm-xl bg-accent-soft border-2 border-accent-border flex items-center justify-center mx-auto lg:mx-0 mb-4 sm:mb-6 text-accent-text">
                   <User size={32} className="sm:w-12 sm:h-12" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tighter mb-1">{client.user_name}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">{client.user_name}</h2>
                 <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-4 sm:mb-6">Active Client</p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6">
                   {client.user_phone && (
                     <div className="space-y-1">
-                      <p className="text-[8px] sm:text-[9px] font-black text-ink-subtle uppercase tracking-[0.2em]">Phone Number</p>
+                      <p className="text-[8px] sm:text-[9px] font-bold text-ink-subtle uppercase tracking-[0.2em]">Phone Number</p>
                       <p className="text-sm font-bold text-accent-text">{client.user_phone}</p>
                     </div>
                   )}
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-[8px] sm:text-[9px] font-black text-ink-subtle uppercase tracking-[0.2em]">Bookings</p>
-                      <p className="text-base sm:text-lg font-black">{client.bookings.length}</p>
+                      <p className="text-[8px] sm:text-[9px] font-bold text-ink-subtle uppercase tracking-[0.2em]">Bookings</p>
+                      <p className="text-base sm:text-lg font-bold">{client.bookings.length}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[8px] sm:text-[9px] font-black text-ink-subtle uppercase tracking-[0.2em]">Sessions</p>
-                      <p className="text-base sm:text-lg font-black">{client.sessions.length}</p>
+                      <p className="text-[8px] sm:text-[9px] font-bold text-ink-subtle uppercase tracking-[0.2em]">Sessions</p>
+                      <p className="text-base sm:text-lg font-bold">{client.sessions.length}</p>
                     </div>
                   </div>
                 </div>
@@ -1133,7 +1133,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                 <div className="pt-6 mt-6 border-t border-border hidden lg:block">
                   <button 
                     onClick={onClose}
-                    className="w-full py-4 rounded-2xl bg-surface-raised border border-border text-[10px] font-black uppercase tracking-widest hover:bg-surface-sunken transition-all"
+                    className="w-full py-4 rounded-gm-lg bg-surface-raised border border-border text-[10px] font-bold uppercase tracking-widest hover:bg-surface-sunken transition-all"
                   >
                     Close Profile
                   </button>
@@ -1146,20 +1146,20 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
               <div className="space-y-8">
                 {/* Active Packages */}
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-accent-text mb-4 flex items-center gap-2">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-accent-text mb-4 flex items-center gap-2">
                     <Package size={16} /> Active Packages
                   </h3>
                   <div className="space-y-3">
                     {client.bookings.map((booking: any) => (
-                      <div key={booking.id} className="bg-surface-raised border border-border rounded-2xl p-4 flex items-center justify-between hover:bg-surface-sunken transition-all">
+                      <div key={booking.id} className="bg-surface-raised border border-border rounded-gm-lg p-4 flex items-center justify-between hover:bg-surface-sunken transition-all">
                         <div>
                           <p className="font-bold text-sm">{booking.package_name || 'Personal Training'}</p>
-                          <p className="text-[10px] text-ink-subtle font-black uppercase tracking-widest mt-1">
+                          <p className="text-[10px] text-ink-subtle font-bold uppercase tracking-widest mt-1">
                             {booking.sessions_completed} / {booking.total_sessions} Sessions Done
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-black text-success text-sm">₹{booking.total_amount}</p>
+                          <p className="font-bold text-success text-sm">₹{booking.total_amount}</p>
                           <p className="text-[9px] text-ink-subtle font-bold uppercase mt-1">{booking.status}</p>
                         </div>
                       </div>
@@ -1169,7 +1169,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
 
                 {/* Session Timeline */}
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-accent-text mb-4 flex items-center gap-2">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-accent-text mb-4 flex items-center gap-2">
                     <Calendar size={16} /> Session History
                   </h3>
                   <div className="space-y-4">
@@ -1181,7 +1181,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                           session.status === 'scheduled' ? "bg-accent" :
                           "bg-surface-sunken"
                         )} />
-                        <div className="bg-surface-raised border border-border rounded-2xl p-5 hover:border-border-strong transition-all group">
+                        <div className="bg-surface-raised border border-border rounded-gm-lg p-5 hover:border-border-strong transition-all group">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                             <div>
                               <p className="font-bold text-sm">
@@ -1198,7 +1198,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                               </div>
                             </div>
                             <div className={clsx(
-                              "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shrink-0 w-fit",
+                              "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border shrink-0 w-fit",
                               session.status === 'completed' ? "text-success border-success/30 bg-success-soft" :
                               session.status === 'scheduled' ? "text-accent-text border-accent-border bg-accent-soft" :
                               "text-ink-muted border-border bg-surface-raised"
@@ -1211,7 +1211,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                             <div className="flex items-start gap-3 p-4 bg-surface-sunken rounded-xl border border-border group-hover:border-border transition-all">
                               <MapPin size={16} className="text-accent-text shrink-0 mt-0.5" />
                               <div className="min-w-0">
-                                <p className="text-[9px] font-black text-ink-subtle uppercase tracking-[0.2em] mb-1">Session Location</p>
+                                <p className="text-[9px] font-bold text-ink-subtle uppercase tracking-[0.2em] mb-1">Session Location</p>
                                 <p className="text-xs font-bold text-ink-muted leading-relaxed truncate md:whitespace-normal">{session.location}</p>
                               </div>
                             </div>
@@ -1219,7 +1219,7 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
 
                           {session.trainer_notes && (
                             <div className="mt-4 p-4 bg-warning-soft border border-warning/30 rounded-xl">
-                              <p className="text-[9px] font-black text-warning uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                              <p className="text-[9px] font-bold text-warning uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
                                 <MessageCircle size={10} /> Session Notes
                               </p>
                               <p className="text-xs text-ink-muted leading-relaxed ">"{session.trainer_notes}"</p>
@@ -1252,7 +1252,7 @@ const ScheduleSection = ({ availability, onViewManage }: { availability: any[] |
           <div key={idx} className="bg-surface border border-border rounded-gm-xl shadow-card p-4 flex items-center justify-between hover:border-border-strong transition-all">
             <div className="flex items-center gap-4">
               <div className={clsx(
-                "w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm",
+                "w-12 h-12 rounded-xl flex items-center justify-center font-bold text-sm",
                 avail.is_available ? "bg-accent-soft text-accent-text border border-accent-border" : "bg-surface-raised text-ink-subtle border border-border"
               )}>
                 {(avail.day_name || 'DAY').substring(0, 3)}
@@ -1266,7 +1266,7 @@ const ScheduleSection = ({ availability, onViewManage }: { availability: any[] |
             </div>
             {avail.is_available && (
                <span className={clsx(
-                 "text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded border",
+                 "text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded border",
                  avail.session_type === 'online' ? "text-info bg-info-soft border-info/30" :
                  avail.session_type === 'offline' ? "text-success bg-success-soft border-success/30" :
                  "text-accent-text bg-accent-soft border-accent-border"
@@ -1293,17 +1293,17 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-center justify-between">
-         <h3 className="text-xl font-bold uppercase tracking-tighter">Session Management</h3>
+         <h3 className="text-xl font-bold tracking-tight">Session Management</h3>
          <div className="flex bg-surface-raised rounded-xl p-1 border border-border">
             <button 
               onClick={() => setFilter('pending')}
-              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all", filter === 'pending' ? "bg-accent text-on-accent" : "text-ink-muted hover:text-ink")}
+              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all", filter === 'pending' ? "bg-accent text-on-accent" : "text-ink-muted hover:text-ink")}
             >
               Pending
             </button>
             <button 
               onClick={() => setFilter('upcoming')}
-              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all", filter === 'upcoming' ? "bg-accent text-on-accent" : "text-ink-muted hover:text-ink")}
+              className={clsx("px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all", filter === 'upcoming' ? "bg-accent text-on-accent" : "text-ink-muted hover:text-ink")}
             >
               Scheduled
             </button>
@@ -1313,7 +1313,7 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
       {loading ? (
         <div className="py-20 text-center">
            <Loader2 className="animate-spin text-accent-text mx-auto mb-4" size={32} />
-           <p className="text-[10px] font-black text-ink-subtle uppercase tracking-widest">Refreshing sessions...</p>
+           <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest">Refreshing sessions...</p>
         </div>
       ) : filtered.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1321,7 +1321,7 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
              <div key={session.id} className="bg-surface border border-border rounded-gm-xl shadow-card p-6 space-y-5 group hover:border-accent-border transition-all">
                 <div className="flex justify-between items-start">
                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-surface-raised border border-border flex items-center justify-center text-accent-text overflow-hidden">
+                      <div className="w-12 h-12 rounded-gm-lg bg-surface-raised border border-border flex items-center justify-center text-accent-text overflow-hidden">
                         {session.user_avatar ? <img src={session.user_avatar} className="w-full h-full object-cover" /> : <User size={24} />}
                       </div>
                       <div>
@@ -1330,7 +1330,7 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
                       </div>
                    </div>
                    <div className={clsx(
-                      "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border",
+                      "px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border",
                       session.status === 'pending_confirmation' ? "bg-warning-soft text-warning border-warning/30" :
                       session.status === 'scheduled' ? "bg-accent-soft text-accent-text border-accent-border" :
                       "bg-success-soft text-success border-success/30"
@@ -1341,11 +1341,11 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
 
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-1">
-                      <p className="text-[9px] text-ink-subtle font-black uppercase tracking-widest">Date & Time</p>
+                      <p className="text-[9px] text-ink-subtle font-bold uppercase tracking-widest">Date & Time</p>
                       <p className="text-xs font-bold">{new Date(session.scheduled_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })} • {session.scheduled_time}</p>
                    </div>
                    <div className="space-y-1">
-                      <p className="text-[9px] text-ink-subtle font-black uppercase tracking-widest">Duration</p>
+                      <p className="text-[9px] text-ink-subtle font-bold uppercase tracking-widest">Duration</p>
                       <p className="text-xs font-bold">{session.duration_minutes} Minutes</p>
                    </div>
                 </div>
@@ -1367,7 +1367,7 @@ const SessionsSection = ({ sessions, loading, filter, setFilter, onAction }: any
                       </button>
                       <button 
                         onClick={() => onAction(session.id, 'accept')}
-                        className="flex-2 py-3 rounded-xl bg-accent text-on-accent text-[10px] font-black uppercase tracking-widest hover:bg-accent-pressed transition-all shadow-raised"
+                        className="flex-2 py-3 rounded-xl bg-accent text-on-accent text-[10px] font-bold uppercase tracking-widest hover:bg-accent-pressed transition-all shadow-raised"
                       >
                          Accept Session
                       </button>

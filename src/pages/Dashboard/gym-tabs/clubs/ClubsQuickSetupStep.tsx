@@ -41,12 +41,12 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl space-y-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent-border bg-surface-sunken text-accent-text">
+            <div className="flex h-11 w-11 items-center justify-center rounded-gm-lg border border-accent-border bg-surface-sunken text-accent-text">
               <Wand2 size={20} />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-text">Step 1</p>
-              <h2 className="text-2xl font-black text-ink">Build your retention journey</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-text">Step 1</p>
+              <h2 className="text-2xl font-bold text-ink">Build your retention journey</h2>
             </div>
           </div>
           <p className="text-sm font-semibold leading-6 text-ink-muted">
@@ -64,13 +64,13 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
           type="button"
           onClick={onGenerate}
           disabled={generating}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-xs font-black uppercase text-on-accent transition hover:brightness-110 disabled:opacity-60"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-xs font-bold uppercase text-on-accent transition hover:brightness-110 disabled:opacity-60"
         >
           <Sparkles size={16} /> {generating ? 'Building journey…' : 'Build my club journey'}
         </button>
       </div>
 
-      <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-ink-subtle">Primary goal</p>
+      <p className="mt-6 text-[10px] font-bold uppercase tracking-widest text-ink-subtle">Primary goal</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {PRIMARY_GOAL_OPTIONS.map((option) => (
           <button
@@ -78,13 +78,13 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
             type="button"
             onClick={() => onChange({ ...inputs, primary_goal: option.id })}
             className={clsx(
-              'rounded-2xl border p-4 text-left transition',
+              'rounded-gm-lg border p-4 text-left transition',
               inputs.primary_goal === option.id
                 ? 'border-accent-border bg-accent-soft'
                 : 'border-border bg-surface-sunken hover:border-border-strong'
             )}
           >
-            <p className="text-sm font-black text-ink">{option.label}</p>
+            <p className="text-sm font-bold text-ink">{option.label}</p>
             <p className="mt-1 text-xs font-semibold text-ink-muted">{option.description}</p>
           </button>
         ))}
@@ -114,20 +114,20 @@ export default function ClubsQuickSetupStep({ inputs, detectedGym, suggestedInpu
       </div>
 
       <label className="mt-4 block space-y-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-ink-subtle">Notes (optional)</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">Notes (optional)</span>
         <textarea
           value={inputs.owner_notes}
           onChange={(event) => onChange({ ...inputs, owner_notes: event.target.value })}
           rows={2}
           placeholder="Supplement brands, trainer capacity, rewards you can afford…"
-          className="w-full resize-none rounded-2xl border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
+          className="w-full resize-none rounded-gm-lg border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
         />
       </label>
 
       <button
         type="button"
         onClick={() => setAdvancedOpen((open) => !open)}
-        className="mt-5 flex w-full items-center justify-between rounded-xl border border-border bg-surface-sunken px-4 py-3 text-xs font-black uppercase tracking-widest text-ink-muted"
+        className="mt-5 flex w-full items-center justify-between rounded-xl border border-border bg-surface-sunken px-4 py-3 text-xs font-bold uppercase tracking-widest text-ink-muted"
       >
         Advanced gym capabilities
         {advancedOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -184,12 +184,12 @@ const Field = ({
   type?: 'text' | 'number';
 }) => (
   <label className="space-y-2">
-    <span className="text-[10px] font-black uppercase tracking-widest text-ink-subtle">{label}</span>
+    <span className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">{label}</span>
     <input
       type={type}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-2xl border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
+      className="w-full rounded-gm-lg border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
     />
   </label>
 );
@@ -199,7 +199,7 @@ const TogglePill = ({ label, checked, onChange }: { label: string; checked: bool
     type="button"
     onClick={() => onChange(!checked)}
     className={clsx(
-      'rounded-2xl border px-4 py-3 text-left text-xs font-black uppercase tracking-widest transition',
+      'rounded-gm-lg border px-4 py-3 text-left text-xs font-bold uppercase tracking-widest transition',
       checked ? 'border-accent-border bg-accent-soft text-accent-text' : 'border-border bg-surface-sunken text-ink-muted'
     )}
   >

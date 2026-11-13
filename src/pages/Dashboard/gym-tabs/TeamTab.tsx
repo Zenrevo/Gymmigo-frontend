@@ -83,7 +83,7 @@ const TeamTab = () => {
   return (
     <div className="space-y-8 pb-12">
       <div className="flex items-center justify-between">
-         <h2 className="text-3xl font-display font-black tracking-tight flex items-center gap-3">
+         <h2 className="text-3xl font-display font-extrabold tracking-tight flex items-center gap-3">
            <Users className="text-accent-text" size={32} /> TEAM & CO-OWNERS
          </h2>
          {isOwner && (
@@ -105,7 +105,7 @@ const TeamTab = () => {
             </div>
             <div className="flex items-center gap-2 px-3 py-1 bg-accent-soft border border-accent-border rounded-full">
                <Shield size={12} className="text-accent-text" />
-               <span className="text-[10px] font-black text-accent-text uppercase tracking-tighter">Secure Access</span>
+               <span className="text-[10px] font-bold text-accent-text uppercase tracking-tight">Secure Access</span>
             </div>
           </div>
 
@@ -113,10 +113,10 @@ const TeamTab = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border bg-surface-sunken">
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink-muted">Name & Role</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink-muted">Contact Information</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink-muted">Status</th>
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-ink-muted">Added On</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ink-muted">Name & Role</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ink-muted">Contact Information</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ink-muted">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-ink-muted">Added On</th>
                   <th className="px-6 py-4 text-right"></th>
                 </tr>
               </thead>
@@ -131,7 +131,7 @@ const TeamTab = () => {
                       <div>
                         <div className="font-bold text-ink flex items-center gap-2">
                           Primary Owner
-                          <span className="px-1.5 py-0.5 bg-accent text-on-accent text-[8px] font-black uppercase rounded">Creator</span>
+                          <span className="px-1.5 py-0.5 bg-accent text-on-accent text-[8px] font-bold uppercase rounded">Creator</span>
                         </div>
                         <div className="text-[10px] text-ink-muted uppercase tracking-widest mt-0.5">Full System Access</div>
                       </div>
@@ -232,7 +232,7 @@ const TeamTab = () => {
         </section>
 
         {/* ACCESS POLICY NOTICE */}
-        <section className="bg-accent-soft border border-accent-border rounded-2xl p-6 flex gap-4">
+        <section className="bg-accent-soft border border-accent-border rounded-gm-lg p-6 flex gap-4">
            <AlertCircle className="text-accent-text shrink-0" size={24} />
            <div className="space-y-2">
               <h4 className="text-sm font-bold text-ink uppercase tracking-widest">Team Access Policy</h4>
@@ -260,12 +260,12 @@ const TeamTab = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-surface border border-border rounded-3xl shadow-2xl p-8 overflow-hidden"
+              className="relative w-full max-w-md bg-surface border border-border rounded-gm-xl shadow-2xl p-8 overflow-hidden"
             >
                <div className="absolute top-0 left-0 w-full h-1 from-accent/50 to-accent/50" />
                
                <div className="flex items-center justify-between mb-8">
-                 <h3 className="text-xl font-display font-black tracking-tighter uppercase text-ink">Add Team Member</h3>
+                 <h3 className="text-xl font-display font-extrabold tracking-tight text-ink">Add Team Member</h3>
                  <button onClick={() => setShowInviteModal(false)} className="text-ink-muted hover:text-ink transition-colors">
                    <AlertCircle className="rotate-45" size={24} />
                  </button>
@@ -273,7 +273,7 @@ const TeamTab = () => {
 
                <form onSubmit={handleInvite} className="space-y-6">
                  <div>
-                   <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-ink-muted mb-2">Member Name</label>
+                   <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted mb-2">Member Name</label>
                    <input 
                      required 
                      type="text" 
@@ -285,7 +285,7 @@ const TeamTab = () => {
                  </div>
 
                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-ink-muted mb-2">Phone Number</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted mb-2">Phone Number</label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-ink-muted font-bold text-xs border-r border-border pr-2">+91</span>
                       <input 
@@ -301,7 +301,7 @@ const TeamTab = () => {
                   </div>
 
                  <div>
-                   <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-ink-muted mb-2">Email (Optional)</label>
+                   <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-ink-muted mb-2">Email (Optional)</label>
                    <input 
                      type="email" 
                      placeholder="john@example.com"

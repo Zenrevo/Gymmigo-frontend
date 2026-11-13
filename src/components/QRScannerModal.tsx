@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import Modal from './Modal';
+import { Sheet } from './kit';
 import { Camera, Loader2, CheckCircle2, XCircle, ScanLine, Dumbbell, Bot } from 'lucide-react';
 import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -272,17 +272,17 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Scan Gym QR Code" maxWidth="max-w-md">
+    <Sheet open={isOpen} onClose={handleClose} title="Scan Gym QR Code" size="sm">
       <div className="space-y-6">
         <AnimatePresence mode="wait">
           {scanState === 'scanning' && (
             <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {/* Scanner container */}
-              <div className="relative rounded-2xl overflow-hidden bg-surface">
+              <div className="relative rounded-gm-lg overflow-hidden bg-surface">
                 <div id={containerId} className="w-full" />
                 {/* Overlay with scan indicator */}
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  <div className="w-[250px] h-[250px] border-2 border-accent-border rounded-2xl relative">
+                  <div className="w-[250px] h-[250px] border-2 border-accent-border rounded-gm-lg relative">
                     <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-accent rounded-tl-lg" />
                     <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-accent rounded-tr-lg" />
                     <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-accent rounded-bl-lg" />
@@ -322,7 +322,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 <ScanLine size={40} className="text-accent-text" />
               </div>
               <div className="text-center space-y-2">
-                <h3 className="text-2xl font-black">Checkout Confirmation</h3>
+                <h3 className="text-2xl font-bold">Checkout Confirmation</h3>
                 <p className="text-ink-muted">You are checked in at <span className="text-ink font-bold">{confirmData?.gym_name || 'the gym'}</span>.</p>
                 <p className="text-ink-muted">Do you want to check out now?</p>
               </div>
@@ -346,7 +346,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 <div className="w-16 h-16 mx-auto bg-accent-soft rounded-full flex items-center justify-center mb-4">
                   <Dumbbell className="text-accent-text" size={32} />
                 </div>
-                <h3 className="text-2xl font-black">Ready to grind?</h3>
+                <h3 className="text-2xl font-bold">Ready to grind?</h3>
                 <p className="text-ink-muted">Checking into <span className="text-ink font-bold">{confirmData?.gym_name}</span></p>
               </div>
               
@@ -354,7 +354,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 <div className="flex items-center justify-between">
                   <p className="text-accent-text font-bold uppercase tracking-widest text-[10px]">What are you training today?</p>
                   {recommendedWorkout && (
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-accent-soft border border-accent-border text-[9px] font-black text-accent-text uppercase tracking-tighter animate-pulse">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-accent-soft border border-accent-border text-[9px] font-bold text-accent-text uppercase tracking-tight animate-pulse">
                       <Bot size={10} /> MigoAI Recommends
                     </div>
                   )}
@@ -428,7 +428,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
         <Bot size={40} className="text-accent-text" />
       </div>
       <div className="text-center space-y-2">
-        <h3 className="text-2xl font-black uppercase tracking-tighter">MigoAI Update?</h3>
+        <h3 className="text-2xl font-bold tracking-tight">MigoAI Update?</h3>
         <p className="text-ink-muted">
           You're training <span className="text-accent-text font-bold">"{customWorkout}"</span> today.
         </p>
@@ -462,7 +462,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                 <CheckCircle2 size={40} className="text-success" />
               </motion.div>
               <div className="text-center space-y-2">
-                <h3 className="text-2xl font-black uppercase tracking-tighter">
+                <h3 className="text-2xl font-bold tracking-tight">
                   {confirmData?.action === 'check_out' ? 'See you soon!' : "You're In! 💪"}
                 </h3>
                 <p className="text-ink-muted">{resultMessage}</p>
@@ -475,7 +475,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
                   </p>
                 )}
               </div>
-              <button onClick={handleClose} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 px-8 text-sm uppercase tracking-widest font-black w-full mt-4">
+              <button onClick={handleClose} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 px-8 text-sm uppercase tracking-widest font-bold w-full mt-4">
                 Done
               </button>
             </motion.div>
@@ -520,7 +520,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
           )}
         </AnimatePresence>
       </div>
-    </Modal>
+    </Sheet>
   );
 };
 

@@ -4,7 +4,7 @@ import { Users, TrendingUp, Shield, Building2, Star, QrCode, RefreshCw, Download
 import api from '../../../utils/api';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import Modal from '../../../components/Modal';
+import { Sheet } from '../../../components/kit';
 import clsx from 'clsx';
 
 
@@ -80,12 +80,12 @@ const OverviewTab = () => {
                 <div className="w-1.5 h-1.5 rounded-full bg-success" /> Live Monitor
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight uppercase">Total Occupancy</h2>
+            <h2 className="text-3xl sm:text-4xl font-display font-extrabold tracking-tight">Total Occupancy</h2>
           </div>
           
           <div className="flex items-center gap-8 pr-4">
             <div className="space-y-1 text-right">
-              <p className="text-7xl font-display font-black tracking-tighter text-accent-text">
+              <p className="text-7xl font-display font-extrabold tracking-tight text-accent-text">
                 {gym?.gym?.current_occupancy || 0}
               </p>
               <p className="text-ink-muted font-bold uppercase tracking-widest text-[10px]">Members In-Gym</p>
@@ -122,7 +122,7 @@ const OverviewTab = () => {
                     <div key={idx} className="flex flex-col gap-1">
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-bold text-ink-muted uppercase tracking-wide truncate pr-2">{item.workout}</span>
-                        <span className={clsx("font-black italic shrink-0", colorClass)}>{item.count} members</span>
+                        <span className={clsx("font-bold italic shrink-0", colorClass)}>{item.count} members</span>
                       </div>
                       <div className="h-1 w-full bg-surface-raised rounded-full overflow-hidden">
                          <div 
@@ -144,22 +144,22 @@ const OverviewTab = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 border-b-2 border-b-emerald-500/50 hover:bg-surface-raised transition-colors group">
             <TrendingUp className="text-success mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-            <h4 className="text-3xl font-black ">{gym?.gym?.rating_count || 0}</h4>
+            <h4 className="text-3xl font-bold ">{gym?.gym?.rating_count || 0}</h4>
             <p className="text-ink-muted text-[10px] font-bold uppercase tracking-widest mt-1">Total Reviews</p>
           </div>
           <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 border-b-2 border-b-blue-500/50 hover:bg-surface-raised transition-colors group">
             <Shield className="text-info mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-            <h4 className="text-3xl font-black ">{gym?.membership_plans?.length || 0}</h4>
+            <h4 className="text-3xl font-bold ">{gym?.membership_plans?.length || 0}</h4>
             <p className="text-ink-muted text-[10px] font-bold uppercase tracking-widest mt-1">Active Plans</p>
           </div>
           <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 border-b-2 border-b-primary/50 hover:bg-surface-raised transition-colors group">
             <Building2 className="text-accent-text mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-            <h4 className="text-3xl font-black ">{gym?.equipment?.length || 0}</h4>
+            <h4 className="text-3xl font-bold ">{gym?.equipment?.length || 0}</h4>
             <p className="text-ink-muted text-[10px] font-bold uppercase tracking-widest mt-1">Equipment Types</p>
           </div>
           <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 border-b-2 border-b-yellow-500/50 hover:bg-surface-raised transition-colors group">
             <Star className="text-warning mb-4 opacity-50 group-hover:opacity-100 transition-opacity" size={24} />
-            <h4 className="text-3xl font-black ">{gym?.gym?.rating_avg ? gym.gym.rating_avg.toFixed(1) : 'N/A'}</h4>
+            <h4 className="text-3xl font-bold ">{gym?.gym?.rating_avg ? gym.gym.rating_avg.toFixed(1) : 'N/A'}</h4>
             <p className="text-ink-muted text-[10px] font-bold uppercase tracking-widest mt-1">Avg Rating</p>
           </div>
         </div>
@@ -202,7 +202,7 @@ const OverviewTab = () => {
             </div>
           ) : qrData ? (
             <div className="flex flex-col items-center space-y-4">
-              <div className="bg-ink rounded-2xl p-3 shadow-2xl shadow-raised">
+              <div className="bg-ink rounded-gm-lg p-3 shadow-2xl shadow-raised">
                 <QRCodeSVG
                   id="daily-qr-svg"
                   value={qrData.qr_payload}
@@ -266,7 +266,7 @@ const OverviewTab = () => {
       </div>
 
       {/* ── QR Fullscreen Modal ──────────────────────────────── */}
-      <Modal isOpen={qrFullscreen} onClose={() => setQrFullscreen(false)} title="Check-in QR Code" maxWidth="max-w-md">
+      <Sheet size="sm" open={qrFullscreen} onClose={() => setQrFullscreen(false)} title="Check-in QR Code">
         <div className="flex flex-col items-center space-y-6 py-4">
           <div className="text-center space-y-1">
             <h3 className="text-lg font-bold">{gym?.gym?.name || 'Your Gym'}</h3>
@@ -274,7 +274,7 @@ const OverviewTab = () => {
           </div>
 
           {qrData && (
-            <div className="bg-ink rounded-3xl p-5 shadow-2xl">
+            <div className="bg-ink rounded-gm-xl p-5 shadow-2xl">
               <QRCodeSVG
                 value={qrData.qr_payload}
                 size={280}
@@ -303,7 +303,7 @@ const OverviewTab = () => {
             <Download size={16} /> Download as Image
           </button>
         </div>
-      </Modal>
+      </Sheet>
     </div>
   );
 };

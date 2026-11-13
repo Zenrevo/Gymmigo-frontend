@@ -1,9 +1,8 @@
+import { ConfirmDialog, Sheet } from '../../../components/kit';
 import { useState } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { Dumbbell, Target, Plus, Trash2, Edit3 } from 'lucide-react';
 import api from '../../../utils/api';
-import Modal from '../../../components/Modal';
-import ConfirmDialog from '../../../components/ConfirmDialog';
 
 const EquipmentTab = () => {
   const { gym, refetch, gymId } = useGym();
@@ -96,7 +95,7 @@ const EquipmentTab = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Equipment Column (Takes 2/3) */}
       <div className="lg:col-span-2 space-y-6">
-        <div className="flex items-center justify-between bg-surface-raised p-4 rounded-2xl border border-border">
+        <div className="flex items-center justify-between bg-surface-raised p-4 rounded-gm-lg border border-border">
           <div className="flex items-center gap-3 pl-2">
             <Dumbbell className="text-accent-text" />
             <h3 className="text-xl font-bold tracking-tight">EQUIPMENT</h3>
@@ -117,7 +116,7 @@ const EquipmentTab = () => {
                   <div>
                     <h5 className="font-bold truncate max-w-[150px]">{eq.name}</h5>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-ink-muted uppercase font-black">{eq.category}</span>
+                      <span className="text-[10px] text-ink-muted uppercase font-bold">{eq.category}</span>
                       {eq.brand && <span className="text-[10px] text-ink-subtle">• {eq.brand}</span>}
                     </div>
                   </div>
@@ -127,7 +126,7 @@ const EquipmentTab = () => {
                     <button onClick={() => openEqEdit(eq)} className="p-1.5 text-ink-muted hover:text-ink rounded-md hover:bg-surface-sunken"><Edit3 size={14} /></button>
                     <button onClick={() => confirmEqDelete(eq)} className="p-1.5 text-ink-muted hover:text-danger rounded-md hover:bg-danger-soft"><Trash2 size={14} /></button>
                   </div>
-                  <p className="text-2xl font-black text-accent-text mt-1 pr-1">x{eq.quantity}</p>
+                  <p className="text-2xl font-bold text-accent-text mt-1 pr-1">x{eq.quantity}</p>
                 </div>
               </div>
             ))}
@@ -137,7 +136,7 @@ const EquipmentTab = () => {
 
       {/* Facilities Column (Takes 1/3) */}
       <div className="space-y-6">
-        <div className="flex items-center justify-between bg-surface-raised p-4 rounded-2xl border border-border">
+        <div className="flex items-center justify-between bg-surface-raised p-4 rounded-gm-lg border border-border">
            <div className="flex items-center gap-3 pl-2">
              <Target className="text-success" />
              <h3 className="text-xl font-bold tracking-tight">FACILITIES</h3>
@@ -157,7 +156,7 @@ const EquipmentTab = () => {
                         {fac.name}
                         {fac.quantity > 1 && <span className="text-ink-muted text-xs font-mono">x{fac.quantity}</span>}
                       </h5>
-                      <span className={`text-[10px] uppercase font-black tracking-widest px-1.5 py-0.5 rounded-sm mt-1 inline-block ${fac.is_included ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
+                      <span className={`text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded-sm mt-1 inline-block ${fac.is_included ? 'bg-success-soft text-success' : 'bg-warning-soft text-warning'}`}>
                         {fac.is_included ? 'Included in pass' : 'Extra Charge'}
                       </span>
                     </div>
@@ -174,7 +173,7 @@ const EquipmentTab = () => {
       </div>
 
       {/* Equipment Modal */}
-      <Modal isOpen={isEqModalOpen} onClose={() => setIsEqModalOpen(false)} title={selectedEq ? "Edit Equipment" : "Add Equipment"}>
+      <Sheet size="md" open={isEqModalOpen} onClose={() => setIsEqModalOpen(false)} title={selectedEq ? "Edit Equipment" : "Add Equipment"}>
         <form onSubmit={handleEqSave} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-ink-muted uppercase mb-2">Item Name *</label>
@@ -203,10 +202,10 @@ const EquipmentTab = () => {
           </div>
           <button type="submit" disabled={isSubmitting} className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 mt-4">Save Equipment</button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* Facility Modal */}
-      <Modal isOpen={isFacModalOpen} onClose={() => setIsFacModalOpen(false)} title={selectedFac ? "Edit Facility" : "Add Facility"}>
+      <Sheet size="md" open={isFacModalOpen} onClose={() => setIsFacModalOpen(false)} title={selectedFac ? "Edit Facility" : "Add Facility"}>
         <form onSubmit={handleFacSave} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-ink-muted uppercase mb-2">Facility Name *</label>
@@ -229,11 +228,11 @@ const EquipmentTab = () => {
           </label>
           <button type="submit" disabled={isSubmitting} className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 mt-4">Save Facility</button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* Confirmations */}
-      <ConfirmDialog isOpen={isEqConfirmOpen} onClose={() => setIsEqConfirmOpen(false)} onConfirm={handleEqDelete} title="Remove Equipment" message={`Remove ${selectedEq?.name} from inventory?`} isDangerous />
-      <ConfirmDialog isOpen={isFacConfirmOpen} onClose={() => setIsFacConfirmOpen(false)} onConfirm={handleFacDelete} title="Remove Facility" message={`Delete ${selectedFac?.name}?`} isDangerous />
+      <ConfirmDialog open={isEqConfirmOpen} onClose={() => setIsEqConfirmOpen(false)} onConfirm={handleEqDelete} title="Remove Equipment" message={`Remove ${selectedEq?.name} from inventory?`} tone="danger" />
+      <ConfirmDialog open={isFacConfirmOpen} onClose={() => setIsFacConfirmOpen(false)} onConfirm={handleFacDelete} title="Remove Facility" message={`Delete ${selectedFac?.name}?`} tone="danger" />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { ConfirmDialog, Sheet } from '../../../components/kit';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
@@ -5,8 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import Modal from '../../../components/Modal';
-import ConfirmDialog from '../../../components/ConfirmDialog';
 import {
   Users, UserPlus, Search, Filter, LogIn, LogOut,
   Phone, Clock, ChevronRight, Activity, CheckCircle2,
@@ -560,11 +559,11 @@ const MembersTab = () => {
         <div className="bg-surface border border-border rounded-gm-xl shadow-card p-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl from-accent/20 to-accent/5 border border-accent-border flex items-center justify-center text-accent-text text-2xl font-black">
+              <div className="w-16 h-16 rounded-gm-lg from-accent/20 to-accent/5 border border-accent-border flex items-center justify-center text-accent-text text-2xl font-bold">
                 {(selectedMember.user_name || 'U')[0].toUpperCase()}
               </div>
               <div>
-                <h2 className="text-2xl font-display font-black tracking-tight">{selectedMember.user_name || 'Unknown'}</h2>
+                <h2 className="text-2xl font-display font-extrabold tracking-tight">{selectedMember.user_name || 'Unknown'}</h2>
                 <div className="flex items-center gap-3 text-ink-muted text-sm mt-1">
                   <span className="flex items-center gap-1"><Phone size={13} />{selectedMember.user_phone}</span>
                   <span>•</span>
@@ -595,42 +594,42 @@ const MembersTab = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-            <div className="rounded-2xl bg-accent-soft border border-accent-border p-4">
+            <div className="rounded-gm-lg bg-accent-soft border border-accent-border p-4">
               <div className="flex items-center gap-2 text-accent-text mb-2">
                 <Target size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Today Score</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Today Score</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-ink-subtle font-bold"> / 100</span></p>
+              <p className="text-3xl font-bold">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-ink-subtle font-bold"> / 100</span></p>
             </div>
-            <div className="rounded-2xl bg-warning-soft border border-warning/30 p-4">
+            <div className="rounded-gm-lg bg-warning-soft border border-warning/30 p-4">
               <div className="flex items-center gap-2 text-warning mb-2">
                 <Flame size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Streak</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Streak</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-ink-subtle font-bold"> days</span></p>
+              <p className="text-3xl font-bold">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-ink-subtle font-bold"> days</span></p>
             </div>
-            <div className="rounded-2xl bg-info-soft border border-info/30 p-4">
+            <div className="rounded-gm-lg bg-info-soft border border-info/30 p-4">
               <div className="flex items-center gap-2 text-info mb-2">
                 <Trophy size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Global Rank</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Global Rank</span>
               </div>
-              <p className="text-3xl font-black">
+              <p className="text-3xl font-bold">
                 {selectedMember.fitness_score?.global_rank ? `#${selectedMember.fitness_score.global_rank}` : '--'}
                 {selectedMember.fitness_score?.global_rank_total ? <span className="text-xs text-ink-subtle font-bold"> / {selectedMember.fitness_score.global_rank_total}</span> : null}
               </p>
             </div>
-            <div className="rounded-2xl bg-info-soft border border-info/30 p-4">
+            <div className="rounded-gm-lg bg-info-soft border border-info/30 p-4">
               <div className="flex items-center gap-2 text-info mb-2">
                 <Activity size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Week Goal</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Week Goal</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-ink-subtle font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
+              <p className="text-3xl font-bold">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-ink-subtle font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
             </div>
           </div>
 
           {selectedMember.fitness_score?.daily_score?.coach_nudge && (
-            <div className="mb-8 rounded-2xl bg-warning-soft border border-warning/30 p-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-warning mb-1">Migo AI retention nudge</p>
+            <div className="mb-8 rounded-gm-lg bg-warning-soft border border-warning/30 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-warning mb-1">Migo AI retention nudge</p>
               <p className="text-sm text-ink-muted leading-relaxed">{selectedMember.fitness_score.daily_score.coach_nudge}</p>
             </div>
           )}
@@ -639,7 +638,7 @@ const MembersTab = () => {
             <h3 className="text-sm font-bold text-ink-muted uppercase tracking-widest">Active & Past Subscriptions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {selectedMember.memberships.map((membership, idx) => (
-                <div key={idx} className="bg-surface-raised border border-border rounded-2xl p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
+                <div key={idx} className="bg-surface-raised border border-border rounded-gm-lg p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4">
                     {statusBadge(membership.status)}
                   </div>
@@ -746,17 +745,17 @@ const MembersTab = () => {
         {/* ── Confirm Dialog for Detail View ──────────────────────────────────────── */}
         {confirmAction && (
           <ConfirmDialog
-            isOpen={!!confirmAction}
+            open={!!confirmAction}
             onClose={() => setConfirmAction(null)}
             title={confirmAction.title}
             message={confirmAction.message}
             onConfirm={confirmAction.onConfirm}
             confirmLabel={confirmAction.confirmLabel || "Confirm"}
-            isDangerous={confirmAction.isDangerous}
+            tone={(confirmAction.isDangerous) ? 'danger' : 'default'}
           />
         )}
 
-        <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Membership" maxWidth="max-w-2xl">
+        <Sheet size="lg" open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Membership">
           <form onSubmit={handleEditMember} className="space-y-5">
             <div>
               <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Full Name</label>
@@ -857,7 +856,7 @@ const MembersTab = () => {
                           </div>
                           <span className="text-xs font-bold text-ink-muted">{addon.name}</span>
                         </div>
-                        <span className="text-xs font-black text-success">₹{addon.price}</span>
+                        <span className="text-xs font-bold text-success">₹{addon.price}</span>
                       </div>
                     );
                   })}
@@ -881,7 +880,7 @@ const MembersTab = () => {
               {isUpdating ? <><Loader2 size={16} className="animate-spin" /> Updating...</> : <><CheckCircle2 size={16} /> Save Changes</>}
             </button>
           </form>
-        </Modal>
+        </Sheet>
       </div>
     );
   }
@@ -892,7 +891,7 @@ const MembersTab = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight ">MEMBERS</h2>
+          <h2 className="text-3xl font-display font-extrabold tracking-tight ">MEMBERS</h2>
           <p className="text-ink-muted text-sm">Manage your gym's member base and attendance.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -942,7 +941,7 @@ const MembersTab = () => {
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-success" size={20} />
                 <input type="text" autoFocus placeholder="Search member... (e.g. '8989' or 'Ayus')" 
-                  className="w-full bg-surface-sunken border-2 border-success/30 rounded-2xl py-4 pl-12 pr-4 text-lg focus:border-success outline-none transition-all placeholder:text-ink-subtle"
+                  className="w-full bg-surface-sunken border-2 border-success/30 rounded-gm-lg py-4 pl-12 pr-4 text-lg focus:border-success outline-none transition-all placeholder:text-ink-subtle"
                   value={quickSearch} onChange={e => setQuickSearch(e.target.value)} />
                 {quickLoading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-success" size={20} />}
               </div>
@@ -1013,7 +1012,7 @@ const MembersTab = () => {
               <span className="text-ink-muted text-xs font-bold uppercase tracking-wider">{s.label}</span>
               <s.icon size={16} className={s.color} />
             </div>
-            <p className="text-3xl font-black mt-2">{s.value}</p>
+            <p className="text-3xl font-bold mt-2">{s.value}</p>
           </motion.div>
         ))}
       </div>
@@ -1132,10 +1131,10 @@ const MembersTab = () => {
                              <span className="text-xs md:text-sm font-mono text-ink-muted">{m.total_check_ins} Check-ins</span>
                              {m.fitness_score && (
                                <div className="flex flex-wrap gap-1.5">
-                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent-soft border border-accent-border text-[10px] font-black text-accent-text">
+                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent-soft border border-accent-border text-[10px] font-bold text-accent-text">
                                    <Target size={10} /> {m.fitness_score.today_score ?? 0}/100
                                  </span>
-                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning-soft border border-warning/30 text-[10px] font-black text-warning">
+                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning-soft border border-warning/30 text-[10px] font-bold text-warning">
                                    <Flame size={10} /> {m.fitness_score.streak ?? 0}d
                                  </span>
                                </div>
@@ -1281,7 +1280,7 @@ const MembersTab = () => {
       </AnimatePresence>
 
       {/* ── Enroll Modal ──────────────────────────────────────────────────────── */}
-      <Modal isOpen={showEnrollModal} onClose={() => setShowEnrollModal(false)} title="Enroll New Member" maxWidth="max-w-md">
+      <Sheet size="sm" open={showEnrollModal} onClose={() => setShowEnrollModal(false)} title="Enroll New Member">
         <form onSubmit={handleEnroll} className="space-y-5">
           {/* Phone */}
           <div>
@@ -1393,7 +1392,7 @@ const MembersTab = () => {
                           </div>
                           <span className="text-xs font-bold text-ink-muted">{addon.name}</span>
                        </div>
-                       <span className="text-xs font-black text-success">₹{addon.price}</span>
+                       <span className="text-xs font-bold text-success">₹{addon.price}</span>
                     </div>
                   ))}
                </div>
@@ -1405,23 +1404,23 @@ const MembersTab = () => {
             {enrolling ? <><Loader2 size={16} className="animate-spin" /> Enrolling...</> : <><UserPlus size={16} /> Enroll Member</>}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* ── Confirm Dialog ────────────────────────────────────────────────────── */}
       {confirmAction && (
         <ConfirmDialog
-          isOpen={!!confirmAction}
+          open={!!confirmAction}
           onClose={() => setConfirmAction(null)}
           title={confirmAction.title}
           message={confirmAction.message}
           onConfirm={confirmAction.onConfirm}
           confirmLabel={confirmAction.confirmLabel || "Yes, Cancel"}
-          isDangerous={confirmAction.isDangerous !== undefined ? confirmAction.isDangerous : true}
+          tone={(confirmAction.isDangerous !== undefined ? confirmAction.isDangerous : true) ? 'danger' : 'default'}
         />
       )}
 
       {/* ── Edit Member Modal ─────────────────────────────────────────────────── */}
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Member Info">
+      <Sheet size="md" open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Member Info">
         <form onSubmit={handleEditMember} className="space-y-5">
           {/* Full Name */}
           <div>
@@ -1533,7 +1532,7 @@ const MembersTab = () => {
                       </div>
                       <span className="text-xs font-bold text-ink-muted">{addon.name}</span>
                     </div>
-                    <span className="text-xs font-black text-success">₹{addon.price}</span>
+                    <span className="text-xs font-bold text-success">₹{addon.price}</span>
                   </div>
                 ))}
               </div>
@@ -1559,9 +1558,9 @@ const MembersTab = () => {
             {isUpdating ? <><Loader2 size={16} className="animate-spin" /> Updating...</> : <><CheckCircle2 size={16} /> Save Changes</>}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
-      <Modal isOpen={!!importSummary} onClose={() => setImportSummary(null)} title="Excel Import Summary" maxWidth="max-w-3xl">
+      <Sheet size="lg" open={!!importSummary} onClose={() => setImportSummary(null)} title="Excel Import Summary">
         {importSummary && (
           <div className="space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1572,14 +1571,14 @@ const MembersTab = () => {
                 { label: 'Failed', value: importSummary.failed, color: importSummary.failed ? 'text-danger' : 'text-ink-muted' },
               ].map(item => (
                 <div key={item.label} className="rounded-xl bg-surface-raised border border-border p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-ink-subtle">{item.label}</p>
-                  <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.value}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">{item.label}</p>
+                  <p className={`text-2xl font-bold mt-1 ${item.color}`}>{item.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="max-h-[360px] overflow-auto rounded-2xl border border-border">
-              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-surface-raised text-[10px] font-black uppercase tracking-widest text-ink-subtle sticky top-0">
+            <div className="max-h-[360px] overflow-auto rounded-gm-lg border border-border">
+              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-surface-raised text-[10px] font-bold uppercase tracking-widest text-ink-subtle sticky top-0">
                 <span>Row</span>
                 <span>Action</span>
                 <span>Member</span>
@@ -1590,7 +1589,7 @@ const MembersTab = () => {
                   <div key={`${result.row}-${result.action}-${result.phone || ''}`} className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 text-xs">
                     <span className="font-mono text-ink-muted">{result.row}</span>
                     <span className={clsx(
-                      "font-black uppercase tracking-wider",
+                      "font-bold uppercase tracking-wider",
                       result.action === 'failed' ? 'text-danger' : result.action === 'created' ? 'text-success' : 'text-info'
                     )}>{result.action}</span>
                     <span className="text-ink-muted truncate">
@@ -1607,7 +1606,7 @@ const MembersTab = () => {
             </button>
           </div>
         )}
-      </Modal>
+      </Sheet>
     </div>
   );
 };

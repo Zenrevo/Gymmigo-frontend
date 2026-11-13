@@ -282,17 +282,17 @@ const ClubsTab = () => {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.16),rgba(255,255,255,0.035)_45%,rgba(34,197,94,0.10))] p-6 sm:p-8">
+      <section className="rounded-gm-xl border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.16),rgba(255,255,255,0.035)_45%,rgba(34,197,94,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent-border bg-accent-soft text-accent-text">
                 <Trophy size={20} />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-accent-text">Loyalty Engine</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-accent-text">Loyalty Engine</p>
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter text-ink sm:text-5xl">Fitness Clubs</h1>
+              <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">Fitness Clubs</h1>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-ink-muted">
                 Three steps: set your goal, review the 8-club journey, publish once. Members unlock renewal savings before month one ends.
               </p>
@@ -308,7 +308,7 @@ const ClubsTab = () => {
       </section>
 
       {error && (
-        <div className="rounded-2xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</div>
+        <div className="rounded-gm-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">{error}</div>
       )}
 
       {hasPublishedClubs && !hasDraft && !rebuildOpen && (
@@ -370,7 +370,7 @@ const ClubsTab = () => {
         <button
           type="button"
           onClick={() => setOperationsOpen((open) => !open)}
-          className="mb-4 text-xs font-black uppercase tracking-widest text-ink-muted hover:text-ink"
+          className="mb-4 text-xs font-bold uppercase tracking-widest text-ink-muted hover:text-ink"
         >
           {operationsOpen ? 'Hide' : 'Show'} club operations (claims, transfers, members)
         </button>
@@ -401,17 +401,17 @@ const GenerationOverlay = ({ regenerating }: { regenerating: boolean }) => (
     className="fixed inset-0 z-50 flex items-center justify-center bg-overlay px-4 backdrop-blur-sm"
   >
     <div className="w-full max-w-md rounded-[1.5rem] border border-accent-border bg-[#101010] p-7 text-center shadow-2xl shadow-black/40">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent text-on-accent">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-gm-lg bg-accent text-on-accent">
         <LoaderCircle size={30} className="animate-spin" />
       </div>
-      <p className="mt-5 text-[10px] font-black uppercase tracking-[0.35em] text-accent-text">Migo AI</p>
-      <h2 className="mt-2 text-2xl font-black text-ink">
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.35em] text-accent-text">Migo AI</p>
+      <h2 className="mt-2 text-2xl font-bold text-ink">
         {regenerating ? 'Refreshing your club draft' : 'Building your club journey'}
       </h2>
       <p className="mt-3 text-sm font-semibold leading-6 text-ink-muted">
         Creating eight tiers with missions, rewards, discounts, and protection rules. Keep this tab open while the draft is prepared.
       </p>
-      <div className="mt-6 flex items-center justify-center gap-2 rounded-2xl border border-border bg-surface-raised px-4 py-3 text-xs font-black uppercase tracking-widest text-ink-muted">
+      <div className="mt-6 flex items-center justify-center gap-2 rounded-gm-lg border border-border bg-surface-raised px-4 py-3 text-xs font-bold uppercase tracking-widest text-ink-muted">
         <Sparkles size={14} className="text-accent-text" />
         Usually takes under a minute
       </div>
@@ -432,7 +432,7 @@ const StepIndicator = ({
 }) => (
   <div className="flex gap-2">
     {hasPublished && !hasDraft ? (
-      <span className="rounded-full border border-success/30 bg-success-soft px-4 py-2 text-[10px] font-black uppercase tracking-widest text-success">
+      <span className="rounded-full border border-success/30 bg-success-soft px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-success">
         Live · 8 clubs
       </span>
     ) : (

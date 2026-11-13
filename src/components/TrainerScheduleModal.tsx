@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { Calendar, Loader2 } from 'lucide-react';
-import Modal from './Modal';
+import { Sheet } from './kit';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
 
@@ -113,12 +113,12 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Manage Weekly Schedule" maxWidth="max-w-md">
+    <Sheet open={isOpen} onClose={onClose} title="Manage Weekly Schedule" size="sm">
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Day of Week */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Day of Week</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Day of Week</label>
           <select
             name="day_of_week"
             value={formData.day_of_week}
@@ -149,11 +149,11 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
         {formData.is_available && (
           <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-center justify-between">
-              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase">Time Slots</label>
+              <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase">Time Slots</label>
               <button 
                 type="button" 
                 onClick={addSlot}
-                className="text-[10px] font-black text-accent-text uppercase tracking-widest hover:text-ink transition-colors"
+                className="text-[10px] font-bold text-accent-text uppercase tracking-widest hover:text-ink transition-colors"
                >+ Add Range</button>
             </div>
             
@@ -196,7 +196,7 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
 
             {/* Session Type */}
             <div>
-              <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Session Availability</label>
+              <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Session Availability</label>
               <select
                 name="session_type"
                 value={formData.session_type}
@@ -216,7 +216,7 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
+            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
           >
             Cancel
           </button>
@@ -224,7 +224,7 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
             type="submit"
             disabled={loading}
             className={clsx(
-              "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+              "flex-[2] py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
               loading 
                 ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
                 : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
@@ -238,6 +238,6 @@ export default function TrainerScheduleModal({ isOpen, onClose, onSuccess }: Tra
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

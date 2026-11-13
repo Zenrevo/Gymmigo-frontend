@@ -144,17 +144,17 @@ const ReferralLeadsTab = () => {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-[2rem] border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.14),rgba(255,255,255,0.035)_45%,rgba(59,130,246,0.10))] p-6 sm:p-8">
+      <section className="rounded-gm-xl border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.14),rgba(255,255,255,0.035)_45%,rgba(59,130,246,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent-border bg-accent-soft text-accent-text">
                 <UserPlus size={20} />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-accent-text">Growth Loop</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-accent-text">Growth Loop</p>
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-tighter text-ink sm:text-5xl">FitCard Referral Leads</h1>
+              <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">FitCard Referral Leads</h1>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-ink-muted">
                 Members share badges, friends claim trials, and your team gets the lead here.
               </p>
@@ -172,8 +172,8 @@ const ReferralLeadsTab = () => {
         <section className="rounded-[1.5rem] border border-success/30 bg-success-soft p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-success">Next follow-up</p>
-              <h2 className="mt-2 truncate text-2xl font-black text-ink">{nextLead.full_name}</h2>
+              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-success">Next follow-up</p>
+              <h2 className="mt-2 truncate text-2xl font-bold text-ink">{nextLead.full_name}</h2>
               <p className="mt-1 text-sm font-semibold text-ink-muted">
                 {nextLead.status === 'trial_booked' && nextLead.trial_at
                   ? `Trial ${formatDate(nextLead.trial_at)}`
@@ -184,7 +184,7 @@ const ReferralLeadsTab = () => {
             </div>
             <button
               onClick={() => messageLead(nextLead)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-success px-5 py-3 text-xs font-black uppercase tracking-widest text-on-accent transition hover:brightness-110"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-success px-5 py-3 text-xs font-bold uppercase tracking-widest text-on-accent transition hover:brightness-110"
             >
               <MessageCircle size={15} /> WhatsApp
             </button>
@@ -198,7 +198,7 @@ const ReferralLeadsTab = () => {
             key={option}
             onClick={() => setStatus(option)}
             className={clsx(
-              'shrink-0 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
+              'shrink-0 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all',
               status === option
                 ? 'border-accent-border bg-accent-soft text-accent-text'
                 : 'border-border bg-surface-raised text-ink-muted hover:text-ink'
@@ -210,7 +210,7 @@ const ReferralLeadsTab = () => {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-danger/30 bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
+        <div className="rounded-gm-lg border border-danger/30 bg-danger-soft px-4 py-3 text-sm font-semibold text-danger">
           {error}
         </div>
       )}
@@ -227,13 +227,13 @@ const ReferralLeadsTab = () => {
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-border bg-accent-soft text-accent-text">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-gm-lg border border-border bg-accent-soft text-accent-text">
                     <Users size={22} />
                   </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-lg font-black text-ink">{lead.full_name}</h3>
-                      <span className={clsx('rounded-full border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest', statusClasses[lead.status] || 'border-border bg-surface-raised text-ink-muted')}>
+                      <h3 className="text-lg font-bold text-ink">{lead.full_name}</h3>
+                      <span className={clsx('rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest', statusClasses[lead.status] || 'border-border bg-surface-raised text-ink-muted')}>
                         {formatStatus(lead.status)}
                       </span>
                     </div>
@@ -245,15 +245,15 @@ const ReferralLeadsTab = () => {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <a href={`tel:${lead.phone}`} className="rounded-xl border border-border bg-surface-raised px-4 py-3 text-xs font-black uppercase tracking-widest text-ink transition hover:border-accent-border">
+                  <a href={`tel:${lead.phone}`} className="rounded-xl border border-border bg-surface-raised px-4 py-3 text-xs font-bold uppercase tracking-widest text-ink transition hover:border-accent-border">
                     Call
                   </a>
-                  <button onClick={() => messageLead(lead)} className="rounded-xl bg-success px-4 py-3 text-xs font-black uppercase tracking-widest text-on-accent transition hover:brightness-110">
+                  <button onClick={() => messageLead(lead)} className="rounded-xl bg-success px-4 py-3 text-xs font-bold uppercase tracking-widest text-on-accent transition hover:brightness-110">
                     WhatsApp
                   </button>
                 </div>
               </div>
-              <div className="mt-5 rounded-2xl border border-border bg-surface-sunken p-4">
+              <div className="mt-5 rounded-gm-lg border border-border bg-surface-sunken p-4">
                 <textarea
                   value={noteDrafts[lead.id] || ''}
                   onChange={(event) => setNoteDrafts((current) => ({ ...current, [lead.id]: event.target.value }))}
@@ -268,7 +268,7 @@ const ReferralLeadsTab = () => {
                   <PipelineButton label="Lost" danger active={lead.status === 'lost'} loading={updatingId === lead.id} onClick={() => updateLead(lead, { status: 'lost', lost_reason: noteDrafts[lead.id] || 'Not interested right now.' })} />
                 </div>
                 {lead.trial_at && (
-                  <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-warning">Trial: {formatDate(lead.trial_at)}</p>
+                  <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-warning">Trial: {formatDate(lead.trial_at)}</p>
                 )}
               </div>
             </motion.article>
@@ -286,9 +286,9 @@ const ReferralLeadsTab = () => {
 };
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="min-w-[92px] rounded-2xl border border-border bg-surface-sunken p-4">
-    <p className="text-[9px] font-black uppercase tracking-widest text-ink-subtle">{label}</p>
-    <p className="mt-1 text-3xl font-black text-ink">{value}</p>
+  <div className="min-w-[92px] rounded-gm-lg border border-border bg-surface-sunken p-4">
+    <p className="text-[9px] font-bold uppercase tracking-widest text-ink-subtle">{label}</p>
+    <p className="mt-1 text-3xl font-bold text-ink">{value}</p>
   </div>
 );
 
@@ -310,7 +310,7 @@ const PipelineButton = ({
     onClick={onClick}
     disabled={loading}
     className={clsx(
-      'inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-4 text-[10px] font-black uppercase tracking-widest transition disabled:opacity-60',
+      'inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border px-4 text-[10px] font-bold uppercase tracking-widest transition disabled:opacity-60',
       active
         ? 'border-accent bg-accent text-on-accent'
         : danger

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../utils/api';
 import { Package, Loader2 } from 'lucide-react';
-import Modal from './Modal';
+import { Sheet } from './kit';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
 
@@ -62,12 +62,12 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Service Package" maxWidth="max-w-xl">
+    <Sheet open={isOpen} onClose={onClose} title="Create Service Package" size="md">
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Package Name */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Package Name *</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Package Name *</label>
           <input
             type="text"
             name="name"
@@ -82,7 +82,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         <div className="grid grid-cols-2 gap-4">
           {/* Package Type */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Package Type</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Package Type</label>
             <div className="relative">
               <select
                 name="package_type"
@@ -99,7 +99,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
           
           {/* Price */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Price (₹) *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Price (₹) *</label>
             <input
               type="number"
               name="price"
@@ -115,7 +115,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         <div className="grid grid-cols-3 gap-4">
           {/* Total Sessions */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Total Sessions *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Total Sessions *</label>
             <input
               type="number"
               name="total_sessions"
@@ -128,7 +128,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
 
           {/* Session Duration */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Duration (mins) *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Duration (mins) *</label>
             <input
               type="number"
               name="session_duration_mins"
@@ -141,7 +141,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
 
           {/* Validity */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Validity (days) *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Validity (days) *</label>
             <input
               type="number"
               name="validity_days"
@@ -155,7 +155,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
 
         {/* Description */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Description</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Description</label>
           <textarea
             name="description"
             value={formData.description}
@@ -171,7 +171,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
+            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
           >
             Cancel
           </button>
@@ -179,7 +179,7 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
             type="submit"
             disabled={loading}
             className={clsx(
-              "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+              "flex-[2] py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
               loading 
                 ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
                 : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
@@ -193,6 +193,6 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

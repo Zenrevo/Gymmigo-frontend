@@ -3,7 +3,7 @@ import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
 import api from '../../../utils/api';
 import { motion } from 'framer-motion';
-import Modal from '../../../components/Modal';
+import { Sheet } from '../../../components/kit';
 import { 
   TrendingUp, TrendingDown, DollarSign, Plus, Download, 
   Mail, FileText, Loader2, ArrowUpRight, ArrowDownRight, User,
@@ -329,7 +329,7 @@ const FinanceTab = () => {
             </div>
             <span className="text-[10px] font-bold text-success uppercase tracking-widest">Revenue</span>
           </div>
-          <p className="text-3xl font-display font-black ">₹{summary.revenue.toLocaleString()}</p>
+          <p className="text-3xl font-display font-extrabold ">₹{summary.revenue.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-2 text-success text-xs">
             <ArrowUpRight size={14} />
             <span>Incoming funds</span>
@@ -348,7 +348,7 @@ const FinanceTab = () => {
             </div>
             <span className="text-[10px] font-bold text-danger uppercase tracking-widest">Expenses</span>
           </div>
-          <p className="text-3xl font-display font-black ">₹{summary.expenses.toLocaleString()}</p>
+          <p className="text-3xl font-display font-extrabold ">₹{summary.expenses.toLocaleString()}</p>
           <div className="flex items-center gap-1 mt-2 text-danger text-xs">
             <ArrowDownRight size={14} />
             <span>Operating costs</span>
@@ -370,8 +370,8 @@ const FinanceTab = () => {
             </div>
             <span className="text-[10px] font-bold text-accent-text uppercase tracking-widest">Net Profit</span>
           </div>
-          <p className="text-3xl font-display font-black ">₹{summary.profit.toLocaleString()}</p>
-          <p className="text-ink-muted text-xs mt-2 uppercase tracking-tighter">After all deductions</p>
+          <p className="text-3xl font-display font-extrabold ">₹{summary.profit.toLocaleString()}</p>
+          <p className="text-ink-muted text-xs mt-2 uppercase tracking-tight">After all deductions</p>
         </motion.div>
       </div>
 
@@ -482,10 +482,10 @@ const FinanceTab = () => {
                       <td className="px-6 py-4 text-sm font-bold truncate max-w-[150px]">
                         {inv.member_name || "Valued Member"}
                       </td>
-                      <td className="px-6 py-4 text-sm font-black">₹{inv.amount.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-sm font-bold">₹{inv.amount.toLocaleString()}</td>
                       <td className="px-6 py-4">
                         <span className={clsx(
-                          "px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-widest",
+                          "px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
                           inv.status === 'paid' ? "bg-success-soft text-success" : 
                           inv.status === 'canceled' ? "bg-danger-soft text-danger" : 
                           "bg-warning-soft text-warning"
@@ -594,13 +594,13 @@ const FinanceTab = () => {
                   key={p.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="p-5 bg-surface-raised border border-border rounded-2xl hover:border-accent-border transition-all group"
+                  className="p-5 bg-surface-raised border border-border rounded-gm-lg hover:border-accent-border transition-all group"
                 >
                   <div className="flex justify-between items-start mb-3">
-                    <span className="px-2 py-0.5 bg-accent-soft text-accent-text text-[10px] font-black uppercase tracking-widest rounded">
+                    <span className="px-2 py-0.5 bg-accent-soft text-accent-text text-[10px] font-bold uppercase tracking-widest rounded">
                       {p.category}
                     </span>
-                    <p className="text-xl font-black text-ink">₹{p.price.toLocaleString()}</p>
+                    <p className="text-xl font-bold text-ink">₹{p.price.toLocaleString()}</p>
                   </div>
                   <h4 className="text-sm font-bold text-ink group-hover:text-accent-text transition-colors">{p.name}</h4>
                   <p className="text-xs text-ink-muted mt-1 line-clamp-2">{p.description || "No description provided."}</p>
@@ -635,7 +635,7 @@ const FinanceTab = () => {
                       <td className="px-6 py-4 text-sm text-ink-muted">
                         {exp.description || '—'}
                       </td>
-                      <td className="px-6 py-4 text-sm font-black text-danger">
+                      <td className="px-6 py-4 text-sm font-bold text-danger">
                         ₹{exp.amount.toLocaleString()}
                       </td>
                       <td className="px-6 py-4 text-xs text-ink-muted uppercase">
@@ -660,8 +660,8 @@ const FinanceTab = () => {
       </div>
 
       {/* Invoice Modal */}
-      <Modal 
-        isOpen={showInvoiceModal} 
+      <Sheet size="md" 
+        open={showInvoiceModal} 
         onClose={() => setShowInvoiceModal(false)}
         title="Generate New Invoice"
       >
@@ -702,7 +702,7 @@ const FinanceTab = () => {
                       >
                         <div className="text-left">
                           <p className="text-sm font-bold text-ink">{m.user_name}</p>
-                          <p className="text-[10px] text-ink-muted uppercase tracking-tighter">{m.user_phone}</p>
+                          <p className="text-[10px] text-ink-muted uppercase tracking-tight">{m.user_phone}</p>
                         </div>
                         <CheckCircle2 size={16} className="text-ink-subtle" />
                       </button>
@@ -718,7 +718,7 @@ const FinanceTab = () => {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-ink">{selectedMember.user_name}</p>
-                    <p className="text-[10px] text-accent-text uppercase font-black tracking-widest">{selectedMember.user_phone}</p>
+                    <p className="text-[10px] text-accent-text uppercase font-bold tracking-widest">{selectedMember.user_phone}</p>
                   </div>
                 </div>
                 <button 
@@ -742,7 +742,7 @@ const FinanceTab = () => {
               <button 
                 type="button"
                 onClick={() => setInvoiceForm({...invoiceForm, items: [...invoiceForm.items, { id: `item-${Date.now()}-${Math.random()}`, description: '', quantity: 1, rate: 0, amount: 0 }]})}
-                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-accent-text hover:text-accent-text transition-colors"
+                className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-accent-text hover:text-accent-text transition-colors"
               >
                 <Plus size={14} />
                 Add Item
@@ -845,15 +845,15 @@ const FinanceTab = () => {
             </div>
           </div>
 
-          <div className="p-4 bg-accent-soft border border-accent-border rounded-2xl">
+          <div className="p-4 bg-accent-soft border border-accent-border rounded-gm-lg">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[10px] text-accent-text font-black uppercase tracking-widest">Grand Total</p>
-                <p className="text-2xl font-black text-ink">₹{invoiceForm.items.reduce((sum, item) => sum + (item.quantity * item.rate), 0).toLocaleString()}</p>
+                <p className="text-[10px] text-accent-text font-bold uppercase tracking-widest">Grand Total</p>
+                <p className="text-2xl font-bold text-ink">₹{invoiceForm.items.reduce((sum, item) => sum + (item.quantity * item.rate), 0).toLocaleString()}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-tighter">{invoiceForm.items.length} items included</p>
-                <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-tighter ">Professional Invoice PDF will be generated</p>
+                <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-tight">{invoiceForm.items.length} items included</p>
+                <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-tight ">Professional Invoice PDF will be generated</p>
               </div>
             </div>
           </div>
@@ -871,17 +871,17 @@ const FinanceTab = () => {
           <button 
             type="submit" 
             disabled={!!actionLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2"
+            className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 font-bold uppercase tracking-widest flex items-center justify-center gap-2"
           >
             {actionLoading ? <Loader2 className="animate-spin" /> : <TrendingUp size={20} />}
             Generate Official Invoice
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* Expense Modal */}
-      <Modal 
-        isOpen={showExpenseModal} 
+      <Sheet size="md" 
+        open={showExpenseModal} 
         onClose={() => setShowExpenseModal(false)}
         title="Log Gym Expense"
       >
@@ -938,17 +938,17 @@ const FinanceTab = () => {
           <button 
             type="submit" 
             disabled={!!actionLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 font-black uppercase tracking-widest flex items-center justify-center gap-2"
+            className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 font-bold uppercase tracking-widest flex items-center justify-center gap-2"
           >
             {actionLoading ? <Loader2 className="animate-spin" /> : <TrendingDown size={20} />}
             Confirm Expense Entry
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* Create Product Modal */}
-      <Modal
-        isOpen={isAddingProduct}
+      <Sheet size="md"
+        open={isAddingProduct}
         onClose={() => setIsAddingProduct(false)}
         title="Create New Product/Service"
       >
@@ -1007,7 +1007,7 @@ const FinanceTab = () => {
             )}
           </button>
         </form>
-      </Modal>
+      </Sheet>
     </div>
   );
 };

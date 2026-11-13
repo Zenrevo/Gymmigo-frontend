@@ -19,8 +19,8 @@ export default function ClubsPublishStep({ clubs, validation, publishing, onBack
 
   return (
     <section className="rounded-[1.5rem] border border-border bg-surface-raised p-6">
-      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-text">Step 3</p>
-      <h2 className="mt-1 text-2xl font-black text-ink">Publish to members</h2>
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-text">Step 3</p>
+      <h2 className="mt-1 text-2xl font-bold text-ink">Publish to members</h2>
       <p className="mt-2 max-w-2xl text-sm font-semibold text-ink-muted">
         This saves all {clubs.length} club tiers at once. Members will see the journey, rewards, and Migo nudges after publish.
       </p>
@@ -37,7 +37,7 @@ export default function ClubsPublishStep({ clubs, validation, publishing, onBack
         </p>
       )}
 
-      <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-sunken p-4">
+      <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-gm-lg border border-border bg-surface-sunken p-4">
         <input
           type="checkbox"
           checked={confirmed}
@@ -53,7 +53,7 @@ export default function ClubsPublishStep({ clubs, validation, publishing, onBack
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-xs font-black uppercase text-ink-muted"
+          className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-xs font-bold uppercase text-ink-muted"
         >
           <ChevronLeft size={14} /> Back to review
         </button>
@@ -62,7 +62,7 @@ export default function ClubsPublishStep({ clubs, validation, publishing, onBack
           onClick={onPublish}
           disabled={!confirmed || publishing || errors.length > 0}
           className={clsx(
-            'inline-flex items-center gap-2 rounded-xl px-6 py-3 text-xs font-black uppercase transition',
+            'inline-flex items-center gap-2 rounded-xl px-6 py-3 text-xs font-bold uppercase transition',
             confirmed && !errors.length
               ? 'bg-accent text-on-accent hover:brightness-110'
               : 'bg-surface-sunken text-ink-muted'
@@ -76,8 +76,8 @@ export default function ClubsPublishStep({ clubs, validation, publishing, onBack
 }
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-2xl border border-border bg-surface-sunken p-4 text-center">
-    <p className="text-2xl font-black text-ink">{value}</p>
-    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink-subtle">{label}</p>
+  <div className="rounded-gm-lg border border-border bg-surface-sunken p-4 text-center">
+    <p className="text-2xl font-bold text-ink">{value}</p>
+    <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-ink-subtle">{label}</p>
   </div>
 );

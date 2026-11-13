@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../utils/api';
 import { Award, Loader2 } from 'lucide-react';
-import Modal from './Modal';
+import { Sheet } from './kit';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
 
@@ -57,12 +57,12 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add Certification" maxWidth="max-w-md">
+    <Sheet open={isOpen} onClose={onClose} title="Add Certification" size="sm">
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Name */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Certification Name *</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Certification Name *</label>
           <input
             type="text"
             name="name"
@@ -76,7 +76,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
 
         {/* Issued By */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Issuing Organization *</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Issuing Organization *</label>
           <input
             type="text"
             name="issued_by"
@@ -91,7 +91,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
         <div className="grid grid-cols-2 gap-4">
           {/* Issue Year */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Issue Year *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Issue Year *</label>
             <input
               type="number"
               name="issue_year"
@@ -107,7 +107,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
           
           {/* Expiry Year */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-ink-muted uppercase mb-2">Expiry Year (Optional)</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Expiry Year (Optional)</label>
             <input
               type="number"
               name="expiry_year"
@@ -125,7 +125,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-black text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
+            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
           >
             Cancel
           </button>
@@ -133,7 +133,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
             type="submit"
             disabled={loading}
             className={clsx(
-              "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+              "flex-[2] py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
               loading 
                 ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
                 : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
@@ -147,6 +147,6 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

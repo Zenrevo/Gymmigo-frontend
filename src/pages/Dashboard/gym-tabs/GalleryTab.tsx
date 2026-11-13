@@ -3,7 +3,7 @@ import { useGym } from '../../../context/GymContext';
 import { Image as ImageIcon, Video, Trash2, Star, Loader2 } from 'lucide-react';
 import ImageUpload from '../../../components/ImageUpload';
 import api from '../../../utils/api';
-import Modal from '../../../components/Modal';
+import { Sheet } from '../../../components/kit';
 
 const GalleryTab = () => {
   const { gym, refetch, gymId } = useGym();
@@ -66,7 +66,7 @@ const GalleryTab = () => {
       {/* IMAGES */}
       <section className="space-y-6">
         <div className="flex items-center justify-between border-b border-border pb-4">
-          <h3 className="text-2xl font-black tracking-tight flex items-center gap-3">
+          <h3 className="text-2xl font-bold tracking-tight flex items-center gap-3">
              <ImageIcon className="text-accent-text" /> PHOTO GALLERY
           </h3>
           <button onClick={() => setImgModalOpen(true)} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-4 text-xs">+ Add Photo</button>
@@ -74,7 +74,7 @@ const GalleryTab = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {gym?.images?.map((img: any) => (
-             <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-surface-raised border border-border">
+             <div key={img.id} className="group relative aspect-square rounded-gm-lg overflow-hidden bg-surface-raised border border-border">
                 <img src={img.image_url || img.url} alt="Gym" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
                    <div className="flex justify-end">
@@ -91,7 +91,7 @@ const GalleryTab = () => {
              </div>
           ))}
           {!gym?.images?.length && (
-            <div className="col-span-full py-16 text-center border border-dashed border-border rounded-2xl">
+            <div className="col-span-full py-16 text-center border border-dashed border-border rounded-gm-lg">
                <ImageIcon size={48} className="mx-auto text-ink-subtle mb-4" />
                <p className="text-ink-muted">No photos uploaded. Showcase your gym to attract members.</p>
             </div>
@@ -102,7 +102,7 @@ const GalleryTab = () => {
       {/* VIDEOS */}
       <section className="space-y-6 pt-6">
         <div className="flex items-center justify-between border-b border-border pb-4">
-          <h3 className="text-2xl font-black tracking-tight flex items-center gap-3">
+          <h3 className="text-2xl font-bold tracking-tight flex items-center gap-3">
              <Video className="text-info" /> VIDEO TOURS
           </h3>
           <button onClick={() => setVidModalOpen(true)} className="px-4 py-2 bg-info-soft text-info border border-info/30 hover:bg-info-soft rounded-full font-bold text-xs transition-colors">+ Add Video</button>
@@ -134,7 +134,7 @@ const GalleryTab = () => {
              </div>
            ))}
            {!gym?.videos?.length && (
-            <div className="col-span-full py-16 text-center border border-dashed border-border rounded-2xl">
+            <div className="col-span-full py-16 text-center border border-dashed border-border rounded-gm-lg">
                <p className="text-ink-muted">Upload virtual tours, class highlights, or promotional videos.</p>
             </div>
           )}
@@ -142,7 +142,7 @@ const GalleryTab = () => {
       </section>
 
       {/* Modals */}
-      <Modal isOpen={imgModalOpen} onClose={() => setImgModalOpen(false)} title="Upload Photo">
+      <Sheet size="md" open={imgModalOpen} onClose={() => setImgModalOpen(false)} title="Upload Photo">
         <form onSubmit={handleAddImage} className="space-y-6">
            <ImageUpload 
              label="Choose Photo"
@@ -158,9 +158,9 @@ const GalleryTab = () => {
            </label>
            <button type="submit" disabled={isSubmitting} className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3">{isSubmitting ? <Loader2 size={16} className="animate-spin mx-auto"/> : 'Save Photo'}</button>
         </form>
-      </Modal>
+      </Sheet>
 
-      <Modal isOpen={vidModalOpen} onClose={() => setVidModalOpen(false)} title="Add Video Tour">
+      <Sheet size="md" open={vidModalOpen} onClose={() => setVidModalOpen(false)} title="Add Video Tour">
         <form onSubmit={handleAddVideo} className="space-y-4">
            <div>
               <label className="block text-xs font-bold text-ink-muted uppercase mb-2">Video Title *</label>
@@ -176,7 +176,7 @@ const GalleryTab = () => {
            </div>
            <button type="submit" disabled={isSubmitting} className="w-full bg-info text-ink font-bold py-3 rounded-full mt-4 flex justify-center hover:bg-info">{isSubmitting ? <Loader2 size={16} className="animate-spin" /> : 'Save Video'}</button>
         </form>
-      </Modal>
+      </Sheet>
     </div>
   );
 };
