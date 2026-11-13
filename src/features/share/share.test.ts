@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
-import { cardFromDay, cardFromRun, routeSegments, shareRequestBody } from '../../src/features/share/cardData';
-import { availableTemplates, cardStats, projectRoute, safeShareToken, shareMessage, trimEnds, type LatLng } from '../../src/features/share/shareModel';
-import type { RunRecord } from '../../src/features/activity/types';
+import { cardFromDay, cardFromRun, routeSegments, shareRequestBody } from './cardData';
+import { availableTemplates, cardStats, projectRoute, safeShareToken, shareMessage, trimEnds, type LatLng } from './shareModel';
+import type { RunRecord } from '../activity/types';
 
 const M = 1 / 111195;
 const line = (n: number, stepM: number, seg = 0) =>
@@ -27,7 +27,9 @@ test('routes split at pauses; route templates need a route, splits need 2+ full 
 test('privacy trim drops points within 200 m of the start and finish', () => {
   const pts: LatLng[] = Array.from({ length: 21 }, (_, i) => [19.1 + i * 100 * M, 72.88]);
   const trimmed = trimEnds([pts]).flat();
-  expect(trimmed.length).toBe(21 - 3 - 3);
+  // Points are ~100 m apart: the start, the finish and their neighbours inside 200 m go.
+  expect(trimmed.length).toBe(17);
+  expect(trimmed[0][0]).toBeGreaterThan(pts[1][0]);
 });
 
 test('projection stays inside the box', () => {

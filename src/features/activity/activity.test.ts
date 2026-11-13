@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { fromRunDto, type RunDto } from '../../src/api/runs';
-import { paceTrend, thisWeek, typeBreakdown, weekStart, weeklyDistance, type ActivityLike } from '../../src/features/activity/analytics';
-import { activityMeta, activityOf, defaultActivityTitle, speedKmh } from '../../src/features/activity/activityTypes';
-import { formatDuration, formatKm, formatPace } from '../../src/features/activity/runMath';
+import { fromRunDto, type RunDto } from '../../api/runs';
+import { paceTrend, thisWeek, typeBreakdown, weekStart, weeklyDistance, type ActivityLike } from './analytics';
+import { activityMeta, activityOf, defaultActivityTitle, speedKmh } from './activityTypes';
+import { formatDuration, formatKm, formatPace } from './runMath';
 
 const NOW = new Date(2026, 9, 21, 18, 0); // Wed 21 Oct 2026, local
 const at = (d: number, h = 7) => new Date(2026, 9, d, h, 0).toISOString();
@@ -48,7 +48,7 @@ describe('analytics', () => {
   });
   test('type breakdown sorted by time; pace trend oldest first, runs only', () => {
     const b = typeBreakdown(list, new Date(2026, 9, 1), new Date(2026, 10, 1));
-    expect(b[0].type).toBe('cycle');
+    expect(b.map(x => x.type)).toEqual(['run', 'cycle', 'walk', 'football']);
     expect(paceTrend(list).map(p => p.pace)).toEqual([375, 360]);
   });
 });
