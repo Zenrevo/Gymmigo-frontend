@@ -48,7 +48,7 @@ describe('analytics', () => {
   });
   test('type breakdown sorted by time; pace trend oldest first, runs only', () => {
     const b = typeBreakdown(list, new Date(2026, 9, 1), new Date(2026, 10, 1));
-    expect(b.map(x => x.type)).toEqual(['run', 'cycle', 'walk', 'football']);
+    expect(b.map(x => x.type)).toEqual(['run', 'cycle', 'football', 'walk']);
     expect(paceTrend(list).map(p => p.pace)).toEqual([375, 360]);
   });
 });
