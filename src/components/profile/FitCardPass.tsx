@@ -1,13 +1,9 @@
 import { IdCard, Share2, Sparkles } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { SignatureCard, Text } from '../kit';
+import { fitnessQrPayload } from './fitcard';
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- /clubs/fitness-card/me is untyped */
-
-export const pickFitnessCardCode = (card: any): string | undefined =>
-  card?.share?.card_code ?? card?.fitness_card?.card_code ?? card?.fitcard?.card_code ?? undefined;
-
-export const fitnessQrPayload = (card: any, code?: string | null) => card?.share?.qr_payload || `gymmigo:fitness-card:${code ?? 'pending'}`;
 
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
 

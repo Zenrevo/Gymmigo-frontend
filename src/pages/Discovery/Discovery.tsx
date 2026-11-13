@@ -1,15 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
-import api from '../../utils/api';
-import { Search, MapPin, Star, Filter, ArrowRight, Building2, User, LocateFixed, Loader2, Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clsx } from 'clsx';
-import { motion, AnimatePresence } from 'framer-motion';
+import { BadgeCheck, ChevronDown, Crosshair, Dumbbell, MapPin, Navigation, Search, SearchX, SlidersHorizontal, Sparkles, Star, Target } from 'lucide-react';
+import { Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, IconButton, SegmentedControl, Skeleton, Spinner, Text, cn } from '../../components/kit';
 import InfoModal from '../../components/InfoModal';
-
+import { MapPanel, type MapPoint } from '../../components/explore/MapPanel';
 import { useGeoLocation } from '../../context/LocationContext';
 import { openInMap } from '../../utils/navigation';
+import { discoveryApi, type DiscoveryParams } from '../../api/discovery';
+
+/* eslint-disable @typescript-eslint/no-explicit-any -- search payloads are untyped */
 
 const CATEGORIES = ['All', 'CrossFit', 'Strength', 'Yoga', 'MMA', 'Cardio', 'HIIT'];
+const RADII = [1, 2, 5, 10];
 
 const getPeriodText = (duration?: string | null) => {
   if (!duration) return '/mo';
@@ -24,342 +26,383 @@ const getPeriodText = (duration?: string | null) => {
   return `/${duration.substring(0, 3)}`;
 };
 
-const Discovery = () => {
+const formatDistance = (d?: number | null) => (d == null ? null : d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`);
+const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
+
+function occupancy(cur?: number | null, max?: number | null) {
+  if (!max || cur == null) return null;
+  const r = cur / max;
+  return r > 0.8 ? { label: 'Busy', tone: 'bg-danger' } : r > 0.5 ? { label: 'Moderate', tone: 'bg-warning' } : { label: 'Quiet', tone: 'bg-success' };
+}
+
+function Rating({ value, count }: { value?: number | null; count?: number | null }) {
+  if (!value) return <Badge label="New" tone="accent" />;
+  return (
+    <span className="inline-flex items-center gap-1">
+      <Star size={13} className="fill-rating text-rating" aria-hidden />
+      <span className="t-callout font-bold text-ink">{value.toFixed(1)}</span>
+      {count ? <span className="t-caption text-ink-subtle">({count})</span> : null}
+    </span>
+  );
+}
+
+const glassPill = 't-caption inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 font-semibold text-white backdrop-blur';
+
+function GymResultCard({ gym, onOpen }: { gym: any; onOpen: () => void }) {
+  const cover = gym.cover_image_url || gym.logo_url;
+  const occ = occupancy(gym.current_occupancy, gym.max_capacity);
+  const distance = formatDistance(gym.distance);
+  const amenities = ((gym.amenities ?? []) as any[]).map(a => (typeof a === 'string' ? a : a?.name)).filter(Boolean) as string[];
+  const tags = amenities.length ? amenities : (gym.specializations ?? []);
+  return (
+    <Card padding="none" className="overflow-hidden" data-testid="gym-card">
+      <button type="button" onClick={onOpen} aria-label={gym.name} className="relative block h-[180px] w-full bg-surface-sunken">
+        {cover ? <img src={cover} alt="" className="h-full w-full object-cover" loading="lazy" /> : <Dumbbell size={36} className="mx-auto text-ink-subtle" aria-hidden />}
+        {cover || occ ? <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent" aria-hidden /> : null}
+        {gym.is_verified ? (
+          <span className={cn(glassPill, 'absolute left-3 top-3')}>
+            <BadgeCheck size={13} aria-hidden /> Verified partner
+          </span>
+        ) : null}
+        {occ ? (
+          <span className={cn(glassPill, 'absolute bottom-3 left-3')}>
+            <span className={cn('h-2 w-2 rounded-full', occ.tone)} aria-hidden />
+            {occ.label} · {gym.current_occupancy}/{gym.max_capacity}
+          </span>
+        ) : null}
+      </button>
+      <div className="flex flex-col gap-3 p-4">
+        <div className="flex items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <button type="button" onClick={onOpen} className="text-left">
+              <Text variant="h2" className="line-clamp-2">
+                {gym.name}
+              </Text>
+            </button>
+            <button
+              type="button"
+              onClick={e => openInMap(e, gym.address_line1 || gym.city, gym.latitude, gym.longitude)}
+              className="mt-1 flex max-w-full items-center gap-1 text-left text-ink-muted hover:text-accent-text">
+              <MapPin size={13} className="shrink-0" aria-hidden />
+              <span className="t-footnote truncate">{gym.address_line1 || gym.city || 'Location unavailable'}</span>
+            </button>
+          </div>
+          <div className="flex flex-col items-end">
+            <Rating value={gym.rating_avg} count={gym.rating_count} />
+            {distance ? (
+              <Text variant="caption" tone="accent" className="mt-0.5 font-bold">
+                {distance} away
+              </Text>
+            ) : null}
+          </div>
+        </div>
+        {tags.length ? (
+          <div className="flex flex-wrap gap-1.5">
+            {tags.slice(0, 4).map((a: string) => (
+              <Badge key={a} label={a} />
+            ))}
+          </div>
+        ) : null}
+        <div className="flex items-center gap-2 border-t border-border pt-3">
+          <div className="min-w-0 flex-1">
+            {gym.starting_price != null ? (
+              <>
+                <Text variant="labelSm" tone="subtle">
+                  From
+                </Text>
+                <span className="flex items-baseline gap-1">
+                  <span className="t-title tabular-nums text-ink">{inr(gym.starting_price)}</span>
+                  <span className="t-caption text-ink-subtle">{getPeriodText(gym.starting_price_duration)}</span>
+                </span>
+              </>
+            ) : (
+              <Text variant="caption" tone="subtle">
+                Plans on request
+              </Text>
+            )}
+          </div>
+          <Button label="View Plans" variant="secondary" size="sm" to={`/app/gyms/${gym.id}?tab=plans`} />
+          <Button label="Explore" size="sm" onClick={onOpen} />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function TrainerResultCard({ trainer, onOpen }: { trainer: any; onOpen: () => void }) {
+  const specs: string[] = trainer.specializations ?? [];
+  const distance = formatDistance(trainer.distance);
+  return (
+    <Card padding="lg" data-testid="trainer-card">
+      <div className="flex items-center gap-2">
+        <Text variant="labelSm" tone="accent" className="flex-1">
+          Performance coach
+        </Text>
+        {trainer.location ? <Badge label={trainer.location} tone="accent" /> : null}
+      </div>
+      <button type="button" onClick={onOpen} className="mt-3 flex w-full items-center gap-3 text-left">
+        <Avatar name={trainer.full_name} src={trainer.avatar_url} size={60} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <Text variant="title" className="flex-1 truncate">
+              {trainer.full_name || 'Trainer'}
+            </Text>
+            <Rating value={trainer.rating_avg} />
+          </div>
+          <Text variant="footnote" tone="muted" className="truncate">
+            {specs.length ? specs.slice(0, 2).join(' & ') : 'Online / Home visits'}
+            {specs.length > 2 ? ` +${specs.length - 2}` : ''}
+          </Text>
+          <div className="mt-1 flex items-center gap-3">
+            {trainer.hourly_rate ? (
+              <span className="t-subtitle text-accent-text">
+                {inr(trainer.hourly_rate)}
+                <span className="t-caption text-ink-subtle"> /hr</span>
+              </span>
+            ) : null}
+            {distance ? (
+              <Text variant="caption" tone="subtle">
+                {distance} away
+              </Text>
+            ) : null}
+          </div>
+        </div>
+      </button>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <Button label="Profile & Stats" variant="secondary" size="sm" onClick={onOpen} />
+        <Button label="Book Trial" size="sm" to={`/app/trainers/${trainer.id}?book=1`} />
+      </div>
+    </Card>
+  );
+}
+
+/** Explore: map + search + filters + gym/trainer results (GET /gyms/, /trainers/). */
+export default function Discovery() {
   const navigate = useNavigate();
-  const { selectedLocation, refreshGPS, isLocating } = useGeoLocation();
-  const [activeTab, setActiveTab] = useState<'gyms' | 'trainers'>('gyms');
+  const { selectedLocation, currentGPS, refreshGPS, isLocating } = useGeoLocation();
+  const [tab, setTab] = useState<'gyms' | 'trainers'>('gyms');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const [search, setSearch] = useState('');
-  const [isNearMe, setIsNearMe] = useState(true); // Default to near me if location exists
-  const [radius, setRadius] = useState(2); // Default 2km
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [nearMe, setNearMe] = useState(true);
+  const [radius, setRadius] = useState(2);
+  const [category, setCategory] = useState('All');
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
-    setItems([]); // Clear previous items to prevent showing stale data on error or tab switch
+    setFailed(false);
+    setItems([]);
     try {
-      const endpoint = activeTab === 'gyms' ? '/gyms/' : '/trainers/';
-      const sortValue = isNearMe ? 'distance' : 'rating';
-      const params: any = {
-        search,
-        page_size: 20,
-        sort_by: sortValue
-      };
-
-      if (selectedCategory !== 'All') {
-        if (activeTab === 'gyms') {
-          params.search = params.search ? `${params.search} ${selectedCategory}` : selectedCategory;
-        } else {
-          params.specialization = selectedCategory;
-        }
+      const params: DiscoveryParams = { search, page_size: 20, sort_by: nearMe ? 'distance' : 'rating' };
+      if (category !== 'All') {
+        if (tab === 'gyms') params.search = params.search ? `${params.search} ${category}` : category;
+        else params.specialization = category;
       }
-
       if (selectedLocation) {
         params.lat = selectedLocation.latitude;
         params.lng = selectedLocation.longitude;
-        if (isNearMe) {
-          params.radius = radius;
-        }
+        if (nearMe) params.radius = radius;
       }
-
-      const response = await api.get(endpoint, { params });
-      setItems(response.data.results || []);
+      setItems(await discoveryApi.list(tab, params));
     } catch (err) {
       console.error('Failed to fetch items:', err);
+      setFailed(true);
     } finally {
       setLoading(false);
     }
-  }, [activeTab, search, isNearMe, selectedLocation, radius, selectedCategory]);
+  }, [tab, search, nearMe, selectedLocation, radius, category]);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
-  const handleNearMe = () => {
-    if (!isNearMe) {
-      setIsNearMe(true);
-      if (!selectedLocation) {
-        refreshGPS();
-      }
-      
-      // Show info modal if not hidden
-      if (!localStorage.getItem('hideDiscoveryNearMeInfo')) {
-        setIsInfoModalOpen(true);
-      }
-    } else {
-      setIsNearMe(false);
+  const toggleNearMe = () => {
+    if (nearMe) {
+      setNearMe(false);
+      return;
+    }
+    setNearMe(true);
+    if (!selectedLocation) refreshGPS();
+    try {
+      if (!localStorage.getItem('hideDiscoveryNearMeInfo')) setInfoOpen(true);
+    } catch {
+      // storage blocked: skip the hint
     }
   };
 
+  const area = selectedLocation?.city ?? null;
+  const ready = !loading && !failed;
+  const noun = tab === 'gyms' ? (items.length === 1 ? 'gym' : 'gyms') : items.length === 1 ? 'trainer' : 'trainers';
+  const nextRadius = RADII.find(r => r > radius);
+  const center = selectedLocation ? { lat: selectedLocation.latitude, lng: selectedLocation.longitude } : currentGPS;
+  const points: MapPoint[] =
+    tab === 'gyms'
+      ? items.filter(g => g.latitude != null && g.longitude != null).map(g => ({ id: g.id, lat: Number(g.latitude), lng: Number(g.longitude), title: g.name }))
+      : [];
+  const open = (item: any) => navigate(tab === 'gyms' ? `/app/gyms/${item.id}` : `/app/trainers/${item.id}`);
+
+  const mapBlock = (
+    <div className="relative">
+      <MapPanel center={center} points={points} onPick={id => navigate(`/app/gyms/${id}`)} className="h-[210px] rounded-gm-xl lg:h-[calc(100dvh-140px)]" />
+      <div className="pointer-events-none absolute inset-x-3 top-3 flex items-center gap-2">
+        <span className="t-caption pointer-events-auto inline-flex min-w-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 font-semibold text-ink shadow-card">
+          <Navigation size={13} aria-hidden />
+          <span className="truncate">{selectedLocation ? [selectedLocation.address_line1?.split(',')[0], area].filter(Boolean).join(', ') : 'Set your location'}</span>
+        </span>
+        <button
+          type="button"
+          onClick={() => setFiltersOpen(o => !o)}
+          aria-label="Change search radius"
+          className={cn(
+            't-caption pointer-events-auto ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 font-semibold shadow-card',
+            nearMe ? 'border-accent-border bg-accent-soft text-accent-text' : 'border-border bg-surface text-ink',
+          )}>
+          Radius: {radius} km <ChevronDown size={13} aria-hidden />
+        </button>
+      </div>
+      <div className="absolute bottom-3 right-3">
+        <IconButton icon={Crosshair} label="Recenter on my location" onClick={() => refreshGPS()} variant="surface" className={isLocating ? '[&_svg]:animate-pulse' : ''} />
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-12">
-      {/* Search Header */}
-      <div className="space-y-8">
-        <div className="space-y-1">
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-tighter italic">EXPLORE</h1>
-          <p className="text-sm md:text-base text-ink/40">Find the best fitness facilities and mentors near you.</p>
-        </div>
+    <div className="mx-auto w-full max-w-[1280px] pb-10">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-8">
+        <div className="lg:hidden">{mapBlock}</div>
 
-        <div className="relative group max-w-2xl">
-          <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-focus-within:opacity-30 transition-opacity pointer-events-none" />
-          <div className="relative flex items-center bg-ink/5 border border-ink/10 rounded-2xl p-1 focus-within:border-primary/50 transition-all shadow-2xl backdrop-blur-xl">
-            <div className="pl-6 text-ink/20">
-              <Search size={22} />
+        <div className="flex min-w-0 flex-col gap-5">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <Text variant="display">Find your next {tab === 'gyms' ? 'gym' : 'coach'}</Text>
+              <span className="t-caption inline-flex shrink-0 items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-semibold text-accent-text">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-accent" aria-hidden /> Live radar
+              </span>
             </div>
-            <input
-              type="text"
-              placeholder={`Search ${activeTab === 'gyms' ? 'gyms, crossfit, yoga...' : 'fitness coaches...'}`}
-              className="flex-1 min-w-0 bg-transparent border-none py-4 sm:py-5 px-3 sm:px-4 focus:ring-0 outline-none text-sm sm:text-base text-ink font-medium placeholder:text-ink/20"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <div className="flex items-center gap-1 pr-1">
-              <button
-                onClick={handleNearMe}
-                disabled={isLocating}
-                title="Near Me"
-                className={clsx(
-                  "p-3 sm:p-4 rounded-xl transition-all flex items-center justify-center gap-2 shrink-0",
-                  isNearMe ? "bg-primary text-black" : "text-ink/40 hover:bg-ink/5 hover:text-ink"
-                )}
-              >
-                {isLocating ? <Loader2 size={18} className="animate-spin" /> : <LocateFixed size={18} />}
-                {isNearMe && <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Active</span>}
-              </button>
-
-              <button
-                title="Filters"
-                className="p-3 sm:p-4 rounded-xl text-ink/40 hover:bg-ink/5 hover:text-ink transition-all shrink-0"
-              >
-                <Filter size={18} />
-              </button>
-            </div>
+            <Text variant="footnote" tone="muted" className="mt-1">
+              {ready
+                ? `Explore ${items.length} ${tab === 'gyms' ? 'partner centers' : 'coaches'}${area ? ` near ${area}` : ''}${nearMe ? ` within ${radius} km` : ''}.`
+                : failed
+                  ? 'Couldn’t load results. Tap Try again.'
+                  : 'Scanning partner centers around you…'}
+            </Text>
           </div>
 
-          <AnimatePresence>
-            {isNearMe && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="flex items-center gap-2 mt-4 ml-2"
-              >
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/20 mr-2">Radius</span>
-                <div className="flex items-center gap-1.5 pointer-events-auto">
-                  {[1, 2, 5, 10].map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => setRadius(r)}
-                      className={clsx(
-                        "px-3 py-1.5 rounded-lg text-[10px] font-black transition-all border",
-                        radius === r 
-                          ? "bg-primary/10 border-primary/30 text-primary shadow-[0_0_20px_rgba(241,130,44,0.1)]" 
-                          : "bg-ink/5 border-ink/5 text-ink/30 hover:text-ink hover:bg-ink/10"
-                      )}
-                    >
-                      {r}KM
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1 bg-ink/5 p-1 rounded-2xl w-fit border border-ink/10">
-          {(['gyms', 'trainers'] as const).map((tab) => (
+          <div className="flex items-center gap-2">
+            <label className="flex h-14 min-w-0 flex-1 items-center gap-2 rounded-gm-lg border border-border-strong bg-surface px-4 focus-within:border-accent">
+              <input
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search gym name, area, trainer…"
+                aria-label="Search"
+                className="t-body min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-ink-subtle"
+              />
+              {loading ? <Spinner size={18} /> : <Search size={18} className="text-ink-subtle" aria-hidden />}
+            </label>
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all relative flex items-center gap-2 ${activeTab === tab ? 'bg-primary text-white shadow-lg' : 'text-white/40 hover:text-white'
-                }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex max-w-full gap-2 overflow-x-auto no-scrollbar pb-1">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
               type="button"
-              onClick={() => setSelectedCategory(category)}
-              className={clsx(
-                'shrink-0 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
-                selectedCategory === category
-                  ? 'border-primary bg-primary text-black shadow-lg shadow-primary/20'
-                  : 'border-ink/10 bg-ink/5 text-ink/40 hover:border-ink/20 hover:text-ink'
-              )}
-            >
-              {category}
+              onClick={() => setFiltersOpen(o => !o)}
+              aria-label="Search radius filters"
+              aria-pressed={filtersOpen}
+              className={cn(
+                'flex h-14 w-14 shrink-0 items-center justify-center rounded-full border',
+                filtersOpen ? 'border-accent bg-accent text-on-accent' : 'border-border-strong bg-surface text-ink hover:bg-surface-sunken',
+              )}>
+              <SlidersHorizontal size={20} aria-hidden />
             </button>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {!loading && (
-        <div className="flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary">
-          <Sparkles size={14} />
-          {items.length} {activeTab === 'gyms' ? 'Gyms' : 'Trainers'} Found
-        </div>
-      )}
+          <SegmentedControl<'gyms' | 'trainers'>
+            aria-label="Results"
+            value={tab}
+            onChange={setTab}
+            options={[
+              { value: 'gyms', label: tab === 'gyms' && ready ? `Gyms (${items.length})` : 'Gyms' },
+              { value: 'trainers', label: tab === 'trainers' && ready ? `Trainers (${items.length})` : 'Trainers' },
+            ]}
+          />
 
-      {/* Results Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-        <AnimatePresence mode="popLayout">
-         {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="glass-card h-80 animate-pulse bg-ink/5" />
-            ))
-          ) : (items?.length ?? 0) > 0 ? items.map((item, index) => (
-            <motion.div
-              layout
-              key={item.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              onClick={() => {
-                if (activeTab === 'gyms') navigate(`/app/gyms/${item.id}`);
-                else navigate(`/app/trainers/${item.id}`);
-              }}
-              className="glass-card group overflow-hidden cursor-pointer flex flex-col h-full hover:border-primary/30 transition-colors"
-            >
-              <div className="h-40 md:h-48 relative overflow-hidden bg-ink/5 shrink-0">
-                {activeTab === 'gyms' ? (
-                  (item.cover_image_url || item.logo_url) ? (
-                    <img
-                      src={item.cover_image_url || item.logo_url}
-                      alt={item.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-ink/10 group-hover:scale-110 transition-transform duration-700">
-                      <Building2 size={100} />
-                    </div>
-                  )
-                ) : item.avatar_url ? (
-                  <img
-                    src={item.avatar_url}
-                    alt={item.full_name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-ink/10 group-hover:scale-110 transition-transform duration-700">
-                    <User size={100} />
-                  </div>
-                )}
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:px-0">
+            <Chip label={isLocating ? 'Locating…' : 'Near me'} icon={<Navigation size={14} aria-hidden />} selected={nearMe} onClick={toggleNearMe} />
+            {CATEGORIES.map(c => (
+              <Chip key={c} label={c} selected={category === c} onClick={() => setCategory(c)} />
+            ))}
+          </div>
 
-                {/* badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-                  {item.distance !== undefined && item.distance !== null && (
-                    <div className="bg-primary px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-black shadow-lg">
-                      {item.distance < 1 ? `${Math.round(item.distance * 1000)}m` : `${item.distance.toFixed(1)}km`} away
-                    </div>
-                  )}
-                  {activeTab === 'gyms' && item.max_capacity && (
-                    <div className={clsx(
-                      "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-lg backdrop-blur-md border",
-                      (item.current_occupancy / item.max_capacity) > 0.8 ? "bg-red-500/80 text-white border-red-500/20" :
-                        (item.current_occupancy / item.max_capacity) > 0.5 ? "bg-orange-500/80 text-white border-orange-500/20" :
-                          "bg-emerald-500/80 text-white border-emerald-500/20"
-                    )}>
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                      </span>
-                      Live
-                    </div>
-                  )}
-                </div>
-
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 border border-ink/10">
-                  <Star className="text-primary fill-primary" size={14} />
-                  <span className="text-xs font-bold">{item.rating_avg?.toFixed(1) || 'NEW'}</span>
-                </div>
+          {filtersOpen ? (
+            <Card padding="md">
+              <div className="flex items-center justify-between">
+                <Text variant="label" tone="subtle">
+                  Search radius
+                </Text>
+                {!nearMe ? (
+                  <Text variant="caption" tone="subtle">
+                    Applies with Near me
+                  </Text>
+                ) : null}
               </div>
-
-              <div className="p-5 md:p-8 space-y-4 flex flex-col flex-1">
-                <div className="space-y-1">
-                  <h3 className="text-lg md:text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
-                    {activeTab === 'gyms' ? item.name : item.full_name || 'Pro Trainer'}
-                  </h3>
-                  {activeTab === 'gyms' ? (
-                    item.description && (
-                      <p className="text-[11px] md:text-xs text-ink/30 line-clamp-2 leading-relaxed">
-                        {item.description}
-                      </p>
-                    )
-                  ) : (
-                    item.specializations && item.specializations.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-1 mb-1">
-                        {item.specializations.slice(0, 3).map((spec: string, idx: number) => (
-                          <span key={idx} className="bg-ink/5 border border-ink/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-ink/60">
-                            {spec}
-                          </span>
-                        ))}
-                        {item.specializations.length > 3 && (
-                          <span className="bg-ink/5 border border-ink/10 px-2 py-0.5 rounded-full text-[9px] font-bold text-ink/60">
-                            +{item.specializations.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )
-                  )}
-                  <div 
-                    role="button"
-                    onClick={(e) => openInMap(e, activeTab === 'gyms' ? (item.address_line1 || item.city) : item.location, item.latitude, item.longitude)}
-                    className="text-ink/40 text-[10px] md:text-[11px] flex items-center gap-1 font-medium hover:text-primary transition-colors cursor-pointer group/addr"
-                  >
-                    <MapPin size={12} className="shrink-0 text-primary/50 group-hover/addr:text-primary group-hover/addr:scale-110 transition-all" />
-                    <span className="line-clamp-1 border-b border-transparent group-hover/addr:border-primary/30">
-                      {activeTab === 'gyms' ? (item.address_line1 || item.city) : (item.location || 'Online / Home Visits')}
-                    </span>
-                  </div>
-                </div>
-
-                {activeTab === 'gyms' && item.max_capacity && (
-                  <div className="bg-ink/5 rounded-xl p-3 border border-ink/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      <span className="text-[10px] font-bold text-ink/40 uppercase tracking-wider">Crowd Status</span>
-                    </div>
-                    <span className="text-xs font-black">
-                      {item.current_occupancy} <span className="text-ink/20 font-medium">/ {item.max_capacity}</span>
-                    </span>
-                  </div>
-                )}
-
-                <div className="mt-auto pt-4 border-t border-ink/5 flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] text-ink/20 uppercase font-black tracking-widest">Starting from</span>
-                    <span className="text-lg font-black text-primary">
-                      ₹{activeTab === 'gyms' ? (item.starting_price?.toLocaleString() || '1,500') : ((item.hourly_rate || 500).toLocaleString?.() || item.hourly_rate || '500')}
-                      <span className="text-xs text-primary/70">{activeTab === 'gyms' ? getPeriodText(item.starting_price_duration) : '/hr'}</span>
-                    </span>
-                  </div>
-                  <div className="w-10 h-10 rounded-full border border-ink/10 flex items-center justify-center group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all transform group-hover:translate-x-1">
-                    <ArrowRight size={20} />
-                  </div>
-                </div>
+              <div className="mt-2 flex gap-2">
+                {RADII.map(r => (
+                  <Chip key={r} label={`${r} km`} selected={radius === r} onClick={() => setRadius(r)} />
+                ))}
               </div>
-            </motion.div>
-          )) : (
-            <div className="col-span-full py-24 text-center glass-card border-dashed">
-              <p className="text-ink/20 font-display text-4xl mb-4 italic">NO RESULTS</p>
-              <p className="text-ink/40">Try adjusting your filters or search keywords.</p>
+            </Card>
+          ) : null}
+
+          {ready ? (
+            <div className="flex items-center justify-between gap-3">
+              <Text variant="callout" className="truncate font-bold">
+                {items.length} {noun} found{area ? ` near ${area}` : ''}
+              </Text>
+              <Text variant="caption" tone="muted">
+                {nearMe ? 'Nearest first' : 'Top rated first'}
+              </Text>
+            </div>
+          ) : null}
+
+          {loading ? (
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-[300px] rounded-gm-xl" />
+              <Skeleton className="h-[300px] rounded-gm-xl" />
+            </div>
+          ) : failed ? (
+            <ErrorState message="Tap Try again." onRetry={fetchItems} />
+          ) : !items.length ? (
+            <EmptyState icon={SearchX} title="No results found" message="Try a different search or expand your search area." />
+          ) : (
+            <div className="flex flex-col gap-4">
+              {items.map(item =>
+                tab === 'gyms' ? <GymResultCard key={`g-${item.id}`} gym={item} onOpen={() => open(item)} /> : <TrainerResultCard key={`t-${item.id}`} trainer={item} onOpen={() => open(item)} />,
+              )}
+              {nearMe ? (
+                <div className="flex flex-col items-center gap-1 pt-4 text-center">
+                  <Target size={22} className="text-accent" aria-hidden />
+                  <Text variant="footnote" tone="muted">
+                    You’ve reached the edge of {radius} km radius
+                  </Text>
+                  {nextRadius ? (
+                    <button type="button" onClick={() => setRadius(nextRadius)} className="t-button-sm text-accent-text hover:underline">
+                      Expand to {nextRadius} km
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           )}
-        </AnimatePresence>
+        </div>
+
+        <aside className="hidden lg:block">
+          <div className="sticky top-[84px]">{mapBlock}</div>
+        </aside>
       </div>
-      
-      <InfoModal 
-        isOpen={isInfoModalOpen}
-        onClose={() => setIsInfoModalOpen(false)}
+
+      <InfoModal
+        isOpen={infoOpen}
+        onClose={() => setInfoOpen(false)}
         title="Nearest Gyms"
         description={`We're currently showing gyms within a ${radius}km radius of your location, sorted by proximity to give you the most convenient options.`}
         icon={Sparkles}
@@ -367,6 +410,4 @@ const Discovery = () => {
       />
     </div>
   );
-};
-
-export default Discovery;
+}

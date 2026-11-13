@@ -60,8 +60,10 @@ import {
   useSocialCounts,
   useWallet,
 } from '../../hooks/useProfileQueries';
-import { FitCardPass, fitnessQrPayload, pickFitnessCardCode } from '../../components/profile/FitCardPass';
-import { AddressesSheet, EMPTY_FITNESS, EditProfileSheet, MigoSetupSheet, humanize, type FitnessProfile } from './ProfileSheets';
+import { FitCardPass } from '../../components/profile/FitCardPass';
+import { fitnessQrPayload, pickFitnessCardCode } from '../../components/profile/fitcard';
+import { AddressesSheet, EditProfileSheet, MigoSetupSheet } from './ProfileSheets';
+import { EMPTY_FITNESS, humanize, type FitnessProfile } from './fitness';
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- profile/membership payloads are untyped */
 
@@ -74,7 +76,7 @@ const ADDABLE_ROLES = [
 
 const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
 const inr = (n: number) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
-const daysUntil = (iso?: string | null) => (iso ? Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000) : null);
+const daysUntil = (iso: string | null | undefined, now: number) => (iso ? Math.ceil((new Date(iso).getTime() - now) / 86_400_000) : null);
 
 function GroupLabel({ label, meta, metaTo }: { label: string; meta?: string; metaTo?: string }) {
   return (
@@ -123,8 +125,9 @@ function ProfileStat({ icon: Icon, value, label, success, to }: { icon: LucideIc
 function MembershipCard({ m }: { m: any }) {
   const start = m.start_date ? new Date(m.start_date).getTime() : 0;
   const end = m.end_date ? new Date(m.end_date).getTime() : 0;
-  const left = daysUntil(m.end_date);
-  const pct = start && end > start ? Math.min(100, Math.max(0, Math.round(((Date.now() - start) / (end - start)) * 100))) : 0;
+  const [now] = useState(() => Date.now());
+  const left = daysUntil(m.end_date, now);
+  const pct = start && end > start ? Math.min(100, Math.max(0, Math.round(((now - start) / (end - start)) * 100))) : 0;
   return (
     <Card padding="lg">
       <div className="flex items-center gap-3">
