@@ -28,7 +28,8 @@ import GymOwnersPage from './pages/Public/GymOwnersPage';
 import TrainersPage from './pages/Public/TrainersPage';
 import PricingPage from './pages/Public/PricingPage';
 import PublicFitCard from './pages/Public/PublicFitCard';
-import Dashboard from './pages/Dashboard/Dashboard';
+import HomePage from './pages/Home/HomePage';
+import { activityRoutes } from './routes/activityRoutes';
 import Discovery from './pages/Discovery/Discovery';
 import GymProfile from './pages/Discovery/GymProfile';
 import TrainerProfile from './pages/Discovery/TrainerProfile';
@@ -111,7 +112,7 @@ const AppRoutes = () => (
 
     <Route path="/app" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
       <Route index element={<Navigate to="/app/dashboard" replace />} />
-      <Route path="dashboard" element={<L><Dashboard /></L>} />
+      <Route path="dashboard" element={<HomePage />} />
       <Route path="discovery" element={<L><Discovery /></L>} />
       <Route path="gyms/:gymId" element={<L><GymProfile /></L>} />
       <Route path="trainers/:trainerId" element={<L><TrainerProfile /></L>} />
@@ -121,7 +122,7 @@ const AppRoutes = () => (
       <Route path="clubs" element={<L><GymmigoClubsPage /></L>} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
-      <Route path="activity/*" element={<WebSoon title="Activity" message="Your runs, walks and rides with maps and splits are arriving on the web shortly. Track new activities in the Gymmigo app." />} />
+      {activityRoutes}
       <Route path="run-together/*" element={<WebSoon title="Run together" />} />
       <Route path="people/*" element={<WebSoon title="People" />} />
       <Route path="coming-soon" element={<L><ComingSoon /></L>} />
