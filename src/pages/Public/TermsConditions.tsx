@@ -1,89 +1,50 @@
-import { motion } from 'framer-motion';
-import { 
-  FileText, ArrowLeft, Scale, Globe, UserCheck, AlertCircle, Smartphone, 
-  Shield, CreditCard, Ban, Trash2, RefreshCw, Bell, Eye, Lock,
-  Building2, Users, Brain, QrCode, Heart
-} from 'lucide-react';
+import { Scale, Globe, UserCheck, AlertCircle, Smartphone, Shield, CreditCard, Ban, Trash2, RefreshCw, Bell, Eye, Lock, Building2, Users, Brain, QrCode, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import BrandLogo from '../../components/BrandLogo';
+import { LegalLayout } from '../../components/marketing/LegalLayout';
 
-const TermsConditions = () => {
-  const { token } = useAuth();
-  const BACK_PATH = token ? "/app/dashboard" : "/";
-
+export default function TermsConditions() {
   return (
-    <div className="min-h-screen bg-background text-ink selection:bg-primary/30">
-      {/* Top Nav Bar */}
-      <div className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to={BACK_PATH} className="inline-flex items-center gap-2 text-ink-subtle hover:text-primary transition-colors group">
-            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-bold uppercase tracking-widest">Back to {token ? 'Dashboard' : 'Home'}</span>
-          </Link>
-          <BrandLogo size={32} showText={false} />
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-14"
-        >
-          {/* Header */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                <FileText size={28} />
-              </div>
-              <div>
-                <h1 className="text-4xl md:text-5xl font-display font-black italic uppercase tracking-tighter">Terms of Service</h1>
-                <p className="text-ink-subtle text-sm mt-1 uppercase tracking-widest font-bold">Last Updated: 20 May 2026</p>
-              </div>
-            </div>
-            <div className="glass-card p-5 border-primary/10 bg-primary/5">
-              <p className="text-sm text-ink-subtle leading-relaxed">
-                These Terms of Service ("Terms") govern your access to and use of Gymmigo.in and the Gymmigo mobile application (collectively, the "Platform"), operated by <span className="text-ink font-bold">Zenrevo</span> (zenrevo.in). By accessing or using the Platform, you accept these Terms in full. If you do not agree, you must not use the Platform.
+    <LegalLayout
+      title="Terms of Service"
+      updated="20 May 2026"
+      description="The terms that govern your use of Gymmigo.in and the Gymmigo app, operated by Zenrevo."
+      intro={
+        <p>
+                These Terms of Service ("Terms") govern your access to and use of Gymmigo.in and the Gymmigo mobile application (collectively, the "Platform"), operated by <span className="font-semibold text-ink">Zenrevo</span> (zenrevo.in). By accessing or using the Platform, you accept these Terms in full. If you do not agree, you must not use the Platform.
               </p>
-            </div>
-          </div>
-
-          {/* Section 1: Agreement */}
+      }
+    >
           <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 1. Agreement to Terms
+            <h2> 1. Agreement to Terms
             </h2>
-            <div className="glass-card p-6 border-border space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-4">
               <p className="text-ink-muted leading-relaxed">By accessing or using Gymmigo.in, you agree to be bound by these Terms and Conditions. This platform is owned and operated by Zenrevo (zenrevo.in). If you do not agree with any part of these terms, you must not use our platform.</p>
               <ul className="space-y-3 text-sm text-ink-subtle">
                 <li className="flex items-start gap-3">
-                  <UserCheck size={16} className="text-primary mt-0.5 shrink-0" />
+                  <UserCheck size={16} className="text-ink mt-0.5 shrink-0" />
                   <span>You must be at least 16 years of age to create an account and use the Platform.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Globe size={16} className="text-primary mt-0.5 shrink-0" />
+                  <Globe size={16} className="text-ink mt-0.5 shrink-0" />
                   <span>These Terms apply to all users, including gym owners, trainers, members, and visitors.</span>
                 </li>
                 <li className="flex items-start gap-3">
-                  <RefreshCw size={16} className="text-primary mt-0.5 shrink-0" />
+                  <RefreshCw size={16} className="text-ink mt-0.5 shrink-0" />
                   <span>We reserve the right to update these Terms at any time. Continued use after changes constitutes acceptance of the revised Terms.</span>
                 </li>
               </ul>
             </div>
           </section>
 
-          {/* Section 2: Service Scope */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 2. Service Scope & Platform Roles
+                    <section className="space-y-5">
+            <h2> 2. Service Scope & Platform Roles
             </h2>
             <p className="text-sm text-ink-subtle">Gymmigo serves three distinct user roles, each with specific capabilities and responsibilities:</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-primary">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink">
+                  <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center">
                     <Users size={20} />
                   </div>
                   <h3 className="font-bold text-ink">Members</h3>
@@ -98,9 +59,9 @@ const TermsConditions = () => {
                 </ul>
               </div>
 
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-emerald-400">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink-subtle">
+                  <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center">
                     <Building2 size={20} />
                   </div>
                   <h3 className="font-bold text-ink">Gym Owners</h3>
@@ -115,8 +76,8 @@ const TermsConditions = () => {
                 </ul>
               </div>
 
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-violet-400">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink-subtle">
                   <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
                     <Heart size={20} />
                   </div>
@@ -134,38 +95,36 @@ const TermsConditions = () => {
             </div>
           </section>
 
-          {/* Section 3: Authentication */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 3. Authentication & Account Security
+                    <section className="space-y-5">
+            <h2> 3. Authentication & Account Security
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-primary">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink">
                   <Smartphone size={20} />
                   <h3 className="font-bold">OTP-Based Login</h3>
                 </div>
                 <p className="text-sm text-ink-subtle">We use secure OTP (One-Time Password) verification delivered via WhatsApp or SMS through our authorized partner MSG91. Your phone number is used solely for authentication.</p>
               </div>
 
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-blue-400">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink-subtle">
                   <Globe size={20} />
                   <h3 className="font-bold">Google OAuth</h3>
                 </div>
                 <p className="text-sm text-ink-subtle">When you authenticate via Google OAuth, you authorize us to fetch basic profile information (name, email, picture) as described in our Privacy Policy. This data is used solely for identity verification.</p>
               </div>
 
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-primary">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink">
                   <Lock size={20} />
                   <h3 className="font-bold">Account Responsibility</h3>
                 </div>
                 <p className="text-sm text-ink-subtle">You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account. Notify us immediately of any unauthorized access.</p>
               </div>
 
-              <div className="glass-card p-6 border-border space-y-3">
-                <div className="flex items-center gap-3 text-emerald-400">
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <div className="flex items-center gap-3 text-ink-subtle">
                   <Shield size={20} />
                   <h3 className="font-bold">Security Standards</h3>
                 </div>
@@ -174,14 +133,12 @@ const TermsConditions = () => {
             </div>
           </section>
 
-          {/* Section 4: Membership & Payments */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 4. Memberships, Bookings & Payments
+                    <section className="space-y-5">
+            <h2> 4. Memberships, Bookings & Payments
             </h2>
-            <div className="glass-card p-6 border-border space-y-5">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-5">
               <div className="flex items-center gap-3">
-                <CreditCard size={20} className="text-primary" />
+                <CreditCard size={20} className="text-ink" />
                 <h3 className="font-bold text-lg">Payment Terms</h3>
               </div>
               <ul className="space-y-3 text-sm text-ink-subtle">
@@ -205,68 +162,64 @@ const TermsConditions = () => {
             </div>
           </section>
 
-          {/* Section 5: Data Privacy */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 5. Data Privacy & Use
+                    <section className="space-y-5">
+            <h2> 5. Data Privacy & Use
             </h2>
-            <div className="glass-card p-6 border-primary/10 bg-primary/5 border-l-4 border-l-primary/50 space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border bg-surface border-l-4 border-l-primary/50 space-y-4">
               <div className="flex items-center gap-3">
-                <Eye size={20} className="text-primary" />
-                <p className="text-sm italic text-ink-muted font-display font-bold tracking-wide">"We strictly prohibit use of user data for any purpose other than providing fitness management services. User profile data is NEVER sold to third parties."</p>
+                <Eye size={20} className="text-ink" />
+                <p className="text-sm text-ink-muted font-display font-bold tracking-wide">"We strictly prohibit use of user data for any purpose other than providing fitness management services. User profile data is NEVER sold to third parties."</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <div className="glass-card p-5 border-border space-y-2">
-                <h4 className="font-bold text-sm flex items-center gap-2"><Brain size={16} className="text-primary" /> AI Data Usage</h4>
+              <div className="rounded-2xl bg-surface p-5 border-border space-y-2">
+                <h4 className="font-bold text-sm flex items-center gap-2"><Brain size={16} className="text-ink" /> AI Data Usage</h4>
                 <p className="text-xs text-ink-subtle">Your fitness data (check-ins, workout plans, fitness scores) is processed by our AI engine solely to provide personalized coaching and fitness recommendations within the Platform.</p>
               </div>
-              <div className="glass-card p-5 border-border space-y-2">
-                <h4 className="font-bold text-sm flex items-center gap-2"><QrCode size={16} className="text-primary" /> Check-in Data</h4>
+              <div className="rounded-2xl bg-surface p-5 border-border space-y-2">
+                <h4 className="font-bold text-sm flex items-center gap-2"><QrCode size={16} className="text-ink" /> Check-in Data</h4>
                 <p className="text-xs text-ink-subtle">Check-in attendance data is shared only with the specific gym owner where you hold an active membership, for the purpose of occupancy tracking and member verification.</p>
               </div>
             </div>
-            <p className="text-sm text-ink-subtle">For full details on data collection, storage, and your rights, please refer to our <Link to="/privacy" className="text-primary font-bold hover:underline">Privacy Policy</Link>.</p>
+            <p className="text-sm text-ink-subtle">For full details on data collection, storage, and your rights, please refer to our <Link to="/privacy" className="text-ink font-bold hover:underline">Privacy Policy</Link>.</p>
           </section>
 
-          {/* Section 6: User Conduct */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 6. User Conduct & Prohibited Behavior
+                    <section className="space-y-5">
+            <h2> 6. User Conduct & Prohibited Behavior
             </h2>
             <p className="text-sm text-ink-subtle">By utilizing our platform, particularly the Gymmigo Mobile app on Google Play, users are strictly bound to respectful use. You are legally prohibited from:</p>
-            <div className="glass-card p-6 border-border space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-4">
               <ul className="space-y-4 text-sm text-ink-subtle">
                 <li className="flex items-start gap-3">
-                  <Ban size={16} className="text-red-400 mt-0.5 shrink-0" />
+                  <Ban size={16} className="text-ink-subtle mt-0.5 shrink-0" />
                   <div>
                     <strong className="text-ink-muted">Offensive Content:</strong>
                     <span className="text-ink-subtle"> Uploading, posting, or transmitting any content (such as profile pictures or gym gallery images) that is offensive, sexually explicit, defamatory, or violates any third-party rights.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Ban size={16} className="text-red-400 mt-0.5 shrink-0" />
+                  <Ban size={16} className="text-ink-subtle mt-0.5 shrink-0" />
                   <div>
                     <strong className="text-ink-muted">Account & QR Sharing:</strong>
                     <span className="text-ink-subtle"> Sharing your personal QR code or granting unauthorized individuals access to associated gym facilities. Each check-in QR is tied to your identity.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Ban size={16} className="text-red-400 mt-0.5 shrink-0" />
+                  <Ban size={16} className="text-ink-subtle mt-0.5 shrink-0" />
                   <div>
                     <strong className="text-ink-muted">Fraud & Manipulation:</strong>
                     <span className="text-ink-subtle"> Generating fabricated check-ins, spoofing GPS location, manipulating attendance parameters, or gaming the Club Road scoring system.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Ban size={16} className="text-red-400 mt-0.5 shrink-0" />
+                  <Ban size={16} className="text-ink-subtle mt-0.5 shrink-0" />
                   <div>
                     <strong className="text-ink-muted">Malicious Misuse:</strong>
                     <span className="text-ink-subtle"> Employing the application to disseminate spam, malicious code, or to unlawfully scrape platform data.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Ban size={16} className="text-red-400 mt-0.5 shrink-0" />
+                  <Ban size={16} className="text-ink-subtle mt-0.5 shrink-0" />
                   <div>
                     <strong className="text-ink-muted">Reverse Engineering:</strong>
                     <span className="text-ink-subtle"> Attempting to decompile, reverse-engineer, or extract the proprietary platform infrastructure, APIs, or algorithms.</span>
@@ -274,18 +227,16 @@ const TermsConditions = () => {
                 </li>
               </ul>
             </div>
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-4">
-              <AlertCircle className="text-red-400 shrink-0" size={20} />
-              <p className="text-xs text-red-200">Violation of these terms, or any Google Play Store policies, will result in instantaneous account termination and potential legal liabilities without compensation or refund.</p>
+            <div className="p-4 bg-surface border border-border rounded-xl flex items-start gap-4">
+              <AlertCircle className="text-ink-subtle shrink-0" size={20} />
+              <p className="text-xs text-ink-subtle">Violation of these terms, or any Google Play Store policies, will result in instantaneous account termination and potential legal liabilities without compensation or refund.</p>
             </div>
           </section>
 
-          {/* Section 7: Gym Owner Obligations */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 7. Gym Owner & Trainer Obligations
+                    <section className="space-y-5">
+            <h2> 7. Gym Owner & Trainer Obligations
             </h2>
-            <div className="glass-card p-6 border-border space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-4">
               <ul className="space-y-3 text-sm text-ink-subtle">
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 shrink-0" />
@@ -307,16 +258,14 @@ const TermsConditions = () => {
             </div>
           </section>
 
-          {/* Section 8: AI & Fitness Disclaimer */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 8. AI Coaching & Fitness Disclaimer
+                    <section className="space-y-5">
+            <h2> 8. AI Coaching & Fitness Disclaimer
             </h2>
-            <div className="glass-card p-6 border-amber-500/10 bg-amber-500/5 space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border bg-surface space-y-4">
               <div className="flex items-start gap-3">
-                <AlertCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
+                <AlertCircle size={20} className="text-ink-subtle shrink-0 mt-0.5" />
                 <div className="space-y-3">
-                  <p className="text-sm text-ink-muted"><strong className="text-amber-300">Important:</strong> Gymmigo's AI fitness coaching, daily workout plans, and fitness scoring are generated by artificial intelligence algorithms and are provided for informational and motivational purposes only.</p>
+                  <p className="text-sm text-ink-muted"><strong className="text-ink-subtle">Important:</strong> Gymmigo's AI fitness coaching, daily workout plans, and fitness scoring are generated by artificial intelligence algorithms and are provided for informational and motivational purposes only.</p>
                   <ul className="space-y-2 text-xs text-ink-subtle">
                     <li>• AI recommendations are NOT a substitute for professional medical advice, diagnosis, or treatment.</li>
                     <li>• Always consult your physician before starting any new fitness program.</li>
@@ -328,12 +277,10 @@ const TermsConditions = () => {
             </div>
           </section>
 
-          {/* Section 9: Gamification Terms */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 9. Gamification, Points & Rewards
+                    <section className="space-y-5">
+            <h2> 9. Gamification, Points & Rewards
             </h2>
-            <div className="glass-card p-6 border-border space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-4">
               <ul className="space-y-3 text-sm text-ink-subtle">
                 <li className="flex items-start gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-2 shrink-0" />
@@ -355,73 +302,54 @@ const TermsConditions = () => {
             </div>
           </section>
 
-          {/* Section 10: Termination & Liability */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 10. Termination & Liability
+                    <section className="space-y-5">
+            <h2> 10. Termination & Liability
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="glass-card p-6 border-border space-y-3">
-                <AlertCircle className="text-red-400" size={22} />
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <AlertCircle className="text-ink-subtle" size={22} />
                 <h4 className="font-bold text-lg">Account Termination</h4>
                 <p className="text-sm text-ink-subtle">Zenrevo reserves the right to terminate your access for violations of these terms, including fraudulent activity, policy violations, abuse of the gamification system, or non-payment of dues.</p>
               </div>
-              <div className="glass-card p-6 border-border space-y-3">
-                <Scale className="text-primary" size={22} />
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <Scale className="text-ink" size={22} />
                 <h4 className="font-bold text-lg">Limitation of Liability</h4>
                 <p className="text-sm text-ink-subtle">Zenrevo shall not be held liable for any personal injury, property damage, data loss, or financial loss arising from your participation in gym activities, use of AI recommendations, or reliance on Platform data.</p>
               </div>
-              <div className="glass-card p-6 border-border space-y-3">
-                <Trash2 className="text-amber-400" size={22} />
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <Trash2 className="text-ink-subtle" size={22} />
                 <h4 className="font-bold text-lg">Data Upon Termination</h4>
                 <p className="text-sm text-ink-subtle">Upon account termination, your personal data will be deleted within 30 days in accordance with our Privacy Policy. Anonymized analytics data may be retained for platform improvement.</p>
               </div>
-              <div className="glass-card p-6 border-border space-y-3">
-                <Bell className="text-blue-400" size={22} />
+              <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
+                <Bell className="text-ink-subtle" size={22} />
                 <h4 className="font-bold text-lg">Service Modifications</h4>
                 <p className="text-sm text-ink-subtle">Zenrevo may modify, suspend, or discontinue any part of the Platform at any time. We will provide reasonable notice for material changes that affect paid services.</p>
               </div>
             </div>
           </section>
 
-          {/* Section 11: Intellectual Property */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 11. Intellectual Property
+                    <section className="space-y-5">
+            <h2> 11. Intellectual Property
             </h2>
-            <div className="glass-card p-6 border-border space-y-3">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
               <p className="text-sm text-ink-subtle leading-relaxed">All content, features, and functionality of the Platform — including but not limited to the Gymmigo brand, logos, design system, AI algorithms, Club Road system, FitCard design, and software code — are the exclusive property of Zenrevo and are protected by international copyright, trademark, and intellectual property laws.</p>
               <p className="text-sm text-ink-subtle">Users retain ownership of content they upload (profile photos, gym images) but grant Zenrevo a non-exclusive license to display such content within the Platform.</p>
             </div>
           </section>
 
-          {/* Section 12: Contact */}
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold text-ink flex items-center gap-3 italic">
-              <div className="w-1.5 h-7 bg-primary rounded-full" /> 12. Governing Law & Contact
+                    <section className="space-y-5">
+            <h2> 12. Governing Law & Contact
             </h2>
-            <div className="glass-card p-6 border-border space-y-4">
+            <div className="rounded-2xl bg-surface p-6 border-border space-y-4">
               <p className="text-sm text-ink-subtle leading-relaxed">These Terms are governed by and construed in accordance with the laws of India. Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts in India.</p>
-              <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl space-y-2">
-                <p className="text-sm"><span className="text-ink-subtle uppercase tracking-widest font-bold mr-2">Email:</span> <a href="mailto:support@gymmigo.in" className="text-primary font-bold hover:underline">support@gymmigo.in</a></p>
-                <p className="text-sm"><span className="text-ink-subtle uppercase tracking-widest font-bold mr-2">Company:</span> Zenrevo (<a href="https://zenrevo.in" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline">zenrevo.in</a>)</p>
-                <p className="text-sm"><span className="text-ink-subtle uppercase tracking-widest font-bold mr-2">Parent Support:</span> <a href="mailto:support@zenrevo.in" className="text-ink-subtle hover:underline">support@zenrevo.in</a></p>
+              <div className="p-4 bg-surface border border-border rounded-xl space-y-2">
+                <p className="text-sm"><span className="text-ink-subtle font-bold mr-2">Email:</span> <a href="mailto:support@gymmigo.in" className="text-ink font-bold hover:underline">support@gymmigo.in</a></p>
+                <p className="text-sm"><span className="text-ink-subtle font-bold mr-2">Company:</span> Zenrevo (<a href="https://zenrevo.in" target="_blank" rel="noopener noreferrer" className="text-ink font-bold hover:underline">zenrevo.in</a>)</p>
+                <p className="text-sm"><span className="text-ink-subtle font-bold mr-2">Parent Support:</span> <a href="mailto:support@zenrevo.in" className="text-ink-subtle hover:underline">support@zenrevo.in</a></p>
               </div>
             </div>
           </section>
-
-          {/* Footer */}
-          <div className="pt-10 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-ink-subtle/70 text-[10px] font-bold uppercase tracking-[0.4em]">© {new Date().getFullYear()} Gymmigo.in by Zenrevo</p>
-            <div className="flex gap-6">
-              <Link to="/privacy" className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle/70 hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link to="/contact" className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle/70 hover:text-primary transition-colors">Contact Us</Link>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </div>
+    </LegalLayout>
   );
-};
-
-export default TermsConditions;
+}

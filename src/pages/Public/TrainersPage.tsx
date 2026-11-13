@@ -1,6 +1,6 @@
 import RoleMarketingPage from './RoleMarketingPage';
-import { rolePageData } from './publicSiteContent';
+import { rolePages } from './publicSiteContent';
 
 export default function TrainersPage() {
-  return <RoleMarketingPage data={rolePageData.trainers} />;
+  return <RoleMarketingPage page={rolePages['trainers']} />;
 }
