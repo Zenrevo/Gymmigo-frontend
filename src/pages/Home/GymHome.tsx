@@ -12,7 +12,7 @@ import {
   Skeleton,
   Text,
 } from '../../components/kit';
-import AITodaysFocus from '../../components/AITodaysFocus';
+import DailyDrop from './DailyDrop';
 import BookingDetailModal from '../../components/BookingDetailModal';
 import QRScannerModal from '../../components/QRScannerModal';
 import { Legacy } from '../../layouts/LegacyTheme';
@@ -242,9 +242,7 @@ export default function GymHome() {
         </ListGroup>
       ) : null}
 
-      <div data-theme="dark" className="rounded-gm-xl bg-[#131315] p-1">
-        <AITodaysFocus />
-      </div>
+      <DailyDrop />
 
       <section className="flex flex-col gap-3">
         <SectionHeader label="Active memberships" meta={groups.length ? `${groups.length}` : undefined} />
