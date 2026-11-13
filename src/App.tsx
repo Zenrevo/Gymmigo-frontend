@@ -9,7 +9,6 @@ import { ThemeProvider } from './theme/ThemeProvider';
 import { NotificationContainer } from './components/Toast';
 import PageLoader from './components/PageLoader';
 import ComingSoon from './components/ComingSoon';
-import WebSoon from './components/WebSoon';
 import { DialogHost } from './components/kit';
 import { resolveGuardRedirect } from './auth/onboarding';
 import MainLayout from './layouts/MainLayout';
@@ -38,6 +37,7 @@ import Profile from './pages/Profile/Profile';
 import WalletTransactionsPage from './pages/Profile/WalletTransactionsPage';
 import GymmigoClubsPage from './pages/Clubs/GymmigoClubsPage';
 import { migoRoutes } from './routes/migoRoutes';
+import { runTogetherRoutes } from './routes/runTogetherRoutes';
 import AddGymPage from './pages/Dashboard/AddGymPage';
 import GymManageDashboard from './pages/Dashboard/GymManageDashboard';
 import OverviewTab from './pages/Dashboard/gym-tabs/OverviewTab';
@@ -123,8 +123,7 @@ const AppRoutes = () => (
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
       {activityRoutes}
-      <Route path="run-together/*" element={<WebSoon title="Run together" />} />
-      <Route path="people/*" element={<WebSoon title="People" />} />
+      {runTogetherRoutes}
       <Route path="coming-soon" element={<L><ComingSoon /></L>} />
       <Route path="gym-owner/add-gym" element={<L><AddGymPage /></L>} />
       <Route path="gym-owner/gyms/:gymId" element={<GymProvider><L><GymManageDashboard /></L></GymProvider>}>
