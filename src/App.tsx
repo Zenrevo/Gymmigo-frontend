@@ -115,9 +115,9 @@ const AppRoutes = () => (
       <Route index element={<Navigate to="/app/dashboard" replace />} />
       <Route path="dashboard" element={<HomePage />} />
       <Route path="discovery" element={<Discovery />} />
-      <Route path="gyms/:gymId" element={<L><GymProfile /></L>} />
-      <Route path="trainers/:trainerId" element={<L><TrainerProfile /></L>} />
-      <Route path="sessions/:sessionId" element={<L><SessionDetail /></L>} />
+      <Route path="gyms/:gymId" element={<GymProfile />} />
+      <Route path="trainers/:trainerId" element={<TrainerProfile />} />
+      <Route path="sessions/:sessionId" element={<SessionDetail />} />
       <Route path="profile" element={<Profile />} />
       <Route path="devices" element={<WatchGuidePage />} />
       <Route path="wallet-transactions" element={<WalletTransactionsPage />} />

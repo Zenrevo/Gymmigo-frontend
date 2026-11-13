@@ -1,1040 +1,805 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../utils/api';
-import { GoogleMap, MarkerF } from '@react-google-maps/api';
-import { 
-  ArrowLeft, ArrowRight, MapPin, Star, Building2, 
-  CheckCircle2, Clock, Phone, ShoppingCart, Package, X,
-  Activity, Wifi, Dumbbell, 
-  Zap, Info, Loader2, TrendingUp, Image as ImageIcon,
-  ChevronRight, Check, MessageSquare, Reply, Send
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  ArrowRight,
+  Banknote,
+  Building2,
+  CheckCircle2,
+  Clock,
+  CreditCard,
+  Dumbbell,
+  LayoutGrid,
+  MapPin,
+  MessageSquarePlus,
+  Navigation,
+  Phone,
+  ReceiptIndianRupee,
+  Sparkles,
+  Star,
+  X,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import clsx from 'clsx';
-import PageLoader from '../../components/PageLoader';
-
+import {
+  AppBar,
+  Badge,
+  BarChart,
+  Button,
+  Card,
+  Chip,
+  EmptyState,
+  ErrorState,
+  SectionHeader,
+  SelectableCard,
+  Sheet,
+  Skeleton,
+  Text,
+  TextArea,
+  TextField,
+  cn,
+  useToast,
+} from '../../components/kit';
+import { MapPanel } from '../../components/explore/MapPanel';
 import { useGeoLocation } from '../../context/LocationContext';
-import { useNotification } from '../../context/NotificationContext';
 import { getGoogleMapsUrl } from '../../utils/navigation';
+import { getApiErrorMessage } from '../../utils/api';
+import { discoveryApi } from '../../api/discovery';
 
-const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-  const R = 6371e3; // metres
-  const φ1 = lat1 * Math.PI/180;
-  const φ2 = lat2 * Math.PI/180;
-  const Δφ = (lat2-lat1) * Math.PI/180;
-  const Δλ = (lon2-lon1) * Math.PI/180;
+/* eslint-disable @typescript-eslint/no-explicit-any -- gym payloads are untyped */
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-  return R * c; // in metres
-};
-
-const darkMapStyles = [
-  { elementType: "geometry", stylers: [{ color: "#212121" }] },
-  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
-  {
-    featureType: "administrative",
-    elementType: "geometry",
-    stylers: [{ color: "#757575" }],
-  },
-  {
-    featureType: "administrative.country",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9e9e9e" }],
-  },
-  {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#757575" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [{ color: "#181818" }],
-  },
-  {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#616161" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.fill",
-    stylers: [{ color: "#2c2c2c" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ color: "#3c3c3c" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.fill",
-    stylers: [{ color: "#ff4d00" }, { weight: 0.1 }, { lightness: -50 }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#000000" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#3d3d3d" }],
-  },
+type Tab = 'overview' | 'plans' | 'insights' | 'photos' | 'amenities' | 'equipment' | 'reviews';
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'plans', label: 'Plans' },
+  { key: 'insights', label: 'Crowd' },
+  { key: 'photos', label: 'Photos' },
+  { key: 'amenities', label: 'Amenities' },
+  { key: 'equipment', label: 'Equipment' },
+  { key: 'reviews', label: 'Reviews' },
 ];
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-const GymProfile = () => {
-  const { gymId } = useParams();
+const inr = (n: number) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
+const distanceKm = (a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }) => {
+  const R = 6371;
+  const dLat = ((b.latitude - a.latitude) * Math.PI) / 180;
+  const dLng = ((b.longitude - a.longitude) * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos((a.latitude * Math.PI) / 180) * Math.cos((b.latitude * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+};
+const fmtTime = (t: string) => {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m || 0).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+};
+const timeSlots = (plan: any): { start: string; end: string }[] => {
+  if (plan.access_time_slots?.length) return plan.access_time_slots;
+  if (plan.access_start_time && plan.access_end_time) return [{ start: plan.access_start_time, end: plan.access_end_time }];
+  return [{ start: '06:00', end: '22:00' }];
+};
+const isQualifyingPlan = (plan: any) => ['month', 'quarter', 'half_year', 'year'].includes(plan.duration_type) || plan.duration_days >= 30;
+const priceOf = (p: any) => Number(p.discounted_price || p.price || 0);
+const nameOf = (x: any) => (typeof x === 'string' ? x : x?.name);
+const todayName = () => DAYS[(new Date().getDay() + 6) % 7];
+
+function Stars({ value, size = 14 }: { value: number; size?: number }) {
+  return (
+    <span className="inline-flex gap-0.5" aria-label={`${value} out of 5`}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <Star key={i} size={size} className={i <= value ? 'fill-rating text-rating' : 'text-ink-subtle'} aria-hidden />
+      ))}
+    </span>
+  );
+}
+
+function FactTile({ icon: Icon, label, value, sub }: { icon: typeof Clock; label: string; value: string; sub?: string }) {
+  return (
+    <Card padding="md">
+      <div className="flex items-center gap-1.5 text-ink-subtle">
+        <Icon size={14} aria-hidden />
+        <Text variant="labelSm" tone="subtle">
+          {label}
+        </Text>
+      </div>
+      <Text variant="title" className="mt-1 tabular-nums">
+        {value}
+      </Text>
+      {sub ? (
+        <Text variant="caption" tone="subtle">
+          {sub}
+        </Text>
+      ) : null}
+    </Card>
+  );
+}
+
+function ActionTile({ icon: Icon, label, onClick, disabled, accent }: { icon: typeof Clock; label: string; onClick: () => void; disabled?: boolean; accent?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'flex flex-1 flex-col items-center gap-1.5 rounded-gm-lg border py-3 transition-colors disabled:opacity-40',
+        accent ? 'border-accent-border bg-accent-soft text-accent-text' : 'border-border bg-surface text-ink hover:bg-surface-sunken',
+      )}>
+      <Icon size={20} aria-hidden />
+      <span className="t-caption font-bold">{label}</span>
+    </button>
+  );
+}
+
+/** Gym profile — the app's GymProfile + Checkout: hero, tabs, plan cart, checkout, crowd insights, reviews. */
+export default function GymProfile() {
+  const { gymId = '' } = useParams();
+  const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { selectedLocation, isLoaded } = useGeoLocation();
+  const toast = useToast();
+  const { selectedLocation } = useGeoLocation();
+
   const [gym, setGym] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
-  const [activeTab, setActiveTab] = useState<'overview' | 'plans' | 'gallery' | 'equipment' | 'amenities' | 'reviews'>('overview');
+  const [failed, setFailed] = useState(false);
+  const [tab, setTab] = useState<Tab>((params.get('tab') as Tab) || 'overview');
+  const [stats, setStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statDay, setStatDay] = useState(todayName);
   const [reviews, setReviews] = useState<any[]>([]);
-  const [loadingReviews, setLoadingReviews] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
-  const { showNotification } = useNotification();
-  
-  // Analytics
-  const [workoutStats, setWorkoutStats] = useState<any>(null);
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [activeStatDay, setActiveStatDay] = useState('Monday');
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
-  // Review Form State
-  const [newRating, setNewRating] = useState(5);
-  const [newReviewTitle, setNewReviewTitle] = useState('');
-  const [newReviewText, setNewReviewText] = useState('');
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [cart, setCart] = useState<Record<string, any>>({}); // one plan per slot
+  const [addons, setAddons] = useState<any[]>([]);
+  const [checkout, setCheckout] = useState<null | 'review' | 'payment' | 'done'>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Cart-based Selection State: one plan per category
-  const [cart, setCart] = useState<Record<string, any>>({});  // { slotName: plan }
-  const [selectedAddons, setSelectedAddons] = useState<any[]>([]);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewSaving, setReviewSaving] = useState(false);
 
-  const distance = (gym?.addresses?.[0] && selectedLocation) 
-    ? getDistance(selectedLocation.latitude, selectedLocation.longitude, gym.addresses[0].latitude, gym.addresses[0].longitude)
-    : null;
-
-  useEffect(() => {
-    const fetchGym = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get(`/gyms/${gymId}`);
-        setGym(res.data);
-      } catch (err) {
-        console.error('Failed to fetch gym details:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (gymId) fetchGym();
-  }, [gymId]);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoadingStats(true);
-        const res = await api.get(`/gyms/${gymId}/workout-stats`);
-        setWorkoutStats(res.data);
-      } catch (err) {
-        console.error('Failed to fetch stats:', err);
-      } finally {
-        setLoadingStats(false);
-      }
-    };
-    if (gymId) fetchStats();
-  }, [gymId]);
-
-  useEffect(() => {
-    if (activeTab === 'reviews') {
-      const fetchReviews = async () => {
-        try {
-          setLoadingReviews(true);
-          const res = await api.get(`/memberships/reviews/${gymId}`);
-          setReviews(res.data.data.reviews || []);
-        } catch (err) {
-          console.error('Failed to fetch reviews:', err);
-        } finally {
-          setLoadingReviews(false);
-        }
-      };
-      fetchReviews();
-    }
-  }, [activeTab, gymId]);
-
-  if (loading) return <PageLoader message="Opening elite facility portal..." />;
-  if (!gym) return (
-    <div className="text-center py-24 space-y-4">
-      <h2 className="text-2xl font-bold">Gym Not Found</h2>
-      <button onClick={() => navigate('/app/discovery')} className="text-primary font-bold uppercase tracking-widest text-sm underline">Back to Discovery</button>
-    </div>
-  );
-
-  const handleApplyMembership = async () => {
-    const cartPlans = Object.values(cart);
-    if (cartPlans.length === 0) return;
+  const load = async () => {
+    setLoading(true);
+    setFailed(false);
     try {
-      setIsSubmittingApplication(true);
-      
-      const payload = {
-        gym_id: gym.id,
-        plans: cartPlans.map((p: any) => ({
-          plan_id: p.id,
-          selected_addons: selectedAddons.map(a => ({ id: a.id, name: a.name, price: a.price }))
-        })),
-        payment_method: 'cash',
-      };
-
-      await api.post('/memberships/apply-cart', payload);
-      
-      showNotification(`${cartPlans.length} plan(s) submitted successfully! Waiting for gym owner approval.`, 'success');
-      setCart({});
-      setSelectedAddons([]);
-      navigate('/app/dashboard');
-    } catch (err: any) {
-      console.error('Failed to apply:', err);
-      showNotification(err.response?.data?.detail || 'Failed to submit application. Please try again.', 'error');
+      setGym(await discoveryApi.gym(gymId));
+    } catch (err) {
+      console.error('Failed to fetch gym details:', err);
+      setFailed(true);
     } finally {
-      setIsSubmittingApplication(false);
+      setLoading(false);
     }
   };
 
-  const handleSubmitReview = async () => {
-    if (!newReviewText.trim()) return;
-    try {
-      setIsSubmittingReview(true);
-      await api.post('/memberships/reviews', {
-        gym_id: gymId,
-        rating: newRating,
-        title: newReviewTitle || "Review",
-        review: newReviewText,
-      });
+  useEffect(() => {
+    if (!gymId) return;
+    void load();
+    setStatsLoading(true);
+    discoveryApi
+      .gymWorkoutStats(gymId)
+      .then(setStats)
+      .catch(() => setStats(null))
+      .finally(() => setStatsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gymId]);
 
-      showNotification('Review submitted successfully!', 'success');
-      setShowReviewForm(false);
-      setNewReviewText('');
-      setNewReviewTitle('');
-      setNewRating(5);
-      
-      // Refresh reviews
-      const revRes = await api.get(`/memberships/reviews/${gymId}`);
-      setReviews(revRes.data.data.reviews || []);
-      
-      // Update local gym data to hide the review button (can_review becomes false)
-      setGym((prev: any) => ({ ...prev, can_review: false }));
-    } catch (err: any) {
-      console.error('Failed to submit review:', err);
-      showNotification(err.response?.data?.detail || 'Failed to submit review.', 'error');
+  const loadReviews = async () => {
+    setReviewsLoading(true);
+    try {
+      const d = await discoveryApi.gymReviews(gymId);
+      setReviews(d?.reviews || []);
+    } catch {
+      setReviews([]);
     } finally {
-      setIsSubmittingReview(false);
+      setReviewsLoading(false);
     }
   };
+  useEffect(() => {
+    if (tab === 'reviews' && gymId) void loadReviews();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, gymId]);
 
-  const occupancyRatio = (gym.current_occupancy || 0) / (gym.max_capacity || 100);
-
-  // Group plans by slot
-  const groupedPlans = (gym.membership_plans || []).reduce((acc: any, plan: any) => {
-    const slot = plan.slot_name || 'Full Access';
-    if (!acc[slot]) acc[slot] = [];
-    acc[slot].push(plan);
+  const grouped = useMemo(() => {
+    const acc: Record<string, any[]> = {};
+    for (const p of gym?.membership_plans || []) (acc[p.slot_name || 'Full Access'] ??= []).push(p);
     return acc;
-  }, {});
+  }, [gym]);
 
-  // Helper: get time slots from plan (new field first, fallback to legacy)
-  const getTimeSlotsFromPlan = (plan: any): {start: string; end: string}[] => {
-    if (plan.access_time_slots?.length) return plan.access_time_slots;
-    if (plan.access_start_time && plan.access_end_time) return [{ start: plan.access_start_time, end: plan.access_end_time }];
-    return [{ start: '06:00', end: '22:00' }];
-  };
+  if (loading)
+    return (
+      <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4">
+        <Skeleton className="h-[280px] rounded-gm-xxl" />
+        <Skeleton className="h-10 w-2/3" />
+        <Skeleton className="h-40 rounded-gm-xl" />
+      </div>
+    );
+  if (failed || !gym)
+    return (
+      <div className="mx-auto w-full max-w-[720px] py-10">
+        <ErrorState title="Unable to load this gym right now" onRetry={load} />
+        <div className="mt-3 flex justify-center">
+          <Button label="Back to Explore" variant="ghost" to="/app/discovery" />
+        </div>
+      </div>
+    );
 
-  const fmtTime = (t: string) => {
-    if (!t) return '';
-    const [h, m] = t.split(':').map(Number);
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
-  };
+  const addr = gym.addresses?.[0];
+  const dist = addr?.latitude && selectedLocation ? distanceKm(selectedLocation, addr) : null;
+  const cover =
+    gym.cover_image_url ||
+    gym.images?.find((i: any) => i.is_primary)?.image_url ||
+    gym.images?.find((i: any) => i.is_primary)?.url ||
+    gym.images?.[0]?.image_url ||
+    gym.images?.[0]?.url ||
+    gym.logo_url;
+  const photos: string[] = (gym.images || []).map((i: any) => i.image_url || i.url).filter(Boolean);
+  const facilities: string[] = (gym.facilities || []).map(nameOf).filter(Boolean);
+  const amenities: string[] = (gym.amenities || []).map(nameOf).filter(Boolean);
+  const equipment: any[] = gym.equipment || [];
+  const plans: any[] = gym.membership_plans || [];
+  const lowestPlan = plans.reduce<any>((lo, p) => (lo == null || priceOf(p) < priceOf(lo) ? p : lo), null);
+  const occRatio = gym.max_capacity ? (gym.current_occupancy || 0) / gym.max_capacity : null;
+  const occ = occRatio == null ? null : occRatio > 0.8 ? { label: 'Busy now', tone: 'danger' as const } : occRatio > 0.5 ? { label: 'Moderate now', tone: 'warning' as const } : { label: 'Quiet now', tone: 'success' as const };
+  const directions = () => window.open(getGoogleMapsUrl(`${addr?.address_line1 ?? ''}, ${gym.city ?? ''}`, addr?.latitude, addr?.longitude), '_blank', 'noopener,noreferrer');
+  const bestToday = stats?.hourly_distribution?.[todayName()]?.best_time;
+  const askMigo = () =>
+    navigate(`/app/assistant?initialPrompt=${encodeURIComponent(`Build my workout for today at ${gym.name}${bestToday ? `. The quietest time today is ${bestToday}` : ''}.`)}`);
 
-  const isQualifyingPlan = (plan: any) => {
-    return ["month", "quarter", "half_year", "year"].includes(plan.duration_type) || plan.duration_days >= 30;
-  };
+  const cartPlans = Object.entries(cart);
+  const entryFee = gym.is_new_member ? cartPlans.reduce((s, [, p]) => s + (isQualifyingPlan(p) ? Number(p.entry_fee || 0) : 0), 0) : 0;
+  const addonTotal = addons.reduce((s, a) => s + Number(a.price || 0), 0);
+  const total = cartPlans.reduce((s, [, p]) => s + priceOf(p), 0) + entryFee + addonTotal;
 
-
-  // Cart helpers
-  const togglePlanInCart = (slotName: string, plan: any) => {
+  const togglePlan = (slot: string, plan: any) =>
     setCart(prev => {
       const copy = { ...prev };
-      if (copy[slotName]?.id === plan.id) {
-        delete copy[slotName];
-      } else {
-        copy[slotName] = plan;
-      }
+      if (copy[slot]?.id === plan.id) delete copy[slot];
+      else copy[slot] = plan;
       return copy;
     });
+  const toggleAddon = (a: any) => setAddons(prev => (prev.some(x => x.id === a.id) ? prev.filter(x => x.id !== a.id) : [...prev, a]));
+
+  const submitCart = async () => {
+    if (!cartPlans.length) return;
+    setSubmitting(true);
+    try {
+      await discoveryApi.applyCart({
+        gym_id: gym.id,
+        plans: cartPlans.map(([, p]) => ({ plan_id: p.id, selected_addons: addons.map(a => ({ id: a.id, name: a.name, price: a.price })) })) as any,
+        payment_method: 'cash',
+      });
+      setCheckout('done');
+    } catch (err) {
+      toast({ tone: 'error', title: getApiErrorMessage(err) || 'Failed to submit application. Please try again.' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const cartPlans = Object.entries(cart); // [[slotName, plan], ...]
-  const totalEntryFee = gym?.is_new_member ? cartPlans.reduce((sum, [, p]) => sum + (isQualifyingPlan(p) ? (p.entry_fee || 0) : 0), 0) : 0;
-  const cartTotal = cartPlans.reduce((sum, [, p]) => sum + (p.discounted_price || p.price || 0), 0) +
-                    totalEntryFee + selectedAddons.reduce((sum, a) => sum + a.price, 0);
+  const submitReview = async () => {
+    if (!reviewText.trim()) return;
+    setReviewSaving(true);
+    try {
+      await discoveryApi.postGymReview({ gym_id: gymId, rating, title: reviewTitle || 'Review', review: reviewText });
+      toast({ tone: 'success', title: 'Review submitted successfully!' });
+      setReviewOpen(false);
+      setReviewText('');
+      setReviewTitle('');
+      setRating(5);
+      setGym((g: any) => ({ ...g, can_review: false }));
+      void loadReviews();
+    } catch (err) {
+      toast({ tone: 'error', title: getApiErrorMessage(err) || 'Failed to submit review.' });
+    } finally {
+      setReviewSaving(false);
+    }
+  };
 
-  return (
-    <div className="space-y-8 pb-12">
-      {/* Header Navigation */}
-      <button 
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors group w-fit ml-[-0.5rem] sm:ml-0"
-      >
-        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-        <span className="text-xs font-black uppercase tracking-[0.2em]">Back to Discovery</span>
-      </button>
+  const hourly = Object.entries(stats?.hourly_distribution?.[statDay] || {}).filter(([k]) => k !== 'best_time') as [string, number][];
 
-      {/* Hero Section */}
-      <div className="relative h-64 sm:h-80 md:h-[450px] rounded-[2rem] overflow-hidden group shadow-2xl border border-ink/5 mx-[-1rem] sm:mx-0">
-        {(() => {
-          const coverUrl = gym.cover_image_url || 
-                          (gym.images?.find((img: any) => img.is_primary)?.image_url || gym.images?.find((img: any) => img.is_primary)?.url) || 
-                          (gym.images?.[0]?.image_url || gym.images?.[0]?.url) ||
-                          gym.logo_url;
-          
-          if (coverUrl) {
-            return <img src={coverUrl} alt={gym.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />;
-          }
-          return (
-            <div className="absolute inset-0 bg-surface flex items-center justify-center text-ink/5">
-               <Building2 size={160} />
-            </div>
-          );
-        })()}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-3xl bg-surface/40 backdrop-blur-xl border border-border p-3 sm:p-4 flex items-center justify-center overflow-hidden shrink-0 shadow-2xl relative">
-               {gym.logo_url ? (
-                 <img src={gym.logo_url} alt="logo" className="w-full h-full object-contain" />
-               ) : (
-                 <Building2 className="text-primary" size={32} />
-               )}
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-4xl md:text-6xl font-display font-black tracking-tighter italic uppercase truncate max-w-[200px] sm:max-w-md">{gym.name}</h1>
-                {gym.is_verified && <CheckCircle2 className="text-blue-500 shrink-0" size={18} />}
-              </div>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-ink/60">
-                <div className="flex items-center gap-1.5 bg-surface/40 backdrop-blur-md px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-border">
-                  <Star className="text-primary fill-primary" size={10} />
-                  <span className="text-[10px] sm:text-sm font-bold text-ink">{gym.rating_avg?.toFixed(1) || 'NEW'}</span>
-                </div>
-                <div className="flex items-center gap-1 text-[10px] sm:text-sm font-medium cursor-pointer hover:text-ink transition-colors"
-                   onClick={() => window.open(getGoogleMapsUrl(`${gym.addresses?.[0]?.address_line1}, ${gym.city}`, gym.addresses?.[0]?.latitude, gym.addresses?.[0]?.longitude))}>
-                  <MapPin size={12} className="text-primary" />
-                  <span className="underline underline-offset-2">{gym.city}</span>
-                </div>
-              </div>
-            </div>
+  const sidebar = (
+    <div className="flex flex-col gap-4">
+      <Card padding="none" className="overflow-hidden">
+        <MapPanel center={addr?.latitude ? { lat: Number(addr.latitude), lng: Number(addr.longitude) } : null} points={addr?.latitude ? [{ id: gym.id, lat: Number(addr.latitude), lng: Number(addr.longitude), title: gym.name }] : []} zoom={15} className="h-[180px]" />
+        <div className="flex items-center gap-3 p-4">
+          <MapPin size={18} className="shrink-0 text-accent" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <Text variant="callout" className="truncate font-bold">
+              {addr?.address_line1 || gym.city}
+            </Text>
+            <Text variant="caption" tone="subtle" className="truncate">
+              {[gym.city, gym.state].filter(Boolean).join(', ')}
+              {dist != null ? ` · ${dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`} away` : ''}
+            </Text>
           </div>
-          
-          <button onClick={() => { setActiveTab('plans'); window.scrollTo({ top: 600, behavior: 'smooth' }); }} className="btn-primary px-10 py-5 rounded-2xl shadow-[0_0_50px_rgba(var(--primary-rgb),0.3)] hover:scale-105 active:scale-95 transition-all text-sm font-black uppercase tracking-[0.1em] whitespace-nowrap">
-             Get Membership
-          </button>
+          <Button label="Navigate" size="sm" variant="secondary" icon={Navigation} onClick={directions} />
         </div>
-      </div>
-
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 space-y-12">
-          {/* Live Status */}
-          <div className="glass-card p-6 sm:p-8 flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-               <Activity size={80} className="text-primary" />
-             </div>
-             <div className="space-y-1 text-center sm:text-left shrink-0">
-               <p className="text-[10px] text-ink/20 font-black uppercase tracking-[0.3em]">Live Traffic</p>
-               <h3 className="text-xl sm:text-2xl font-display font-black italic uppercase tracking-tight">CROWD STATUS</h3>
-             </div>
-             
-             <div className="flex-1 w-full space-y-3">
-               <div className="h-4 w-full bg-ink/5 rounded-full overflow-hidden border border-ink/5 p-1">
-                 <motion.div 
-                   initial={{ width: 0 }}
-                   animate={{ width: `${occupancyRatio * 100}%` }}
-                   className={clsx(
-                     "h-full rounded-full relative",
-                     occupancyRatio > 0.8 ? "bg-red-500" : occupancyRatio > 0.5 ? "bg-orange-500" : "bg-emerald-500"
-                   )}
-                 >
-                   <div className="absolute inset-0 bg-ink/20 animate-pulse" />
-                 </motion.div>
-               </div>
-               <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                 <span className={clsx(
-                   occupancyRatio > 0.8 ? "text-red-500" : occupancyRatio > 0.5 ? "text-orange-500" : "text-emerald-500"
-                 )}>
-                   {occupancyRatio > 0.8 ? 'VERY BUSY' : occupancyRatio > 0.5 ? 'MODERATE' : 'QUIET'} NOW
-                 </span>
-                 <span className="text-ink/40">{gym.current_occupancy || 0} / {gym.max_capacity || '100'} PEOPLE</span>
-               </div>
-             </div>
-          </div>
-
-          {/* Navigation Tabs */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-6 md:gap-8 border-b border-ink/5 overflow-x-auto no-scrollbar pb-1">
-              {(['overview', 'plans', 'gallery', 'amenities', 'equipment', 'reviews'] as const).map(tab => (
-                <button 
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={clsx(
-                    "pb-5 text-[10px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap",
-                    activeTab === tab ? "text-primary px-2" : "text-ink/20 hover:text-ink"
-                  )}
-                >
-                  {tab}
-                  {activeTab === tab && (
-                    <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            <div className="min-h-[400px]">
-              <AnimatePresence mode="wait">
-                {activeTab === 'overview' && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-12">
-                     <div className="space-y-4">
-                        <h4 className="text-lg font-black italic uppercase tracking-tight flex items-center gap-2">
-                          <Info size={18} className="text-primary" /> About Facility
-                        </h4>
-                        <p className="text-ink/60 leading-relaxed text-lg">
-                          {gym.description || "Welcome to our premier fitness facility. Experience world-class equipment and professional guidance designed for results."}
-                        </p>
-                     </div>
-                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                           <ImageIcon className="text-ink/20 group-hover:text-primary" size={24} />
-                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.images?.length || 0} Photos</span>
-                        </div>
-                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                           <Dumbbell className="text-ink/20 group-hover:text-primary" size={24} />
-                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.equipment?.length || 0} Machines</span>
-                        </div>
-                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                           <Zap className="text-ink/20 group-hover:text-primary" size={24} />
-                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.facilities?.length || 0} Zones</span>
-                        </div>
-                        <div className="glass-card p-6 flex flex-col items-center justify-center text-center gap-3 group hover:border-primary/50 transition-all">
-                           <Clock className="text-ink/20 group-hover:text-primary" size={24} />
-                           <span className="text-[10px] font-black uppercase tracking-widest">{gym.is_24_hours ? '24/7 Access' : 'Full Access'}</span>
-                        </div>
-                     </div>
-
-                     {/* Traffic Analysis Component (Abstracted) */}
-                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="glass-card p-6 space-y-6">
-                           <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                             <TrendingUp size={16} className="text-secondary" /> Weekly Check-in Activity
-                           </h4>
-                           
-                           {loadingStats ? (
-                              <div className="h-40 flex items-center justify-center">
-                                <Loader2 className="animate-spin text-primary" size={24} />
-                              </div>
-                           ) : !workoutStats ? (
-                              <div className="h-40 flex items-center justify-center text-ink/20 text-xs font-black uppercase tracking-widest">
-                                 No Data Available
-                              </div>
-                           ) : (
-                              <div className="h-40 flex items-end justify-between gap-2 pt-4 overflow-x-auto no-scrollbar">
-                                 {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
-                                   const vals = Object.values(workoutStats?.weekly_stats || {}) as number[];
-                                   const maxCount = Math.max(1, ...(vals.length > 0 ? vals : [1]));
-                                   const count = workoutStats?.weekly_stats?.[day] || 0;
-                                   const heightPct = Math.max(5, (count / maxCount) * 100);
-                                   const isActive = activeStatDay === day;
-                                   
-                                   return (
-                                     <button 
-                                       key={day} 
-                                       onClick={() => setActiveStatDay(day)}
-                                       className="flex-1 flex flex-col items-center gap-2 group min-w-[32px]"
-                                     >
-                                        <div className="w-full h-full flex items-end bg-ink/[0.03] rounded-t-xl overflow-hidden hover:bg-ink/5 transition-colors">
-                                          <div 
-                                            className={clsx("w-full transition-all duration-500", isActive ? "bg-primary" : "bg-ink/10")} 
-                                            style={{ height: `${heightPct}%` }} 
-                                          />
-                                        </div>
-                                        <span className={clsx("text-[8px] font-black uppercase transition-colors", isActive ? "text-primary" : "text-ink/20 group-hover:text-ink/40")}>
-                                          {day.substring(0,3)}
-                                        </span>
-                                     </button>
-                                   );
-                                 })}
-                              </div>
-                           )}
-                        </div>
-                        
-                        <div className="glass-card p-6 flex flex-col justify-center gap-6 relative overflow-hidden">
-                           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                             <Zap size={100} className="text-green-500" />
-                           </div>
-                           
-                           <div className="flex items-center gap-4 bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
-                             <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                               <Zap size={20} />
-                             </div>
-                             <div>
-                               <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest">Lowest Capacity Period</p>
-                               <h4 className="text-lg font-black italic uppercase tracking-tighter text-ink">
-                                 {workoutStats?.hourly_distribution?.[activeStatDay]?.best_time || "Loading..."}
-                               </h4>
-                             </div>
-                           </div>
-                           
-                           <div className="space-y-3 z-10 max-h-40 overflow-y-auto no-scrollbar pr-2">
-                             {Object.entries(workoutStats?.hourly_distribution?.[activeStatDay] || {})
-                               .filter(([k]) => k !== 'best_time')
-                               .map(([timeRange, count]: [string, any]) => {
-                                  const isBest = timeRange === workoutStats?.hourly_distribution?.[activeStatDay]?.best_time;
-                                  const hourlyVals = Object.entries(workoutStats?.hourly_distribution?.[activeStatDay] || {}).filter(([k]) => k !== 'best_time').map(([_, v]) => v as number);
-                                  const hourlyMax = Math.max(1, ...(hourlyVals.length > 0 ? hourlyVals : [1]));
-                                  const widthPct = Math.max(2, (count / hourlyMax) * 100);
-                                  
-                                  return (
-                                    <div key={timeRange} className="flex items-center gap-3">
-                                      <span className="w-20 text-[10px] font-bold text-ink/50">{timeRange}</span>
-                                      <div className="flex-1 h-5 bg-ink/[0.03] rounded-full overflow-hidden">
-                                        <div 
-                                          className={clsx("h-full rounded-full transition-all duration-500", isBest ? "bg-emerald-500" : "bg-ink/10")} 
-                                          style={{ width: `${widthPct}%` }}
-                                        />
-                                      </div>
-                                      <span className="w-10 text-right text-[10px] font-black uppercase tracking-tight text-ink/30">{count > 0 ? count + ' ck' : ''}</span>
-                                    </div>
-                                  );
-                               })}
-                           </div>
-                        </div>
-                     </div>
-                  </motion.div>
-                )}
-
-                {activeTab === 'plans' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-                     {/* Category-based Plan Selection */}
-                     <div className="flex items-center gap-3 mb-2">
-                        <ShoppingCart size={16} className="text-primary" />
-                        <h4 className="text-xs font-black uppercase tracking-widest">Select Your Plans</h4>
-                        <span className="text-[9px] text-ink/30 font-bold uppercase ml-auto">{cartPlans.length} selected</span>
-                     </div>
-
-                     {Object.entries(groupedPlans).map(([slotName, plans]: [string, any]) => (
-                       <div key={slotName} className="space-y-3">
-                          {/* Category Header */}
-                          <div className="flex items-center gap-2">
-                            <div className={clsx(
-                              "w-2 h-2 rounded-full",
-                              cart[slotName] ? "bg-primary" : "bg-ink/20"
-                            )} />
-                            <span className="text-[11px] font-black uppercase tracking-widest">{slotName}</span>
-                            {cart[slotName] && (
-                              <span className="text-[8px] font-black text-primary bg-primary/10 px-2 py-0.5 rounded-full uppercase ml-auto">
-                                ✓ {cart[slotName].name}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Plan Cards */}
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                             {plans.map((plan: any) => {
-                               const isSelected = cart[slotName]?.id === plan.id;
-                               return (
-                                 <button 
-                                   key={plan.id}
-                                   onClick={() => togglePlanInCart(slotName, plan)}
-                                   className={clsx(
-                                     "p-5 rounded-2xl transition-all border group relative flex flex-col items-center gap-1.5",
-                                     isSelected 
-                                       ? "bg-primary/10 border-primary shadow-lg shadow-primary/10" 
-                                       : "bg-ink/5 border-ink/5 hover:border-ink/20 hover:bg-ink/[0.07]"
-                                   )}
-                                 >
-                                    {isSelected && (
-                                      <div className="absolute top-2 right-2">
-                                        <div className="w-5 h-5 rounded-full bg-primary text-black flex items-center justify-center">
-                                          <Check size={12} strokeWidth={3} />
-                                        </div>
-                                      </div>
-                                    )}
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-ink/40">{plan.name}</span>
-                                    <div className="flex items-baseline gap-0.5">
-                                      <span className="text-[10px] text-ink/40">₹</span>
-                                      <span className={clsx("text-2xl font-black", isSelected ? "text-primary" : "text-ink")}>{plan.discounted_price || plan.price}</span>
-                                    </div>
-                                    <span className="text-[8px] font-bold text-primary uppercase tracking-widest">{plan.duration_days} Days</span>
-                                    {plan.entry_fee > 0 && gym?.is_new_member && isQualifyingPlan(plan) && (
-                                       <div className="text-[8px] text-ink/50 uppercase tracking-widest font-black">
-                                         + ₹{plan.entry_fee} Entry <span className="text-[7px] text-primary">(New)</span>
-                                       </div>
-                                    )}
-                                    {/* Time slots */}
-                                    <div className="flex flex-wrap justify-center gap-1 mt-1">
-                                       {getTimeSlotsFromPlan(plan).map((s: any, i: number) => (
-                                         <span key={i} className={clsx(
-                                           "inline-flex items-center gap-1 text-[9px] font-black rounded-lg px-2 py-0.5 uppercase tracking-wider",
-                                           isSelected 
-                                             ? "text-primary bg-primary/15 border border-primary/30" 
-                                             : "text-ink/50 bg-ink/5 border border-ink/10"
-                                         )}>
-                                           <Clock size={8} />
-                                           {fmtTime(s.start)} - {fmtTime(s.end)}
-                                         </span>
-                                       ))}
-                                    </div>
-                                 </button>
-                               );
-                             })}
-                          </div>
-                       </div>
-                     ))}
-
-                     {/* Add-ons (show if any plans selected and addons exist) */}
-                     {cartPlans.length > 0 && gym.addons?.length > 0 && (
-                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <Package size={14} className="text-primary" />
-                            <span className="text-[11px] font-black uppercase tracking-widest">Add-on Services</span>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                             {gym.addons.map((addon: any) => {
-                               const isAddonSelected = selectedAddons.find((a: any) => a.id === addon.id);
-                               return (
-                                 <div 
-                                   key={addon.id}
-                                   onClick={() => {
-                                     if (isAddonSelected) {
-                                       setSelectedAddons(selectedAddons.filter((a: any) => a.id !== addon.id));
-                                     } else {
-                                       setSelectedAddons([...selectedAddons, addon]);
-                                     }
-                                   }}
-                                   className={clsx(
-                                     "p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                                     isAddonSelected ? "bg-emerald-500/10 border-emerald-500/30" : "bg-ink/5 border-ink/5 hover:border-ink/10"
-                                   )}
-                                 >
-                                    <div className="flex items-center gap-3">
-                                       <div className={clsx("w-5 h-5 rounded-md border flex items-center justify-center transition-all", isAddonSelected ? "bg-emerald-500 border-emerald-500 text-black" : "border-ink/20")}>
-                                         {isAddonSelected && <Check size={12} />}
-                                       </div>
-                                       <div className="flex flex-col">
-                                         <span className="text-[11px] font-black uppercase text-ink">{addon.name}</span>
-                                         <span className="text-[9px] text-ink/40 uppercase tracking-tighter">{addon.duration_type} Access</span>
-                                       </div>
-                                    </div>
-                                    <span className="text-[11px] font-black text-emerald-500">+₹{addon.price}</span>
-                                 </div>
-                               );
-                             })}
-                          </div>
-                       </motion.div>
-                     )}
-
-                     {/* Cart Summary */}
-                     {cartPlans.length > 0 && (
-                       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card p-6 border-primary/30 bg-gradient-to-br from-primary/5 to-transparent relative overflow-hidden">
-                          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                            <Zap size={100} className="text-primary" />
-                          </div>
-                          <div className="relative z-10 space-y-4">
-                             <div className="flex items-center gap-2">
-                               <ShoppingCart size={14} className="text-primary" />
-                               <p className="text-[10px] font-black uppercase text-primary tracking-widest">Your Cart — {cartPlans.length} {cartPlans.length === 1 ? 'Plan' : 'Plans'}</p>
-                             </div>
-                             
-                             {/* Cart Items */}
-                             <div className="space-y-2">
-                               {cartPlans.map(([slot, plan]) => (
-                                 <div key={slot} className="flex items-center justify-between py-2 border-b border-ink/5 last:border-0">
-                                    <div className="flex flex-col">
-                                      <span className="text-[10px] font-black text-ink/40 uppercase tracking-widest">{slot}</span>
-                                      <span className="text-xs font-black italic uppercase tracking-tight">{plan.name}</span>
-                                      <div className="flex items-center gap-1 mt-0.5">
-                                        {getTimeSlotsFromPlan(plan).map((s: any, i: number) => (
-                                          <span key={i} className="text-[8px] font-bold text-primary/80">
-                                            {fmtTime(s.start)}-{fmtTime(s.end)}
-                                          </span>
-                                        ))}
-                                        <span className="text-[8px] text-ink/20 ml-1">• {plan.duration_days}d</span>
-                                        {plan.entry_fee > 0 && gym?.is_new_member && isQualifyingPlan(plan) && (
-                                          <span className="text-[8px] text-primary/60 font-black ml-1">+ ₹{plan.entry_fee} Entry</span>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                      <span className="text-sm font-black text-ink">₹{(plan.discounted_price || plan.price).toLocaleString()}</span>
-                                      <button
-                                        onClick={(e) => { e.stopPropagation(); togglePlanInCart(slot, plan); }}
-                                        className="w-5 h-5 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 transition-colors"
-                                      >
-                                        <X size={10} />
-                                      </button>
-                                    </div>
-                                 </div>
-                               ))}
-                               {selectedAddons.length > 0 && (
-                                 <div className="flex items-center justify-between py-2 border-b border-ink/5">
-                                   <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Add-ons ({selectedAddons.length})</span>
-                                   <span className="text-sm font-black text-emerald-500">+₹{selectedAddons.reduce((s: number, a: any) => s + a.price, 0).toLocaleString()}</span>
-                                 </div>
-                               )}
-                               {gym?.is_new_member && totalEntryFee > 0 && (
-                                 <div className="flex items-center justify-between py-2 border-b border-ink/5">
-                                   <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">Entry Fee (One time)</span>
-                                   <span className="text-sm font-black text-primary/60">+₹{totalEntryFee.toLocaleString()}</span>
-                                 </div>
-                               )}
-                             </div>
-
-                             {/* Total + Submit */}
-                             <div className="flex items-center justify-between pt-4 border-t border-ink/10">
-                                <div>
-                                   <p className="text-[8px] font-black uppercase text-ink/20 tracking-widest">Grand Total</p>
-                                   <p className="text-3xl font-black text-ink italic">₹{cartTotal.toLocaleString()}</p>
-                                </div>
-                                <button 
-                                  onClick={handleApplyMembership}
-                                  disabled={isSubmittingApplication}
-                                  className="h-14 px-8 rounded-xl bg-primary text-black flex items-center gap-2 font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20"
-                                >
-                                   {isSubmittingApplication ? <Loader2 className="animate-spin" size={20} /> : (
-                                     <>Apply Now <ChevronRight size={18} strokeWidth={3} /></>
-                                   )}
-                                </button>
-                             </div>
-                             <p className="text-[8px] text-ink/20 uppercase font-bold tracking-widest flex items-center gap-1">
-                                <Info size={10} /> Instant application. Pay via chosen method at the facility front desk.
-                             </p>
-                          </div>
-                       </motion.div>
-                     )}
-                  </motion.div>
-                )}
-
-                {activeTab === 'gallery' && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {(gym.images || []).map((img: any, idx: number) => (
-                      <div 
-                        key={idx} 
-                        onClick={() => setSelectedImage(img.image_url || img.url)}
-                        className="aspect-square rounded-2xl overflow-hidden glass-card border-none group cursor-pointer"
-                      >
-                        <img src={img.image_url || img.url} alt="gym" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
-
-                {activeTab === 'equipment' && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     <div className="space-y-6">
-                        <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-3"><Dumbbell className="text-primary" size={18} /> Machines</h4>
-                        {gym.equipment?.map((eq: any, idx: number) => (
-                          <div key={idx} className="glass-card p-4 flex justify-between items-center text-[10px] font-black uppercase">
-                            <span className="text-ink/60">{eq.name}</span>
-                            <span className="text-primary">x{eq.quantity || 'Pro'}</span>
-                          </div>
-                        ))}
-                     </div>
-                     <div className="space-y-6">
-                        <h4 className="text-xs font-black uppercase tracking-widest flex items-center gap-3"><Zap className="text-primary" size={18} /> Zones</h4>
-                        {gym.facilities?.map((f: any, idx: number) => (
-                           <div key={idx} className="glass-card p-4 flex items-center gap-3 text-[10px] font-black uppercase">
-                             <CheckCircle2 size={14} className="text-primary" />
-                             <span className="text-ink/60">{f.name}</span>
-                           </div>
-                        ))}
-                     </div>
-                  </motion.div>
-                )}
-
-                {activeTab === 'amenities' && (
-                   <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {gym.amenities?.map((a: any, idx: number) => (
-                      <div key={idx} className="glass-card p-6 flex flex-col items-center gap-3 hover:bg-ink/5 transition-all text-center">
-                        <Wifi size={24} className="text-primary/40" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{a.name}</span>
-                      </div>
-                    ))}
-                   </motion.div>
-                )}
-
-                {activeTab === 'reviews' && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-8">
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                           <div className="w-16 h-16 rounded-2xl bg-ink/5 border border-ink/5 flex flex-col items-center justify-center">
-                              <span className="text-2xl font-black text-primary italic leading-none">{gym.rating_avg?.toFixed(1) || '0.0'}</span>
-                              <span className="text-[8px] font-black opacity-30 uppercase tracking-widest mt-1">Score</span>
-                           </div>
-                           <div className="space-y-1">
-                              <div className="flex gap-1">
-                                {[1,2,3,4,5].map(i => <Star key={i} size={10} className={clsx(i <= Math.round(gym.rating_avg || 0) ? "text-primary fill-primary" : "text-ink/10")} />)}
-                              </div>
-                              <p className="text-[10px] font-black uppercase text-ink/40 tracking-widest">{gym.rating_count || 0} Platform Reviews</p>
-                           </div>
-                        </div>
-
-                        {gym.can_review && !showReviewForm && (
-                           <button 
-                             onClick={() => setShowReviewForm(true)}
-                             className="btn-primary px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
-                           >
-                              <Star size={14} fill="black" /> Write a Review
-                           </button>
-                        )}
-                     </div>
-
-                     {showReviewForm && (
-                        <motion.div 
-                          initial={{ opacity: 0, scale: 0.95 }} 
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="glass-card p-8 border-primary/20 space-y-6 bg-gradient-to-br from-primary/5 to-transparent shadow-2xl"
-                        >
-                           <div className="flex items-center justify-between">
-                              <h4 className="text-sm font-black italic uppercase tracking-widest">Submit Your Feedback</h4>
-                              <button onClick={() => setShowReviewForm(false)} className="text-ink/20 hover:text-ink transition-colors">
-                                 <X size={18} />
-                              </button>
-                           </div>
-
-                           <div className="flex flex-col sm:flex-row gap-8 items-center py-4">
-                              <div className="flex flex-col items-center gap-2">
-                                 <div className="flex gap-2">
-                                    {[1,2,3,4,5].map(i => (
-                                       <button 
-                                          key={i} 
-                                          onClick={() => setNewRating(i)}
-                                          className="hover:scale-110 active:scale-95 transition-transform"
-                                       >
-                                          <Star 
-                                             size={32} 
-                                             className={clsx(i <= newRating ? "text-primary fill-primary" : "text-ink/10")} 
-                                          />
-                                       </button>
-                                    ))}
-                                 </div>
-                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
-                                    {newRating === 5 ? 'Excellent' : newRating === 4 ? 'Great' : newRating === 3 ? 'Good' : newRating === 2 ? 'Fair' : 'Poor'}
-                                 </span>
-                              </div>
-
-                              <div className="flex-1 w-full space-y-4">
-                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Review Title</label>
-                                    <input 
-                                       type="text" 
-                                       placeholder="e.g. Best facility in the city!"
-                                       className="w-full bg-ink/5 border border-ink/5 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all"
-                                       value={newReviewTitle}
-                                       onChange={(e) => setNewReviewTitle(e.target.value)}
-                                    />
-                                 </div>
-                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-ink/40">Details</label>
-                                    <textarea 
-                                       rows={3}
-                                       placeholder="Share your experience with the community..."
-                                       className="w-full bg-ink/5 border border-ink/5 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all resize-none"
-                                       value={newReviewText}
-                                       onChange={(e) => setNewReviewText(e.target.value)}
-                                    />
-                                 </div>
-                                 <div className="flex justify-end gap-3 pt-2">
-                                    <button 
-                                       onClick={() => setShowReviewForm(false)}
-                                       className="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-ink/40 hover:text-ink transition-colors"
-                                    >
-                                       Cancel
-                                    </button>
-                                    <button 
-                                       onClick={handleSubmitReview}
-                                       disabled={isSubmittingReview || !newReviewText.trim()}
-                                       className="btn-primary px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-xl shadow-primary/20"
-                                    >
-                                       {isSubmittingReview ? <Loader2 className="animate-spin" size={14} /> : (
-                                          <><Send size={14} /> Submit Feedback</>
-                                       )}
-                                    </button>
-                                 </div>
-                              </div>
-                           </div>
-                        </motion.div>
-                     )}
-
-                     <div className="space-y-4">
-                        {loadingReviews ? (
-                           <div className="py-20 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
-                        ) : reviews.length > 0 ? reviews.map(rev => (
-                           <div key={rev.id} className="glass-card p-6 space-y-4 group hover:border-ink/10 transition-all">
-                              <div className="flex items-center justify-between">
-                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-ink/10 border border-ink/10 flex items-center justify-center overflow-hidden">
-                                       {rev.avatar_url ? <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" /> : <Building2 size={14} className="text-ink/20" />}
-                                    </div>
-                                    <div className="flex flex-col">
-                                       <span className="text-xs font-black uppercase tracking-tight">{rev.user_name || 'Anonymous Member'}</span>
-                                       <div className="flex items-center gap-2">
-                                          <div className="flex gap-0.5">
-                                             {[1,2,3,4,5].map(i => <Star key={i} size={8} className={clsx(i <= rev.rating ? "text-primary fill-primary" : "text-ink/10")} />)}
-                                          </div>
-                                          {rev.is_verified_member && (
-                                            <span className="flex items-center gap-1 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                                               <CheckCircle2 size={8} /> Verified Member
-                                            </span>
-                                          )}
-                                       </div>
-                                    </div>
-                                 </div>
-                                 <span className="text-[9px] font-bold text-ink/20 uppercase tracking-widest">{new Date(rev.created_at).toLocaleDateString()}</span>
-                              </div>
-                              <div className="space-y-2">
-                                 <h5 className="text-sm font-black italic uppercase tracking-tight text-ink/90">"{rev.title}"</h5>
-                                 <p className="text-sm text-ink/50 leading-relaxed">{rev.review}</p>
-                              </div>
-                              {rev.owner_response && (
-                                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex gap-4">
-                                    <Reply size={16} className="text-primary shrink-0" />
-                                    <div className="space-y-1">
-                                       <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Gym Response</p>
-                                       <p className="text-xs text-ink/70 italic leading-relaxed">"{rev.owner_response}"</p>
-                                    </div>
-                                 </div>
-                              )}
-                           </div>
-                        )) : (
-                           <div className="py-20 flex flex-col items-center justify-center gap-4 text-center opacity-20">
-                              <MessageSquare size={40} />
-                              <p className="text-[10px] font-black uppercase tracking-widest">No community feedback yet</p>
-                           </div>
-                        )}
-                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        {/* Info Sidebar */}
-        <div className="space-y-8">
-           <div className="glass-card p-6 sm:p-8 space-y-8">
-              <div className="space-y-6">
-                 <div className="flex items-center justify-between border-b border-ink/5 pb-4">
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-ink/20">Location</h3>
-                    {distance !== null && (
-                      <div className="px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-[10px] font-black text-primary uppercase">
-                        {distance < 1000 ? `${Math.round(distance)}m` : `${(distance/1000).toFixed(1)}km`} away
-                      </div>
-                    )}
-                 </div>
-                 <div className="space-y-4">
-                    <a 
-                      href={getGoogleMapsUrl(`${gym.addresses?.[0]?.address_line1}, ${gym.city}`, gym.addresses?.[0]?.latitude, gym.addresses?.[0]?.longitude)} 
-                      target="_blank" rel="noopener noreferrer" 
-                      className="flex gap-4 group hover:text-primary transition-colors"
-                    >
-                      <MapPin className="text-primary shrink-0 transition-transform group-hover:scale-110" size={20} />
-                      <p className="text-sm text-ink/60 leading-relaxed font-bold uppercase tracking-tight group-hover:text-ink underline underline-offset-4 decoration-white/10">
-                        {gym.addresses?.[0]?.address_line1}, {gym.city}, {gym.state}
-                      </p>
-                    </a>
-                    {gym.contact_phone && (
-                       <a href={`tel:${gym.contact_phone}`} className="flex items-center gap-4 hover:text-primary transition-colors group p-3 bg-ink/5 rounded-xl border border-ink/5">
-                          <Phone size={14} className="text-primary" />
-                          <span className="text-xs font-bold text-ink uppercase tracking-wider">{gym.contact_phone}</span>
-                       </a>
-                    )}
-                 </div>
+      </Card>
+      {gym.contact_phone ? (
+        <Card padding="md">
+          <a href={`tel:${gym.contact_phone}`} className="flex items-center gap-3">
+            <Phone size={18} className="text-accent" aria-hidden />
+            <Text variant="bodyStrong">{gym.contact_phone}</Text>
+          </a>
+        </Card>
+      ) : null}
+      {gym.operating_hours?.length ? (
+        <Card padding="md">
+          <Text variant="label" tone="subtle">
+            Operating hours
+          </Text>
+          <div className="mt-2 flex flex-col gap-1.5">
+            {gym.operating_hours.map((h: any) => (
+              <div key={h.day_of_week} className="flex justify-between">
+                <Text variant="caption" tone={(new Date().getDay() + 6) % 7 === h.day_of_week ? 'accent' : 'muted'} className="font-semibold">
+                  {String(h.day_name).slice(0, 3)}
+                </Text>
+                <Text variant="caption">{h.is_closed ? 'Closed' : `${h.open_time} - ${h.close_time}`}</Text>
               </div>
-
-              <div className="space-y-6">
-                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-ink/20 border-b border-ink/5 pb-4">Timing</h3>
-                 <div className="space-y-3">
-                    {gym.operating_hours?.map((h: any) => (
-                       <div key={h.day_of_week} className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                          <span className={clsx(new Date().getDay() - 1 === h.day_of_week ? "text-primary" : "text-ink/20")}>
-                            {h.day_name.slice(0, 3)}
-                          </span>
-                          <span className="text-ink/60">{h.is_closed ? 'Closed' : `${h.open_time} - ${h.close_time}`}</span>
-                       </div>
-                    ))}
-                 </div>
-              </div>
-           </div>
-
-           {activeTab !== 'plans' && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => { setActiveTab('plans'); window.scrollTo({ top: 600, behavior: 'smooth' }); }} className="p-8 rounded-[2rem] bg-primary relative overflow-hidden group cursor-pointer shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-ink/20 to-transparent pointer-events-none" />
-                <div className="relative z-10 flex items-center justify-between text-black">
-                   <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Start Today</span>
-                      <h4 className="text-xl font-display font-black italic">BOOK SLOT</h4>
-                   </div>
-                   <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
-                </div>
-             </motion.div>
-           )}
-        </div>
-      </div>
-      
-      {/* Map Implementation (Same as original but premium feel) */}
-      <div className="h-64 rounded-[2.5rem] overflow-hidden border border-ink/5 shadow-2xl relative grayscale hover:grayscale-0 transition-all duration-700">
-         {isLoaded && gym.addresses?.[0]?.latitude ? (
-           <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={{ lat: gym.addresses[0].latitude, lng: gym.addresses[0].longitude }} zoom={15} options={{ styles: darkMapStyles, disableDefaultUI: true, zoomControl: true }}>
-             <MarkerF position={{ lat: gym.addresses[0].latitude, lng: gym.addresses[0].longitude }} icon={{ path: google.maps.SymbolPath.CIRCLE, fillColor: '#ff4d00', fillOpacity: 1, strokeWeight: 2, strokeColor: '#ffffff', scale: 8 }} />
-           </GoogleMap>
-         ) : <div className="absolute inset-0 bg-surface-sunken backdrop-blur-xl flex items-center justify-center font-black uppercase text-[10px] text-white/20 tracking-[0.3em]">Initializing Elite Grid...</div>}
-      </div>
-
-      {/* Lightbox Overlay */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 sm:p-20 cursor-zoom-out"
-          >
-            <motion.img
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              src={selectedImage}
-              alt="Fullscreen Preview"
-              className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl pointer-events-none border border-ink/5"
-            />
-            <button 
-              onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
-              className="absolute top-10 right-10 w-12 h-12 rounded-full bg-ink/10 hover:bg-ink/20 border border-ink/20 flex items-center justify-center transition-all group"
-            >
-              <X className="group-hover:rotate-90 transition-transform duration-500 text-ink" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            ))}
+          </div>
+        </Card>
+      ) : null}
     </div>
   );
-};
 
-export default GymProfile;
+  return (
+    <div className="mx-auto w-full max-w-[1180px] pb-6">
+      <AppBar backTo="/app/discovery" caption="GYM PROFILE" />
+
+      {/* Hero */}
+      <div className="relative mt-2 h-[240px] overflow-hidden rounded-gm-xxl bg-surface-sunken sm:h-[320px]" data-theme="dark">
+        {cover ? <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover" /> : <Building2 size={96} className="absolute inset-0 m-auto text-ink-subtle" aria-hidden />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end gap-4 p-5">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-gm-lg border border-white/20 bg-black/40 backdrop-blur">
+            {gym.logo_url ? <img src={gym.logo_url} alt="" className="h-full w-full object-contain" /> : <Building2 className="text-accent" size={28} aria-hidden />}
+          </span>
+          <div className="min-w-0 flex-1 text-white">
+            <div className="flex flex-wrap items-center gap-2">
+              {gym.is_verified ? <Badge label="Verified partner" tone="accent" /> : null}
+              {occ ? <Badge label={`${occ.label} · ${gym.current_occupancy}/${gym.max_capacity}`} tone={occ.tone} dot /> : null}
+            </div>
+            <h1 className="t-display mt-1 line-clamp-2 text-white">{gym.name}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-white/80">
+              <span className="t-callout inline-flex items-center gap-1">
+                <MapPin size={14} aria-hidden /> {gym.city}
+              </span>
+              <span className="t-caption inline-flex items-center gap-1">
+                <Star size={13} className="fill-rating text-rating" aria-hidden />
+                <b>{gym.rating_avg ? Number(gym.rating_avg).toFixed(1) : 'New'}</b>
+                {gym.rating_count ? <span className="text-white/60">({gym.rating_count})</span> : null}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="sticky top-0 z-10 -mx-4 mt-4 flex gap-2 overflow-x-auto bg-background px-4 py-2 [scrollbar-width:none] lg:mx-0 lg:px-0" role="tablist" aria-label="Gym sections">
+        {TABS.map(t => (
+          <Chip key={t.key} label={t.label} selected={tab === t.key} onClick={() => setTab(t.key)} />
+        ))}
+      </div>
+
+      <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          {tab === 'overview' ? (
+            <>
+              <div className="flex gap-2">
+                <ActionTile icon={ReceiptIndianRupee} label="Plans" onClick={() => setTab('plans')} />
+                <ActionTile icon={Navigation} label="Directions" onClick={directions} />
+                <ActionTile icon={Phone} label="Call" disabled={!gym.contact_phone} onClick={() => (window.location.href = `tel:${gym.contact_phone}`)} />
+                <ActionTile icon={Sparkles} label="Ask Migo" accent onClick={askMigo} />
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <FactTile label="Starting pass" icon={ReceiptIndianRupee} value={lowestPlan ? inr(priceOf(lowestPlan)) : '—'} sub={lowestPlan ? `${lowestPlan.duration_days} days` : undefined} />
+                <FactTile label="Equipment" icon={Dumbbell} value={String(equipment.length)} sub={equipment.length === 1 ? 'station' : 'stations'} />
+                <FactTile label="Hours" icon={Clock} value={gym.is_24_hours ? '24/7' : 'Scheduled'} />
+                <FactTile label="Facilities" icon={LayoutGrid} value={String(facilities.length)} sub={gym.is_verified ? 'verified' : undefined} />
+              </div>
+              {facilities.length ? (
+                <Card padding="lg">
+                  <Text variant="labelSm" tone="accent">
+                    Facilities
+                  </Text>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {facilities.map(f => (
+                      <Badge key={f} label={f} />
+                    ))}
+                  </div>
+                </Card>
+              ) : null}
+              <section>
+                <SectionHeader label="About the facility" />
+                <Text tone="muted" className="mt-2">
+                  {gym.description || 'Welcome to our fitness facility.'}
+                </Text>
+              </section>
+              {equipment.length ? (
+                <Card padding="lg">
+                  <div className="flex items-center justify-between">
+                    <Text variant="subtitle">Flagship hardware loadout</Text>
+                    <button type="button" className="t-label text-accent-text hover:underline" onClick={() => setTab('equipment')}>
+                      See all
+                    </button>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {equipment.slice(0, 6).map((e: any, i: number) => (
+                      <div key={e.id ?? i} className="rounded-gm-md bg-surface-sunken px-3 py-2">
+                        <Text variant="footnote" className="line-clamp-2 font-semibold">
+                          {e.name}
+                        </Text>
+                        {e.quantity ? (
+                          <Text variant="caption" tone="subtle">
+                            ×{e.quantity}
+                          </Text>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ) : null}
+              <div className="lg:hidden">{sidebar}</div>
+            </>
+          ) : null}
+
+          {tab === 'plans' ? (
+            plans.length ? (
+              <div className="flex flex-col gap-6" data-testid="gym-plans">
+                {Object.entries(grouped).map(([slot, list]) => (
+                  <section key={slot}>
+                    <div className="mb-2 flex items-baseline justify-between">
+                      <Text variant="h2">{slot}</Text>
+                      <Text variant="labelSm" tone="subtle">
+                        Pick one
+                      </Text>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {list.map(plan => {
+                        const sel = cart[slot]?.id === plan.id;
+                        return (
+                          <button
+                            key={plan.id}
+                            type="button"
+                            role="checkbox"
+                            aria-checked={sel}
+                            onClick={() => togglePlan(slot, plan)}
+                            className={cn(
+                              'flex flex-col gap-2 rounded-gm-xl border p-4 text-left transition-colors',
+                              sel ? 'border-accent bg-accent-soft' : 'border-border bg-surface hover:border-border-strong',
+                            )}>
+                            <div className="flex items-start justify-between gap-2">
+                              <Text variant="bodyStrong">{plan.name}</Text>
+                              {sel ? <CheckCircle2 size={18} className="shrink-0 text-accent" aria-hidden /> : null}
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                              <span className="t-h2 tabular-nums text-ink">{inr(priceOf(plan))}</span>
+                              {plan.discounted_price && plan.price > plan.discounted_price ? <span className="t-caption text-ink-subtle line-through">{inr(plan.price)}</span> : null}
+                              <span className="t-caption text-ink-subtle">· {plan.duration_days} days</span>
+                            </div>
+                            {plan.entry_fee > 0 && gym.is_new_member && isQualifyingPlan(plan) ? <Text variant="caption" tone="accent">+ {inr(plan.entry_fee)} entry fee (new member)</Text> : null}
+                            <div className="flex flex-wrap gap-1.5">
+                              {timeSlots(plan).map((s, i) => (
+                                <Badge key={i} label={`${fmtTime(s.start)} – ${fmtTime(s.end)}`} />
+                              ))}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ))}
+                {cartPlans.length && gym.addons?.length ? (
+                  <section>
+                    <Text variant="h2" className="mb-2">
+                      Add-ons
+                    </Text>
+                    <div className="flex flex-wrap gap-2">
+                      {gym.addons.map((a: any) => (
+                        <Chip key={a.id} label={`${a.name} · +${inr(a.price)}`} selected={addons.some(x => x.id === a.id)} onClick={() => toggleAddon(a)} />
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+              </div>
+            ) : (
+              <EmptyState icon={Dumbbell} title="No plans listed yet" message="This gym hasn’t published membership plans." />
+            )
+          ) : null}
+
+          {tab === 'insights' ? (
+            statsLoading ? (
+              <Skeleton className="h-60 rounded-gm-xl" />
+            ) : !stats ? (
+              <EmptyState icon={Clock} title="No crowd data yet" message="Check-ins build this chart over time." />
+            ) : (
+              <>
+                <Card padding="lg">
+                  <Text variant="subtitle">Check-ins this week</Text>
+                  <BarChart
+                    className="mt-4"
+                    ariaLabel="Weekly check-ins"
+                    bars={DAYS.map(d => ({ label: d.slice(0, 3), value: Number(stats.weekly_stats?.[d] || 0), highlight: d === statDay }))}
+                  />
+                </Card>
+                <Card padding="lg">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <Text variant="subtitle">Hourly crowd</Text>
+                    <Badge label={`Best time: ${stats.hourly_distribution?.[statDay]?.best_time || '—'}`} tone="success" />
+                  </div>
+                  <div className="-mx-1 mt-3 flex gap-1.5 overflow-x-auto px-1 pb-1">
+                    {DAYS.map(d => (
+                      <Chip key={d} label={d.slice(0, 3)} selected={statDay === d} onClick={() => setStatDay(d)} />
+                    ))}
+                  </div>
+                  <div className="mt-4 flex flex-col gap-2">
+                    {hourly.length ? (
+                      hourly.map(([range, count]) => {
+                        const max = Math.max(1, ...hourly.map(([, v]) => v));
+                        const best = range === stats.hourly_distribution?.[statDay]?.best_time;
+                        return (
+                          <div key={range} className="flex items-center gap-3">
+                            <Text variant="caption" tone={best ? 'success' : 'muted'} className="w-28 shrink-0">
+                              {range}
+                            </Text>
+                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-sunken">
+                              <div className={cn('h-full rounded-full', best ? 'bg-success' : 'bg-accent')} style={{ width: `${Math.max(2, (count / max) * 100)}%` }} />
+                            </div>
+                            <Text variant="caption" className="w-6 text-right tabular-nums">
+                              {count}
+                            </Text>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <Text variant="footnote" tone="muted">
+                        No check-ins recorded for {statDay}.
+                      </Text>
+                    )}
+                  </div>
+                </Card>
+                <Button label="Plan my session with Migo" icon={Sparkles} variant="secondary" onClick={askMigo} />
+              </>
+            )
+          ) : null}
+
+          {tab === 'photos' ? (
+            photos.length ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {photos.map((url, i) => (
+                  <button key={url + i} type="button" onClick={() => setLightbox(url)} className="aspect-square overflow-hidden rounded-gm-lg bg-surface-sunken">
+                    <img src={url} alt={`${gym.name} photo ${i + 1}`} className="h-full w-full object-cover transition-transform hover:scale-105" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No photos yet" message="The gym hasn’t uploaded photos." />
+            )
+          ) : null}
+
+          {tab === 'amenities' ? (
+            amenities.length ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {amenities.map(a => (
+                  <Card key={a} padding="md" className="flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-success" aria-hidden />
+                    <Text variant="footnote" className="font-semibold">
+                      {a}
+                    </Text>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No amenities listed" />
+            )
+          ) : null}
+
+          {tab === 'equipment' ? (
+            equipment.length ? (
+              <Card padding="none" className="px-4">
+                {equipment.map((e: any, i: number) => (
+                  <div key={e.id ?? i} className={cn('flex items-center gap-3 py-3', i < equipment.length - 1 && 'border-b border-border')}>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-gm-md bg-surface-sunken">
+                      <Dumbbell size={16} aria-hidden />
+                    </span>
+                    <Text variant="bodyStrong" className="flex-1">
+                      {e.name}
+                    </Text>
+                    {e.quantity ? <Badge label={`×${e.quantity}`} /> : null}
+                  </div>
+                ))}
+              </Card>
+            ) : (
+              <EmptyState icon={Dumbbell} title="No equipment listed" />
+            )
+          ) : null}
+
+          {tab === 'reviews' ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Text variant="h2">{gym.rating_avg ? Number(gym.rating_avg).toFixed(1) : '—'}</Text>
+                  <Stars value={Math.round(gym.rating_avg || 0)} />
+                  <Text variant="caption" tone="subtle">
+                    {gym.rating_count || 0} reviews
+                  </Text>
+                </div>
+                {gym.can_review ? <Button label="Write a review" size="sm" icon={MessageSquarePlus} onClick={() => setReviewOpen(true)} /> : null}
+              </div>
+              {reviewsLoading ? (
+                <Skeleton className="h-28 rounded-gm-xl" />
+              ) : reviews.length ? (
+                reviews.map(r => (
+                  <Card key={r.id} padding="lg">
+                    <div className="flex items-center gap-2">
+                      <Text variant="bodyStrong" className="flex-1 truncate">
+                        {r.user_name || 'Anonymous member'}
+                      </Text>
+                      {r.is_verified_member ? <Badge label="Verified member" tone="success" /> : null}
+                      <Text variant="caption" tone="subtle">
+                        {r.created_at ? new Date(r.created_at).toLocaleDateString() : ''}
+                      </Text>
+                    </div>
+                    <Stars value={r.rating} size={12} />
+                    {r.title ? <Text variant="subtitle" className="mt-2">{r.title}</Text> : null}
+                    <Text tone="muted" className="mt-1">
+                      {r.review}
+                    </Text>
+                    {r.owner_response ? (
+                      <div className="mt-3 rounded-gm-md bg-surface-sunken p-3">
+                        <Text variant="labelSm" tone="accent">
+                          Response from the gym
+                        </Text>
+                        <Text variant="footnote" className="mt-1">
+                          {r.owner_response}
+                        </Text>
+                      </div>
+                    ) : null}
+                  </Card>
+                ))
+              ) : (
+                <EmptyState icon={Star} title="No reviews yet" message="Members who train here can leave the first one." />
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        <aside className="hidden lg:block">
+          <div className="sticky top-[128px]">{sidebar}</div>
+        </aside>
+      </div>
+
+      {/* Cart bar */}
+      <div className="sticky bottom-[84px] z-20 mt-6 rounded-gm-xl border border-border bg-surface/95 px-4 py-3 shadow-raised backdrop-blur md:bottom-4">
+        <div className="mx-auto flex max-w-[1180px] items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <Text variant="labelSm" tone="subtle">
+              {cartPlans.length ? `${cartPlans.length} plan${cartPlans.length > 1 ? 's' : ''} selected` : 'Starting from'}
+            </Text>
+            <Text variant="h2" tone="accent" className="tabular-nums">
+              {cartPlans.length ? inr(total) : lowestPlan ? inr(priceOf(lowestPlan)) : '—'}
+            </Text>
+          </div>
+          {cartPlans.length ? (
+            <Button label="Proceed" iconRight={ArrowRight} onClick={() => setCheckout('review')} />
+          ) : (
+            <Button label="Choose plan" variant="secondary" iconRight={ArrowRight} onClick={() => setTab('plans')} />
+          )}
+        </div>
+      </div>
+
+      {/* Checkout */}
+      <Sheet
+        open={checkout != null}
+        onClose={() => (checkout === 'done' ? navigate('/app/memberships') : setCheckout(null))}
+        eyebrow={checkout === 'done' ? 'Request sent' : checkout === 'payment' ? 'Step 2 of 2' : 'Step 1 of 2'}
+        title={checkout === 'done' ? 'Waiting for the gym' : checkout === 'payment' ? 'Payment' : 'Review your pass'}
+        footer={
+          checkout === 'done' ? (
+            <div className="flex flex-col gap-2">
+              <Button label="View my memberships" fullWidth to="/app/memberships" />
+              <Button label="Back to home" variant="ghost" fullWidth to="/app/dashboard" />
+            </div>
+          ) : checkout === 'payment' ? (
+            <Button label="Confirm & send" iconRight={ArrowRight} loading={submitting} fullWidth onClick={submitCart} />
+          ) : (
+            <Button label="Continue" iconRight={ArrowRight} fullWidth onClick={() => setCheckout('payment')} />
+          )
+        }>
+        {checkout === 'done' ? (
+          <div className="flex flex-col items-center gap-3 py-4 text-center">
+            <CheckCircle2 size={48} className="text-success" aria-hidden />
+            <Text variant="title">{cartPlans.length} plan(s) submitted</Text>
+            <Text tone="muted">{gym.name} will approve your request. Pay at the front desk; your pass activates once approved.</Text>
+          </div>
+        ) : checkout === 'payment' ? (
+          <div className="flex flex-col gap-3" role="radiogroup" aria-label="Payment method">
+            <SelectableCard icon={Banknote} title="Cash" description="Pay at the facility after the gym approves." selected onSelect={() => undefined} />
+            <SelectableCard icon={CreditCard} title="Online" description="Pay securely online." badge="Coming soon" disabled onSelect={() => undefined} />
+            <Text variant="caption" tone="subtle">
+              Total due at the desk: {inr(total)}
+            </Text>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <Card variant="sunken" padding="md" className="flex items-center gap-3">
+              <Building2 size={20} className="text-accent" aria-hidden />
+              <div className="min-w-0">
+                <Badge label="Partner facility" tone="accent" />
+                <Text variant="title" className="mt-1 truncate">
+                  {gym.name}
+                </Text>
+              </div>
+            </Card>
+            <Text variant="title">Order summary</Text>
+            {cartPlans.map(([slot, p]) => (
+              <div key={slot} className="flex items-start justify-between gap-3 border-b border-border pb-2">
+                <div className="min-w-0">
+                  <Text variant="bodyStrong">{p.name}</Text>
+                  <Text variant="caption" tone="subtle">
+                    {slot} · {p.duration_days} days · {timeSlots(p).map(s => `${fmtTime(s.start)}–${fmtTime(s.end)}`).join(', ')}
+                  </Text>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Text variant="bodyStrong" className="tabular-nums">
+                    {inr(priceOf(p))}
+                  </Text>
+                  <button type="button" aria-label={`Remove ${p.name}`} onClick={() => togglePlan(slot, p)} className="text-ink-subtle hover:text-danger">
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {addons.map(a => (
+              <div key={a.id} className="flex justify-between">
+                <Text variant="footnote">
+                  {a.name} <span className="text-ink-subtle">· Add-on</span>
+                </Text>
+                <Text variant="footnote">+{inr(a.price)}</Text>
+              </div>
+            ))}
+            {entryFee ? (
+              <div className="flex justify-between">
+                <Text variant="footnote">
+                  Entry fee <span className="text-ink-subtle">· One time</span>
+                </Text>
+                <Text variant="footnote">+{inr(entryFee)}</Text>
+              </div>
+            ) : null}
+            <div className="flex items-center justify-between border-t border-border pt-3">
+              <Text variant="title">Total</Text>
+              <Text variant="h1" tone="accent" className="tabular-nums">
+                {inr(total)}
+              </Text>
+            </div>
+          </div>
+        )}
+      </Sheet>
+
+      {/* Review */}
+      <Sheet open={reviewOpen} onClose={() => setReviewOpen(false)} eyebrow={gym.name} title="Write a review" footer={<Button label="Submit review" loading={reviewSaving} disabled={!reviewText.trim()} fullWidth onClick={submitReview} />}>
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-1" role="radiogroup" aria-label="Rating">
+            {[1, 2, 3, 4, 5].map(i => (
+              <button key={i} type="button" role="radio" aria-checked={rating === i} aria-label={`${i} stars`} onClick={() => setRating(i)}>
+                <Star size={30} className={i <= rating ? 'fill-rating text-rating' : 'text-ink-subtle'} />
+              </button>
+            ))}
+          </div>
+          <TextField label="Title" placeholder="e.g. Best facility in the city!" value={reviewTitle} onChange={e => setReviewTitle(e.target.value)} />
+          <TextArea label="Your review" rows={4} value={reviewText} onChange={e => setReviewText(e.target.value)} />
+        </div>
+      </Sheet>
+
+      {/* Lightbox */}
+      {lightbox ? (
+        <div role="dialog" aria-label="Photo" className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 p-4" onClick={() => setLightbox(null)}>
+          <button type="button" aria-label="Close photo" className="absolute right-4 top-4 text-white" onClick={() => setLightbox(null)}>
+            <X size={28} />
+          </button>
+          <img src={lightbox} alt="" className="max-h-full max-w-full rounded-gm-lg object-contain" />
+        </div>
+      ) : null}
+    </div>
+  );
+}

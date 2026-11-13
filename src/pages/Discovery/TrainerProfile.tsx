@@ -1,678 +1,409 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import api from '../../utils/api';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Star, Calendar, ArrowLeft,
-  Shield, Award, CheckCircle2, Globe, Home,
-  Building2, User, Users, Dumbbell,
-  Timer, BadgeCheck, Languages,
-  Image as ImageIcon, Package, MessageCircle
-} from 'lucide-react';
-import clsx from 'clsx';
-import PageLoader from '../../components/PageLoader';
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { Award, BadgeCheck, CalendarCheck, CheckCircle2, Clock, Home, Languages, MapPin, Star, Users, Video } from 'lucide-react';
+import { AppBar, Avatar, Badge, Button, Card, EmptyState, ErrorState, ProgressSteps, SectionHeader, Sheet, Skeleton, StatTile, Text, TextArea, cn, useToast } from '../../components/kit';
+import { discoveryApi } from '../../api/discovery';
+import { getApiErrorMessage } from '../../utils/api';
+
+/* eslint-disable @typescript-eslint/no-explicit-any -- trainer payloads are untyped */
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const inr = (n: number) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
+const fmtDay = (iso: string, opts: Intl.DateTimeFormatOptions) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', opts);
 
-
-
-const TrainerProfile = () => {
-  const { trainerId } = useParams();
-  const navigate = useNavigate();
-  const [trainer, setTrainer] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
-  const [showBooking, setShowBooking] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [reviewsMeta, setReviewsMeta] = useState<{ total: number; avg_rating: number }>({ total: 0, avg_rating: 0 });
-
-  useEffect(() => {
-    const fetchTrainer = async () => {
-      try {
-        const res = await api.get(`/trainers/${trainerId}`);
-        setTrainer(res.data);
-      } catch (err) {
-        console.error('Failed to fetch trainer:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTrainer();
-
-    // Fetch reviews
-    const fetchReviews = async () => {
-      try {
-        const res = await api.get(`/trainer-bookings/reviews/${trainerId}`);
-        setReviews(res.data.data?.reviews || []);
-        setReviewsMeta({
-          total: res.data.data?.total || 0,
-          avg_rating: res.data.data?.avg_rating || 0,
-        });
-      } catch (err) {
-        console.error('Failed to fetch reviews:', err);
-      }
-    };
-    fetchReviews();
-  }, [trainerId]);
-
-  if (loading) return <PageLoader message="Loading trainer profile..." />;
-  if (!trainer) return (
-    <div className="text-center py-20 space-y-4">
-      <User size={48} className="mx-auto text-ink/20" />
-      <h2 className="text-2xl font-bold">Trainer Not Found</h2>
-      <button onClick={() => navigate(-1)} className="btn-primary px-6 py-2">Go Back</button>
-    </div>
-  );
-
-  const sessionPrice = trainer.single_session_charges || trainer.hourly_rate || 0;
-
-  return (
-    <div className="space-y-10 max-w-5xl mx-auto pb-32">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-ink/40 hover:text-ink transition-colors group"
-      >
-        <ArrowLeft size={16} />
-        <span className="text-xs font-bold uppercase tracking-widest">Back to Explore</span>
-      </button>
-
-      {/* ── Hero Section ─────────────────────────────────────────── */}
-      <div className="glass-card p-8 md:p-10 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px]" />
-        
-        <div className="relative flex flex-col md:flex-row gap-8 items-start">
-          {/* Avatar */}
-          <div className="w-28 h-28 md:w-36 md:h-36 rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/20 flex items-center justify-center overflow-hidden shrink-0">
-            {trainer.avatar_url ? (
-              <img src={trainer.avatar_url} alt={trainer.full_name} className="w-full h-full object-cover" />
-            ) : (
-              <User size={60} className="text-primary/40" />
-            )}
-          </div>
-
-          <div className="flex-1 space-y-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl md:text-4xl font-display font-black tracking-tighter italic uppercase">
-                  {trainer.full_name || 'Pro Trainer'}
-                </h1>
-                {trainer.verification_status === 'verified' && (
-                  <BadgeCheck size={24} className="text-blue-400 shrink-0" />
-                )}
-              </div>
-              {trainer.bio && (
-                <p className="text-ink/50 text-sm leading-relaxed max-w-xl">{trainer.bio}</p>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {trainer.specializations?.map((spec: string) => (
-                <span key={spec} className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest">
-                  {spec.replace(/_/g, ' ')}
-                </span>
-              ))}
-            </div>
-
-            {/* Meta Row */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-              <div className="flex items-center gap-2">
-                <Star size={16} className="text-primary fill-primary" />
-                <span className="font-black text-lg">{trainer.rating_avg?.toFixed(1) || '—'}</span>
-                <span className="text-[10px] text-ink/30 font-bold">({trainer.rating_count} reviews)</span>
-              </div>
-              {trainer.experience_years && (
-                <div className="flex items-center gap-2 text-ink/50 text-sm">
-                  <Timer size={14} />
-                  <span className="font-bold">{trainer.experience_years} yrs experience</span>
-                </div>
-              )}
-              {trainer.total_clients > 0 && (
-                <div className="flex items-center gap-2 text-ink/50 text-sm">
-                  <Users size={14} />
-                  <span className="font-bold">{trainer.total_clients} clients</span>
-                </div>
-              )}
-              {trainer.languages_spoken && trainer.languages_spoken.length > 0 && (
-                <div className="flex items-center gap-2 text-ink/50 text-sm">
-                  <Languages size={14} />
-                  <span className="font-bold">{trainer.languages_spoken.join(', ')}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Availability Modes */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              {trainer.is_available_offline && (
-                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 flex items-center gap-1.5">
-                  <Building2 size={10} /> In-Gym
-                </span>
-              )}
-              {trainer.is_available_online && (
-                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border text-blue-400 bg-blue-500/10 border-blue-500/20 flex items-center gap-1.5">
-                  <Globe size={10} /> Online
-                </span>
-              )}
-              {trainer.accepts_home_visits && (
-                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border text-purple-400 bg-purple-500/10 border-purple-500/20 flex items-center gap-1.5">
-                  <Home size={10} /> Home Visits
-                  {trainer.travel_distance_km && <span className="text-ink/30">({trainer.travel_distance_km}km)</span>}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── Left Column ────────────────────────────────────────── */}
-        <div className="lg:col-span-2 space-y-10">
-          {/* Certifications */}
-          {trainer.certifications && trainer.certifications.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Award size={20} className="text-primary" /> Certifications
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {trainer.certifications.map((cert: any) => (
-                  <div key={cert.id} className="glass-card p-4 flex items-center gap-3 group hover:border-ink/10 transition-colors">
-                    <div className={clsx(
-                      "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                      cert.is_verified ? "bg-blue-500/10 border border-blue-500/20" : "bg-ink/5 border border-ink/10"
-                    )}>
-                      {cert.is_verified ? <Shield size={18} className="text-blue-400" /> : <Award size={18} className="text-ink/30" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-sm truncate">{cert.name}</p>
-                      <p className="text-[10px] text-ink/30 font-bold">{cert.issued_by}
-                        {cert.issue_year && ` • ${cert.issue_year}`}
-                      </p>
-                    </div>
-                    {cert.is_verified && (
-                      <CheckCircle2 size={14} className="text-blue-400 shrink-0 ml-auto" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Weekly Availability */}
-          {trainer.availability && trainer.availability.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Calendar size={20} className="text-primary" /> Weekly Schedule
-              </h2>
-              <div className="glass-card p-6 space-y-3">
-                {DAY_NAMES.map((day, idx) => {
-                  const avail = trainer.availability.find((a: any) => a.day_of_week === idx);
-                  return (
-                    <div key={day} className="flex items-center justify-between py-2 border-b border-ink/5 last:border-b-0">
-                      <span className="text-sm font-bold w-28">{day}</span>
-                      {avail && avail.is_available ? (
-                        <div className="flex items-center gap-4">
-                          <span className="text-sm text-emerald-400 font-bold">{avail.start_time} — {avail.end_time}</span>
-                          <span className={clsx(
-                            "text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
-                            avail.session_type === 'online' ? "text-blue-400 bg-blue-500/10 border-blue-500/20" :
-                            avail.session_type === 'offline' ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" :
-                            "text-primary bg-primary/10 border-primary/20"
-                          )}>
-                            {avail.session_type}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-ink/20 font-bold">Unavailable</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Gallery */}
-          {trainer.gallery && trainer.gallery.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <ImageIcon size={20} className="text-primary" /> Portfolio
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {trainer.gallery.map((img: any) => (
-                  <div key={img.id} className="aspect-square rounded-2xl overflow-hidden bg-ink/5 border border-ink/10 group cursor-pointer">
-                    <img src={img.image_url} alt={img.caption || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Reviews */}
-          {reviews.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <MessageCircle size={20} className="text-primary" /> Reviews
-                </h2>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <Star size={14} className="text-primary fill-primary" />
-                    <span className="text-sm font-black">{reviewsMeta.avg_rating?.toFixed(1)}</span>
-                  </div>
-                  <span className="text-[10px] text-ink/30 font-bold">({reviewsMeta.total} reviews)</span>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {reviews.slice(0, 5).map((rev: any) => (
-                  <div key={rev.id} className="glass-card p-5 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-ink/5 border border-ink/10 flex items-center justify-center overflow-hidden">
-                          {rev.avatar_url ? (
-                            <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <User size={14} className="text-ink/20" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-bold text-sm">{rev.user_name || 'Member'}</p>
-                            {rev.is_verified_client && (
-                              <span className="text-[7px] font-bold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/20 uppercase tracking-widest">
-                                Verified
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1 mt-0.5">
-                            {[1,2,3,4,5].map(i => (
-                              <Star key={i} size={9} className={i <= rev.rating ? 'text-primary fill-primary' : 'text-ink/10'} />
-                            ))}
-                            <span className="text-[8px] text-ink/20 ml-1">
-                              {new Date(rev.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {rev.title && <p className="text-xs font-bold italic text-ink/70">"{rev.title}"</p>}
-                    {rev.review && <p className="text-xs text-ink/40 leading-relaxed">{rev.review}</p>}
-                    {rev.trainer_response && (
-                      <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 mt-1">
-                        <p className="text-[9px] font-bold text-primary uppercase tracking-widest mb-0.5">Trainer Response</p>
-                        <p className="text-[11px] text-ink/50">{rev.trainer_response}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Right Column: Pricing & Packages ───────────────────── */}
-        <div className="space-y-6">
-          {/* Quick Pricing */}
-          <div className="glass-card p-6 space-y-4 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent sticky top-24">
-            <h3 className="text-lg font-bold flex items-center gap-2">
-              <Dumbbell size={18} className="text-primary" /> Pricing
-            </h3>
-            
-            <div className="space-y-3">
-              {sessionPrice > 0 && (
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-ink/60">Per Session</span>
-                  <span className="text-xl font-black text-primary">₹{sessionPrice.toLocaleString()}</span>
-                </div>
-              )}
-              {trainer.hourly_rate && (
-                <div className="flex items-center justify-between py-2 border-t border-ink/5">
-                  <span className="text-sm text-ink/60">Hourly Rate</span>
-                  <span className="text-lg font-black">₹{trainer.hourly_rate.toLocaleString()}</span>
-                </div>
-              )}
-              {trainer.monthly_charges && (
-                <div className="flex items-center justify-between py-2 border-t border-ink/5">
-                  <span className="text-sm text-ink/60">Monthly</span>
-                  <span className="text-lg font-black text-emerald-400">₹{trainer.monthly_charges.toLocaleString()}</span>
-                </div>
-              )}
-              {trainer.charges_negotiable && (
-                <p className="text-[10px] text-primary/60 font-bold uppercase tracking-widest">• Negotiable</p>
-              )}
-            </div>
-
-            <button 
-              disabled
-              className="w-full bg-ink/5 border border-ink/10 text-ink/20 py-4 text-sm font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed"
-            >
-              Booking Coming Soon
-            </button>
-          </div>
-
-          {/* Training Packages */}
-          {trainer.packages && trainer.packages.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-lg font-bold flex items-center gap-2">
-                <Package size={18} className="text-primary" /> Packages
-              </h3>
-              <div className="space-y-3">
-                {trainer.packages.map((pkg: any) => (
-                  <div
-                    key={pkg.id}
-                    onClick={() => setSelectedPackage(pkg.id === selectedPackage?.id ? null : pkg)}
-                    className={clsx(
-                      "glass-card p-5 cursor-pointer transition-all",
-                      selectedPackage?.id === pkg.id ? "border-primary/50 bg-primary/5" : "hover:border-ink/10"
-                    )}
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold">{pkg.name}</h4>
-                          {pkg.is_popular && (
-                            <span className="text-[8px] font-black bg-primary/20 text-primary px-2 py-0.5 rounded-full uppercase">Popular</span>
-                          )}
-                        </div>
-                        <p className="text-[10px] text-ink/30 font-bold uppercase tracking-widest mt-1">
-                          {pkg.total_sessions} sessions • {pkg.validity_days} days
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        {pkg.discounted_price ? (
-                          <>
-                            <p className="text-xs text-ink/30 line-through">₹{pkg.price.toLocaleString()}</p>
-                            <p className="text-xl font-black text-emerald-400">₹{pkg.discounted_price.toLocaleString()}</p>
-                          </>
-                        ) : (
-                          <p className="text-xl font-black">₹{pkg.price.toLocaleString()}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {pkg.description && (
-                      <p className="text-[11px] text-ink/40 mb-3">{pkg.description}</p>
-                    )}
-
-                    <div className="flex flex-wrap gap-2">
-                      {pkg.includes_diet_plan && (
-                        <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Diet Plan</span>
-                      )}
-                      {pkg.includes_progress_tracking && (
-                        <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Progress Tracking</span>
-                      )}
-                      {pkg.allows_rescheduling && (
-                        <span className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">Rescheduling</span>
-                      )}
-                    </div>
-
-                    {selectedPackage?.id === pkg.id && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="mt-4 pt-4 border-t border-ink/5"
-                      >
-                        <button
-                          disabled
-                          className="w-full bg-ink/5 border border-ink/10 text-ink/20 py-3 text-xs font-black uppercase tracking-widest cursor-not-allowed"
-                        >
-                          Booking Coming Soon
-                        </button>
-                      </motion.div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Booking Modal ────────────────────────────────────────── */}
-      <AnimatePresence>
-        {showBooking && (
-          <BookingFlow
-            trainer={trainer}
-            selectedPackage={selectedPackage}
-            onClose={() => setShowBooking(false)}
-          />
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   BOOKING FLOW MODAL
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-interface BookingFlowProps {
-  trainer: any;
-  selectedPackage: any;
-  onClose: () => void;
-}
-
-const BookingFlow = ({ trainer, selectedPackage, onClose }: BookingFlowProps) => {
-  const navigate = useNavigate();
+/** Package booking: start date → notes → review → success (POST /trainer-bookings/bookings). */
+function BookingSheet({ trainer, pkg, open, onClose }: { trainer: any; pkg: any | null; open: boolean; onClose: () => void }) {
+  const toast = useToast();
   const [step, setStep] = useState(1);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [date, setDate] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const pkg = selectedPackage;
+  const [dates] = useState(() =>
+    Array.from({ length: 14 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      return d.toISOString().split('T')[0];
+    }),
+  );
+  useEffect(() => {
+    if (open) {
+      setStep(1);
+      setDate('');
+      setNotes('');
+    }
+  }, [open]);
+  const amount = pkg ? pkg.discounted_price || pkg.price : trainer.single_session_charges || trainer.hourly_rate || 0;
 
-  // Generate next 14 days
-  const dates = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    return d.toISOString().split('T')[0];
-  });
-
-  const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
-  };
-
-  const handleSubmit = async () => {
+  const submit = async () => {
     setSubmitting(true);
     try {
-      await api.post(`/trainer-bookings/bookings`, {
-        trainer_id: trainer.id,
-        package_id: pkg?.id || null,
-        start_date: selectedDate,
-        user_notes: notes?.trim() || undefined,
-      });
-      setStep(4); // Success
-    } catch (err: any) {
-      console.error('Booking failed:', err);
-      alert(err.response?.data?.detail || 'Booking failed');
+      await discoveryApi.bookTrainer({ trainer_id: trainer.id, package_id: pkg?.id || null, start_date: date, user_notes: notes.trim() || undefined } as any);
+      setStep(4);
+    } catch (err) {
+      toast({ tone: 'error', title: 'Booking failed', message: getApiErrorMessage(err) });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const totalAmount = pkg
-    ? (pkg.discounted_price || pkg.price)
-    : (trainer.single_session_charges || trainer.hourly_rate || 0);
+  const titles = ['Pick a start date', 'Goals & notes', 'Review & confirm', 'Request sent'];
+  const footer =
+    step === 4 ? (
+      <Button label="Back to Home" fullWidth to="/app/dashboard" />
+    ) : step === 3 ? (
+      <Button label="Confirm booking" loading={submitting} fullWidth onClick={submit} />
+    ) : (
+      <Button label="Continue" disabled={step === 1 && !date} fullWidth onClick={() => setStep(step + 1)} />
+    );
 
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-xl z-50 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.9, y: 40 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.9, y: 40 }}
-          className="w-full max-w-lg glass-card p-0 overflow-hidden max-h-[90vh] overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="p-6 border-b border-ink/5 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-display font-black tracking-tighter italic uppercase">Buy Training Plan</h2>
-              <p className="text-xs text-ink/40 mt-1">with {trainer.full_name}</p>
+    <Sheet open={open} onClose={onClose} eyebrow={pkg ? pkg.name : 'Single session'} title={titles[step - 1]} footer={footer}>
+      {step < 4 ? <ProgressSteps total={3} current={step} className="mb-4" /> : null}
+      {step === 1 ? (
+        <div className="grid grid-cols-4 gap-2 sm:grid-cols-7" role="radiogroup" aria-label="Start date">
+          {dates.map(d => {
+            const on = date === d;
+            return (
+              <button
+                key={d}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => setDate(d)}
+                className={cn('flex flex-col items-center rounded-gm-md border py-2', on ? 'border-selection bg-selection text-on-selection' : 'border-border bg-surface text-ink hover:border-border-strong')}>
+                <span className="t-label-sm">{fmtDay(d, { weekday: 'short' })}</span>
+                <span className="t-h2">{fmtDay(d, { day: 'numeric' })}</span>
+                <span className="t-caption opacity-70">{fmtDay(d, { month: 'short' })}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : step === 2 ? (
+        <TextArea label="Goals & notes" rows={4} placeholder="e.g. Knee-friendly leg work, prefer mornings" value={notes} onChange={e => setNotes(e.target.value)} />
+      ) : step === 3 ? (
+        <Card variant="sunken" padding="md" className="flex flex-col gap-2">
+          {[
+            ['Coach', trainer.full_name],
+            ['Plan', pkg ? pkg.name : 'Single session'],
+            ['Starts', date ? fmtDay(date, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }) : '—'],
+            ...(pkg ? [['Sessions', `${pkg.total_sessions} · valid ${pkg.validity_days} days`]] : []),
+            ...(notes.trim() ? [['Notes', notes.trim()]] : []),
+          ].map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-3">
+              <Text variant="footnote" tone="muted">
+                {k}
+              </Text>
+              <Text variant="footnote" className="text-right font-semibold">
+                {v}
+              </Text>
             </div>
-            <div className="flex items-center gap-2">
-              {[1, 2, 3].map(s => (
-                <div key={s} className={clsx(
-                  "w-8 h-1 rounded-full transition-all",
-                  step >= s ? "bg-primary" : "bg-ink/10"
-                )} />
-              ))}
-            </div>
+          ))}
+          <div className="flex items-center justify-between border-t border-border pt-2">
+            <Text variant="title">Total</Text>
+            <Text variant="h2" tone="accent">
+              {inr(amount)}
+            </Text>
           </div>
-
-          <div className="p-6 space-y-6">
-            {step === 1 && (
-              /* ── Step 1: Select Date ──────────────────────────────── */
-              <div className="space-y-6">
-                <div>
-                  <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-3">Plan Start Date</p>
-                  <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                    {dates.map(date => {
-                      const d = new Date(date);
-                      const isSelected = selectedDate === date;
-                      return (
-                        <button
-                          key={date}
-                          onClick={() => handleDateSelect(date)}
-                          className={clsx(
-                            "flex flex-col items-center px-4 py-3 rounded-xl border transition-all shrink-0 min-w-[60px]",
-                            isSelected ? "bg-primary/10 border-primary/30 text-primary" : "bg-ink/5 border-ink/10 text-ink/50 hover:border-ink/20"
-                          )}
-                        >
-                          <span className="text-[10px] font-black uppercase">{d.toLocaleDateString('en', { weekday: 'short' })}</span>
-                          <span className="text-lg font-black">{d.getDate()}</span>
-                          <span className="text-[9px] font-bold text-ink/30">{d.toLocaleDateString('en', { month: 'short' })}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="glass-card border-dashed p-4 text-sm text-ink/40 leading-relaxed">
-                  You’re activating a session pack here. Individual session dates and trainer approval happen after purchase.
-                </div>
-
-                <button
-                  disabled={!selectedDate}
-                  onClick={() => setStep(2)}
-                  className="w-full btn-primary py-3 text-sm font-black uppercase tracking-widest disabled:opacity-30"
-                >
-                  Continue
-                </button>
-              </div>
-            )}
-
-            {step === 2 && (
-              /* ── Step 2: Session Details ──────────────────────────── */
-              <div className="space-y-6">
-                <div className="glass-card border-dashed p-4 text-sm text-ink/40 leading-relaxed">
-                  Session type, location, and exact time are collected when you request each session from your active balance.
-                </div>
-
-                <div>
-                  <p className="text-[10px] font-black text-ink/30 uppercase tracking-widest mb-2">Notes for Trainer (optional)</p>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any goals or context for this plan..."
-                    className="w-full bg-ink/5 border border-ink/10 rounded-xl px-4 py-3 text-sm text-ink placeholder:text-ink/20 focus:border-primary/50 outline-none resize-none"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <button onClick={() => setStep(1)} className="flex-1 py-3 rounded-xl border border-ink/10 text-ink/40 font-bold text-sm hover:bg-ink/5 transition-colors">Back</button>
-                  <button
-                    onClick={() => setStep(3)}
-                    className="flex-1 btn-primary py-3 text-sm font-black uppercase tracking-widest disabled:opacity-30"
-                  >
-                    Review
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              /* ── Step 3: Review & Confirm ─────────────────────────── */
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="bg-ink/5 rounded-xl p-4 space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-ink/40">Trainer</span>
-                      <span className="font-bold">{trainer.full_name}</span>
-                    </div>
-                    <div className="flex justify-between text-sm border-t border-ink/5 pt-2">
-                      <span className="text-ink/40">Date</span>
-                      <span className="font-bold">{new Date(selectedDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
-                    </div>
-                    {pkg && (
-                      <div className="flex justify-between text-sm border-t border-ink/5 pt-2">
-                        <span className="text-ink/40">Package</span>
-                        <span className="font-bold">{pkg.name}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-sm border-t border-ink/5 pt-2">
-                      <span className="text-ink/40">Session Booking</span>
-                      <span className="font-bold text-primary">Requested Later</span>
-                    </div>
-                  </div>
-
-                  <div className="bg-gradient-to-r from-primary/10 to-transparent border border-primary/20 rounded-xl p-4 flex items-center justify-between">
-                    <span className="text-sm font-bold">Total Amount</span>
-                    <span className="text-2xl font-black text-primary">₹{totalAmount.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <button onClick={() => setStep(2)} className="flex-1 py-3 rounded-xl border border-ink/10 text-ink/40 font-bold text-sm hover:bg-ink/5 transition-colors">Back</button>
-                  <button
-                    disabled={submitting}
-                    onClick={handleSubmit}
-                    className="flex-1 btn-primary py-3 text-sm font-black uppercase tracking-widest disabled:opacity-50"
-                  >
-                    {submitting ? 'Activating...' : 'Activate Plan'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 4 && (
-              /* ── Step 4: Success ─────────────────────────────────── */
-              <div className="text-center space-y-6 py-8">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
-                  className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center mx-auto"
-                >
-                  <CheckCircle2 size={40} className="text-emerald-400" />
-                </motion.div>
-                <div>
-                  <h3 className="text-2xl font-display font-black tracking-tighter italic uppercase">PLAN ACTIVATED!</h3>
-                  <p className="text-ink/40 text-sm mt-2 max-w-xs mx-auto">
-                    Your session balance with {trainer.full_name} is ready. You can now request individual sessions and the trainer will confirm each one.
-                  </p>
-                </div>
-                <button
-                  onClick={() => { onClose(); navigate('/app/dashboard'); }}
-                  className="btn-primary py-3 px-8 text-sm font-black uppercase tracking-widest"
-                >
-                  Back to Dashboard
-                </button>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </motion.div>
-    </>
+        </Card>
+      ) : (
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <CheckCircle2 size={48} className="text-success" aria-hidden />
+          <Text tone="muted">{trainer.full_name} will confirm your booking. You’ll see it on Home once it’s accepted.</Text>
+        </div>
+      )}
+    </Sheet>
   );
-};
+}
 
-export default TrainerProfile;
+/** Trainer profile: hero, stats, certifications, availability, portfolio, reviews, pricing & packages, booking. */
+export default function TrainerProfile() {
+  const { trainerId = '' } = useParams();
+  const [params] = useSearchParams();
+  const [trainer, setTrainer] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [meta, setMeta] = useState({ total: 0, avg_rating: 0 });
+  const [booking, setBooking] = useState<{ pkg: any | null } | null>(null);
+  const [wantBook] = useState(() => params.get('book') === '1');
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      setTrainer(await discoveryApi.trainer(trainerId));
+    } catch (err) {
+      console.error('Failed to fetch trainer:', err);
+      setTrainer(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    void load();
+    discoveryApi
+      .trainerReviews(trainerId)
+      .then(d => {
+        setReviews(d?.reviews || []);
+        setMeta({ total: d?.total || 0, avg_rating: d?.avg_rating || 0 });
+      })
+      .catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trainerId]);
+  useEffect(() => {
+    if (wantBook && trainer) setBooking({ pkg: trainer.packages?.find((p: any) => p.is_popular) ?? trainer.packages?.[0] ?? null });
+  }, [wantBook, trainer]);
+
+  if (loading)
+    return (
+      <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-4">
+        <Skeleton className="h-40 rounded-gm-xxl" />
+        <Skeleton className="h-60 rounded-gm-xl" />
+      </div>
+    );
+  if (!trainer)
+    return (
+      <div className="mx-auto w-full max-w-[720px] py-10">
+        <ErrorState title="Trainer not found." onRetry={load} />
+      </div>
+    );
+
+  const specs: string[] = trainer.specializations || [];
+  const packages: any[] = trainer.packages || [];
+  const gallery: any[] = trainer.gallery || [];
+  const certs: any[] = trainer.certifications || [];
+  const pricing = [
+    trainer.single_session_charges ? ['Single session', inr(trainer.single_session_charges)] : null,
+    trainer.hourly_rate ? ['Hourly', `${inr(trainer.hourly_rate)}/hr`] : null,
+    trainer.monthly_charges ? ['Monthly', `${inr(trainer.monthly_charges)}/mo`] : null,
+  ].filter(Boolean) as [string, string][];
+  const modes = [
+    trainer.is_available_online ? { icon: Video, label: 'Online' } : null,
+    trainer.is_available_offline ? { icon: MapPin, label: 'In person' } : null,
+    trainer.accepts_home_visits ? { icon: Home, label: `Home visits${trainer.travel_distance_km ? ` · ${trainer.travel_distance_km} km` : ''}` } : null,
+  ].filter(Boolean) as { icon: typeof Video; label: string }[];
+
+  return (
+    <div className="mx-auto w-full max-w-[1080px] pb-10">
+      <AppBar backTo="/app/discovery" caption="COACH PROFILE" />
+      <div className="mt-2 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <Card padding="lg">
+            <div className="flex items-center gap-4">
+              <Avatar name={trainer.full_name} src={trainer.avatar_url} size={80} />
+              <div className="min-w-0 flex-1">
+                <Text variant="labelSm" tone="accent">
+                  Performance coach
+                </Text>
+                <div className="flex items-center gap-2">
+                  <Text variant="h1" className="truncate">
+                    {trainer.full_name}
+                  </Text>
+                  {trainer.verification_status === 'verified' ? <BadgeCheck size={20} className="shrink-0 text-info" aria-label="Verified" /> : null}
+                </div>
+                <div className="mt-1 flex items-center gap-1">
+                  <Star size={14} className="fill-rating text-rating" aria-hidden />
+                  <Text variant="callout" className="font-bold">
+                    {trainer.rating_avg ? Number(trainer.rating_avg).toFixed(1) : '—'}
+                  </Text>
+                  <Text variant="caption" tone="subtle">
+                    ({trainer.rating_count || meta.total} reviews)
+                  </Text>
+                </div>
+              </div>
+            </div>
+            {specs.length ? (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {specs.map(s => (
+                  <Badge key={s} label={s} tone="accent" />
+                ))}
+              </div>
+            ) : null}
+            {trainer.bio ? (
+              <Text tone="muted" className="mt-4">
+                {trainer.bio}
+              </Text>
+            ) : null}
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <StatTile label="Experience" value={trainer.experience_years ?? 0} unit="yrs" icon={Award} />
+              <StatTile label="Clients" value={trainer.total_clients ?? 0} icon={Users} />
+              <StatTile label="Rating" value={trainer.rating_avg ? Number(trainer.rating_avg).toFixed(1) : '—'} icon={Star} />
+            </div>
+            {modes.length || trainer.languages_spoken?.length ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {modes.map(m => (
+                  <Badge key={m.label} label={m.label} />
+                ))}
+                {trainer.languages_spoken?.length ? (
+                  <span className="t-caption inline-flex items-center gap-1 text-ink-muted">
+                    <Languages size={13} aria-hidden /> {trainer.languages_spoken.join(', ')}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </Card>
+
+          {certs.length ? (
+            <section>
+              <SectionHeader label="Certifications" />
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {certs.map(c => (
+                  <Card key={c.id} padding="md" className="flex items-center gap-3">
+                    <Award size={20} className="shrink-0 text-accent" aria-hidden />
+                    <div className="min-w-0 flex-1">
+                      <Text variant="bodyStrong" className="truncate">
+                        {c.name}
+                      </Text>
+                      <Text variant="caption" tone="subtle">
+                        {[c.issued_by, c.issue_year].filter(Boolean).join(' · ')}
+                      </Text>
+                    </div>
+                    {c.is_verified ? <Badge label="Verified" tone="success" /> : null}
+                  </Card>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {trainer.availability?.length ? (
+            <section>
+              <SectionHeader label="Weekly availability" />
+              <Card padding="none" className="mt-2 px-4">
+                {DAY_NAMES.map((day, idx) => {
+                  const a = trainer.availability.find((x: any) => x.day_of_week === idx);
+                  return (
+                    <div key={day} className={cn('flex items-center justify-between py-2.5', idx < 6 && 'border-b border-border')}>
+                      <Text variant="footnote" className="font-semibold">
+                        {day}
+                      </Text>
+                      {a ? (
+                        <Text variant="footnote" tone="success" className="inline-flex items-center gap-1 font-semibold">
+                          <Clock size={13} aria-hidden /> {a.start_time} — {a.end_time}
+                        </Text>
+                      ) : (
+                        <Text variant="footnote" tone="subtle">
+                          Off
+                        </Text>
+                      )}
+                    </div>
+                  );
+                })}
+              </Card>
+            </section>
+          ) : null}
+
+          {gallery.length ? (
+            <section>
+              <SectionHeader label="Portfolio" />
+              <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {gallery.map(img => (
+                  <figure key={img.id} className="overflow-hidden rounded-gm-lg bg-surface-sunken">
+                    <img src={img.image_url} alt={img.caption || ''} className="aspect-square w-full object-cover" loading="lazy" />
+                    {img.caption ? <figcaption className="t-caption px-2 py-1 text-ink-muted">{img.caption}</figcaption> : null}
+                  </figure>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <section>
+            <SectionHeader label="Reviews" meta={meta.total ? `${meta.avg_rating ? Number(meta.avg_rating).toFixed(1) : '—'} · ${meta.total}` : undefined} />
+            <div className="mt-2 flex flex-col gap-2">
+              {reviews.length ? (
+                reviews.slice(0, 5).map(r => (
+                  <Card key={r.id} padding="md">
+                    <div className="flex items-center gap-2">
+                      <Avatar name={r.user_name} src={r.avatar_url} size={32} />
+                      <Text variant="bodyStrong" className="flex-1 truncate">
+                        {r.user_name || 'Member'}
+                      </Text>
+                      {r.is_verified_client ? <Badge label="Client" tone="success" /> : null}
+                      <Text variant="caption" tone="subtle">
+                        {r.created_at ? new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''}
+                      </Text>
+                    </div>
+                    <div className="mt-1 flex gap-0.5" aria-label={`${r.rating} out of 5`}>
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <Star key={i} size={12} className={i <= r.rating ? 'fill-rating text-rating' : 'text-ink-subtle'} aria-hidden />
+                      ))}
+                    </div>
+                    {r.title ? <Text variant="subtitle" className="mt-1">{r.title}</Text> : null}
+                    {r.review ? <Text variant="footnote" tone="muted">{r.review}</Text> : null}
+                    {r.trainer_response ? (
+                      <div className="mt-2 rounded-gm-md bg-surface-sunken p-2">
+                        <Text variant="labelSm" tone="accent">
+                          Coach’s reply
+                        </Text>
+                        <Text variant="footnote">{r.trainer_response}</Text>
+                      </div>
+                    ) : null}
+                  </Card>
+                ))
+              ) : (
+                <EmptyState compact icon={Star} title="No reviews yet" message="Clients can review after their sessions." />
+              )}
+            </div>
+          </section>
+        </div>
+
+        <aside className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
+          <Card padding="lg">
+            <Text variant="label" tone="subtle">
+              Pricing
+            </Text>
+            <div className="mt-2 flex flex-col gap-1.5">
+              {pricing.length ? (
+                pricing.map(([k, v]) => (
+                  <div key={k} className="flex justify-between">
+                    <Text variant="footnote" tone="muted">
+                      {k}
+                    </Text>
+                    <Text variant="bodyStrong">{v}</Text>
+                  </div>
+                ))
+              ) : (
+                <Text variant="footnote" tone="muted">
+                  Pricing on request
+                </Text>
+              )}
+              {trainer.charges_negotiable ? <Badge label="Negotiable" tone="info" /> : null}
+            </div>
+            <Button className="mt-4" label="Book a session" icon={CalendarCheck} fullWidth onClick={() => setBooking({ pkg: null })} />
+          </Card>
+          {packages.length ? (
+            <section className="flex flex-col gap-2">
+              <Text variant="label" tone="subtle">
+                Packages
+              </Text>
+              {packages.map(p => (
+                <Card key={p.id} padding="lg" variant={p.is_popular ? 'accent' : 'surface'} data-testid="trainer-package">
+                  <div className="flex items-start justify-between gap-2">
+                    <Text variant="title">{p.name}</Text>
+                    {p.is_popular ? <Badge label="Popular" tone="accent" /> : null}
+                  </div>
+                  {p.description ? (
+                    <Text variant="footnote" tone="muted" className="mt-1">
+                      {p.description}
+                    </Text>
+                  ) : null}
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="t-h2 text-ink">{inr(p.discounted_price || p.price)}</span>
+                    {p.discounted_price && p.price > p.discounted_price ? <span className="t-caption text-ink-subtle line-through">{inr(p.price)}</span> : null}
+                  </div>
+                  <Text variant="caption" tone="subtle">
+                    {p.total_sessions} sessions · valid {p.validity_days} days
+                  </Text>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {p.includes_diet_plan ? <Badge label="Diet plan" /> : null}
+                    {p.includes_progress_tracking ? <Badge label="Progress tracking" /> : null}
+                    {p.allows_rescheduling ? <Badge label="Rescheduling" /> : null}
+                  </div>
+                  <Button className="mt-3" label="Book this package" size="md" fullWidth variant={p.is_popular ? 'primary' : 'secondary'} onClick={() => setBooking({ pkg: p })} />
+                </Card>
+              ))}
+            </section>
+          ) : null}
+        </aside>
+      </div>
+      <BookingSheet trainer={trainer} pkg={booking?.pkg ?? null} open={booking != null} onClose={() => setBooking(null)} />
+    </div>
+  );
+}
