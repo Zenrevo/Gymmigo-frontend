@@ -190,3 +190,10 @@ This is everything the gym-owner and trainer parts of the web portal do today. T
   - today's AI recommendations from `GET /ai/recommendations`;
   - checkout confirmation;
   - the "Check-in failed" state.
+
+## Phase B status
+
+- Rebuilt on the kit, no `<Legacy>`: owner home (`src/pages/Owner/OwnerHome.tsx`), gym manage shell (`GymManageDashboard.tsx`: compact header, mobile section switcher, sidebar owns desktop nav), Add gym (sentence-case steps), trainer dashboard (`?tab=` routing).
+- All 14 gym tabs and the trainer modals moved to tokens; `Modal` → kit `Sheet`, confirms → kit `ConfirmDialog`. Every endpoint above is still called from the same place.
+- Verified against the local backend: `e2e/owner.spec.ts` signs up a new owner, lists a gym through the UI, then opens all 13 sidebar sections.
+- Screenshots in this folder: `<page>-<desktop|mobile>-<light|dark>.png`.

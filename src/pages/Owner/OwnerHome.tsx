@@ -100,10 +100,7 @@ export default function OwnerHome() {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <SectionHeader label="Insights" />
-        <GymOwnerInsights gyms={gyms} />
-      </section>
+      <GymOwnerInsights gyms={gyms} />
 
       {isOwner && (reviewsQ.data?.length ?? 0) > 0 ? (
         <section className="space-y-3">

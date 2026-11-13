@@ -156,7 +156,7 @@ const AddGymPage = () => {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12 pb-20">
+    <div className="max-w-4xl mx-auto space-y-8 pb-20">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <button 
@@ -166,7 +166,7 @@ const AddGymPage = () => {
           <div className="w-8 h-8 rounded-lg bg-surface-raised border border-border flex items-center justify-center group-hover:border-accent-border">
             <ArrowLeft size={16} />
           </div>
-          <span className="text-sm font-bold uppercase tracking-widest">Dashboard</span>
+          <span className="text-sm font-bold">Dashboard</span>
         </button>
 
         <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide">
@@ -176,17 +176,17 @@ const AddGymPage = () => {
                 <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold ${step === i + 1 ? 'border-accent' : 'border-border'}`}>
                    {i + 1}
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider block">{s.title}</span>
+                <span className="t-caption font-semibold block">{s.title}</span>
               </div>
-              {i < steps.length - 1 && <div className="w-4 sm:w-8 h-px bg-surface-raised" />}
+              {i < steps.length - 1 && <div className="w-4 sm:w-8 h-px bg-border" />}
             </div>
           ))}
         </div>
       </div>
 
       <div className="space-y-4">
-        <h1 className="text-5xl sm:text-6xl font-display font-extrabold tracking-tight text-accent-text">
-          LIST YOUR GYM
+        <h1 className="t-h2 text-ink">
+          List your gym
         </h1>
         <p className="text-ink-muted max-w-lg">
           Complete the steps below to create a high-quality listing that attracts its first members today.
@@ -205,7 +205,7 @@ const AddGymPage = () => {
             >
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Gym Name</label>
+                  <label className="t-label text-ink-muted ml-1">Gym Name</label>
                   <div className="relative">
                     <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-subtle" size={20} />
                     <input 
@@ -220,7 +220,7 @@ const AddGymPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">About the Gym</label>
+                  <label className="t-label text-ink-muted ml-1">About the Gym</label>
                   <textarea 
                     placeholder="Tell your future members what makes your gym special..."
                     rows={4}
@@ -233,7 +233,7 @@ const AddGymPage = () => {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Contact Person Name</label>
+                    <label className="t-label text-ink-muted ml-1">Contact Person Name</label>
                     <input 
                       type="text"
                       placeholder="e.g. Rahul Sharma"
@@ -244,7 +244,7 @@ const AddGymPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Established Year</label>
+                    <label className="t-label text-ink-muted ml-1">Established Year</label>
                     <input 
                       type="number"
                       placeholder="2024"
@@ -257,7 +257,7 @@ const AddGymPage = () => {
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Contact Phone</label>
+                    <label className="t-label text-ink-muted ml-1">Contact Phone</label>
                     <div className="relative flex items-center">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
                         <Phone className="text-ink-subtle" size={18} />
@@ -275,7 +275,7 @@ const AddGymPage = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Contact Email</label>
+                    <label className="t-label text-ink-muted ml-1">Contact Email</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-subtle" size={18} />
                       <input 
@@ -298,7 +298,7 @@ const AddGymPage = () => {
                   disabled={!formData.name || !formData.description || !formData.contact_phone}
                   className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-10 flex items-center gap-3 disabled:opacity-50"
                 >
-                  Next Step
+                  Next
                   <ArrowRight size={20} />
                 </button>
               </div>
@@ -315,7 +315,7 @@ const AddGymPage = () => {
             >
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Gym Location</label>
+                  <label className="t-label text-ink-muted ml-1">Gym Location</label>
                   <button
                     type="button"
                     onClick={() => setIsMapOpen(true)}
@@ -331,23 +331,23 @@ const AddGymPage = () => {
                         </span>
                         {formData.address_line1 ? (
                            <div className="flex items-center gap-2">
-                             <span className="text-[10px] bg-accent-soft text-accent-text px-2 py-0.5 rounded font-bold tracking-widest uppercase">Verified Location</span>
+                             <span className="text-[10px] bg-accent-soft text-accent-text px-2 py-0.5 rounded font-semibold">Verified location</span>
                              <span className="text-[10px] text-ink-muted">{formData.city}, {formData.pincode}</span>
                            </div>
                         ) : (
-                           <span className="text-[10px] text-ink-subtle uppercase tracking-widest font-bold">100% Accurate Pincode Identification</span>
+                           <span className="text-[10px] text-ink-subtle font-bold">100% Accurate Pincode Identification</span>
                         )}
                       </div>
                     </div>
                     <div className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-4 text-[10px] h-fit">
-                      {formData.address_line1 ? 'CHANGE' : 'OPEN MAP'}
+                      {formData.address_line1 ? 'Change' : 'Open map'}
                     </div>
                   </button>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-6 pt-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-ink-muted uppercase tracking-widest ml-1">Max Capacity</label>
+                    <label className="t-label text-ink-muted ml-1">Max Capacity</label>
                     <input 
                       type="number"
                       placeholder="50"
@@ -364,7 +364,7 @@ const AddGymPage = () => {
                      >
                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-ink transition-all ${formData.is_24_hours ? 'left-7' : 'left-1'}`} />
                      </button>
-                     <span className="text-sm font-bold uppercase tracking-wider">OPEN 24 HOURS</span>
+                     <span className="text-sm font-bold">Open 24 hours</span>
                   </div>
                 </div>
               </div>
@@ -374,7 +374,7 @@ const AddGymPage = () => {
                   <ArrowLeft size={16} /> Back
                 </button>
                 <button type="button" onClick={nextStep} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-10 flex items-center gap-3">
-                  Amenities & Facilities <ArrowRight size={20} />
+                  Next <ArrowRight size={20} />
                 </button>
               </div>
             </motion.div>
@@ -390,7 +390,7 @@ const AddGymPage = () => {
             >
               <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8">
                 <div className="space-y-4">
-                  <h3 className="text-xl font-bold tracking-tight">AMENITIES</h3>
+                  <h3 className="text-xl font-bold tracking-tight">Amenities</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {PRESET_AMENITIES.map((amenity) => (
                       <button
@@ -404,7 +404,7 @@ const AddGymPage = () => {
  }`}
                       >
                         <amenity.icon size={28} />
-                        <span className="text-xs font-bold uppercase tracking-widest">{amenity.name}</span>
+                        <span className="text-xs font-bold">{amenity.name}</span>
                       </button>
                     ))}
                   </div>
@@ -414,8 +414,8 @@ const AddGymPage = () => {
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold tracking-tight">FACILITIES</h3>
-                    <button type="button" onClick={addFacility} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 uppercase tracking-widest">
+                    <h3 className="text-xl font-bold tracking-tight">Facilities</h3>
+                    <button type="button" onClick={addFacility} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1">
                       <Plus size={14} /> Add Facility
                     </button>
                   </div>
@@ -428,7 +428,7 @@ const AddGymPage = () => {
                         </button>
                         <div className="grid sm:grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Facility Name</label>
+                            <label className="text-[10px] font-bold text-ink-muted">Facility Name</label>
                             <input 
                               placeholder="e.g. Swimming Pool"
                               className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
@@ -437,7 +437,7 @@ const AddGymPage = () => {
                             />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Quantity</label>
+                            <label className="text-[10px] font-bold text-ink-muted">Quantity</label>
                             <input 
                               type="number"
                               className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
@@ -447,7 +447,7 @@ const AddGymPage = () => {
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Short Description</label>
+                          <label className="text-[10px] font-bold text-ink-muted">Short Description</label>
                           <input 
                             placeholder="e.g. Olympic-sized 25m pool with 4 lanes"
                             className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none placeholder:text-ink-subtle"
@@ -462,11 +462,11 @@ const AddGymPage = () => {
               </div>
 
               <div className="flex justify-between items-center bg-surface-raised p-8 rounded-gm-xl border border-border">
-                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
+                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors text-sm font-semibold">
                   <ArrowLeft size={16} /> Back
                 </button>
                 <button type="button" onClick={nextStep} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-12 flex items-center gap-3">
-                  Step 4: Equipment <ArrowRight size={20} />
+                  Next <ArrowRight size={20} />
                 </button>
               </div>
             </motion.div>
@@ -482,8 +482,8 @@ const AddGymPage = () => {
             >
               <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 sm:p-10 space-y-8">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-display font-extrabold tracking-tight">EQUIPMENT INVENTORY</h3>
-                  <button type="button" onClick={addEquipment} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 uppercase tracking-widest">
+                  <h3 className="text-xl font-bold tracking-tight">Equipment</h3>
+                  <button type="button" onClick={addEquipment} className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1">
                     <Plus size={14} /> Add Equipment
                   </button>
                 </div>
@@ -495,7 +495,7 @@ const AddGymPage = () => {
                         <Trash2 size={14} />
                       </button>
                       <div className="sm:col-span-2 space-y-1">
-                        <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Machine Name</label>
+                        <label className="text-[10px] font-bold text-ink-muted">Machine Name</label>
                         <input 
                           placeholder="e.g. Curved Treadmill"
                           className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
@@ -504,7 +504,7 @@ const AddGymPage = () => {
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Category</label>
+                        <label className="text-[10px] font-bold text-ink-muted">Category</label>
                         <select 
                           className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
                           value={eq.category}
@@ -516,7 +516,7 @@ const AddGymPage = () => {
                         </select>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">Quantity</label>
+                        <label className="text-[10px] font-bold text-ink-muted">Quantity</label>
                         <input 
                           type="number"
                           className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent outline-none"
@@ -537,17 +537,17 @@ const AddGymPage = () => {
               {error && <p className="text-danger text-sm text-center bg-danger-soft py-4 rounded-gm-lg border border-danger/30">{error}</p>}
 
               <div className="flex justify-between items-center bg-surface-raised p-10 rounded-gm-xl border border-border">
-                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors uppercase font-bold text-xs tracking-widest">
+                <button type="button" onClick={prevStep} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors text-sm font-semibold">
                   <ArrowLeft size={16} /> Back
                 </button>
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-5 px-16 flex items-center gap-3 font-display text-lg"
+                  className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-4 px-10 flex items-center gap-3"
                 >
                   {isLoading ? <Loader2 className="animate-spin" /> : (
                     <>
-                      FINAL SUBMISSION
+                      List my gym
                       <Check size={24} />
                     </>
                   )}

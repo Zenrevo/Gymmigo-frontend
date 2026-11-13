@@ -1,3 +1,5 @@
+import { pickOwnerGym } from '../../api/owner';
+import type { OwnerGym } from '../../types/owner';
 import { useEffect } from 'react';
 import { Outlet, useLocation, NavLink, Link } from 'react-router-dom';
 import {
@@ -31,7 +33,8 @@ const sections = [
 
 const GymManageDashboard = () => {
   const location = useLocation();
-  const { gym, loading, error, gymId, refetch } = useGym();
+  const { gym: gymPayload, loading, error, gymId, refetch } = useGym();
+  const gym = pickOwnerGym(gymPayload) as (OwnerGym & { logo_url?: string | null }) | undefined;
   const { showNotification } = useNotification();
 
   // ── Global WebSockets for Live Updates ─────────────────────────────────────
@@ -126,7 +129,7 @@ const GymManageDashboard = () => {
           <Text variant="h2" as="h1" truncate>{gym.name}</Text>
           <Text variant="caption" tone="subtle" className="font-mono" truncate>ID {String(gym.id).slice(0, 8).toUpperCase()}</Text>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex w-full flex-wrap gap-1.5 md:w-auto">
           <Badge label={gym.is_verified ? 'Verified' : 'Unverified'} tone={gym.is_verified ? 'info' : 'warning'} />
           <Badge label={gym.is_active === false ? 'Inactive' : 'Active'} tone={gym.is_active === false ? 'danger' : 'success'} dot />
         </div>
