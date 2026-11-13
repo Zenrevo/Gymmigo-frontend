@@ -109,3 +109,15 @@ export function awaitingTopUp(p: Pick<Program, 'status' | 'days'> | undefined, t
   const until = addDaysIso(today, 3);
   return p.days.some(d => !d.removed && d.type !== 'rest' && !d.recommendation_id && d.date >= today && d.date <= until);
 }
+
+/** "3 workouts · 1 rest" for a week of program days. */
+export function weekSummary(days: ProgramDay[]) {
+  const count = (t: string) => days.filter(d => d.type === t).length;
+  return [
+    count('workout') ? `${count('workout')} workout${count('workout') > 1 ? 's' : ''}` : null,
+    count('diet') ? `${count('diet')} meal plan${count('diet') > 1 ? 's' : ''}` : null,
+    count('rest') ? `${count('rest')} rest` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}

@@ -14,7 +14,7 @@ const unwrap = <T,>(body: Envelope<T> | T): T =>
 
 /** Backend error code (`{ error: { code } }` or FastAPI `detail.error.code`). */
 export function apiErrorCode(error: unknown): string | null {
-  const data = (error as AxiosError<any>)?.response?.data;
+  const data = (error as AxiosError<{ error?: { code?: string }; detail?: { error?: { code?: string } } }>)?.response?.data;
   return data?.error?.code || data?.detail?.error?.code || null;
 }
 

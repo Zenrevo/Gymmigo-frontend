@@ -36,8 +36,7 @@ import SessionDetail from './pages/Dashboard/SessionDetail';
 import Profile from './pages/Profile/Profile';
 import WalletTransactionsPage from './pages/Profile/WalletTransactionsPage';
 import GymmigoClubsPage from './pages/Clubs/GymmigoClubsPage';
-import CalendarPage from './pages/Dashboard/CalendarPage';
-import AssistantPage from './pages/Assistant/AssistantPage';
+import { migoRoutes } from './routes/migoRoutes';
 import AddGymPage from './pages/Dashboard/AddGymPage';
 import GymManageDashboard from './pages/Dashboard/GymManageDashboard';
 import OverviewTab from './pages/Dashboard/gym-tabs/OverviewTab';
@@ -120,9 +119,8 @@ const AppRoutes = () => (
       <Route path="profile" element={<L><Profile /></L>} />
       <Route path="wallet-transactions" element={<L><WalletTransactionsPage /></L>} />
       <Route path="clubs" element={<L><GymmigoClubsPage /></L>} />
-      <Route path="calendar" element={<L><CalendarPage /></L>} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
-      <Route path="assistant" element={<L><AssistantPage /></L>} />
+      {migoRoutes}
       <Route path="activity/*" element={<WebSoon title="Activity" message="Your runs, walks and rides with maps and splits are arriving on the web shortly. Track new activities in the Gymmigo app." />} />
       <Route path="run-together/*" element={<WebSoon title="Run together" />} />
       <Route path="people/*" element={<WebSoon title="People" />} />
