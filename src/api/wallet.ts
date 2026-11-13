@@ -13,9 +13,11 @@ export const emptyWallet = (): LoyaltyWallet => ({
 export type WalletPage = { wallet: LoyaltyWallet; transactions: WalletTransaction[] };
 
 export const walletApi = {
-  async me(): Promise<LoyaltyWallet> {
+  /** GET /wallet/me → { wallet, recent_transactions }. */
+  async me(): Promise<{ wallet: LoyaltyWallet; recent_transactions: WalletTransaction[] }> {
     const res = await api.get('/wallet/me');
-    return res.data?.data || emptyWallet();
+    const d = res.data?.data || {};
+    return { wallet: d.wallet || emptyWallet(), recent_transactions: d.recent_transactions || [] };
   },
   async transactions(limit: number, offset = 0): Promise<WalletPage> {
     const res = await api.get('/wallet/me/transactions', { params: { limit, offset } });

@@ -1,1081 +1,509 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { clsx } from 'clsx';
-import api, { getApiErrorMessage } from '../../utils/api';
-import { useAuth } from '../../context/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { QRCodeSVG } from 'qrcode.react';
 import {
-  Phone,
-  MapPin,
-  Save,
-  Plus,
-  Trash2,
-  Shield,
-  Mail,
-  Calendar,
-  UserCircle,
-  Sparkles,
-  X,
-  User,
-  Dumbbell,
+  Activity,
   Building2,
-  ChevronRight,
-  CheckCircle2,
+  Camera,
+  CreditCard,
+  FileText,
+  Flame,
+  HelpCircle,
+  LogOut,
+  MapPin,
+  Pencil,
+  QrCode,
+  Repeat,
+  Search,
+  Shield,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  Trash2,
   Trophy,
+  UserCog,
+  UserPlus,
+  Users,
   Wallet,
+  Watch,
+  type LucideIcon,
 } from 'lucide-react';
-import ImageUpload from '../../components/ImageUpload';
-import { useNotification } from '../../context/NotificationContext';
-import MapPickerModal from '../../components/MapPickerModal';
-import PremiumFitCard from '../../components/social/PremiumFitCard';
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  IconButton,
+  ListGroup,
+  ListItem,
+  SegmentedControl,
+  Sheet,
+  Skeleton,
+  Text,
+  cn,
+  confirmDialog,
+  useToast,
+} from '../../components/kit';
+import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../theme/themeContext';
+import type { ThemePreference } from '../../theme/theme';
+import { profileApi } from '../../api/profile';
+import { getApiErrorMessage } from '../../utils/api';
+import {
+  profileKeys,
+  useAddresses,
+  useFitnessCard,
+  useFitnessProfile,
+  useMyMemberships,
+  useProfileMe,
+  useSocialCounts,
+  useWallet,
+} from '../../hooks/useProfileQueries';
+import { FitCardPass, fitnessQrPayload, pickFitnessCardCode } from '../../components/profile/FitCardPass';
+import { AddressesSheet, EMPTY_FITNESS, EditProfileSheet, MigoSetupSheet, humanize, type FitnessProfile } from './ProfileSheets';
 
-// ─── AI Personalization Constants ─────────────────────────────────────────────
-const DIET_OPTIONS = [
-  { key: 'veg', label: '🥦 Veg' },
-  { key: 'non_veg', label: '🍗 Non-Veg' },
-  { key: 'eggetarian', label: '🥚 Eggetarian' },
-  { key: 'vegan', label: '🌱 Vegan' },
-];
+/* eslint-disable @typescript-eslint/no-explicit-any -- profile/membership payloads are untyped */
 
-const GOAL_OPTIONS = [
-  { key: 'weight_loss', label: 'Weight Loss' },
-  { key: 'muscle_gain', label: 'Muscle Gain' },
-  { key: 'endurance', label: 'Endurance' },
-  { key: 'flexibility', label: 'Flexibility' },
-  { key: 'general_fitness', label: 'General Fitness' },
-];
-
-const ACTIVITY_LEVEL_OPTIONS = [
-  { key: 'sedentary', label: 'Sedentary' },
-  { key: 'lightly_active', label: 'Lightly Active' },
-  { key: 'moderately_active', label: 'Moderately Active' },
-  { key: 'very_active', label: 'Very Active' },
-  { key: 'extra_active', label: 'Extra Active' },
-];
-
-const EXPERIENCE_OPTIONS = [
-  { key: 'beginner', label: 'Beginner' },
-  { key: 'intermediate', label: 'Intermediate' },
-  { key: 'advanced', label: 'Advanced' },
-];
-
-const ALLERGY_PRESETS = ['Gluten', 'Dairy', 'Nuts', 'Soy', 'Shellfish', 'Eggs'];
-const INJURY_PRESETS = ['Lower Back', 'Knee', 'Shoulder', 'Wrist', 'Ankle', 'Neck', 'Hip'];
-const CONDITION_PRESETS = ['Diabetes', 'Hypertension', 'Thyroid', 'PCOS', 'Asthma', 'Heart Condition'];
-const DURATION_OPTIONS = [30, 45, 60, 90];
-const DAYS_OPTIONS = [3, 4, 5, 6];
-
-type SelectorOption = {
-  key: string;
-  label: string;
-};
-
-type AccountRole = {
-  role: string;
-  is_completed?: boolean;
-};
-
-type MemberProfile = {
-  avatar_url?: string;
-  full_name?: string;
-  email?: string;
-  date_of_birth?: string | null;
-  gender?: string | null;
-  city?: string;
-  bio?: string;
-  [key: string]: string | number | boolean | null | undefined;
-};
-
-type FitnessProfile = {
-  primary_goal: string | null;
-  activity_level: string | null;
-  experience_level: string | null;
-  height: number | null;
-  current_weight: number | null;
-  target_weight: number | null;
-  dietary_preference: string | null;
-  food_allergies: string[];
-  injuries: string[];
-  medical_conditions: string[];
-  preferred_workout_duration: number | null;
-  workout_days_per_week: number | null;
-  notes_for_agent: string;
-  [key: string]: string | number | string[] | null;
-};
-
-type AddressEntry = {
-  id: string;
-  label?: string;
-  address_line1?: string;
-  city?: string;
-  state?: string;
-  pincode?: string;
-  latitude?: number | null;
-  longitude?: number | null;
-  is_primary?: boolean;
-};
-
-type DashboardStats = {
-  streak?: number;
-  competition?: {
-    total_points?: number;
-  };
-};
-
-type ClubSummary = {
-  fitcard?: {
-    current_streak?: number;
-    total_points?: number;
-    title?: string;
-  };
-  clubs?: { name?: string }[];
-  badges?: unknown[];
-};
-
-type MembershipSummary = {
-  gym_id?: string;
-  status?: string;
-};
-
-const ROLE_META = {
-  user: {
-    label: 'Member',
-    description: 'Book gyms, follow plans, and build your FitCard progress.',
-    icon: User,
-    accent: 'border-blue-400/20 bg-blue-500/10 text-blue-300',
-  },
-  trainer: {
-    label: 'Trainer',
-    description: 'Coach members, manage sessions, and grow your training brand.',
-    icon: Dumbbell,
-    accent: 'border-orange-400/20 bg-orange-500/10 text-orange-300',
-  },
-  gym_owner: {
-    label: 'Gym Owner',
-    description: 'List gyms, manage members, and customize Gymmigo Clubs.',
-    icon: Building2,
-    accent: 'border-emerald-400/20 bg-emerald-500/10 text-emerald-300',
-  },
-  gym_manager: {
-    label: 'Gym Manager',
-    description: 'Operate assigned gyms and manage day-to-day workflows.',
-    icon: Shield,
-    accent: 'border-purple-400/20 bg-purple-500/10 text-purple-300',
-  },
-};
-
+const ROLE_LABEL: Record<string, string> = { user: 'Member', trainer: 'Trainer', gym_owner: 'Gym owner', gym_manager: 'Gym manager' };
 const ADDABLE_ROLES = [
-  {
-    role: 'user',
-    label: 'Add Member',
-    description: 'Use the app as a gym member with plans, memberships, and clubs.',
-    icon: User,
-  },
-  {
-    role: 'gym_owner',
-    label: 'Add Gym Owner',
-    description: 'Create your owner profile and list or manage your gym.',
-    icon: Building2,
-  },
-  {
-    role: 'trainer',
-    label: 'Add Trainer',
-    description: 'Trainer onboarding is being prepared.',
-    icon: Dumbbell,
-    comingSoon: true,
-  },
+  { role: 'user', label: 'Member' },
+  { role: 'gym_owner', label: 'Gym owner' },
+  { role: 'trainer', label: 'Trainer', soon: true },
 ];
 
+const compact = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n));
+const inr = (n: number) => `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`;
+const daysUntil = (iso?: string | null) => (iso ? Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000) : null);
 
-// ─── Sub-Components ───────────────────────────────────────────────────────────
-const PillSelector = ({
-  options,
-  selected,
-  onSelect,
-  multi = false,
-}: {
-  options: SelectorOption[];
-  selected?: string | string[] | null;
-  onSelect: (key: string) => void;
-  multi?: boolean;
-}) => (
-  <div className="flex flex-wrap gap-2">
-    {options.map((opt) => {
-      const isActive = multi
-        ? (Array.isArray(selected) ? selected : []).includes(opt.key)
-        : selected === opt.key;
-      return (
-        <button
-          key={opt.key}
-          type="button"
-          onClick={() => onSelect(opt.key)}
-          className={clsx(
-            "px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap",
-            isActive 
-              ? "bg-primary/20 border-primary text-primary" 
-              : "bg-ink/5 border-ink/5 text-ink/40 hover:border-ink/20"
-          )}
-        >
-          {opt.label}
-        </button>
-      );
-    })}
-  </div>
-);
-
-const NumberPillSelector = ({
-  options,
-  selected,
-  onSelect,
-  suffix = '',
-}: {
-  options: number[];
-  selected?: number | null;
-  onSelect: (value: number) => void;
-  suffix?: string;
-}) => (
-  <div className="flex flex-wrap gap-2">
-    {options.map((value) => {
-      const isActive = selected === value;
-      return (
-        <button
-          key={value}
-          type="button"
-          onClick={() => onSelect(value)}
-          className={clsx(
-            "px-4 py-2 rounded-xl text-xs font-bold transition-all border whitespace-nowrap",
-            isActive
-              ? "bg-primary/20 border-primary text-primary"
-              : "bg-ink/5 border-ink/5 text-ink/40 hover:border-ink/20"
-          )}
-        >
-          {value}{suffix}
-        </button>
-      );
-    })}
-  </div>
-);
-
-const ChipMultiSelect = ({
-  presets,
-  selected,
-  onChange,
-  placeholder,
-}: {
-  presets: string[];
-  selected: string[];
-  onChange: (items: string[]) => void;
-  placeholder: string;
-}) => {
-  const [customText, setCustomText] = useState('');
-  const toggle = (item: string) => {
-    if (selected.includes(item)) onChange(selected.filter((s: string) => s !== item));
-    else onChange([...selected, item]);
-  };
-  const addCustom = () => {
-    if (customText.trim() && !selected.includes(customText.trim())) {
-      onChange([...selected, customText.trim()]);
-      setCustomText('');
-    }
-  };
+function GroupLabel({ label, meta, metaTo }: { label: string; meta?: string; metaTo?: string }) {
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
-        {presets.map((p: string) => (
-          <button
-            key={p} type="button" onClick={() => toggle(p)}
-            className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all",
-              selected.includes(p) ? "bg-primary/10 border-primary text-primary" : "bg-ink/5 border-ink/5 text-ink/20")}>
-            {p} {selected.includes(p) && <X size={10} />}
-          </button>
-        ))}
-        {selected.filter((s) => !presets.includes(s)).map((s) => (
-          <button
-            key={s} type="button" onClick={() => toggle(s)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest border bg-primary/10 border-primary text-primary">
-            {s} <X size={10} />
-          </button>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <input 
-          type="text" value={customText} onChange={e => setCustomText(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addCustom())}
-          placeholder={placeholder}
-          className="flex-1 bg-ink/5 border border-ink/10 rounded-xl px-4 py-2 text-xs outline-none focus:border-primary/50 transition-colors"
-        />
-        <button type="button" onClick={addCustom} className="p-2 rounded-xl bg-ink/5 border border-ink/10 text-primary hover:bg-ink/10">
-          <Plus size={16} />
-        </button>
-      </div>
+    <div className="mb-2 flex items-center px-0.5">
+      <Text variant="label" tone="subtle" className="flex-1">
+        {label}
+      </Text>
+      {meta && metaTo ? (
+        <Link to={metaTo} className="t-label text-accent-text hover:underline">
+          {meta}
+        </Link>
+      ) : null}
     </div>
   );
-};
+}
 
-const Profile = () => {
-  const { user, refreshUser, switchRole } = useAuth();
+function Group({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <GroupLabel label={label} />
+      <ListGroup>{children}</ListGroup>
+    </section>
+  );
+}
+
+function ProfileStat({ icon: Icon, value, label, success, to }: { icon: LucideIcon; value: string; label: string; success?: boolean; to?: string }) {
+  const body = (
+    <>
+      <span className="flex items-center gap-1">
+        <Icon size={14} strokeWidth={2.2} className={success ? 'text-success' : 'text-accent'} aria-hidden />
+        <span className={cn('t-subtitle truncate', success ? 'text-success' : 'text-ink')}>{value}</span>
+      </span>
+      <span className="t-label-sm mt-0.5 text-ink-subtle">{label}</span>
+    </>
+  );
+  const cls = 'flex flex-1 flex-col items-center py-3';
+  return to ? (
+    <Link to={to} aria-label={`${label} ${value}`} className={cn(cls, 'rounded-gm-md hover:bg-surface')}>
+      {body}
+    </Link>
+  ) : (
+    <div className={cls}>{body}</div>
+  );
+}
+
+function MembershipCard({ m }: { m: any }) {
+  const start = m.start_date ? new Date(m.start_date).getTime() : 0;
+  const end = m.end_date ? new Date(m.end_date).getTime() : 0;
+  const left = daysUntil(m.end_date);
+  const pct = start && end > start ? Math.min(100, Math.max(0, Math.round(((Date.now() - start) / (end - start)) * 100))) : 0;
+  return (
+    <Card padding="lg">
+      <div className="flex items-center gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-gm-md bg-surface-sunken text-ink">
+          <Building2 size={20} aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <Text variant="title" className="truncate">
+            {m.gym_name ?? 'Gym'}
+          </Text>
+          <Text variant="caption" tone="subtle" className="truncate">
+            {m.plan_name ?? 'Membership'}
+          </Text>
+        </div>
+        {left != null ? <Badge label={left > 0 ? `${left}d left` : 'Ends today'} tone={left <= 7 ? 'warning' : 'accent'} /> : null}
+      </div>
+      <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-sunken" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <Text variant="caption" tone="muted" className="flex-1">
+          {m.end_date ? `Renews on ${new Date(m.end_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}` : 'Active pass'}
+        </Text>
+        <Button label="Renew Pass" size="sm" to={`/app/gyms/${m.gym_id}`} />
+      </div>
+    </Card>
+  );
+}
+
+/** Profile & Settings — same sections and order as the app's ProfileScreen. */
+export default function Profile() {
+  const { user, logout, switchRole, refreshUser } = useAuth();
+  const { preference, setPreference } = useTheme();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<MemberProfile | null>(null);
-  const [addresses, setAddresses] = useState<AddressEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [savingSection, setSavingSection] = useState<string | null>(null);
-  const [isMapOpen, setIsMapOpen] = useState(false);
-  const [mapIntent, setMapIntent] = useState<'profile_city' | 'address'>('profile_city');
-  const [switchingRole, setSwitchingRole] = useState('');
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
-  const [clubSummary, setClubSummary] = useState<ClubSummary | null>(null);
-  const [fitnessProfile, setFitnessProfile] = useState<FitnessProfile>({
-    primary_goal: null,
-    activity_level: null,
-    experience_level: null,
-    height: null,
-    current_weight: null,
-    target_weight: null,
-    dietary_preference: null,
-    food_allergies: [],
-    injuries: [],
-    medical_conditions: [],
-    preferred_workout_duration: null,
-    workout_days_per_week: null,
-    notes_for_agent: '',
-  });
-  const { showNotification } = useNotification();
-  const userRoles = (user?.roles || []) as AccountRole[];
-  const ownedRoleIds = new Set(userRoles.map((role) => role.role));
-  const addableRoles = ADDABLE_ROLES.filter(role => !ownedRoleIds.has(role.role));
+  const toast = useToast();
+  const qc = useQueryClient();
+  const isMember = user?.active_role === 'user';
 
-  const fetchProfileData = useCallback(async () => {
+  const profile = useProfileMe();
+  const addresses = useAddresses();
+  const card = useFitnessCard();
+  const memberships = useMyMemberships();
+  const wallet = useWallet();
+  const social = useSocialCounts(user?.id);
+  const fitness = useFitnessProfile();
+
+  const [qrOpen, setQrOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [migoOpen, setMigoOpen] = useState(false);
+  const [addrOpen, setAddrOpen] = useState(false);
+  const [switching, setSwitching] = useState<string | null>(null);
+
+  const p = profile.data as any;
+  const name = p?.full_name ?? user?.full_name ?? 'Gymmigo user';
+  const avatar = p?.avatar_url ?? user?.avatar_url;
+  const code = pickFitnessCardCode(card.data)?.toUpperCase() ?? null;
+  const fit = (card.data as any)?.fitcard ?? (card.data as any)?.fitness_card ?? null;
+  const tierLabel = (fit?.tier_label ?? (card.data as any)?.tier_card?.tier_label ?? null) as string | null;
+  const addrList = (addresses.data ?? []) as any[];
+  const home = addrList.find(a => a.is_primary) ?? addrList[0];
+  const activeMemberships = ((memberships.data ?? []) as any[]).filter(m => m.status === 'active');
+  const homeGym = activeMemberships[0]?.gym_name ?? null;
+  const fitnessInitial = useMemo<FitnessProfile>(() => ({ ...EMPTY_FITNESS, ...((fitness.data as any) || {}) }), [fitness.data]);
+  const goal = humanize(fitnessInitial.primary_goal);
+  const goalSummary = [
+    fitnessInitial.workout_days_per_week ? `Target: ${fitnessInitial.workout_days_per_week} sessions/wk` : null,
+    fitnessInitial.preferred_workout_duration ? `${fitnessInitial.preferred_workout_duration} min sessions` : null,
+    humanize(fitnessInitial.dietary_preference),
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  const roles = (user?.roles ?? []) as { role: string; is_completed?: boolean }[];
+  const otherRoles = roles.filter(r => r.role !== user?.active_role && r.is_completed);
+  const addable = ADDABLE_ROLES.filter(r => !roles.some(o => o.role === r.role));
+
+  const openCard = () => (code ? navigate(`/fitness-card/${code}`) : toast({ title: 'Your Fitness Card is getting ready.' }));
+  const copyLink = async () => {
+    if (!code) return;
     try {
-      const [profRes, addrRes, fitRes, statsRes] = await Promise.all([
-        api.get('/profile/me'),
-        api.get('/profile/me/addresses'),
-        api.get('/profile/fitness'),
-        api.get('/memberships/dashboard-stats').catch(() => ({ data: { data: null } })),
-      ]);
-      setProfile(profRes.data.data);
-      setAddresses(addrRes.data.data);
-      if (fitRes.data?.data) {
-        setFitnessProfile((prev) => ({ ...prev, ...fitRes.data.data }));
-      }
-      setDashboardStats(statsRes.data?.data || null);
+      await navigator.clipboard.writeText(`${window.location.origin}/fitness-card/${code}`);
+      toast({ tone: 'success', title: 'FitCard link copied' });
+    } catch {
+      toast({ tone: 'error', title: 'Could not copy the link' });
+    }
+  };
 
-      if (user?.active_role === 'user') {
-        try {
-          const membershipsRes = await api.get('/memberships/my');
-          const memberships = (membershipsRes.data?.data?.memberships || []) as MembershipSummary[];
-          const activeMembership = memberships.find((membership) => membership.status === 'active');
-          if (activeMembership?.gym_id) {
-            const fitcardRes = await api.get(`/clubs/fitcard/me?gym_id=${activeMembership.gym_id}`);
-            setClubSummary(fitcardRes.data?.data || null);
-          } else {
-            setClubSummary(null);
-          }
-        } catch {
-          setClubSummary(null);
-        }
-      } else {
-        setClubSummary(null);
-      }
+  const signOut = async () => {
+    if (await confirmDialog({ title: 'Sign out?', message: 'You can sign back in anytime with your phone number.', confirmLabel: 'Sign out', tone: 'danger' })) logout();
+  };
+
+  const deleteAccount = async () => {
+    const ok = await confirmDialog({
+      tone: 'danger',
+      title: 'Delete your account?',
+      message: 'This permanently deletes your profile, memberships history, FitCard and rewards. This cannot be undone.',
+      confirmLabel: 'Delete forever',
+      cancelLabel: 'Keep my account',
+    });
+    if (!ok) return;
+    try {
+      await profileApi.deleteAccount();
+      toast({ tone: 'success', title: 'Account deleted successfully' });
+      logout();
     } catch (err) {
-      console.error('Failed to fetch profile:', err);
-      showNotification(getApiErrorMessage(err), 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [showNotification, user?.active_role]);
-
-  useEffect(() => {
-    fetchProfileData();
-  }, [fetchProfileData]);
-
-  const handleUpdateFitnessProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingSection('AI Personalization');
-    try {
-      const payload: Record<string, unknown> = {};
-      const fields = [
-        'primary_goal', 'activity_level', 'experience_level',
-        'height', 'current_weight', 'target_weight',
-        'dietary_preference', 'food_allergies', 'injuries',
-        'medical_conditions', 'preferred_workout_duration', 'workout_days_per_week',
-        'notes_for_agent',
-      ];
-      fields.forEach((f) => {
-        const val = fitnessProfile[f];
-        if (val !== null && val !== undefined) {
-          payload[f] = val;
-        }
-      });
-      await api.post('/profile/fitness', payload);
-      showNotification('AI preferences saved!', 'success');
-    } catch (err: unknown) {
-      console.error('Update failed:', err);
-      showNotification(getApiErrorMessage(err), 'error');
-    } finally {
-      setSavingSection(null);
+      toast({ tone: 'error', title: 'Could not delete account', message: getApiErrorMessage(err) });
     }
   };
 
-  const handleUpdateProfile = async (section: string, e: React.FormEvent) => {
-    e.preventDefault();
-    setSavingSection(section);
-    try {
-      // Ensure date_of_birth is in YYYY-MM-DD format if present
-      const payload = {
-         ...(profile || {}),
-         date_of_birth: profile?.date_of_birth || null,
-         gender: profile?.gender || null,
-      };
-      await api.patch('/profile/me', payload);
-      await refreshUser();
-      showNotification(`${section} updated successfully`, 'success');
-    } catch (err: unknown) {
-      console.error('Update failed:', err);
-      showNotification(getApiErrorMessage(err) || `Failed to update ${section}`, 'error');
-    } finally {
-      setSavingSection(null);
-    }
-  };
-
-  const handleSwitchRole = async (role: string) => {
-    if (role === user?.active_role || switchingRole) return;
-    const isTrainer = role === 'trainer';
-    if (isTrainer) {
-      showNotification('Trainer switching is coming soon on web.', 'error');
+  const doSwitch = async (role: string) => {
+    if (role === 'trainer') {
+      toast({ title: 'Trainer mode is coming soon on web.' });
       return;
     }
-
-    setSwitchingRole(role);
+    const ok = await confirmDialog({ title: `Switch to ${ROLE_LABEL[role] ?? role}?`, message: 'Gymmigo will reload with that role’s home.', confirmLabel: 'Switch' });
+    if (!ok) return;
+    setSwitching(role);
     try {
       await switchRole(role);
-      showNotification(`Switched to ${ROLE_META[role as keyof typeof ROLE_META]?.label || role}`, 'success');
       navigate('/app/dashboard');
     } catch (err) {
-      showNotification(getApiErrorMessage(err), 'error');
+      toast({ tone: 'error', title: 'Failed to switch role', message: getApiErrorMessage(err) });
     } finally {
-      setSwitchingRole('');
+      setSwitching(null);
     }
   };
-
-  const handleMapConfirm = async (location: {
-    address_line1: string;
-    city: string;
-    state: string;
-    pincode: string;
-    latitude: number;
-    longitude: number;
-  }) => {
-    if (mapIntent === 'address') {
-      setSavingSection('Address');
-      try {
-        await api.post('/profile/me/addresses', {
-          label: addresses.length ? 'Saved location' : 'Home',
-          address_line1: location.address_line1,
-          city: location.city,
-          state: location.state,
-          pincode: location.pincode,
-          latitude: location.latitude,
-          longitude: location.longitude,
-          is_primary: addresses.length === 0,
-          country: 'India',
-        });
-        showNotification('Address added', 'success');
-        await fetchProfileData();
-      } catch (err) {
-        showNotification(getApiErrorMessage(err), 'error');
-      } finally {
-        setSavingSection(null);
-        setIsMapOpen(false);
-      }
-      return;
-    }
-
-    setProfile({ ...(profile || {}), city: location.city });
-    setIsMapOpen(false);
-  };
-
-  const handleDeleteAddress = async (addressId: string) => {
-    if (!window.confirm('Delete this saved address?')) return;
-    setSavingSection(`delete-address-${addressId}`);
-    try {
-      await api.delete(`/profile/me/addresses/${addressId}`);
-      setAddresses((items) => items.filter((address) => address.id !== addressId));
-      showNotification('Address deleted', 'success');
-    } catch (err) {
-      showNotification(getApiErrorMessage(err), 'error');
-    } finally {
-      setSavingSection(null);
-    }
-  };
-
-  if (loading) return <div className="animate-pulse glass-card p-12 h-96" />;
-
-  const clubStreak = clubSummary?.fitcard?.current_streak || dashboardStats?.streak || 0;
-  const clubCount = clubSummary?.clubs?.length || 0;
-  const badgeCount = clubSummary?.badges?.length || 0;
-  const fitcardPoints = clubSummary?.fitcard?.total_points || dashboardStats?.competition?.total_points || 0;
-  const fitcardTitle = clubSummary?.clubs?.[0]?.name || clubSummary?.fitcard?.title || 'FitCard starter club';
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-10 md:space-y-12">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-4xl sm:text-5xl font-display font-black tracking-tighter">PROFILE</h1>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold font-display uppercase tracking-widest">
-          <Shield size={14} /> {user?.active_role} Account
-        </div>
-      </div>
+    <div className="mx-auto w-full max-w-[1080px] pb-10">
+      <header className="flex items-center gap-3 py-2">
+        <Text variant="h1" className="flex-1 truncate">
+          Profile & Settings
+        </Text>
+        {isMember ? <IconButton icon={QrCode} label="Show fitness QR" onClick={() => setQrOpen(true)} /> : null}
+      </header>
 
-      {user?.active_role === 'user' && (
-        <section className="relative overflow-hidden rounded-2xl border border-cyan-300/15 bg-surface/35 p-5 shadow-2xl shadow-cyan-950/20 sm:p-6 lg:p-8">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(34,211,238,0.14),transparent_34%),radial-gradient(circle_at_90%_15%,rgba(241,130,44,0.16),transparent_32%)]" />
-          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center">
-            <div className="space-y-6">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-200">
-                  <Sparkles size={13} /> Holographic Fitness Card
-                </div>
-                <h2 className="mt-4 text-3xl font-display font-black tracking-tight text-ink sm:text-4xl">
-                  Your premium Gymmigo identity
-                </h2>
-                <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-ink/48">
-                  A shareable ATM-style Fitness Card with your six-character Fitness ID, QR profile, Clubs, badges, and live progress.
-                </p>
+      <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-8">
+        {/* Left column: identity, pass, co-pilot, memberships */}
+        <div className="flex min-w-0 flex-col gap-6">
+          <Card padding="lg">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar name={name} src={avatar} size={72} ring="var(--gm-accent)" />
+                <span className="absolute bottom-0.5 right-0 h-[18px] w-[18px] rounded-full border-[3px] border-surface bg-success" aria-hidden />
               </div>
-
-              <div className="grid grid-cols-3 gap-2">
-                <div className="rounded-xl border border-ink/10 bg-ink/[0.04] p-4">
-                  <p className="flex items-center gap-1 text-2xl font-black text-ink">
-                    {clubStreak}<span className="text-sm text-amber-300">D</span>
-                  </p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Streak</p>
-                </div>
-                <div className="rounded-xl border border-ink/10 bg-ink/[0.04] p-4">
-                  <p className="text-2xl font-black text-primary">{badgeCount}</p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Badges</p>
-                </div>
-                <div className="rounded-xl border border-ink/10 bg-ink/[0.04] p-4">
-                  <p className="text-2xl font-black text-emerald-300">{fitcardPoints}</p>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">Points</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link to="?social=true&socialTab=profile" className="btn-primary inline-flex items-center justify-center gap-2">
-                  <Sparkles size={16} /> Open Social Card
-                </Link>
-                <Link
-                  to="/app/clubs"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-ink/10 bg-ink/[0.05] px-5 py-3 text-xs font-black uppercase tracking-widest text-ink/70 transition hover:border-primary/30 hover:text-ink"
-                >
-                  <Trophy size={16} /> {clubCount ? fitcardTitle : 'View Clubs'}
-                </Link>
-              </div>
-            </div>
-
-            <PremiumFitCard />
-          </div>
-        </section>
-      )}
-
-      {user?.active_role === 'user' && (
-        <Link
-          to="/app/wallet-transactions"
-          className="group flex flex-col gap-4 rounded-2xl border border-emerald-300/20 bg-emerald-500/[0.08] p-5 transition-all hover:border-emerald-300/40 hover:bg-emerald-500/10 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-emerald-400/15 text-emerald-200">
-              <Wallet size={23} />
-            </div>
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-ink">Wallet Transactions</h2>
-              <p className="mt-1 max-w-2xl text-xs font-semibold leading-5 text-ink/45">
-                View every loyalty credit, reward claim, and wallet usage in one ledger.
-              </p>
-            </div>
-          </div>
-          <ChevronRight size={20} className="text-emerald-200 transition-transform group-hover:translate-x-1" />
-        </Link>
-      )}
-
-      <section className="glass-card p-5 sm:p-8 space-y-6 border-ink/10 bg-ink/[0.02]">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em] text-primary">Account roles</p>
-            <h2 className="text-2xl font-black tracking-tight mt-2">Use Gymmigo your way</h2>
-            <p className="text-sm text-ink/40 mt-1 max-w-2xl">
-              Add a role when you want to manage a gym or use member features from the same login.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {userRoles.map((role) => {
-              const meta = ROLE_META[role.role as keyof typeof ROLE_META] || ROLE_META.user;
-              const Icon = meta.icon;
-              const isActive = role.role === user?.active_role;
-              const isTrainer = role.role === 'trainer';
-              const isSwitching = switchingRole === role.role;
-
-              return (
-                <button
-                  key={role.role}
-                  type="button"
-                  onClick={() => handleSwitchRole(role.role)}
-                  disabled={isActive || isTrainer || !!switchingRole}
-                  className={clsx(
-                    'inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all',
-                    meta.accent,
-                    isActive && 'ring-1 ring-primary/40',
-                    isTrainer ? 'cursor-not-allowed opacity-50' : 'hover:border-primary/40',
-                    !isActive && !isTrainer && 'hover:bg-primary/10'
-                  )}
-                >
-                  <Icon size={13} />
-                  {meta.label}
-                  {isSwitching ? (
-                    <span className="text-ink/50">Switching</span>
-                  ) : isActive ? (
-                    <span className="text-ink/50">Active</span>
-                  ) : isTrainer ? (
-                    <span className="text-ink/50">Soon</span>
-                  ) : (
-                    <ChevronRight size={12} className="text-ink/35" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          {addableRoles.length > 0 ? (
-            addableRoles.map((role) => {
-              const Icon = role.icon;
-              const cardClass = clsx(
-                'group rounded-2xl border p-5 text-left transition-all',
-                role.comingSoon
-                  ? 'border-ink/5 bg-ink/[0.02] opacity-50 cursor-not-allowed'
-                  : 'border-ink/10 bg-ink/[0.04] hover:border-primary/40 hover:bg-primary/10'
-              );
-              const content = (
-                <>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="h-11 w-11 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary">
-                      <Icon size={20} />
-                    </div>
-                    {role.comingSoon ? (
-                      <span className="rounded-full bg-ink/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-ink/40">
-                        Soon
-                      </span>
-                    ) : (
-                      <ChevronRight size={18} className="text-ink/20 group-hover:text-primary transition-colors" />
-                    )}
+              <div className="min-w-0 flex-1">
+                {profile.isLoading ? <Skeleton className="h-6 w-3/4" /> : <Text variant="h2" className="truncate">{name}</Text>}
+                <Text variant="caption" tone="muted" className="mt-0.5 truncate">
+                  {isMember && code ? `ID: ${code}` : `${ROLE_LABEL[user?.active_role ?? 'user'] ?? 'Member'} account`}
+                  {isMember && tierLabel ? ` · ${tierLabel}` : ''}
+                </Text>
+                {social.data ? (
+                  <Link
+                    to="/app/people"
+                    data-testid="follow-counts"
+                    aria-label={`${social.data.followers} followers, ${social.data.following} following`}
+                    className="t-caption mt-1 inline-flex gap-1 hover:underline">
+                    <span className="text-ink">{compact(social.data.followers)}</span>
+                    <span className="text-ink-muted">followers ·</span>
+                    <span className="text-ink">{compact(social.data.following)}</span>
+                    <span className="text-ink-muted">following</span>
+                  </Link>
+                ) : null}
+                {homeGym ? (
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <Building2 size={14} className="text-accent" aria-hidden />
+                    <Text variant="caption" tone="subtle" className="truncate">
+                      {homeGym}
+                    </Text>
                   </div>
-                  <h3 className="mt-5 text-base font-black tracking-tight">{role.label}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-ink/40">{role.description}</p>
-                </>
-              );
+                ) : null}
+              </div>
+              <IconButton icon={Pencil} label="Edit profile" onClick={() => setEditOpen(true)} />
+            </div>
+            {p?.bio ? (
+              <Text variant="footnote" tone="muted" className="mt-4">
+                {p.bio}
+              </Text>
+            ) : null}
+            {isMember ? (
+              <div className="mt-5 flex rounded-gm-md bg-surface-sunken">
+                <ProfileStat icon={Flame} value={compact(fit?.current_streak ?? 0)} label="Streak" />
+                <ProfileStat icon={Star} value={compact(fit?.total_points ?? 0)} label="Points" />
+                <ProfileStat icon={Activity} value={compact(fit?.total_check_ins ?? 0)} label="Sessions" />
+                <ProfileStat icon={Wallet} value={inr(wallet.data?.wallet?.balance_inr ?? 0)} label="Wallet" success to="/app/wallet-transactions" />
+              </div>
+            ) : null}
+          </Card>
 
-              if (role.comingSoon) {
-                return (
-                  <div key={role.role} className={cardClass}>
-                    {content}
+          {isMember ? (
+            <>
+              {card.isLoading ? (
+                <Skeleton className="h-[200px] rounded-gm-xxl" />
+              ) : (
+                <FitCardPass card={card.data} name={name} code={code} gymName={homeGym} onOpen={openCard} onShare={() => setQrOpen(true)} />
+              )}
+
+              <Card padding="lg">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-[26px] w-[26px] items-center justify-center rounded-gm-sm bg-accent text-on-accent">
+                    <Sparkles size={14} aria-hidden />
+                  </span>
+                  <Text variant="label" tone="accent" className="flex-1">
+                    Migo AI co-pilot
+                  </Text>
+                  <Text variant="labelSm" tone={goal ? 'success' : 'subtle'}>
+                    {goal ? 'Calibrated' : 'Not set up'}
+                  </Text>
+                </div>
+                <Text variant="title" className="mt-3">
+                  {goal ? `${goal} plan` : 'Set up your AI coach'}
+                </Text>
+                <Text variant="footnote" tone="muted" className="mt-1">
+                  {goalSummary || 'Goal, schedule, food and limits your AI coach plans around.'}
+                </Text>
+                <Button className="mt-4" label="Update Fitness Goals & Diet Prefs" variant="secondary" icon={SlidersHorizontal} fullWidth onClick={() => setMigoOpen(true)} />
+              </Card>
+
+              <section>
+                <GroupLabel label="Active memberships & access" meta="View all" metaTo="/app/dashboard" />
+                {memberships.isLoading ? (
+                  <Skeleton className="h-[130px] rounded-gm-xl" />
+                ) : activeMemberships.length ? (
+                  <div className="flex flex-col gap-2">
+                    {activeMemberships.slice(0, 2).map(m => (
+                      <MembershipCard key={m.id} m={m} />
+                    ))}
                   </div>
-                );
-              }
-
-              return (
-                <Link key={role.role} to={`/register-role?role=${role.role}`} className={cardClass}>
-                  {content}
-                </Link>
-              );
-            })
-          ) : (
-            <div className="md:col-span-3 rounded-2xl border border-emerald-400/15 bg-emerald-500/5 p-5 text-sm text-emerald-200/70">
-              All available roles are already connected to this account.
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* AI Personalization Featured Card */}
-      {user?.active_role === 'user' && (
-        <form onSubmit={handleUpdateFitnessProfile} className="glass-card p-5 sm:p-8 lg:p-12 space-y-8 sm:space-y-12 border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-transparent relative overflow-hidden group">
-          <div className="absolute -right-40 -top-40 opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity duration-700">
-            <Sparkles size={500} className="text-primary" />
-          </div>
-          
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-ink/5 pb-10 relative z-10">
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-orange-600 flex items-center justify-center text-black shadow-2xl shadow-primary/30 transform group-hover:scale-110 transition-transform duration-500">
-                <Sparkles size={32} fill="currentColor" />
-              </div>
-              <div>
-                <h3 className="text-2xl sm:text-4xl font-black italic tracking-tighter text-ink">INTELLIGENCE PROFILE</h3>
-                <p className="text-xs text-ink/40 font-bold uppercase tracking-[0.2em] mt-1">Powering your personalized MigoAI experience</p>
-              </div>
-            </div>
-            <div className="hidden md:block text-right">
-              <div className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">MigoAI Core Engine</div>
-              <div className="text-2xl font-display font-black text-ink/10">v2.4.0</div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Primary Goal
-              </label>
-              <PillSelector 
-                options={GOAL_OPTIONS} 
-                selected={fitnessProfile.primary_goal} 
-                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, primary_goal: key})}
-              />
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Activity Level
-              </label>
-              <PillSelector 
-                options={ACTIVITY_LEVEL_OPTIONS} 
-                selected={fitnessProfile.activity_level} 
-                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, activity_level: key})}
-              />
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Diet Preference
-              </label>
-              <PillSelector 
-                options={DIET_OPTIONS} 
-                selected={fitnessProfile.dietary_preference} 
-                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, dietary_preference: key})}
-              />
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary" /> Experience
-              </label>
-              <PillSelector 
-                options={EXPERIENCE_OPTIONS} 
-                selected={fitnessProfile.experience_level} 
-                onSelect={(key: string) => setFitnessProfile({...fitnessProfile, experience_level: key})}
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 pt-4 relative z-10">
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Height (cm)</label>
-              <input 
-                type="number" placeholder="170"
-                value={fitnessProfile.height || ''} 
-                onChange={(e) => setFitnessProfile({...fitnessProfile, height: e.target.value ? parseInt(e.target.value) : null})}
-                className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all font-display font-bold text-xl"
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Current Weight (kg)</label>
-              <input 
-                type="number" placeholder="70"
-                value={fitnessProfile.current_weight || ''} 
-                onChange={(e) => setFitnessProfile({...fitnessProfile, current_weight: e.target.value ? parseInt(e.target.value) : null})}
-                className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all font-display font-bold text-xl"
-              />
-            </div>
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Target Weight (kg)</label>
-              <input 
-                type="number" placeholder="65"
-                value={fitnessProfile.target_weight || ''} 
-                onChange={(e) => setFitnessProfile({...fitnessProfile, target_weight: e.target.value ? parseInt(e.target.value) : null})}
-                className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl py-4 px-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all font-display font-bold text-xl"
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 relative z-10">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Food Allergies & Restrictions</label>
-              <ChipMultiSelect 
-                presets={ALLERGY_PRESETS} 
-                selected={fitnessProfile.food_allergies || []}
-                onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, food_allergies: items})}
-                placeholder="e.g. Lactose, Peanuts..."
-              />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Injuries / Physical Limitations</label>
-              <ChipMultiSelect 
-                presets={INJURY_PRESETS} 
-                selected={fitnessProfile.injuries || []}
-                onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, injuries: items})}
-                placeholder="e.g. ACL tear, Sciatica..."
-              />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Medical Conditions</label>
-              <ChipMultiSelect
-                presets={CONDITION_PRESETS}
-                selected={fitnessProfile.medical_conditions || []}
-                onChange={(items: string[]) => setFitnessProfile({...fitnessProfile, medical_conditions: items})}
-                placeholder="e.g. Arthritis, Sleep apnea..."
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 relative z-10">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Workout Duration</label>
-              <NumberPillSelector
-                options={DURATION_OPTIONS}
-                selected={fitnessProfile.preferred_workout_duration}
-                onSelect={(value) => setFitnessProfile({...fitnessProfile, preferred_workout_duration: value})}
-                suffix=" min"
-              />
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Workout Days / Week</label>
-              <NumberPillSelector
-                options={DAYS_OPTIONS}
-                selected={fitnessProfile.workout_days_per_week}
-                onSelect={(value) => setFitnessProfile({...fitnessProfile, workout_days_per_week: value})}
-                suffix=" days"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4 pt-4 relative z-10">
-            <label className="text-[10px] font-black text-ink/30 uppercase tracking-[0.15em] ml-1">Additional Context for MigoAI</label>
-            <textarea 
-              rows={4}
-              placeholder="Tell us anything else that will help MigoAI tailor your journey..."
-              value={fitnessProfile.notes_for_agent || ''} 
-              onChange={(e) => setFitnessProfile({...fitnessProfile, notes_for_agent: e.target.value})}
-              className="w-full bg-ink/[0.03] border border-ink/10 rounded-2xl p-6 focus:border-primary/50 focus:bg-ink/[0.05] outline-none transition-all placeholder:text-ink/10 custom-scrollbar text-sm leading-relaxed"
-            />
-          </div>
-
-          <div className="flex justify-center pt-4 relative z-10">
-            <button 
-              type="submit" 
-              disabled={savingSection === 'AI Personalization'} 
-              className="group/btn relative px-10 py-5 rounded-2xl bg-primary text-black font-display font-black italic uppercase tracking-tighter hover:scale-105 active:scale-95 transition-all duration-300 shadow-2xl shadow-primary/40 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-ink/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-12" />
-              <span className="relative flex items-center gap-3">
-                {savingSection === 'AI Personalization' ? (
-                  <>SYNCING INTELLIGENCE...</>
                 ) : (
-                  <>
-                    <Sparkles size={20} fill="currentColor" /> 
-                    Update AI Intelligence
-                  </>
+                  <ListGroup>
+                    <ListItem icon={CreditCard} title="No active pass" subtitle="Find a gym near you and join" to="/app/discovery" />
+                  </ListGroup>
                 )}
-              </span>
-            </button>
-          </div>
-        </form>
-      )}
-
-      <div className="grid md:grid-cols-3 gap-6 md:gap-12">
-        {/* Personal Details */}
-        <div className="md:col-span-2 space-y-8">
-          <form onSubmit={(e) => handleUpdateProfile('Basic Details', e)} className="glass-card p-5 sm:p-8 lg:p-10 space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
-              <ImageUpload 
-                initialUrl={profile?.avatar_url}
-                onUploadComplete={(url) => setProfile({ ...(profile || {}), avatar_url: url })}
-                className="w-32 md:w-48 shrink-0"
-              />
-              <div className="space-y-1">
-                <h3 className="text-2xl font-black italic tracking-tight">{profile?.full_name || 'SET YOUR NAME'}</h3>
-                <p className="text-ink/40 text-sm flex items-center gap-2 font-medium">
-                  <Phone size={14} className="text-primary" /> {user?.phone}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6 pt-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Full Name</label>
-                <div className="relative group">
-                  <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 group-focus-within:text-primary transition-colors" size={18} />
-                  <input 
-                    type="text" 
-                    placeholder="John Doe"
-                    value={profile?.full_name || ''} 
-                    onChange={(e) => setProfile({ ...(profile || {}), full_name: e.target.value })}
-                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-ink/20"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Email Address</label>
-                <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 group-focus-within:text-primary transition-colors" size={18} />
-                  <input 
-                    type="email" 
-                    placeholder="john@example.com"
-                    value={profile?.email || ''} 
-                    onChange={(e) => setProfile({ ...(profile || {}), email: e.target.value })}
-                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all placeholder:text-ink/20"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Date of Birth</label>
-                <div className="relative group">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20 group-focus-within:text-primary transition-colors" size={18} />
-                  <input 
-                    type="date" 
-                    value={profile?.date_of_birth || ''} 
-                    onChange={(e) => setProfile({ ...(profile || {}), date_of_birth: e.target.value })}
-                    className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 focus:border-primary outline-none transition-all text-ink/80"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Gender</label>
-                <select 
-                  value={profile?.gender || ''} 
-                  onChange={(e) => setProfile({ ...(profile || {}), gender: e.target.value })}
-                  className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 focus:border-primary outline-none transition-all cursor-pointer"
-                >
-                  <option value="" className="bg-black">Select Gender</option>
-                  <option value="male" className="bg-black">Male</option>
-                  <option value="female" className="bg-black">Female</option>
-                  <option value="other" className="bg-black">Other</option>
-                  <option value="rather not say" className="bg-black">Rather not say</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">City Location</label>
-                <div 
-                  onClick={() => {
-                    setMapIntent('profile_city');
-                    setIsMapOpen(true);
-                  }}
-                  className="w-full flex items-center justify-between bg-ink/5 border border-ink/10 rounded-2xl py-3 px-4 hover:border-primary transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center gap-3">
-                    <MapPin className="text-ink/20 group-hover:text-primary transition-colors" size={18} />
-                    <span className={profile?.city ? "text-ink" : "text-ink/20"}>
-                      {profile?.city || 'Pick location on Map'}
-                    </span>
-                  </div>
-                  <div className="text-primary text-[10px] uppercase font-bold tracking-widest bg-primary/10 px-2 py-1 rounded">
-                    Change
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" disabled={savingSection === 'Basic Details'} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">
-              {savingSection === 'Basic Details' ? 'SAVING...' : <><Save size={18} /> Update Basic Details</>}
-            </button>
-          </form>
-
-
-
-          <form onSubmit={(e) => handleUpdateProfile('Profile Bio', e)} className="glass-card p-5 sm:p-8 lg:p-10 space-y-8">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-ink/40 uppercase tracking-widest ml-1">Profile Bio</label>
-              <textarea 
-                rows={3}
-                placeholder="Tell us about yourself..."
-                value={profile?.bio || ''} 
-                onChange={(e) => setProfile({ ...(profile || {}), bio: e.target.value })}
-                className="w-full bg-ink/5 border border-ink/10 rounded-2xl p-4 focus:border-primary outline-none transition-all placeholder:text-ink/20 custom-scrollbar"
-              />
-            </div>
-
-            <button type="submit" disabled={savingSection === 'Profile Bio'} className="btn-primary w-fit min-w-[200px] flex items-center justify-center gap-3">
-              {savingSection === 'Profile Bio' ? 'SAVING...' : <><Save size={18} /> Save Bio</>}
-            </button>
-          </form>
-
-          {/* Addresses */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-bold uppercase tracking-widest font-display">Your Addresses</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setMapIntent('address');
-                  setIsMapOpen(true);
-                }}
-                className="flex items-center gap-2 text-primary text-xs font-bold px-4 py-2 hover:bg-primary/10 rounded-full transition-all"
-              >
-                <Plus size={16} /> Add New
-              </button>
-            </div>
-            <div className="grid gap-4">
-              {addresses.map((addr) => (
-                <div key={addr.id} className="glass-card p-6 flex items-center justify-between group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-ink/5 border border-ink/10 rounded-xl text-ink/40 group-hover:text-primary transition-colors">
-                      <MapPin size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm uppercase tracking-widest">
-                        {addr.label || 'Address'} {addr.is_primary && <span className="text-primary">(Primary)</span>}
-                      </h4>
-                      <p className="text-ink/40 text-sm">{addr.address_line1 || [addr.city, addr.state].filter(Boolean).join(', ')}</p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteAddress(addr.id)}
-                    disabled={savingSection === `delete-address-${addr.id}`}
-                    className="text-ink/20 hover:text-red-400 p-2 transition-colors disabled:opacity-40"
-                    title="Delete address"
-                  >
-                    {savingSection === `delete-address-${addr.id}` ? <CheckCircle2 size={18} /> : <Trash2 size={18} />}
-                  </button>
-                </div>
-              ))}
-              {addresses.length === 0 && <div className="glass-card p-12 text-center text-ink/20 italic">No addresses saved.</div>}
-            </div>
-          </div>
+              </section>
+            </>
+          ) : null}
         </div>
 
-        {/* Account Info Sidebar */}
-        <div className="space-y-8">
-          <div className="glass-card p-8 bg-primary/5 border-primary/10 space-y-6">
-            <h3 className="font-bold uppercase tracking-widest font-display text-sm">Account Status</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-2 border-b border-ink/5">
-                <span className="text-ink/40 text-sm">Verified</span>
-                <span className="text-emerald-500 font-bold text-xs uppercase tracking-tighter">YES</span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-ink/40 text-sm">Joined</span>
-                <span className="text-ink/60 font-bold text-xs uppercase tracking-tighter">
-                  {new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+        {/* Right column: settings groups */}
+        <div className="flex min-w-0 flex-col gap-6">
+          <section>
+            <GroupLabel label="App appearance" />
+            <SegmentedControl<ThemePreference>
+              aria-label="App appearance"
+              value={preference}
+              onChange={setPreference}
+              options={[
+                { value: 'system', label: 'System' },
+                { value: 'light', label: 'Light' },
+                { value: 'dark', label: 'Dark' },
+              ]}
+            />
+          </section>
+
+          <Group label="Community">
+            <ListItem icon={Search} title="Find people" subtitle="Search members and follow them" to="/app/people" />
+            <ListItem icon={Users} title="Run together" subtitle="Live group runs with friends" to="/app/run-together" />
+          </Group>
+
+          <Group label="Devices">
+            <ListItem icon={Watch} title="Connect your watch" subtitle="Optional · steps and heart rate from your watch app" to="/app/devices" />
+          </Group>
+
+          {isMember ? (
+            <>
+              <Group label="Fitness tools">
+                <ListItem icon={QrCode} title="Fitness QR & share" subtitle="Show your FitCard QR" onClick={() => setQrOpen(true)} />
+                <ListItem icon={Camera} title="Social card" subtitle="Your public FitCard and posts" to="?social=true&socialTab=profile" />
+                <ListItem icon={Trophy} title="Clubs & badges" to="/app/clubs" />
+              </Group>
+              <Group label="Membership & wallet">
+                <ListItem icon={CreditCard} title="My memberships" to="/app/dashboard" />
+                <ListItem icon={Wallet} title="Wallet transactions" to="/app/wallet-transactions" />
+                <ListItem
+                  icon={MapPin}
+                  title="Home location"
+                  subtitle={home ? [home.address_line1, home.city].filter(Boolean).join(', ') : 'Not set'}
+                  onClick={() => setAddrOpen(true)}
+                />
+              </Group>
+            </>
+          ) : (
+            <Group label="Locations">
+              <ListItem icon={MapPin} title="Saved addresses" subtitle={home ? [home.address_line1, home.city].filter(Boolean).join(', ') : 'Not set'} onClick={() => setAddrOpen(true)} />
+            </Group>
+          )}
+
+          <section>
+            <GroupLabel label="Gym ecosystem role" />
+            <Card padding="lg">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-gm-md bg-surface-sunken text-ink">
+                  <UserCog size={20} aria-hidden />
                 </span>
+                <div className="min-w-0 flex-1">
+                  <Text variant="subtitle">Current Role: {ROLE_LABEL[user?.active_role ?? 'user'] ?? 'Member'}</Text>
+                  <Text variant="caption" tone="subtle">
+                    Switch accounts to manage trainees or facilities
+                  </Text>
+                </div>
               </div>
-            </div>
-            <div className="pt-4">
-              <p className="text-[10px] text-ink/20 italic leading-relaxed text-center">
-                Your account is managed by Zenrevo authentication systems. 
-              </p>
-            </div>
+              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2" data-testid="role-switch">
+                {otherRoles.map(r => (
+                  <Button
+                    key={r.role}
+                    label={`${ROLE_LABEL[r.role] ?? r.role} mode${r.role === 'trainer' ? ' · Soon' : ''}`}
+                    icon={Repeat}
+                    variant="secondary"
+                    loading={switching === r.role}
+                    disabled={!!switching}
+                    onClick={() => doSwitch(r.role)}
+                  />
+                ))}
+                {addable.map(r => (
+                  <Button
+                    key={r.role}
+                    label={r.soon ? `${r.label} · Soon` : `Add ${r.label}`}
+                    icon={UserPlus}
+                    variant="secondary"
+                    disabled={r.soon}
+                    to={r.soon ? undefined : `/onboarding/role?add=1&role=${r.role}`}
+                  />
+                ))}
+              </div>
+            </Card>
+          </section>
+
+          <Group label="Account & security">
+            <ListItem icon={Pencil} title="Edit profile" subtitle="Name, email, birthday, city and bio" onClick={() => setEditOpen(true)} />
+            <ListItem icon={Shield} title="Privacy & security" to="/privacy" />
+          </Group>
+
+          <Group label="Help & legal">
+            <ListItem icon={HelpCircle} title="Help & contact" to="/contact" />
+            <ListItem icon={FileText} title="Terms of service" to="/terms" />
+          </Group>
+
+          <div className="flex flex-col items-center gap-3">
+            <Button label="Log Out" icon={LogOut} variant="outline" fullWidth onClick={signOut} />
+            <button type="button" onClick={deleteAccount} className="t-button-sm inline-flex items-center gap-1.5 py-2 text-danger hover:underline">
+              <Trash2 size={14} aria-hidden /> Delete Account
+            </button>
+            <Text variant="caption" tone="subtle">
+              Gymmigo web
+            </Text>
           </div>
         </div>
       </div>
-      
-      {/* Map Picker Modal */}
-      <MapPickerModal 
-        isOpen={isMapOpen}
-        onClose={() => setIsMapOpen(false)}
-        onConfirm={handleMapConfirm}
+
+      <Sheet
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        eyebrow="Unique fitness ID"
+        title={code ?? 'Card pending'}
+        size="sm"
+        footer={
+          <div className="flex gap-2">
+            <Button label="Copy link" variant="secondary" fullWidth disabled={!code} onClick={copyLink} />
+            <Button label="Open FitCard" fullWidth onClick={openCard} />
+          </div>
+        }>
+        <div className="mx-auto w-fit rounded-gm-xl bg-white p-4">
+          <QRCodeSVG value={fitnessQrPayload(card.data, code)} size={214} bgColor="#FFFFFF" fgColor="#131315" />
+        </div>
+        <Text variant="footnote" tone="muted" className="mt-3 text-center">
+          Let a gym or friend scan this to open your FitCard.
+        </Text>
+      </Sheet>
+
+      <EditProfileSheet
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        profile={p}
+        onSaved={async () => {
+          await qc.invalidateQueries({ queryKey: profileKeys.me });
+          await refreshUser();
+        }}
       />
+      <MigoSetupSheet open={migoOpen} onClose={() => setMigoOpen(false)} initial={fitnessInitial} onSaved={() => qc.invalidateQueries({ queryKey: profileKeys.fitness })} />
+      <AddressesSheet open={addrOpen} onClose={() => setAddrOpen(false)} addresses={addrList} onChanged={() => qc.invalidateQueries({ queryKey: profileKeys.addresses })} />
     </div>
   );
-};
-
-export default Profile;
+}
