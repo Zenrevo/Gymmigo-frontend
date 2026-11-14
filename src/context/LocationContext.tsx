@@ -78,7 +78,6 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsLocating(false);
       },
       (err) => {
-        console.error("GPS Error:", err);
         if (err.code === 1) setPermissionStatus('denied');
         setIsLocating(false);
       },
@@ -86,8 +85,23 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   }, []);
 
+  // Never prompt on page load (the landing page included): read GPS silently only when location is
+  // already allowed; otherwise wait for an explicit "Use my location" (refreshGPS) from the UI.
   useEffect(() => {
-    refreshGPS();
+    const perms = (navigator as Navigator & { permissions?: Permissions }).permissions;
+    if (!perms?.query) return;
+    let cancelled = false;
+    perms
+      .query({ name: 'geolocation' as PermissionName })
+      .then(status => {
+        if (cancelled) return;
+        if (status.state === 'granted') refreshGPS();
+        else setPermissionStatus(status.state === 'denied' ? 'denied' : 'prompt');
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
   }, [refreshGPS]);
 
   return (
