@@ -1,11 +1,5 @@
 import { Route } from 'react-router-dom';
-import RunTogetherPage from '../pages/RunTogether/RunTogetherPage';
-import RoomCreatePage from '../pages/RunTogether/RoomCreatePage';
-import RoomPage from '../pages/RunTogether/RoomPage';
-import RoomMembersPage from '../pages/RunTogether/RoomMembersPage';
-import FindPeoplePage from '../pages/People/FindPeoplePage';
-import FollowListPage from '../pages/People/FollowListPage';
-import UserProfilePage from '../pages/People/UserProfilePage';
+import { RunTogetherPage, RoomCreatePage, RoomPage, RoomMembersPage, FindPeoplePage, FollowListPage, UserProfilePage } from './runTogetherPages';
 
 /** Run together (club, rooms) and People (children of the /app layout route). */
 export const runTogetherRoutes = (

@@ -27,6 +27,9 @@
   --gm-accent-soft: #FFE9E1;
   --gm-accent-border: #FFC7B3;
   --gm-accent-text: #B02F00;
+  /* Filled call-to-action behind white text: deeper than the brand orange so labels pass WCAG AA (4.8:1). */
+  --gm-cta: #CF3F0C;
+  --gm-cta-pressed: #B5370A;
   --gm-selection: #131315;
   --gm-on-selection: #FFFFFF;
 
@@ -118,6 +121,8 @@
   --color-accent-soft: var(--gm-accent-soft);
   --color-accent-border: var(--gm-accent-border);
   --color-accent-text: var(--gm-accent-text);
+  --color-cta: var(--gm-cta);
+  --color-cta-pressed: var(--gm-cta-pressed);
   --color-selection: var(--gm-selection);
   --color-on-selection: var(--gm-on-selection);
 

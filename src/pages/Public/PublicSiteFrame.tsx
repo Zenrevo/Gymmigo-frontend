@@ -73,7 +73,7 @@ export function PublicSiteFrame({ children }: FrameProps) {
   );
 
   return (
-    <div className="min-h-dvh overflow-x-clip bg-background font-sans text-ink antialiased selection:bg-accent selection:text-white">
+    <div className="min-h-dvh overflow-x-clip bg-background font-sans text-ink antialiased selection:bg-cta selection:text-white">
       <a href="#main" className="sr-only z-[200] rounded-lg bg-ink px-4 py-2 text-background focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
         Skip to content
       </a>
@@ -109,7 +109,7 @@ export function PublicSiteFrame({ children }: FrameProps) {
                   el.scrollIntoView({ behavior: 'smooth' });
                 }
               }}
-              className="hidden h-10 items-center rounded-full bg-accent px-5 text-[15px] font-semibold text-white transition-colors hover:bg-accent-pressed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:inline-flex"
+              className="hidden h-10 items-center rounded-full bg-cta px-5 text-[15px] font-semibold text-white transition-colors hover:bg-cta-pressed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:inline-flex"
             >
               Get the app
             </a>
@@ -147,7 +147,7 @@ export function PublicSiteFrame({ children }: FrameProps) {
                   <Link to={actions.getStartedPath} className="flex h-11 flex-1 items-center justify-center rounded-full border border-border-strong text-[15px] font-semibold text-ink">
                     {token ? 'Open app' : 'Sign in'}
                   </Link>
-                  <a href="#get-the-app" onClick={() => setMenuOpen(false)} className="flex h-11 flex-1 items-center justify-center rounded-full bg-accent text-[15px] font-semibold text-white">
+                  <a href="#get-the-app" onClick={() => setMenuOpen(false)} className="flex h-11 flex-1 items-center justify-center rounded-full bg-cta text-[15px] font-semibold text-white">
                     Get the app
                   </a>
                 </div>
@@ -322,7 +322,7 @@ function LeadModal({ intent, onClose }: { intent: LeadIntent | null; onClose: ()
           <input aria-label="City or gym name" value={city} onChange={e => setCity(e.target.value)} placeholder="City or gym name" className={cn(inputClass, 'sm:col-span-2')} />
         </div>
         <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-          <button type="submit" className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-accent px-5 text-[15px] font-semibold text-white transition-colors hover:bg-accent-pressed">
+          <button type="submit" className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-cta px-5 text-[15px] font-semibold text-white transition-colors hover:bg-cta-pressed">
             <MessageCircle size={17} /> Continue on WhatsApp
           </button>
           <a href={buildEmailUrl('Gymmigo enquiry', emailBody)} className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border-strong px-5 text-[15px] font-semibold text-ink transition-colors hover:bg-surface-sunken">

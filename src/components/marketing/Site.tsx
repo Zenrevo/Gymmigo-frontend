@@ -33,7 +33,7 @@ export function StoreButtons({ className, tone = 'default' }: { className?: stri
       <span
         className={cn(
           'inline-flex h-12 items-center gap-3 rounded-xl border px-4',
-          inverse ? 'border-white/20 text-white/70' : 'border-border-strong text-ink-subtle',
+          inverse ? 'border-white/25 text-white/85' : 'border-border-strong text-ink-muted',
         )}
         title="The iPhone app is in testing"
       >
@@ -42,7 +42,7 @@ export function StoreButtons({ className, tone = 'default' }: { className?: stri
           <rect x="10" y="4.5" width="4" height="1.2" rx="0.6" fill="currentColor" />
         </svg>
         <span className="flex flex-col text-left leading-none">
-          <span className="text-[10px] font-medium opacity-80">iPhone</span>
+          <span className="text-[10px] font-medium">iPhone</span>
           <span className="mt-0.5 text-[15px] font-semibold tracking-tight">Coming soon</span>
         </span>
       </span>

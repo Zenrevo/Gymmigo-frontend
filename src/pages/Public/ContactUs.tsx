@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { Mail, MessageCircle } from 'lucide-react';
 import { Container, Eyebrow } from '../../components/marketing/Site';
-import { Reveal } from '../../components/marketing/Motion';
+import { AboveFold, Reveal } from '../../components/marketing/Motion';
 import { usePageMeta } from '../../components/marketing/usePageMeta';
 import { PublicSiteFrame } from './PublicSiteFrame';
 import { buildEmailUrl } from './publicLinks';
@@ -32,6 +32,7 @@ export default function ContactUs() {
   return (
     <PublicSiteFrame active="contact">
       {actions => (
+        <AboveFold>
         <section className="pb-24 pt-14 sm:pt-20">
           <Container className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr]">
             <Reveal>
@@ -85,6 +86,7 @@ export default function ContactUs() {
             </Reveal>
           </Container>
         </section>
+        </AboveFold>
       )}
     </PublicSiteFrame>
   );

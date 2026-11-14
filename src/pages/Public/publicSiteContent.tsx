@@ -216,3 +216,10 @@ export const pricingPlans = [
     features: ['Everything in Growth', 'Multiple gyms under one account', 'Team and manager roles', 'Advanced reward setup', 'Priority support', 'Trainer and shop rollout help'],
   },
 ];
+
+export const pricingFaqs: Faq[] = [
+  { question: 'Why is there no price on the page?', answer: 'Gyms differ a lot in size, branches and what they want switched on. We would rather agree a fair monthly price on a short call than publish a number that fits nobody.' },
+  { question: 'Do members pay anything to Gymmigo?', answer: 'No. Members use the app free. They pay your gym for the membership, at your front desk.' },
+  { question: 'Can we start small and add tools later?', answer: 'Yes. You can start with the listing, plans and QR check-in, and add finance, clubs or more branches when they need them.' },
+  { question: 'How long does setup take?', answer: 'Usually a day or two: your gym profile, plans and an Excel import of current members. We help over WhatsApp while you do it.' },
+];

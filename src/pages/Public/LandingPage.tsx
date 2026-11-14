@@ -3,7 +3,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { LaptopFrame, PhoneFrame } from '../../components/marketing/Frames';
-import { Reveal } from '../../components/marketing/Motion';
+import { AboveFold, Reveal } from '../../components/marketing/Motion';
 import { useParallax } from '../../components/marketing/motionUtils';
 import { RouteLine } from '../../components/marketing/RouteLine';
 import { Shot, type ShotName } from '../../components/marketing/Shot';
@@ -82,6 +82,7 @@ function Landing({ actions }: { actions: PublicActions }) {
 function Hero({ actions }: { actions: PublicActions }) {
   const { ref, y } = useParallax(60);
   return (
+    <AboveFold>
     <section ref={ref} className="relative overflow-hidden pb-20 pt-12 sm:pt-16 lg:pb-28">
       <div aria-hidden className="pointer-events-none absolute right-[-12%] top-[-10%] h-[680px] w-[680px] rounded-full bg-accent-soft opacity-70 blur-3xl [[data-theme=dark]_&]:opacity-40" />
       <Container className="relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
@@ -128,6 +129,7 @@ function Hero({ actions }: { actions: PublicActions }) {
         </div>
       </Container>
     </section>
+    </AboveFold>
   );
 }
 
@@ -313,7 +315,7 @@ function Owners({ actions }: { actions: PublicActions }) {
           </p>
           <Points items={['Members, plans and renewals in one list', 'A club ladder that turns check-ins into referrals', 'Revenue, expenses and products per gym']} />
           <div className="mt-9 flex flex-wrap gap-3">
-            <button type="button" onClick={() => actions.openLead('owner', 'landing owners')} className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-[15px] font-semibold text-white transition-colors hover:bg-accent-pressed">
+            <button type="button" onClick={() => actions.openLead('owner', 'landing owners')} className="inline-flex h-12 items-center rounded-full bg-cta px-6 text-[15px] font-semibold text-white transition-colors hover:bg-cta-pressed">
               List your gym
             </button>
             <Link to="/gym-owners" className="inline-flex h-12 items-center gap-2 rounded-full border border-border-strong px-6 text-[15px] font-semibold transition-colors hover:bg-surface">
@@ -357,7 +359,7 @@ function Trainers({ actions }: { actions: PublicActions }) {
                 Request early access
               </button>
               <Link to="/trainers" className="inline-flex h-12 items-center gap-2 rounded-full px-4 text-[15px] font-semibold text-ink-muted hover:text-ink">
-                Learn more <ArrowRight size={16} />
+                Learn more<span className="sr-only"> about Gymmigo for trainers</span> <ArrowRight size={16} aria-hidden />
               </Link>
             </div>
           </div>

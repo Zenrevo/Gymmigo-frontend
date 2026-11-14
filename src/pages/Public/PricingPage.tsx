@@ -1,17 +1,10 @@
 import { Check } from 'lucide-react';
 import { Container, Eyebrow, Faq } from '../../components/marketing/Site';
-import { Reveal } from '../../components/marketing/Motion';
+import { AboveFold, Reveal } from '../../components/marketing/Motion';
 import { usePageMeta } from '../../components/marketing/usePageMeta';
 import { cn } from '../../components/kit/cn';
 import { PublicSiteFrame } from './PublicSiteFrame';
-import { pricingPlans } from './publicSiteContent';
-
-const pricingFaqs = [
-  { question: 'Why is there no price on the page?', answer: 'Gyms differ a lot in size, branches and what they want switched on. We would rather agree a fair monthly price on a short call than publish a number that fits nobody.' },
-  { question: 'Do members pay anything to Gymmigo?', answer: 'No. Members use the app free. They pay your gym for the membership, at your front desk.' },
-  { question: 'Can we start small and add tools later?', answer: 'Yes. You can start with the listing, plans and QR check-in, and add finance, clubs or more branches when they need them.' },
-  { question: 'How long does setup take?', answer: 'Usually a day or two: your gym profile, plans and an Excel import of current members. We help over WhatsApp while you do it.' },
-];
+import { pricingFaqs, pricingPlans } from './publicSiteContent';
 
 export default function PricingPage() {
   usePageMeta({
@@ -22,6 +15,7 @@ export default function PricingPage() {
     <PublicSiteFrame active="pricing">
       {actions => (
         <>
+          <AboveFold>
           <section className="pb-16 pt-14 sm:pt-20">
             <Container>
               <Reveal className="max-w-2xl">
@@ -33,6 +27,7 @@ export default function PricingPage() {
               </Reveal>
             </Container>
           </section>
+          </AboveFold>
 
           <section className="pb-24">
             <Container className="grid gap-5 lg:grid-cols-3">
@@ -47,7 +42,7 @@ export default function PricingPage() {
                 >
                   <div className="flex items-center justify-between">
                     <h2 className="font-display text-[24px] font-bold tracking-[-0.02em]">{plan.name}</h2>
-                    {plan.featured ? <span className="rounded-full bg-accent px-3 py-1 text-[12px] font-semibold text-white">Recommended</span> : null}
+                    {plan.featured ? <span className="rounded-full bg-cta px-3 py-1 text-[12px] font-semibold text-white">Recommended</span> : null}
                   </div>
                   <p className={cn('mt-2 text-[15px] leading-6', plan.featured ? 'opacity-70' : 'text-ink-subtle')}>{plan.audience}</p>
                   <p className="mt-8 font-display text-[32px] font-extrabold tracking-[-0.03em]">{plan.price}</p>
@@ -64,7 +59,7 @@ export default function PricingPage() {
                     onClick={() => actions.openLead('pricing', `pricing ${plan.name}`)}
                     className={cn(
                       'mt-10 inline-flex h-12 items-center justify-center rounded-full text-[15px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-                      plan.featured ? 'bg-accent text-white hover:bg-accent-pressed' : 'border border-border-strong hover:bg-surface-sunken',
+                      plan.featured ? 'bg-cta text-white hover:bg-cta-pressed' : 'border border-border-strong hover:bg-surface-sunken',
                     )}
                   >
                     Talk to us about {plan.name}

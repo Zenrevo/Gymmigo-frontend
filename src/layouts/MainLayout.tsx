@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
+import PageLoader from '../components/PageLoader';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, MapPin, Sparkles } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
@@ -271,7 +272,9 @@ export default function MainLayout() {
           </header>
 
           <main className="mx-auto w-full max-w-[1200px] flex-1 px-4 pb-[calc(96px+env(safe-area-inset-bottom))] pt-5 md:px-8 md:pb-12 md:pt-8">
-            <Outlet />
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
 

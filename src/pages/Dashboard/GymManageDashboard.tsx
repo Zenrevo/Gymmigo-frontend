@@ -1,6 +1,7 @@
 import { pickOwnerGym } from '../../api/owner';
+import PageLoader from '../../components/PageLoader';
 import type { OwnerGym } from '../../types/owner';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { Outlet, useLocation, NavLink, Link } from 'react-router-dom';
 import {
   ArrowLeft, Users, Dumbbell, LayoutDashboard, Star, Settings, Image as ImageIcon,
@@ -164,7 +165,9 @@ const GymManageDashboard = () => {
       </nav>
 
       <main className="min-w-0">
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

@@ -40,7 +40,11 @@ export function Shot({ name, alt, priority, scheme, className }: Props) {
   const base = `/marketing/${s}/${name}`;
   return (
     <picture>
-      <source type="image/webp" srcSet={`${base}-${w1}.webp ${w1}w, ${base}-${w2}.webp ${w2}w`} sizes={web ? '(min-width: 1024px) 760px, 92vw' : '(min-width: 1024px) 280px, 62vw'} />
+      <source
+        type="image/webp"
+        srcSet={web ? `${base}-${w1}.webp ${w1}w, ${base}-${w2}.webp ${w2}w` : `${base}-300.webp 300w, ${base}-450.webp 450w, ${base}-600.webp 600w`}
+        sizes={web ? '(min-width: 1024px) 760px, 92vw' : '(min-width: 1024px) 250px, 44vw'}
+      />
       <img
         src={`${base}-${w1}.jpg`}
         width={w1}
