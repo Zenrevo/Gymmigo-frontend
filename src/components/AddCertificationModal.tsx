@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../utils/api';
 import { Award, Loader2 } from 'lucide-react';
-import Modal from './Modal';
+import { Sheet } from './kit';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
 
@@ -57,33 +57,33 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add Certification" maxWidth="max-w-md">
+    <Sheet open={isOpen} onClose={onClose} title="Add Certification" size="sm">
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Name */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Certification Name *</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Certification Name *</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             placeholder="e.g. NASM Certified Personal Trainer"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+            className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
             required
           />
         </div>
 
         {/* Issued By */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Issuing Organization *</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Issuing Organization *</label>
           <input
             type="text"
             name="issued_by"
             value={formData.issued_by}
             onChange={handleChange}
             placeholder="e.g. National Academy of Sports Medicine"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+            className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
             required
           />
         </div>
@@ -91,7 +91,7 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
         <div className="grid grid-cols-2 gap-4">
           {/* Issue Year */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Issue Year *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Issue Year *</label>
             <input
               type="number"
               name="issue_year"
@@ -100,14 +100,14 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
               value={formData.issue_year}
               onChange={handleChange}
               placeholder="YYYY"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
           
           {/* Expiry Year */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Expiry Year (Optional)</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Expiry Year (Optional)</label>
             <input
               type="number"
               name="expiry_year"
@@ -115,17 +115,17 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
               value={formData.expiry_year}
               onChange={handleChange}
               placeholder="YYYY"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 pt-4 border-t border-white/10">
+        <div className="flex gap-4 pt-4 border-t border-border">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-colors"
+            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
           >
             Cancel
           </button>
@@ -133,10 +133,10 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
             type="submit"
             disabled={loading}
             className={clsx(
-              "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+              "flex-[2] py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
               loading 
-                ? "bg-primary/50 text-black/50 cursor-not-allowed" 
-                : "bg-primary text-black hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
+                : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
             )}
           >
             {loading ? (
@@ -147,6 +147,6 @@ export default function AddCertificationModal({ isOpen, onClose, onSuccess }: Ad
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

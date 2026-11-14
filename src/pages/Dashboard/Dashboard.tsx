@@ -83,7 +83,7 @@ const Dashboard = () => {
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="relative py-10 px-8 rounded-[2.5rem] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] overflow-hidden shadow-2xl"
+        className="relative py-10 px-8 rounded-[2.5rem] bg-gradient-to-br from-ink/[0.03] to-transparent border border-ink/[0.05] overflow-hidden shadow-2xl"
       >
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -93,10 +93,10 @@ const Dashboard = () => {
             <div className="h-[1px] w-8 bg-primary/50" />
             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Intelligence Hub</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-white italic">
+          <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-ink italic">
             WELCOME BACK, {user?.full_name?.split(' ')[0] || 'CHAMP'} <span className="not-italic">⚡️</span>
           </h1>
-          <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-xs md:text-sm max-w-2xl leading-relaxed">
+          <p className="text-ink/40 font-bold uppercase tracking-[0.2em] text-xs md:text-sm max-w-2xl leading-relaxed">
             {user?.active_role === 'user' && data?.ai_tagline 
               ? data.ai_tagline 
               : ['gym_owner', 'gym_manager'].includes(user?.active_role || '') 
@@ -277,17 +277,17 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
   return (
     <>
       <div className={clsx('space-y-8', showTrainingPanel ? 'md:col-span-2' : 'md:col-span-3')}>
-        <section className="glass-card overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-white/[0.03] to-transparent p-5 sm:p-7">
+        <section className="glass-card overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-ink/[0.03] to-transparent p-5 sm:p-7">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <div className={clsx('inline-flex items-center gap-2 rounded-2xl border bg-slate-950/25 px-4 py-3', scoreTone)}>
+                <div className={clsx('inline-flex items-center gap-2 rounded-2xl border bg-surface/25 px-4 py-3', scoreTone)}>
                   {statsLoading ? (
-                    <span className="text-xs font-black uppercase tracking-widest text-white/40">Syncing</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-ink/40">Syncing</span>
                   ) : (
                     <>
                       <span className="text-3xl font-black">{score}</span>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white/40">score</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-ink/40">score</span>
                     </>
                   )}
                 </div>
@@ -298,7 +298,7 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                   </h3>
                 </div>
               </div>
-              <p className="max-w-xl text-sm font-semibold leading-6 text-white/55">{coachNudge}</p>
+              <p className="max-w-xl text-sm font-semibold leading-6 text-ink/55">{coachNudge}</p>
             </div>
 
             <button
@@ -315,29 +315,29 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-2">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-xl border border-ink/10 bg-surface-sunken p-4">
               <Trophy size={15} className="mb-2 text-primary" />
-              <p className="text-xl font-black text-white">{activeDays}</p>
-              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-white/35">Active days</p>
+              <p className="text-xl font-black text-ink">{activeDays}</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-ink/35">Active days</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-xl border border-ink/10 bg-surface-sunken p-4">
               <Flame size={15} className="mb-2 text-amber-400" fill="currentColor" />
               <p className="text-xl font-black text-amber-300">{streak}</p>
-              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-white/35">Streak</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-ink/35">Streak</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+            <div className="rounded-xl border border-ink/10 bg-surface-sunken p-4">
               <Award size={15} className="mb-2 text-emerald-400" />
               <p className="text-xl font-black text-emerald-300">{totalPoints}</p>
-              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-white/35">Points</p>
+              <p className="mt-1 text-[9px] font-black uppercase tracking-widest text-ink/35">Points</p>
             </div>
           </div>
 
           <div className="mt-5 space-y-2">
-            <div className="flex items-center justify-between text-xs font-black text-white/45">
+            <div className="flex items-center justify-between text-xs font-black text-ink/45">
               <span>Weekly progress</span>
               <span>{activeDays}/{weeklyTarget} active days</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white/10">
+            <div className="h-2 overflow-hidden rounded-full bg-ink/10">
               <div className="h-full rounded-full bg-primary" style={{ width: `${weekProgress}%` }} />
             </div>
           </div>
@@ -345,34 +345,34 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
           {primaryGym && (
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Link to="/app/clubs" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-primary transition-all hover:border-primary/40 hover:bg-primary/15">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-black/25">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-surface-sunken">
                   <Trophy size={17} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-black uppercase tracking-widest text-white">Club Road</span>
-                  <span className="mt-1 block truncate text-[11px] font-bold text-white/45">{totalPoints} pts · {streak} day streak</span>
+                  <span className="block text-xs font-black uppercase tracking-widest text-ink">Club Road</span>
+                  <span className="mt-1 block truncate text-[11px] font-bold text-ink/45">{totalPoints} pts · {streak} day streak</span>
                 </span>
                 <ArrowRight size={15} />
               </Link>
 
               <Link to="?social=true&socialTab=profile" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-cyan-300 transition-all hover:border-cyan-400/40 hover:bg-cyan-400/15">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/25 bg-black/25">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/25 bg-surface-sunken">
                   <Award size={17} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-black uppercase tracking-widest text-white">My FitCard</span>
-                  <span className="mt-1 block truncate text-[11px] font-bold text-white/45">Redesigned Card</span>
+                  <span className="block text-xs font-black uppercase tracking-widest text-ink">My FitCard</span>
+                  <span className="mt-1 block truncate text-[11px] font-bold text-ink/45">Redesigned Card</span>
                 </span>
                 <ArrowRight size={15} />
               </Link>
 
               <Link to="?social=true&socialTab=feed" className="flex min-h-[76px] items-center gap-3 rounded-xl border border-[#f1822c]/20 bg-[#f1822c]/10 px-4 py-3 text-[#f1822c] transition-all hover:border-[#f1822c]/40 hover:bg-[#f1822c]/15">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#f1822c]/25 bg-black/25">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#f1822c]/25 bg-surface-sunken">
                   <Users size={17} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-xs font-black uppercase tracking-widest text-white">Social Feed</span>
-                  <span className="mt-1 block truncate text-[11px] font-bold text-white/45">Buddies & Posts</span>
+                  <span className="block text-xs font-black uppercase tracking-widest text-ink">Social Feed</span>
+                  <span className="mt-1 block truncate text-[11px] font-bold text-ink/45">Buddies & Posts</span>
                 </span>
                 <ArrowRight size={15} />
               </Link>
@@ -384,12 +384,12 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                   disabled={claimingReward}
                   className="flex min-h-[76px] items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left text-emerald-300 transition-all hover:border-emerald-400/40 hover:bg-emerald-400/15 disabled:opacity-70"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-black/25">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-surface-sunken">
                     <Package size={17} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-black uppercase tracking-widest text-white">Reward ready</span>
-                    <span className="mt-1 block truncate text-[11px] font-bold text-white/45">
+                    <span className="block text-xs font-black uppercase tracking-widest text-ink">Reward ready</span>
+                    <span className="mt-1 block truncate text-[11px] font-bold text-ink/45">
                       {claimingReward ? 'Sending claim...' : clubReward.available.reward_preview || clubReward.available.name}
                     </span>
                   </span>
@@ -399,14 +399,14 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                   to="/app/clubs"
                   className="flex min-h-[76px] items-center gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-left text-emerald-300 transition-all hover:border-emerald-400/40 hover:bg-emerald-400/15"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-black/25">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/25 bg-surface-sunken">
                     <Package size={17} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-black uppercase tracking-widest text-white">
+                    <span className="block text-xs font-black uppercase tracking-widest text-ink">
                       {clubReward?.pending ? 'Claim sent' : 'FitCard'}
                     </span>
-                    <span className="mt-1 block truncate text-[11px] font-bold text-white/45">
+                    <span className="mt-1 block truncate text-[11px] font-bold text-ink/45">
                       {clubReward?.pending ? clubReward.pending.reward_label || 'Show at gym desk' : 'Share and invite'}
                     </span>
                   </span>
@@ -438,7 +438,7 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
             className="glass-card p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between group overflow-hidden cursor-pointer hover:border-primary/50 transition-all border border-transparent gap-4"
           >
              <div className="flex items-center gap-4 sm:gap-6">
-               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden relative shrink-0">
+               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden relative shrink-0">
                  {group.gym_logo_url ? (
                    <img src={group.gym_logo_url} alt="logo" className="w-full h-full object-cover" />
                  ) : (
@@ -448,22 +448,22 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                <div className="min-w-0">
                  <h4 className="text-lg sm:text-xl font-bold group-hover:text-primary transition-colors truncate">{group.gym_name}</h4>
                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
-                   <p className="text-white/40 text-[10px] sm:text-xs font-bold uppercase tracking-widest">{group.memberships.length} Plan{group.memberships.length !== 1 && 's'}</p>
+                   <p className="text-ink/40 text-[10px] sm:text-xs font-bold uppercase tracking-widest">{group.memberships.length} Plan{group.memberships.length !== 1 && 's'}</p>
                     <div className="flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-all shrink-0">
                       <Activity size={10} className={clsx(
                         "animate-pulse",
                         (group.current_occupancy / (group.max_capacity || 100)) > 0.8 ? "text-red-500" : 
                         (group.current_occupancy / (group.max_capacity || 100)) > 0.5 ? "text-orange-500" : "text-emerald-500"
                       )} />
-                      <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-tighter text-white whitespace-nowrap">
-                        {group.current_occupancy} / {group.max_capacity || 100} <span className="text-white/40 font-bold">LIVE</span>
+                      <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-tighter text-ink whitespace-nowrap">
+                        {group.current_occupancy} / {group.max_capacity || 100} <span className="text-ink/40 font-bold">LIVE</span>
                       </span>
                     </div>
 
                  </div>
                </div>
              </div>
-             <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-white/5">
+             <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-ink/5">
                <div className="flex flex-col items-end gap-2">
                  <span className={clsx(
                    "text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shrink-0",
@@ -472,13 +472,13 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                    {group.status}
                  </span>
                </div>
-               <div className="text-white/20 group-hover:text-primary transition-colors">
+               <div className="text-ink/20 group-hover:text-primary transition-colors">
                  <ArrowRight size={18} className="sm:w-5 sm:h-5" />
                </div>
              </div>
           </motion.div>
         )) : (
-          <div className="glass-card p-12 text-center text-white/20">No memberships yet. Visit a gym to get started!</div>
+          <div className="glass-card p-12 text-center text-ink/20">No memberships yet. Visit a gym to get started!</div>
         )}
 
         {groupedTrainerBookings.length > 0 && (
@@ -497,20 +497,20 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                   className="glass-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between group cursor-pointer hover:border-primary/30 transition-all gap-4"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all shrink-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all shrink-0">
                       <User size={20} className="sm:w-6 sm:h-6" />
                     </div>
                     <div className="min-w-0">
                       <h4 className="font-bold text-sm sm:text-base group-hover:text-primary transition-colors truncate">{booking.trainer_name || 'Pro Trainer'}</h4>
-                      <p className="text-[9px] sm:text-[10px] text-white/40 font-bold uppercase tracking-widest truncate">{booking.package_name || 'Personal Training'}</p>
+                      <p className="text-[9px] sm:text-[10px] text-ink/40 font-bold uppercase tracking-widest truncate">{booking.package_name || 'Personal Training'}</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between sm:justify-end gap-6 pt-4 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                  <div className="flex items-center justify-between sm:justify-end gap-6 pt-4 sm:pt-0 border-t sm:border-t-0 border-ink/5">
                     <div className="flex flex-col items-start sm:items-end">
-                      <p className="text-[9px] text-white/20 font-black uppercase tracking-widest mb-0.5">Sessions</p>
+                      <p className="text-[9px] text-ink/20 font-black uppercase tracking-widest mb-0.5">Sessions</p>
                       <p className="text-xs sm:text-sm font-black">
-                        {booking.sessions_completed} <span className="text-white/20 font-medium">/ {booking.total_sessions}</span>
+                        {booking.sessions_completed} <span className="text-ink/20 font-medium">/ {booking.total_sessions}</span>
                       </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -518,11 +518,11 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                         "text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shrink-0",
                         booking.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                         booking.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                        'bg-white/5 text-white/20 border border-white/10'
+                        'bg-ink/5 text-ink/20 border border-ink/10'
                       )}>
                         {booking.status}
                       </span>
-                      <ArrowRight size={16} className="text-white/20 group-hover:text-primary transition-all group-hover:translate-x-1" />
+                      <ArrowRight size={16} className="text-ink/20 group-hover:text-primary transition-all group-hover:translate-x-1" />
                     </div>
                   </div>
                 </div>
@@ -541,16 +541,16 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
                   {upcomingSessions.slice(0, 3).map((session: any) => (
                     <Link key={session.id} to={`/app/sessions/${session.id}`} className="block glass-card p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20 space-y-2 hover:border-primary/50 transition-all cursor-pointer">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-bold text-white capitalize">{session.session_type} Session</p>
+                        <p className="text-sm font-bold text-ink capitalize">{session.session_type} Session</p>
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-primary/20 text-primary border border-primary/30">
                           {session.status === 'pending_confirmation' ? 'Pending' : session.status}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-white/60 text-xs font-bold">
+                      <div className="flex items-center gap-3 text-ink/60 text-xs font-bold">
                         <Calendar size={14} className="text-primary" />
                         <span>{new Date(session.scheduled_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} • {session.scheduled_time}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-white/60 text-xs font-bold">
+                      <div className="flex items-center gap-3 text-ink/60 text-xs font-bold">
                         <MapPin size={14} className="text-primary" />
                         <span className="truncate max-w-[200px]" title={session.location || 'Trainer Gym'}>{session.location || 'Trainer Gym'}</span>
                       </div>
@@ -715,24 +715,24 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
   return (
     <>
       <div className="md:col-span-2 space-y-6">
-        <section className="rounded-[2rem] border border-primary/20 bg-white/[0.035] p-5 sm:p-6">
+        <section className="rounded-[2rem] border border-primary/20 bg-ink/[0.035] p-5 sm:p-6">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.35em] text-primary">Growth Command Center</p>
-                <h3 className="mt-2 text-3xl font-black tracking-tight text-white">Do this first</h3>
-                <p className="mt-1 text-sm font-semibold text-white/45">One priority, then the numbers behind it.</p>
+                <h3 className="mt-2 text-3xl font-black tracking-tight text-ink">Do this first</h3>
+                <p className="mt-1 text-sm font-semibold text-ink/45">One priority, then the numbers behind it.</p>
               </div>
-              {growthLoading && <span className="text-xs font-black uppercase tracking-widest text-white/35">Syncing</span>}
+              {growthLoading && <span className="text-xs font-black uppercase tracking-widest text-ink/35">Syncing</span>}
             </div>
 
             <div className={clsx('flex flex-col gap-4 rounded-2xl border p-4 lg:flex-row lg:items-center', ownerPriority.border)}>
-              <div className={clsx('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border bg-black/20', ownerPriority.border, ownerPriority.color)}>
+              <div className={clsx('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border bg-surface-sunken', ownerPriority.border, ownerPriority.color)}>
                 <OwnerPriorityIcon size={22} />
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="text-lg font-black leading-tight text-white">{ownerPriority.title}</h4>
-                <p className="mt-1 text-sm font-semibold leading-5 text-white/50">{ownerPriority.copy}</p>
+                <h4 className="text-lg font-black leading-tight text-ink">{ownerPriority.title}</h4>
+                <p className="mt-1 text-sm font-semibold leading-5 text-ink/50">{ownerPriority.copy}</p>
               </div>
               <Link to={ownerPriority.route} className={clsx('inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest transition hover:brightness-110', ownerPriority.button)}>
                 {ownerPriority.label} <ArrowRight size={14} />
@@ -797,7 +797,7 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
             )}
             
             <div className="flex items-center gap-4 pr-16">
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-ink/5 border border-ink/10 flex items-center justify-center text-primary group-hover:bg-primary/20 transition-all overflow-hidden shrink-0">
                 {item.gym?.logo_url ? (
                   <img src={item.gym.logo_url} alt={item.gym.name} className="w-full h-full object-cover" />
                 ) : (
@@ -806,27 +806,27 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
               </div>
               <div>
                 <h4 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">{item.gym?.name}</h4>
-                <p className="text-xs text-white/40 line-clamp-1">{item.gym?.description || 'No description available'}</p>
+                <p className="text-xs text-ink/40 line-clamp-1">{item.gym?.description || 'No description available'}</p>
               </div>
             </div>
 
             {/* Performance Analytics Grid */}
-            <div className="grid grid-cols-2 gap-4 mt-2 pt-4 border-t border-white/5 group-hover:border-white/10 transition-colors">
-              <div className="bg-white/5 rounded-xl p-3 flex flex-col justify-end">
+            <div className="grid grid-cols-2 gap-4 mt-2 pt-4 border-t border-ink/5 group-hover:border-ink/10 transition-colors">
+              <div className="bg-ink/5 rounded-xl p-3 flex flex-col justify-end">
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Active Users</p>
+                  <p className="text-[10px] text-ink/40 uppercase tracking-widest font-bold">Active Users</p>
                   <Users size={14} className="text-primary/60" />
                 </div>
-                <p className="text-2xl font-black text-white">
+                <p className="text-2xl font-black text-ink">
                   {item.gym?.show_stats ? (item.metrics?.active_members || 0) : '•••'}
                 </p>
               </div>
-              <div className="bg-white/5 rounded-xl p-3 flex flex-col justify-end relative overflow-hidden">
+              <div className="bg-ink/5 rounded-xl p-3 flex flex-col justify-end relative overflow-hidden">
                 <TrendingUp size={60} className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors" />
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">MTD Revenue</p>
+                  <p className="text-[10px] text-ink/40 uppercase tracking-widest font-bold">MTD Revenue</p>
                 </div>
-                <p className="text-2xl font-black text-white">
+                <p className="text-2xl font-black text-ink">
                   {item.gym?.show_stats ? `₹${(item.metrics?.monthly_revenue || 0).toLocaleString()}` : '₹ •••••'}
                 </p>
               </div>
@@ -846,7 +846,7 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
             )}
           </Link>
         )) : (
-          <div className="glass-card p-12 text-center text-white/20">No gyms listed. Start growing your fitness empire!</div>
+          <div className="glass-card p-12 text-center text-ink/20">No gyms listed. Start growing your fitness empire!</div>
         )}
 
         {/* Gym Owner Insights / Analytics & CRM */}
@@ -865,28 +865,28 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
            
            <div className="grid grid-cols-1 gap-4">
               {reviews.length > 0 ? reviews.map((rev) => (
-                 <div key={rev.id} className="glass-card p-5 space-y-3 group hover:border-white/10 transition-all">
+                 <div key={rev.id} className="glass-card p-5 space-y-3 group hover:border-ink/10 transition-all">
                     <div className="flex items-start justify-between">
                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center overflow-hidden border border-white/10">
-                             {rev.avatar_url ? <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" /> : <User size={14} className="text-white/20" />}
+                          <div className="w-8 h-8 rounded-full bg-ink/5 flex items-center justify-center overflow-hidden border border-ink/10">
+                             {rev.avatar_url ? <img src={rev.avatar_url} alt="" className="w-full h-full object-cover" /> : <User size={14} className="text-ink/20" />}
                           </div>
                           <div>
-                             <h5 className="text-xs font-bold text-white">{rev.user_name}</h5>
+                             <h5 className="text-xs font-bold text-ink">{rev.user_name}</h5>
                              <div className="flex items-center gap-1 mt-0.5">
-                                {[1,2,3,4,5].map(i => <Star key={i} size={8} className={clsx(i <= rev.rating ? "text-primary fill-primary" : "text-white/10")} />)}
-                                <span className="text-[8px] text-white/20 ml-1 uppercase font-bold tracking-tighter">on {rev.gym_name}</span>
+                                {[1,2,3,4,5].map(i => <Star key={i} size={8} className={clsx(i <= rev.rating ? "text-primary fill-primary" : "text-ink/10")} />)}
+                                <span className="text-[8px] text-ink/20 ml-1 uppercase font-bold tracking-tighter">on {rev.gym_name}</span>
                              </div>
                           </div>
                        </div>
-                       <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest">{new Date(rev.created_at).toLocaleDateString()}</span>
+                       <span className="text-[8px] font-bold text-ink/20 uppercase tracking-widest">{new Date(rev.created_at).toLocaleDateString()}</span>
                     </div>
                     <div>
-                       <h6 className="text-[10px] font-bold italic text-white/80 uppercase tracking-tight flex items-center gap-1.5">
+                       <h6 className="text-[10px] font-bold italic text-ink/80 uppercase tracking-tight flex items-center gap-1.5">
                          {rev.title}
                          {rev.owner_response && <CheckCircle2 size={10} className="text-emerald-500" />}
                        </h6>
-                       <p className="text-[11px] text-white/40 line-clamp-2 mt-1">{rev.review}</p>
+                       <p className="text-[11px] text-ink/40 line-clamp-2 mt-1">{rev.review}</p>
                     </div>
                     {!rev.owner_response && (
                        <Link 
@@ -898,7 +898,7 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
                     )}
                  </div>
               )) : (
-                 <div className="glass-card p-10 text-center border-dashed text-white/10 text-[10px] uppercase font-bold tracking-[0.2em]">
+                 <div className="glass-card p-10 text-center border-dashed text-ink/10 text-[10px] uppercase font-bold tracking-[0.2em]">
                     No feedback received yet
                  </div>
               )}
@@ -908,21 +908,21 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
       <div className="space-y-8">
         <h3 className="text-xl font-bold">Portfolio Overview</h3>
         <div className="grid grid-cols-1 gap-4">
-          <div className="glass-card p-6 border-b-2 border-b-primary/50 relative overflow-hidden group hover:border-white/10 transition-colors">
+          <div className="glass-card p-6 border-b-2 border-b-primary/50 relative overflow-hidden group hover:border-ink/10 transition-colors">
             <Building2 size={80} className="absolute -right-4 -bottom-4 text-primary/5 group-hover:text-primary/10 transition-all transform group-hover:scale-110" />
-            <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><Building2 size={14} className="text-primary"/> Total Gyms</h4>
+            <h4 className="text-[10px] uppercase tracking-widest text-ink/40 font-bold mb-2 flex items-center gap-2"><Building2 size={14} className="text-primary"/> Total Gyms</h4>
             <p className="text-3xl font-black">{totalGyms}</p>
           </div>
-          <div className="glass-card p-6 border-b-2 border-b-emerald-500/50 relative overflow-hidden group hover:border-white/10 transition-colors">
+          <div className="glass-card p-6 border-b-2 border-b-emerald-500/50 relative overflow-hidden group hover:border-ink/10 transition-colors">
              <Users size={80} className="absolute -right-4 -bottom-4 text-emerald-500/5 group-hover:text-emerald-500/10 transition-all transform group-hover:scale-110" />
-             <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><Users size={14} className="text-emerald-500"/> Total Active Members</h4>
+             <h4 className="text-[10px] uppercase tracking-widest text-ink/40 font-bold mb-2 flex items-center gap-2"><Users size={14} className="text-emerald-500"/> Total Active Members</h4>
              <p className="text-3xl font-black">
                {Array.isArray(data) && data.every((item: any) => item.gym.show_stats) ? totalMembers : '•••'}
              </p>
           </div>
-          <div className="glass-card p-6 border-b-2 border-b-green-500/50 relative overflow-hidden group hover:border-white/10 transition-colors">
+          <div className="glass-card p-6 border-b-2 border-b-green-500/50 relative overflow-hidden group hover:border-ink/10 transition-colors">
              <TrendingUp size={80} className="absolute -right-4 -bottom-4 text-green-500/5 group-hover:text-green-500/10 transition-all transform group-hover:scale-110" />
-             <h4 className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 flex items-center gap-2"><TrendingUp size={14} className="text-green-500"/> Combined MTD Revenue</h4>
+             <h4 className="text-[10px] uppercase tracking-widest text-ink/40 font-bold mb-2 flex items-center gap-2"><TrendingUp size={14} className="text-green-500"/> Combined MTD Revenue</h4>
              <p className="text-3xl font-black">
                {Array.isArray(data) && data.every((item: any) => item.gym.show_stats) ? `₹${totalRevenue.toLocaleString()}` : '₹ •••••'}
              </p>
@@ -934,9 +934,9 @@ const OwnerDashboardView = ({ data, reviews }: { data: any, reviews: any[] }) =>
 };
 
 const GrowthSignal = ({ label, value, tone }: { label: string; value: number; tone: string }) => (
-  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+  <div className="rounded-2xl border border-ink/10 bg-surface-sunken p-4">
     <p className={clsx('text-2xl font-black', tone)}>{value}</p>
-    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-white/35">{label}</p>
+    <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-ink/35">{label}</p>
   </div>
 );
 

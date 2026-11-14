@@ -133,6 +133,12 @@ export function Markdown({ content }: { content: string }) {
                 </div>
               </div>
             );
+          case 'quote':
+            return (
+              <div key={i} className="rounded-r-xl border-l-[3px] border-accent bg-accent-soft/60 px-3.5 py-2.5">
+                <Inline line={b.text} />
+              </div>
+            );
           default:
             return <Inline key={i} line={b.text} />;
         }

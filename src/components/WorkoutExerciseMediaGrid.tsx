@@ -83,7 +83,7 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
         return (
           <div
             key={`${exercise.name || 'exercise'}-${index}`}
-            className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.04]"
+            className="overflow-hidden rounded-xl border border-ink/10 bg-ink/[0.04]"
           >
             {mediaUrl ? (
               <div className="relative">
@@ -91,7 +91,7 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
                   src={mediaUrl}
                   alt={`${exercise.name || 'Exercise'} demonstration`}
                   className={clsx(
-                    "w-full object-cover bg-black/40 cursor-pointer hover:opacity-90 transition-opacity",
+                    "w-full object-cover bg-surface-sunken cursor-pointer hover:opacity-90 transition-opacity",
                     compact ? "h-24" : "h-44"
                   )}
                   loading="lazy"
@@ -110,21 +110,21 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
                 ) : null}
               </div>
             ) : (
-              <div className={compact ? "h-20 w-full bg-white/[0.03] flex items-center justify-center" : "h-32 w-full bg-white/[0.03] flex items-center justify-center"}>
+              <div className={compact ? "h-20 w-full bg-ink/[0.03] flex items-center justify-center" : "h-32 w-full bg-ink/[0.03] flex items-center justify-center"}>
                 {videoUrl ? (
                   <a href={videoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-red-300">
                     <PlayCircle className="h-5 w-5" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Watch</span>
                   </a>
                 ) : (
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/30">No demo</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-ink/30">No demo</span>
                 )}
               </div>
             )}
 
             <div className={compact ? "p-3 space-y-1.5" : "p-4 space-y-2"}>
-              <p className="text-sm font-black text-white capitalize leading-snug">{exercise.name || 'Exercise'}</p>
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/35">
+              <p className="text-sm font-black text-ink capitalize leading-snug">{exercise.name || 'Exercise'}</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-ink/35">
                 {exercise.sets ? `${exercise.sets} sets` : 'Sets as planned'}
                 {exercise.reps ? ` x ${exercise.reps}` : ''}
               </p>
@@ -136,14 +136,14 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
                     </span>
                   ) : null}
                   {equipment ? (
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white/45">
+                    <span className="rounded-full border border-ink/10 bg-ink/5 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-ink/45">
                       {equipment}
                     </span>
                   ) : null}
                 </div>
               )}
               {!compact && firstInstruction ? (
-                <p className="line-clamp-2 text-xs leading-relaxed text-white/45">{firstInstruction}</p>
+                <p className="line-clamp-2 text-xs leading-relaxed text-ink/45">{firstInstruction}</p>
               ) : null}
             </div>
           </div>
@@ -156,15 +156,15 @@ export function WorkoutExerciseMediaGrid({ exercises = [], limit, compact = fals
           onClick={() => setSelectedImage(null)}
         >
           <button 
-            className="absolute top-4 right-4 p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+            className="absolute top-4 right-4 p-2 bg-ink/10 rounded-full hover:bg-ink/20 transition-colors"
             onClick={() => setSelectedImage(null)}
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="w-6 h-6 text-ink" />
           </button>
           <img 
             src={selectedImage} 
             alt="Full size demonstration" 
-            className="max-w-full max-h-[85vh] rounded-xl object-contain border border-white/20"
+            className="max-w-full max-h-[85vh] rounded-xl object-contain border border-ink/20"
             onClick={(e) => e.stopPropagation()} 
           />
         </div>

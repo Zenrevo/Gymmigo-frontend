@@ -1,10 +1,9 @@
+import { ConfirmDialog, Sheet } from '../../../components/kit';
 import { useState, useRef, useEffect } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { CreditCard, Plus, CheckCircle2, MoreVertical, Edit3, Trash2, Clock, Package, X } from 'lucide-react';
 import api from '../../../utils/api';
 import { useNotification } from '../../../context/NotificationContext';
-import Modal from '../../../components/Modal';
-import ConfirmDialog from '../../../components/ConfirmDialog';
 import EmptyState from '../../../components/EmptyState';
 
 const PlansTab = () => {
@@ -236,19 +235,19 @@ const PlansTab = () => {
       {/* Header & Tabs */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight italic">MEMBERSHIP & SERVICES</h2>
-          <p className="text-white/40 text-sm">Configure your time-slots, pricing, and add-ons.</p>
+          <h2 className="text-3xl font-display font-extrabold tracking-tight ">MEMBERSHIP & SERVICES</h2>
+          <p className="text-ink-muted text-sm">Configure your time-slots, pricing, and add-ons.</p>
           
           <div className="flex gap-4 mt-6">
             <button 
               onClick={() => setActiveTab('plans')}
-              className={`pb-2 px-1 text-sm font-bold border-b-2 transition-all ${activeTab === 'plans' ? 'border-primary text-primary' : 'border-transparent text-white/40 hover:text-white'}`}
+              className={`pb-2 px-1 text-sm font-bold border-b-2 transition-all ${activeTab === 'plans' ? 'border-accent text-accent-text' : 'border-transparent text-ink-muted hover:text-ink'}`}
             >
               Membership Plans
             </button>
             <button 
               onClick={() => setActiveTab('addons')}
-              className={`pb-2 px-1 text-sm font-bold border-b-2 transition-all ${activeTab === 'addons' ? 'border-primary text-primary' : 'border-transparent text-white/40 hover:text-white'}`}
+              className={`pb-2 px-1 text-sm font-bold border-b-2 transition-all ${activeTab === 'addons' ? 'border-accent text-accent-text' : 'border-transparent text-ink-muted hover:text-ink'}`}
             >
               Add-ons (Lockers, Parking, etc.)
             </button>
@@ -257,7 +256,7 @@ const PlansTab = () => {
         
         <button 
           onClick={activeTab === 'plans' ? openAddPlanModal : openAddAddonModal} 
-          className="btn-primary py-2.5 px-5 flex items-center gap-2 text-sm whitespace-nowrap self-start md:self-auto"
+          className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2.5 px-5 flex items-center gap-2 text-sm whitespace-nowrap self-start md:self-auto"
         >
           <Plus size={16} /> {activeTab === 'plans' ? 'Add Plan' : 'Add Service'}
         </button>
@@ -270,25 +269,25 @@ const PlansTab = () => {
               icon={CreditCard}
               title="No Membership Plans"
               description="Create pricing slots like 'Morning Warrior' or 'Evening Prime' with different durations."
-              action={<button onClick={openAddPlanModal} className="text-primary hover:underline font-bold text-sm">Create First Plan</button>}
+              action={<button onClick={openAddPlanModal} className="text-accent-text hover:underline font-bold text-sm">Create First Plan</button>}
             />
           ) : (
             Object.keys(groupedPlans).map(slotName => (
               <div key={slotName} className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-white/10" />
-                  <div className="flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full">
-                    <Clock size={14} className="text-primary" />
-                    <span className="text-sm font-black uppercase tracking-widest">{slotName}</span>
+                  <div className="h-px flex-1 bg-surface-sunken" />
+                  <div className="flex items-center gap-2 px-4 py-1.5 bg-surface-raised border border-border rounded-full">
+                    <Clock size={14} className="text-accent-text" />
+                    <span className="text-sm font-bold uppercase tracking-widest">{slotName}</span>
                   </div>
-                  <div className="h-px flex-1 bg-white/10" />
+                  <div className="h-px flex-1 bg-surface-sunken" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {groupedPlans[slotName].map((plan: any) => (
-                    <div key={plan.id} className="glass-card p-6 relative flex flex-col h-full group overflow-hidden border-white/5 hover:border-primary/30 transition-all">
+                    <div key={plan.id} className="bg-surface border border-border rounded-gm-xl shadow-card p-6 relative flex flex-col h-full group overflow-hidden border-border hover:border-accent-border transition-all">
                       {plan.is_popular && (
-                        <div className="absolute top-0 right-0 bg-primary text-black text-[10px] font-black px-4 py-1 rounded-bl-xl uppercase tracking-widest z-10 shadow-lg">
+                        <div className="absolute top-0 right-0 bg-accent text-on-accent text-[10px] font-bold px-4 py-1 rounded-bl-xl uppercase tracking-widest z-10 shadow-lg">
                           Most Popular
                         </div>
                       )}
@@ -296,13 +295,13 @@ const PlansTab = () => {
                       <div className="flex-1 space-y-4">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h4 className="text-xl font-bold uppercase italic tracking-tight">{plan.name}</h4>
-                            <p className="text-white/40 text-[10px] uppercase font-bold tracking-tighter">
+                            <h4 className="text-xl font-bold uppercase tracking-tight">{plan.name}</h4>
+                            <p className="text-ink-muted text-[10px] uppercase font-bold tracking-tight">
                               {plan.duration_type} ACCESS • {plan.duration_days} DAYS
                             </p>
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                               {getTimeSlotsFromPlan(plan).map((slot, i) => (
-                                <span key={i} className="inline-flex items-center gap-1 text-[9px] font-bold text-primary/80 bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5">
+                                <span key={i} className="inline-flex items-center gap-1 text-[9px] font-bold text-accent-text bg-accent-soft border border-accent-border rounded-full px-2 py-0.5">
                                   <Clock size={8} />
                                   {formatTime(slot.start)} - {formatTime(slot.end)}
                                 </span>
@@ -310,14 +309,14 @@ const PlansTab = () => {
                             </div>
                           </div>
                           <div className="group/menu relative">
-                            <button className="p-1 text-white/20 hover:text-white rounded-full hover:bg-white/5 transition-colors">
+                            <button className="p-1 text-ink-subtle hover:text-ink rounded-full hover:bg-surface-raised transition-colors">
                               <MoreVertical size={14} />
                             </button>
-                            <div className="absolute right-0 top-8 w-32 bg-[#111] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all overflow-hidden z-20">
-                              <button onClick={() => openEditPlanModal(plan)} className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-white/5">
+                            <div className="absolute right-0 top-8 w-32 bg-surface border border-border rounded-xl shadow-2xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all overflow-hidden z-20">
+                              <button onClick={() => openEditPlanModal(plan)} className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-surface-raised">
                                 <Edit3 size={14} /> Edit
                               </button>
-                              <button onClick={() => { setSelectedPlan(plan); setIsPlanConfirmOpen(true); }} className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 text-red-500 hover:bg-red-500/10 transition-colors">
+                              <button onClick={() => { setSelectedPlan(plan); setIsPlanConfirmOpen(true); }} className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 text-danger hover:bg-danger-soft transition-colors">
                                 <Trash2 size={14} /> Delete
                               </button>
                             </div>
@@ -325,27 +324,27 @@ const PlansTab = () => {
                         </div>
 
                         <div className="flex items-baseline gap-1">
-                          <span className="text-white/40 text-sm">₹</span>
-                          <span className="text-3xl font-black text-primary">{plan.discounted_price || plan.price}</span>
+                          <span className="text-ink-muted text-sm">₹</span>
+                          <span className="text-3xl font-bold text-accent-text">{plan.discounted_price || plan.price}</span>
                           {plan.discounted_price && plan.discounted_price < plan.price && (
-                            <span className="text-white/20 line-through text-xs ml-2">₹{plan.price}</span>
+                            <span className="text-ink-subtle line-through text-xs ml-2">₹{plan.price}</span>
                           )}
                         </div>
                         
                         {plan.entry_fee > 0 && (
-                          <div className="text-[10px] text-white/50 font-bold uppercase tracking-tight -mt-2">
-                            + ₹{plan.entry_fee} Entry Fee <span className="text-primary/70 scale-90 inline-block">(New Members)</span>
+                          <div className="text-[10px] text-ink-muted font-bold uppercase tracking-tight -mt-2">
+                            + ₹{plan.entry_fee} Entry Fee <span className="text-accent-text scale-90 inline-block">(New Members)</span>
                           </div>
                         )}
 
                         {plan.description && (
-                          <p className="text-xs text-white/60 line-clamp-2">{plan.description}</p>
+                          <p className="text-xs text-ink-muted line-clamp-2">{plan.description}</p>
                         )}
 
-                        <div className="space-y-2 pt-4 border-t border-white/5">
+                        <div className="space-y-2 pt-4 border-t border-border">
                           {(Array.isArray(plan.benefits) ? plan.benefits : []).slice(0, 3).map((benefit: string, idx: number) => (
-                            <div key={idx} className="flex items-start gap-2 text-xs text-white/50">
-                              <CheckCircle2 size={12} className="text-emerald-500 shrink-0 mt-0.5" />
+                            <div key={idx} className="flex items-start gap-2 text-xs text-ink-muted">
+                              <CheckCircle2 size={12} className="text-success shrink-0 mt-0.5" />
                               <span>{benefit}</span>
                             </div>
                           ))}
@@ -365,39 +364,39 @@ const PlansTab = () => {
               icon={Package}
               title="No Add-on Services"
               description="Offer extra services like Lockers, Private Parking, or Personal Training top-ups."
-              action={<button onClick={openAddAddonModal} className="text-primary hover:underline font-bold text-sm">Create First Service</button>}
+              action={<button onClick={openAddAddonModal} className="text-accent-text hover:underline font-bold text-sm">Create First Service</button>}
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {gym.addons.map((addon: any) => (
-                <div key={addon.id} className="glass-card p-5 relative border-white/5 hover:border-primary/20 transition-all flex flex-col justify-between">
+                <div key={addon.id} className="bg-surface border border-border rounded-gm-xl shadow-card p-5 relative border-border hover:border-accent-border transition-all flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                       <h4 className="font-bold text-white uppercase tracking-tight">{addon.name}</h4>
+                       <h4 className="font-bold text-ink uppercase tracking-tight">{addon.name}</h4>
                        <div className="group/menu relative">
-                          <button className="p-1 text-white/20 hover:text-white">
+                          <button className="p-1 text-ink-subtle hover:text-ink">
                             <MoreVertical size={14} />
                           </button>
-                          <div className="absolute right-0 top-6 w-28 bg-[#111] border border-white/10 rounded-lg shadow-2xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-20">
-                            <button onClick={() => openEditAddonModal(addon)} className="w-full text-left px-3 py-2 text-[10px] flex items-center gap-2 hover:bg-white/5 uppercase font-bold">
+                          <div className="absolute right-0 top-6 w-28 bg-surface border border-border rounded-lg shadow-2xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-20">
+                            <button onClick={() => openEditAddonModal(addon)} className="w-full text-left px-3 py-2 text-[10px] flex items-center gap-2 hover:bg-surface-raised uppercase font-bold">
                               <Edit3 size={12} /> Edit
                             </button>
-                            <button onClick={() => { setSelectedAddon(addon); setIsAddonConfirmOpen(true); }} className="w-full text-left px-3 py-2 text-[10px] flex items-center gap-2 text-red-500 hover:bg-red-500/10 transition-colors uppercase font-bold">
+                            <button onClick={() => { setSelectedAddon(addon); setIsAddonConfirmOpen(true); }} className="w-full text-left px-3 py-2 text-[10px] flex items-center gap-2 text-danger hover:bg-danger-soft transition-colors uppercase font-bold">
                               <Trash2 size={12} /> Delete
                             </button>
                           </div>
                         </div>
                     </div>
-                    <p className="text-[10px] text-white/40 mb-3">{addon.description || 'No description provided.'}</p>
+                    <p className="text-[10px] text-ink-muted mb-3">{addon.description || 'No description provided.'}</p>
                   </div>
                   
-                  <div className="flex items-center justify-between pt-3 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-3 border-t border-border">
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-[10px] text-white/40">₹</span>
-                      <span className="text-xl font-black text-primary">{addon.price}</span>
-                      <span className="text-[8px] text-white/40 ml-1 uppercase">/{addon.duration_type}</span>
+                      <span className="text-[10px] text-ink-muted">₹</span>
+                      <span className="text-xl font-bold text-accent-text">{addon.price}</span>
+                      <span className="text-[8px] text-ink-muted ml-1 uppercase">/{addon.duration_type}</span>
                     </div>
-                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase ${addon.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                    <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase ${addon.is_active ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'}`}>
                       {addon.is_active ? 'Active' : 'Hidden'}
                     </span>
                   </div>
@@ -411,11 +410,11 @@ const PlansTab = () => {
       {/* --- MODALS --- */}
 
       {/* Plan Modal */}
-      <Modal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} title={selectedPlan ? "Edit Membership Plan" : "New Membership Plan"}>
+      <Sheet open={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} title={selectedPlan ? "Edit Membership Plan" : "New Membership Plan"}>
         <form onSubmit={handlePlanSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 md:col-span-1 relative">
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Slot/Category Name *</label>
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Slot/Category Name *</label>
               <input
                 ref={slotInputRef}
                 required
@@ -426,12 +425,12 @@ const PlansTab = () => {
                   setIsSlotDropdownOpen(true);
                 }}
                 onFocus={() => setIsSlotDropdownOpen(true)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:border-primary outline-none"
+                className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm focus:border-accent outline-none"
                 placeholder="e.g. Gym Access"
                 autoComplete="off"
               />
               {isSlotDropdownOpen && (slotSuggestions.length > 0 || (planFormData.slot_name && !existingSlotNames.includes(planFormData.slot_name))) && (
-                <div ref={slotDropdownRef} className="absolute z-30 left-0 right-0 top-full mt-1 bg-[#111] border border-white/10 rounded-xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
+                <div ref={slotDropdownRef} className="absolute z-30 left-0 right-0 top-full mt-1 bg-surface border border-border rounded-xl shadow-2xl overflow-hidden max-h-48 overflow-y-auto custom-scrollbar">
                   {slotSuggestions.map(name => (
                     <button
                       key={name}
@@ -440,42 +439,42 @@ const PlansTab = () => {
                         setPlanFormData({...planFormData, slot_name: name});
                         setIsSlotDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-white/5 transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-surface-raised transition-colors"
                     >
-                      <Clock size={12} className="text-primary shrink-0" />
+                      <Clock size={12} className="text-accent-text shrink-0" />
                       <span className="font-bold uppercase tracking-tight">{name}</span>
-                      <span className="text-[9px] text-white/20 ml-auto">existing</span>
+                      <span className="text-[9px] text-ink-subtle ml-auto">existing</span>
                     </button>
                   ))}
                   {planFormData.slot_name && !existingSlotNames.includes(planFormData.slot_name) && (
                     <button
                       type="button"
                       onClick={() => setIsSlotDropdownOpen(false)}
-                      className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-primary/10 transition-colors border-t border-white/5"
+                      className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-accent-soft transition-colors border-t border-border"
                     >
-                      <Plus size={12} className="text-primary shrink-0" />
-                      <span className="font-bold text-primary">Create "{planFormData.slot_name}"</span>
+                      <Plus size={12} className="text-accent-text shrink-0" />
+                      <span className="font-bold text-accent-text">Create "{planFormData.slot_name}"</span>
                     </button>
                   )}
                 </div>
               )}
             </div>
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Plan Title *</label>
-              <input required type="text" value={planFormData.name} onChange={e => setPlanFormData({...planFormData, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:border-primary outline-none" placeholder="e.g. 1 Month Pro" />
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Plan Title *</label>
+              <input required type="text" value={planFormData.name} onChange={e => setPlanFormData({...planFormData, name: e.target.value})} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm focus:border-accent outline-none" placeholder="e.g. 1 Month Pro" />
             </div>
           </div>
 
-          <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+          <div className="bg-surface-raised p-4 rounded-xl border border-border space-y-3">
              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Clock size={14} className="text-primary" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Access Time Slots</span>
+                  <Clock size={14} className="text-accent-text" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Access Time Slots</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setTimeSlots([...timeSlots, { start: '', end: '' }])}
-                  className="flex items-center gap-1 text-[10px] font-bold text-primary hover:text-white transition-colors uppercase tracking-widest"
+                  className="flex items-center gap-1 text-[10px] font-bold text-accent-text hover:text-ink transition-colors uppercase tracking-widest"
                 >
                   <Plus size={12} /> Add Slot
                 </button>
@@ -483,7 +482,7 @@ const PlansTab = () => {
              {timeSlots.map((slot, idx) => (
                <div key={idx} className="grid grid-cols-[1fr_1fr_auto] gap-3 items-end">
                  <div>
-                   <label className="block text-[10px] font-bold text-white/40 uppercase mb-1">Start</label>
+                   <label className="block text-[10px] font-bold text-ink-muted uppercase mb-1">Start</label>
                    <input
                      type="time"
                      value={slot.start}
@@ -492,11 +491,11 @@ const PlansTab = () => {
                        updated[idx] = { ...updated[idx], start: e.target.value };
                        setTimeSlots(updated);
                      }}
-                     className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white"
+                     className="w-full bg-surface-sunken border border-border rounded-lg p-2 text-sm text-ink"
                    />
                  </div>
                  <div>
-                   <label className="block text-[10px] font-bold text-white/40 uppercase mb-1">End</label>
+                   <label className="block text-[10px] font-bold text-ink-muted uppercase mb-1">End</label>
                    <input
                      type="time"
                      value={slot.end}
@@ -505,7 +504,7 @@ const PlansTab = () => {
                        updated[idx] = { ...updated[idx], end: e.target.value };
                        setTimeSlots(updated);
                      }}
-                     className="w-full bg-black/40 border border-white/10 rounded-lg p-2 text-sm text-white"
+                     className="w-full bg-surface-sunken border border-border rounded-lg p-2 text-sm text-ink"
                    />
                  </div>
                  <button
@@ -515,10 +514,10 @@ const PlansTab = () => {
                    }}
                    disabled={timeSlots.length <= 1}
                    className={`p-2 rounded-lg border transition-colors mb-[1px] ${
-                     timeSlots.length <= 1
-                       ? 'border-white/5 text-white/10 cursor-not-allowed'
-                       : 'border-red-500/20 text-red-500 hover:bg-red-500/10'
-                   }`}
+ timeSlots.length <= 1
+ ? 'border-border text-ink-subtle cursor-not-allowed'
+ : 'border-danger/30 text-danger hover:bg-danger-soft'
+ }`}
                  >
                    <X size={14} />
                  </button>
@@ -528,8 +527,8 @@ const PlansTab = () => {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Duration Type *</label>
-              <select value={planFormData.duration_type} onChange={e => setPlanFormData({...planFormData, duration_type: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl p-3 text-sm text-white outline-none">
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Duration Type *</label>
+              <select value={planFormData.duration_type} onChange={e => setPlanFormData({...planFormData, duration_type: e.target.value})} className="w-full bg-surface border border-border rounded-xl p-3 text-sm text-ink outline-none">
                 <option value="day">Day Pass</option>
                 <option value="week">Weekly</option>
                 <option value="month">Monthly</option>
@@ -539,12 +538,12 @@ const PlansTab = () => {
               </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Duration (Days) *</label>
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Duration (Days) *</label>
               <select 
                 required 
                 value={planFormData.duration_days} 
                 onChange={e => setPlanFormData({...planFormData, duration_days: e.target.value})} 
-                className="w-full bg-[#111] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-primary"
+                className="w-full bg-surface border border-border rounded-xl p-3 text-sm text-ink outline-none focus:border-accent"
               >
                 <option value="">Select Days</option>
                 <option value="1">1 Day</option>
@@ -558,56 +557,56 @@ const PlansTab = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Reg. Price (₹) *</label>
-              <input required type="number" value={planFormData.price} onChange={e => setPlanFormData({...planFormData, price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-primary" placeholder="1500" />
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Reg. Price (₹) *</label>
+              <input required type="number" value={planFormData.price} onChange={e => setPlanFormData({...planFormData, price: e.target.value})} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm outline-none focus:border-accent" placeholder="1500" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Discount Price (₹)</label>
-              <input type="number" value={planFormData.discounted_price} onChange={e => setPlanFormData({...planFormData, discounted_price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-primary" placeholder="Optional" />
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Discount Price (₹)</label>
+              <input type="number" value={planFormData.discounted_price} onChange={e => setPlanFormData({...planFormData, discounted_price: e.target.value})} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm outline-none focus:border-accent" placeholder="Optional" />
             </div>
             <div className="col-span-2 md:col-span-1">
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Entry Fee (₹)</label>
-              <input type="number" value={planFormData.entry_fee} onChange={e => setPlanFormData({...planFormData, entry_fee: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none focus:border-primary" placeholder="Optional" />
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Entry Fee (₹)</label>
+              <input type="number" value={planFormData.entry_fee} onChange={e => setPlanFormData({...planFormData, entry_fee: e.target.value})} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm outline-none focus:border-accent" placeholder="Optional" />
             </div>
           </div>
 
           <div>
-             <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Benefits (Comma separated)</label>
-             <textarea value={planFormData.benefits} onChange={e => setPlanFormData({...planFormData, benefits: e.target.value})} rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none custom-scrollbar" placeholder="Cardio Access, Locker Room" />
+             <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Benefits (Comma separated)</label>
+             <textarea value={planFormData.benefits} onChange={e => setPlanFormData({...planFormData, benefits: e.target.value})} rows={2} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm outline-none custom-scrollbar" placeholder="Cardio Access, Locker Room" />
           </div>
           
-          <label className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
-            <input type="checkbox" checked={planFormData.is_popular} onChange={e => setPlanFormData({...planFormData, is_popular: e.target.checked})} className="w-4 h-4 accent-primary rounded bg-black/50 border-white/20" />
+          <label className="flex items-center gap-3 p-3 bg-surface-raised rounded-xl border border-border cursor-pointer hover:bg-surface-sunken transition-colors">
+            <input type="checkbox" checked={planFormData.is_popular} onChange={e => setPlanFormData({...planFormData, is_popular: e.target.checked})} className="w-4 h-4 accent-accent rounded bg-surface-sunken border-border-strong" />
             <span className="text-xs font-bold uppercase tracking-wider">Highlight as Popular</span>
           </label>
 
-          <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 mt-2">
+          <button type="submit" disabled={isSubmitting} className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3.5 flex items-center justify-center gap-2 mt-2">
              {isSubmitting ? 'Processing...' : (selectedPlan ? 'Save Changes' : 'Publish Plan')}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* Addon Modal */}
-      <Modal isOpen={isAddonModalOpen} onClose={() => setIsAddonModalOpen(false)} title={selectedAddon ? "Edit Add-on Service" : "New Add-on Service"}>
+      <Sheet open={isAddonModalOpen} onClose={() => setIsAddonModalOpen(false)} title={selectedAddon ? "Edit Add-on Service" : "New Add-on Service"}>
         <form onSubmit={handleAddonSave} className="space-y-4">
           <div>
-            <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Service Name *</label>
-            <input required type="text" value={addonFormData.name} onChange={e => setAddonFormData({...addonFormData, name: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none" placeholder="e.g. Locker Rent" />
+            <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Service Name *</label>
+            <input required type="text" value={addonFormData.name} onChange={e => setAddonFormData({...addonFormData, name: e.target.value})} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm outline-none" placeholder="e.g. Locker Rent" />
           </div>
           
           <div>
-            <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Description</label>
-            <textarea value={addonFormData.description} onChange={e => setAddonFormData({...addonFormData, description: e.target.value})} rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm outline-none custom-scrollbar" placeholder="Brief details about the service" />
+            <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Description</label>
+            <textarea value={addonFormData.description} onChange={e => setAddonFormData({...addonFormData, description: e.target.value})} rows={2} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm outline-none custom-scrollbar" placeholder="Brief details about the service" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Price (₹) *</label>
-              <input required type="number" value={addonFormData.price} onChange={e => setAddonFormData({...addonFormData, price: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm" placeholder="500" />
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Price (₹) *</label>
+              <input required type="number" value={addonFormData.price} onChange={e => setAddonFormData({...addonFormData, price: e.target.value})} className="w-full bg-surface-raised border border-border rounded-xl p-3 text-sm" placeholder="500" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1.5">Billing Cycle *</label>
-              <select value={addonFormData.duration_type} onChange={e => setAddonFormData({...addonFormData, duration_type: e.target.value})} className="w-full bg-[#111] border border-white/10 rounded-xl p-3 text-sm text-white outline-none">
+              <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-1.5">Billing Cycle *</label>
+              <select value={addonFormData.duration_type} onChange={e => setAddonFormData({...addonFormData, duration_type: e.target.value})} className="w-full bg-surface border border-border rounded-xl p-3 text-sm text-ink outline-none">
                 <option value="fixed">One-time / Visit</option>
                 <option value="day">Daily</option>
                 <option value="month">Monthly</option>
@@ -615,30 +614,28 @@ const PlansTab = () => {
             </div>
           </div>
 
-          <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 mt-4">
+          <button type="submit" disabled={isSubmitting} className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3.5 flex items-center justify-center gap-2 mt-4">
              {isSubmitting ? 'Processing...' : (selectedAddon ? 'Update Service' : 'Add Service')}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       <ConfirmDialog
-        isOpen={isPlanConfirmOpen}
+        open={isPlanConfirmOpen}
         onClose={() => setIsPlanConfirmOpen(false)}
         onConfirm={handlePlanDelete}
         title="Delete Plan"
-        message={<>Delete <strong>{selectedPlan?.name}</strong>? Existing active memberships won't be affected.</>}
-        isDangerous={true}
-        isLoading={isSubmitting}
+        message={`Delete ${selectedPlan?.name ?? 'this plan'}? Existing active memberships won't be affected.`}
+        tone="danger"
       />
 
       <ConfirmDialog
-        isOpen={isAddonConfirmOpen}
+        open={isAddonConfirmOpen}
         onClose={() => setIsAddonConfirmOpen(false)}
         onConfirm={handleAddonDelete}
         title="Delete Service"
-        message={<>Remove <strong>{selectedAddon?.name}</strong> from your secondary offerings?</>}
-        isDangerous={true}
-        isLoading={isSubmitting}
+        message={`Remove ${selectedAddon?.name ?? 'this service'} from your secondary offerings?`}
+        tone="danger"
       />
     </div>
   );

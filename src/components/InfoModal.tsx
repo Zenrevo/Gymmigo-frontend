@@ -41,12 +41,12 @@ const InfoModal: React.FC<InfoModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div data-theme="dark" className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="w-full max-w-sm bg-neutral-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative"
+          className="w-full max-w-sm bg-surface rounded-3xl overflow-hidden border border-ink/10 shadow-2xl relative"
         >
           {/* Decorative background glow */}
           <div className={clsx(
@@ -64,8 +64,8 @@ const InfoModal: React.FC<InfoModalProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-xl font-display font-black italic tracking-tight text-white uppercase">{title}</h2>
-              <p className="text-sm text-white/60 leading-relaxed">
+              <h2 className="text-xl font-display font-black italic tracking-tight text-ink uppercase">{title}</h2>
+              <p className="text-sm text-ink/60 leading-relaxed">
                 {description}
               </p>
             </div>
@@ -76,12 +76,12 @@ const InfoModal: React.FC<InfoModalProps> = ({
                   onClick={() => setDontShowAgain(!dontShowAgain)}
                   className={clsx(
                     "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
-                    dontShowAgain ? "bg-primary border-primary" : "border-white/20 group-hover:border-white/40"
+                    dontShowAgain ? "bg-primary border-primary" : "border-ink/20 group-hover:border-ink/40"
                   )}
                 >
                   {dontShowAgain && <Check size={12} className="text-black stroke-[4]" />}
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/30 group-hover:text-white/60 transition-colors">
+                <span className="text-[10px] font-black uppercase tracking-widest text-ink/30 group-hover:text-ink/60 transition-colors">
                   Don't show this again
                 </span>
               </label>
@@ -102,7 +102,7 @@ const InfoModal: React.FC<InfoModalProps> = ({
 
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-white/20 hover:text-white transition-colors"
+            className="absolute top-4 right-4 p-2 text-ink/20 hover:text-ink transition-colors"
           >
             <X size={20} />
           </button>

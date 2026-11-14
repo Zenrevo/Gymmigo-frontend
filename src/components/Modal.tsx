@@ -35,18 +35,18 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }: Moda
           />
           
           {/* Modal Container */}
-          <div data-theme="dark" className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className={`w-full ${maxWidth} bg-[#111] border border-white/10 rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[85vh] md:max-h-[90vh]`}
+              className={`w-full ${maxWidth} bg-surface border border-ink/10 rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[85vh] md:max-h-[90vh]`}
             >
-              <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <div className="flex items-center justify-between p-6 border-b border-ink/5">
                 <h3 className="text-xl font-display font-bold">{title}</h3>
                 <button 
                   onClick={onClose}
-                  className="p-2 -mr-2 text-white/40 hover:text-white transition-colors hover:bg-white/5 rounded-full"
+                  className="p-2 -mr-2 text-ink/40 hover:text-ink transition-colors hover:bg-ink/5 rounded-full"
                 >
                   <X size={20} />
                 </button>

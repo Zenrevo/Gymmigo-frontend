@@ -9,7 +9,6 @@ import { ThemeProvider } from './theme/ThemeProvider';
 import { NotificationContainer } from './components/Toast';
 import PageLoader from './components/PageLoader';
 import ComingSoon from './components/ComingSoon';
-import WebSoon from './components/WebSoon';
 import { DialogHost } from './components/kit';
 import { resolveGuardRedirect } from './auth/onboarding';
 import MainLayout from './layouts/MainLayout';
@@ -28,15 +27,19 @@ import GymOwnersPage from './pages/Public/GymOwnersPage';
 import TrainersPage from './pages/Public/TrainersPage';
 import PricingPage from './pages/Public/PricingPage';
 import PublicFitCard from './pages/Public/PublicFitCard';
-import Dashboard from './pages/Dashboard/Dashboard';
+import HomePage from './pages/Home/HomePage';
+import { activityRoutes } from './routes/activityRoutes';
 import Discovery from './pages/Discovery/Discovery';
 import GymProfile from './pages/Discovery/GymProfile';
 import TrainerProfile from './pages/Discovery/TrainerProfile';
 import SessionDetail from './pages/Dashboard/SessionDetail';
 import Profile from './pages/Profile/Profile';
 import WalletTransactionsPage from './pages/Profile/WalletTransactionsPage';
+import WatchGuidePage from './pages/Devices/WatchGuidePage';
+import MyMembershipsPage from './pages/Memberships/MyMembershipsPage';
 import GymmigoClubsPage from './pages/Clubs/GymmigoClubsPage';
 import { migoRoutes } from './routes/migoRoutes';
+import { runTogetherRoutes } from './routes/runTogetherRoutes';
 import AddGymPage from './pages/Dashboard/AddGymPage';
 import GymManageDashboard from './pages/Dashboard/GymManageDashboard';
 import OverviewTab from './pages/Dashboard/gym-tabs/OverviewTab';
@@ -111,22 +114,23 @@ const AppRoutes = () => (
 
     <Route path="/app" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
       <Route index element={<Navigate to="/app/dashboard" replace />} />
-      <Route path="dashboard" element={<L><Dashboard /></L>} />
-      <Route path="discovery" element={<L><Discovery /></L>} />
-      <Route path="gyms/:gymId" element={<L><GymProfile /></L>} />
-      <Route path="trainers/:trainerId" element={<L><TrainerProfile /></L>} />
-      <Route path="sessions/:sessionId" element={<L><SessionDetail /></L>} />
-      <Route path="profile" element={<L><Profile /></L>} />
-      <Route path="wallet-transactions" element={<L><WalletTransactionsPage /></L>} />
-      <Route path="clubs" element={<L><GymmigoClubsPage /></L>} />
+      <Route path="dashboard" element={<HomePage />} />
+      <Route path="discovery" element={<Discovery />} />
+      <Route path="gyms/:gymId" element={<GymProfile />} />
+      <Route path="trainers/:trainerId" element={<TrainerProfile />} />
+      <Route path="sessions/:sessionId" element={<SessionDetail />} />
+      <Route path="profile" element={<Profile />} />
+      <Route path="devices" element={<WatchGuidePage />} />
+      <Route path="memberships" element={<MyMembershipsPage />} />
+      <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
+      <Route path="clubs" element={<GymmigoClubsPage />} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
-      <Route path="activity/*" element={<WebSoon title="Activity" message="Your runs, walks and rides with maps and splits are arriving on the web shortly. Track new activities in the Gymmigo app." />} />
-      <Route path="run-together/*" element={<WebSoon title="Run together" />} />
-      <Route path="people/*" element={<WebSoon title="People" />} />
+      {activityRoutes}
+      {runTogetherRoutes}
       <Route path="coming-soon" element={<L><ComingSoon /></L>} />
-      <Route path="gym-owner/add-gym" element={<L><AddGymPage /></L>} />
-      <Route path="gym-owner/gyms/:gymId" element={<GymProvider><L><GymManageDashboard /></L></GymProvider>}>
+      <Route path="gym-owner/add-gym" element={<AddGymPage />} />
+      <Route path="gym-owner/gyms/:gymId" element={<GymProvider><GymManageDashboard /></GymProvider>}>
         <Route index element={<OverviewTab />} />
         <Route path="members" element={<MembersTab />} />
         <Route path="clubs" element={<ClubsTab />} />

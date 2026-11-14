@@ -1,3 +1,4 @@
+import { ConfirmDialog, Sheet } from '../../../components/kit';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
@@ -5,8 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import Modal from '../../../components/Modal';
-import ConfirmDialog from '../../../components/ConfirmDialog';
 import {
   Users, UserPlus, Search, Filter, LogIn, LogOut,
   Phone, Clock, ChevronRight, Activity, CheckCircle2,
@@ -528,11 +527,11 @@ const MembersTab = () => {
   // ── Helpers ────────────────────────────────────────────────────────────────
   const statusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      active: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/20',
-      expired: 'bg-amber-500/20 text-amber-400 border-amber-500/20',
-      cancelled: 'bg-red-500/20 text-red-400 border-red-500/20',
-      pending: 'bg-blue-500/20 text-blue-400 border-blue-500/20',
-      suspended: 'bg-gray-500/20 text-gray-400 border-gray-500/20',
+      active: 'bg-success-soft text-success border-success/30',
+      expired: 'bg-warning-soft text-warning border-warning/30',
+      cancelled: 'bg-danger-soft text-danger border-danger/30',
+      pending: 'bg-info-soft text-info border-info/30',
+      suspended: 'bg-gray-500/20 text-ink-muted border-gray-500/20',
     };
     return (
       <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest ${colors[status] || colors.pending}`}>
@@ -553,23 +552,23 @@ const MembersTab = () => {
   if (selectedMember) {
     return (
       <div className="space-y-6">
-        <button onClick={() => setSelectedMember(null)} className="flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm">
+        <button onClick={() => setSelectedMember(null)} className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors text-sm">
           <ArrowLeft size={16} /> Back to Members
         </button>
 
-        <div className="glass-card p-8">
+        <div className="bg-surface border border-border rounded-gm-xl shadow-card p-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center text-primary text-2xl font-black">
+              <div className="w-16 h-16 rounded-gm-lg from-accent/20 to-accent/5 border border-accent-border flex items-center justify-center text-accent-text text-2xl font-bold">
                 {(selectedMember.user_name || 'U')[0].toUpperCase()}
               </div>
               <div>
-                <h2 className="text-2xl font-display font-black tracking-tight">{selectedMember.user_name || 'Unknown'}</h2>
-                <div className="flex items-center gap-3 text-white/40 text-sm mt-1">
+                <h2 className="text-2xl font-display font-extrabold tracking-tight">{selectedMember.user_name || 'Unknown'}</h2>
+                <div className="flex items-center gap-3 text-ink-muted text-sm mt-1">
                   <span className="flex items-center gap-1"><Phone size={13} />{selectedMember.user_phone}</span>
                   <span>•</span>
                   {selectedMember.is_currently_checked_in && (
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-widest animate-pulse">IN GYM</span>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-success-soft text-success border border-success/30 uppercase tracking-widest animate-pulse">IN GYM</span>
                   )}
                   <span className="flex items-center gap-1"><LogIn size={13} />{selectedMember.total_check_ins} Total Check-ins</span>
                 </div>
@@ -579,14 +578,14 @@ const MembersTab = () => {
             <div className="flex gap-2">
                {selectedMember.active_status === 'active' && !selectedMember.is_currently_checked_in && (
                  <button onClick={() => handleCheckIn(selectedMember.user_id, selectedMember.user_name)} disabled={actionLoading === selectedMember.user_id}
-                   className="btn-primary py-2 px-5 text-sm flex items-center gap-2 rounded-xl bg-primary/20 hover:bg-primary/30 text-primary border border-primary/20 hover:-translate-y-0.5 transition-all font-bold">
+                   className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-5 text-sm flex items-center gap-2 rounded-xl bg-accent-soft hover:bg-accent/30 text-accent-text border border-accent-border hover:-translate-y-0.5 transition-all font-bold">
                    {actionLoading === selectedMember.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />} 
                    Check In
                  </button>
                )}
                {selectedMember.is_currently_checked_in && (
                  <button onClick={() => handleCheckOut(selectedMember.user_id)} disabled={actionLoading === selectedMember.user_id}
-                   className="py-2 px-5 text-sm flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl hover:bg-amber-500/30 hover:-translate-y-0.5 transition-all font-bold">
+                   className="py-2 px-5 text-sm flex items-center gap-2 bg-warning-soft text-warning border border-warning/30 rounded-xl hover:bg-warning/30 hover:-translate-y-0.5 transition-all font-bold">
                    {actionLoading === selectedMember.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />} 
                    Check Out
                  </button>
@@ -595,61 +594,61 @@ const MembersTab = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-            <div className="rounded-2xl bg-primary/10 border border-primary/20 p-4">
-              <div className="flex items-center gap-2 text-primary mb-2">
+            <div className="rounded-gm-lg bg-accent-soft border border-accent-border p-4">
+              <div className="flex items-center gap-2 text-accent-text mb-2">
                 <Target size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Today Score</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Today Score</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-white/30 font-bold"> / 100</span></p>
+              <p className="text-3xl font-bold">{selectedMember.fitness_score?.today_score ?? 0}<span className="text-xs text-ink-subtle font-bold"> / 100</span></p>
             </div>
-            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4">
-              <div className="flex items-center gap-2 text-amber-400 mb-2">
+            <div className="rounded-gm-lg bg-warning-soft border border-warning/30 p-4">
+              <div className="flex items-center gap-2 text-warning mb-2">
                 <Flame size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Streak</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Streak</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-white/30 font-bold"> days</span></p>
+              <p className="text-3xl font-bold">{selectedMember.fitness_score?.streak ?? 0}<span className="text-xs text-ink-subtle font-bold"> days</span></p>
             </div>
-            <div className="rounded-2xl bg-sky-500/10 border border-sky-500/20 p-4">
-              <div className="flex items-center gap-2 text-sky-300 mb-2">
+            <div className="rounded-gm-lg bg-info-soft border border-info/30 p-4">
+              <div className="flex items-center gap-2 text-info mb-2">
                 <Trophy size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Global Rank</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Global Rank</span>
               </div>
-              <p className="text-3xl font-black">
+              <p className="text-3xl font-bold">
                 {selectedMember.fitness_score?.global_rank ? `#${selectedMember.fitness_score.global_rank}` : '--'}
-                {selectedMember.fitness_score?.global_rank_total ? <span className="text-xs text-white/30 font-bold"> / {selectedMember.fitness_score.global_rank_total}</span> : null}
+                {selectedMember.fitness_score?.global_rank_total ? <span className="text-xs text-ink-subtle font-bold"> / {selectedMember.fitness_score.global_rank_total}</span> : null}
               </p>
             </div>
-            <div className="rounded-2xl bg-violet-500/10 border border-violet-500/20 p-4">
-              <div className="flex items-center gap-2 text-violet-300 mb-2">
+            <div className="rounded-gm-lg bg-info-soft border border-info/30 p-4">
+              <div className="flex items-center gap-2 text-info mb-2">
                 <Activity size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Week Goal</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Week Goal</span>
               </div>
-              <p className="text-3xl font-black">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-white/30 font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
+              <p className="text-3xl font-bold">{selectedMember.fitness_score?.week_active_days ?? 0}<span className="text-xs text-ink-subtle font-bold"> / {selectedMember.fitness_score?.weekly_target_days ?? 4}</span></p>
             </div>
           </div>
 
           {selectedMember.fitness_score?.daily_score?.coach_nudge && (
-            <div className="mb-8 rounded-2xl bg-orange-500/10 border border-orange-500/20 p-4">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300/80 mb-1">Migo AI retention nudge</p>
-              <p className="text-sm text-white/65 leading-relaxed">{selectedMember.fitness_score.daily_score.coach_nudge}</p>
+            <div className="mb-8 rounded-gm-lg bg-warning-soft border border-warning/30 p-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-warning mb-1">Migo AI retention nudge</p>
+              <p className="text-sm text-ink-muted leading-relaxed">{selectedMember.fitness_score.daily_score.coach_nudge}</p>
             </div>
           )}
 
           <div className="space-y-6">
-            <h3 className="text-sm font-bold text-white/50 uppercase tracking-widest">Active & Past Subscriptions</h3>
+            <h3 className="text-sm font-bold text-ink-muted uppercase tracking-widest">Active & Past Subscriptions</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {selectedMember.memberships.map((membership, idx) => (
-                <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
+                <div key={idx} className="bg-surface-raised border border-border rounded-gm-lg p-5 hover:bg-white-[0.02] transition-colors relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-4">
                     {statusBadge(membership.status)}
                   </div>
                   
                   <div className="mb-4 pr-20">
                     <h4 className="font-bold text-lg mb-1">{membership.plan_name || 'N/A'}</h4>
-                    <p className="text-xs text-white/40">₹{membership.amount_paid} • {membership.remaining_visits ?? 'Unlimited'} visits left</p>
+                    <p className="text-xs text-ink-muted">₹{membership.amount_paid} • {membership.remaining_visits ?? 'Unlimited'} visits left</p>
                   </div>
                   
-                  <div className="space-y-2 text-xs text-white/60 mb-6 font-mono">
+                  <div className="space-y-2 text-xs text-ink-muted mb-6 font-mono">
                     <div className="flex justify-between">
                       <span>Start: {formatDate(membership.start_date)}</span>
                     </div>
@@ -660,10 +659,10 @@ const MembersTab = () => {
 
                   {membership.selected_addons && membership.selected_addons.length > 0 && (
                     <div className="mb-6 space-y-2">
-                      <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">Add-ons</p>
+                      <p className="text-[10px] uppercase tracking-widest text-ink-subtle font-bold">Add-ons</p>
                       <div className="flex flex-wrap gap-2">
                         {membership.selected_addons.map((addon, aIdx) => (
-                          <span key={aIdx} className="text-xs bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded">
+                          <span key={aIdx} className="text-xs bg-accent-soft text-accent-text border border-accent-border px-2 py-0.5 rounded">
                             {addon.name}
                           </span>
                         ))}
@@ -671,10 +670,10 @@ const MembersTab = () => {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                  <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
                     {membership.status === 'active' && (
                       <button onClick={() => handleCancel(membership.membership_id || (membership as any).id, selectedMember.user_name || '')}
-                        className="p-1.5 px-3 flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all font-bold group-hover:scale-100" title="Cancel Subscription">
+                        className="p-1.5 px-3 flex items-center justify-center bg-danger-soft text-danger border border-danger/30 rounded-lg hover:bg-danger-soft transition-all font-bold group-hover:scale-100" title="Cancel Subscription">
                         Cancel
                       </button>
                     )}
@@ -683,17 +682,17 @@ const MembersTab = () => {
                       <>
                         <button onClick={() => handleAcceptRequest(membership.membership_id || (membership as any).id)} 
                           disabled={actionLoading === (membership.membership_id || (membership as any).id)}
-                          className="btn-primary py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center rounded-lg">
+                          className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center rounded-lg">
                           {actionLoading === (membership.membership_id || (membership as any).id) ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Accept
                         </button>
                         <button onClick={() => handleRejectRequest(membership.membership_id || (membership as any).id)} 
                           disabled={actionLoading === (membership.membership_id || (membership as any).id)}
-                          className="py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg hover:bg-rose-500/20 transition-all">
+                          className="py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center bg-danger-soft text-danger border border-danger/30 rounded-lg hover:bg-danger-soft transition-all">
                           {actionLoading === (membership.membership_id || (membership as any).id) ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />} Reject
                         </button>
                       </>
                     )}
-                    <button onClick={() => openEditModal(selectedMember, membership)} className="p-1.5 px-3 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors" title="Edit Membership">
+                    <button onClick={() => openEditModal(selectedMember, membership)} className="p-1.5 px-3 bg-surface-raised border border-border hover:bg-surface-sunken rounded-lg text-ink-muted hover:text-ink transition-colors" title="Edit Membership">
                       Edit
                     </button>
                   </div>
@@ -704,33 +703,33 @@ const MembersTab = () => {
         </div>
 
         {/* Check-in History */}
-        <div className="glass-card overflow-hidden">
-          <div className="p-6 border-b border-white/5">
-            <h3 className="text-lg font-bold flex items-center gap-2"><Clock size={18} className="text-primary" /> Combined Check-in History</h3>
+        <div className="bg-surface border border-border rounded-gm-xl shadow-card overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <h3 className="text-lg font-bold flex items-center gap-2"><Clock size={18} className="text-accent-text" /> Combined Check-in History</h3>
           </div>
           {selectedMember.check_in_history?.length ? (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-border">
               {selectedMember.check_in_history.map((ci, i) => {
                  const relatedMembership = selectedMember.memberships.find(m => m.membership_id === ci.membership_id);
                  return (
-                  <div key={i} className="p-4 px-6 flex items-center justify-between text-sm hover:bg-white/[0.02] transition-colors">
+                  <div key={i} className="p-4 px-6 flex items-center justify-between text-sm hover:bg-surface-raised transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
+                      <div className={`w-2 h-2 rounded-full ${ci.check_out_time ? 'bg-surface-sunken' : 'bg-success animate-pulse'}`} />
                       <span>{formatDate(ci.check_in_time)}</span>
                       <span>{formatTime(ci.check_in_time)}</span>
-                      <span className="ml-3 px-2 py-0.5 rounded bg-white/5 text-[10px] text-white/50">{relatedMembership?.plan_name || 'Unknown Plan'}</span>
+                      <span className="ml-3 px-2 py-0.5 rounded bg-surface-raised text-[10px] text-ink-muted">{relatedMembership?.plan_name || 'Unknown Plan'}</span>
                       {ci.workout_type && (
-                        <span className="ml-2 px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 text-[10px] uppercase font-bold tracking-wider">{ci.workout_type}</span>
+                        <span className="ml-2 px-2 py-0.5 rounded bg-accent-soft text-accent-text border border-accent-border text-[10px] uppercase font-bold tracking-wider">{ci.workout_type}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-white/40">
+                    <div className="flex items-center gap-4 text-ink-muted">
                       {ci.check_out_time ? (
                         <>
                           <span>→ {formatTime(ci.check_out_time)}</span>
-                          <span className="text-white/60 font-mono text-xs bg-white/5 px-2 py-0.5 rounded">{ci.duration_minutes} min</span>
+                          <span className="text-ink-muted font-mono text-xs bg-surface-raised px-2 py-0.5 rounded">{ci.duration_minutes} min</span>
                         </>
                       ) : (
-                        <span className="text-green-400 text-xs font-bold uppercase tracking-widest">Active</span>
+                        <span className="text-success text-xs font-bold uppercase tracking-widest">Active</span>
                       )}
                       <span className="text-[10px] uppercase tracking-widest">{ci.method}</span>
                     </div>
@@ -739,100 +738,100 @@ const MembersTab = () => {
               })}
             </div>
           ) : (
-            <div className="p-12 text-center text-white/20">No check-in history yet.</div>
+            <div className="p-12 text-center text-ink-subtle">No check-in history yet.</div>
           )}
         </div>
 
         {/* ── Confirm Dialog for Detail View ──────────────────────────────────────── */}
         {confirmAction && (
           <ConfirmDialog
-            isOpen={!!confirmAction}
+            open={!!confirmAction}
             onClose={() => setConfirmAction(null)}
             title={confirmAction.title}
             message={confirmAction.message}
             onConfirm={confirmAction.onConfirm}
             confirmLabel={confirmAction.confirmLabel || "Confirm"}
-            isDangerous={confirmAction.isDangerous}
+            tone={(confirmAction.isDangerous) ? 'danger' : 'default'}
           />
         )}
 
-        <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Membership" maxWidth="max-w-2xl">
+        <Sheet size="lg" open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Membership">
           <form onSubmit={handleEditMember} className="space-y-5">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Full Name</label>
               <input type="text" required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                 value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Membership Plan</label>
               <select required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
                 value={editForm.plan_id} onChange={e => setEditForm({ ...editForm, plan_id: e.target.value })}>
                 <option value="">Select a plan...</option>
                 {gym?.membership_plans?.map((p: any) => (
-                  <option key={p.id} value={p.id} className="bg-[#111]">{p.name}</option>
+                  <option key={p.id} value={p.id} className="bg-surface">{p.name}</option>
                 ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Start Date</label>
                 <input type="date" required style={{ colorScheme: 'dark' }}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all text-ink-muted"
                   value={editForm.start_date} onChange={e => setEditForm({ ...editForm, start_date: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">End Date</label>
                 <input type="date" required style={{ colorScheme: 'dark' }}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all text-ink-muted"
                   value={editForm.end_date} onChange={e => setEditForm({ ...editForm, end_date: e.target.value })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Amount Paid</label>
                 <input type="number" min={0}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                   value={editForm.amount_paid} onChange={e => setEditForm({ ...editForm, amount_paid: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Payment Method</label>
                 <select
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
                   value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>
-                  <option value="" className="bg-[#111]">Leave unchanged</option>
-                  <option value="cash" className="bg-[#111]">Cash</option>
-                  <option value="upi" className="bg-[#111]">UPI</option>
-                  <option value="card" className="bg-[#111]">Card</option>
-                  <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                  <option value="" className="bg-surface">Leave unchanged</option>
+                  <option value="cash" className="bg-surface">Cash</option>
+                  <option value="upi" className="bg-surface">UPI</option>
+                  <option value="card" className="bg-surface">Card</option>
+                  <option value="bank_transfer" className="bg-surface">Bank Transfer</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Remaining Visits</label>
                 <input type="number" min={0}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                   value={editForm.remaining_visits} onChange={e => setEditForm({ ...editForm, remaining_visits: e.target.value })} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Total Check-ins</label>
                 <input type="number" min={0}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                   value={editForm.total_check_ins} onChange={e => setEditForm({ ...editForm, total_check_ins: e.target.value })} />
               </div>
             </div>
-            <label className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 cursor-pointer">
+            <label className="flex items-center justify-between gap-3 rounded-xl bg-surface-raised border border-border px-4 py-3 cursor-pointer">
               <span>
-                <span className="block text-xs font-bold text-white/70">Auto renew</span>
-                <span className="block text-[11px] text-white/30">Keep this membership marked for renewal reminders.</span>
+                <span className="block text-xs font-bold text-ink-muted">Auto renew</span>
+                <span className="block text-[11px] text-ink-subtle">Keep this membership marked for renewal reminders.</span>
               </span>
               <input type="checkbox" checked={editForm.auto_renew} onChange={e => setEditForm({ ...editForm, auto_renew: e.target.checked })}
-                className="w-5 h-5 accent-primary" />
+                className="w-5 h-5 accent-accent" />
             </label>
 
             {gym?.addons && gym.addons.length > 0 && (
               <div className="space-y-3">
-                <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Add-ons</label>
+                <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider">Add-ons</label>
                 <div className="grid grid-cols-1 gap-2">
                   {gym.addons.map((addon: any) => {
                     const isSelected = editForm.selected_addons.find(a => a.id === addon.id);
@@ -848,16 +847,16 @@ const MembersTab = () => {
                         }}
                         className={clsx(
                           "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                          isSelected ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                          isSelected ? "bg-success-soft border-success/30" : "bg-surface-raised border-border hover:border-border"
                         )}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", isSelected ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", isSelected ? "bg-success border-success text-on-accent" : "border-border-strong")}>
                             {isSelected && <CheckCircle2 size={10} />}
                           </div>
-                          <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                          <span className="text-xs font-bold text-ink-muted">{addon.name}</span>
                         </div>
-                        <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
+                        <span className="text-xs font-bold text-success">₹{addon.price}</span>
                       </div>
                     );
                   })}
@@ -865,23 +864,23 @@ const MembersTab = () => {
               </div>
             )}
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Status</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Status</label>
               <select required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
                 value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}>
-                <option value="active" className="bg-[#111]">Active</option>
-                <option value="expired" className="bg-[#111]">Expired</option>
-                <option value="cancelled" className="bg-[#111]">Cancelled</option>
-                <option value="pending" className="bg-[#111]">Pending</option>
-                <option value="suspended" className="bg-[#111]">Suspended</option>
+                <option value="active" className="bg-surface">Active</option>
+                <option value="expired" className="bg-surface">Expired</option>
+                <option value="cancelled" className="bg-surface">Cancelled</option>
+                <option value="pending" className="bg-surface">Pending</option>
+                <option value="suspended" className="bg-surface">Suspended</option>
               </select>
             </div>
             <button type="submit" disabled={isUpdating}
-              className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
               {isUpdating ? <><Loader2 size={16} className="animate-spin" /> Updating...</> : <><CheckCircle2 size={16} /> Save Changes</>}
             </button>
           </form>
-        </Modal>
+        </Sheet>
       </div>
     );
   }
@@ -892,8 +891,8 @@ const MembersTab = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-display font-black tracking-tight italic">MEMBERS</h2>
-          <p className="text-white/40 text-sm">Manage your gym's member base and attendance.</p>
+          <h2 className="text-3xl font-display font-extrabold tracking-tight ">MEMBERS</h2>
+          <p className="text-ink-muted text-sm">Manage your gym's member base and attendance.</p>
         </div>
         <div className="flex items-center gap-3">
           <input
@@ -904,20 +903,20 @@ const MembersTab = () => {
             onChange={(e) => handleImportMembers(e.target.files?.[0])}
           />
           <button onClick={handleDownloadMembers} disabled={downloadingMembers}
-            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/20 transition-all disabled:opacity-50">
+            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-surface-raised text-ink-muted border-border hover:text-ink hover:border-border-strong transition-all disabled:opacity-50">
             {downloadingMembers ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} Download Excel
           </button>
           <button onClick={() => importInputRef.current?.click()} disabled={importingMembers}
-            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-all disabled:opacity-50">
+            className="py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold bg-accent-soft text-accent-text border-accent-border hover:bg-accent-soft transition-all disabled:opacity-50">
             {importingMembers ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} Import Excel
           </button>
           <button onClick={() => setQuickMode(!quickMode)}
             className={`py-2.5 px-5 text-sm flex items-center gap-2 rounded-xl border font-bold transition-all ${
-              quickMode ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:border-white/20'
-            }`}>
+ quickMode ? 'bg-success-soft text-success border-success/30' : 'bg-surface-raised text-ink-muted border-border hover:text-ink hover:border-border-strong'
+ }`}>
             <Zap size={16} /> Quick Check-in
           </button>
-          <button onClick={() => setShowEnrollModal(true)} className="btn-primary py-2.5 px-5 text-sm flex items-center gap-2">
+          <button onClick={() => setShowEnrollModal(true)} className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2.5 px-5 text-sm flex items-center gap-2">
             <UserPlus size={16} /> Enroll Member
           </button>
         </div>
@@ -928,62 +927,62 @@ const MembersTab = () => {
         {quickMode && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden">
-            <div className="glass-card p-6 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+            <div className="bg-surface border border-border rounded-gm-xl shadow-card p-6 border-accent-border from-accent/5 to-transparent">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center text-green-400">
+                <div className="w-10 h-10 rounded-xl bg-success-soft flex items-center justify-center text-success">
                   <ScanLine size={20} />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Quick Check-in / Check-out</h3>
-                  <p className="text-white/40 text-xs">Type member name or last few digits of their phone number</p>
+                  <p className="text-ink-muted text-xs">Type member name or last few digits of their phone number</p>
                 </div>
               </div>
 
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400/60" size={20} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-success" size={20} />
                 <input type="text" autoFocus placeholder="Search member... (e.g. '8989' or 'Ayus')" 
-                  className="w-full bg-black/30 border-2 border-green-500/30 rounded-2xl py-4 pl-12 pr-4 text-lg focus:border-green-400 outline-none transition-all placeholder:text-white/20"
+                  className="w-full bg-surface-sunken border-2 border-success/30 rounded-gm-lg py-4 pl-12 pr-4 text-lg focus:border-success outline-none transition-all placeholder:text-ink-subtle"
                   value={quickSearch} onChange={e => setQuickSearch(e.target.value)} />
-                {quickLoading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-green-400" size={20} />}
+                {quickLoading && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-success" size={20} />}
               </div>
 
               {/* Quick results */}
               {quickSearch.length >= 2 && (
                 <div className="mt-3 space-y-2">
                   {quickResults.length === 0 && !quickLoading ? (
-                    <div className="p-4 text-center text-white/30 text-sm">
+                    <div className="p-4 text-center text-ink-subtle text-sm">
                       No active member found for "{quickSearch}"
                     </div>
                   ) : (
                     quickResults.map((m) => (
                       <motion.div key={m.user_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl border border-white/5 hover:border-green-500/20 transition-all">
+                        className="flex items-center justify-between p-4 bg-surface-raised rounded-xl border border-border hover:border-success/30 transition-all">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm">
+                          <div className="w-10 h-10 rounded-xl bg-surface-raised border border-border flex items-center justify-center text-ink-muted font-bold text-sm">
                             {(m.user_name || 'U')[0].toUpperCase()}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-bold">{m.user_name || 'Unknown'}</p>
                               {m.is_currently_checked_in && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-widest animate-pulse">IN GYM</span>
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-success-soft text-success border border-success/30 uppercase tracking-widest animate-pulse">IN GYM</span>
                               )}
                             </div>
-                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
+                            <p className="text-xs text-ink-subtle flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {m.is_currently_checked_in ? (
                             <button onClick={() => { handleCheckOut(m.user_id); setQuickSearch(''); setQuickResults([]); }}
                               disabled={actionLoading === m.user_id}
-                              className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all">
+                              className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-warning-soft text-warning border border-warning/30 hover:bg-warning/30 transition-all">
                               {actionLoading === m.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
                               Check Out
                             </button>
                           ) : (
                             <button onClick={() => { handleCheckIn(m.user_id, m.user_name); setQuickSearch(''); setQuickResults([]); }}
                               disabled={actionLoading === m.user_id}
-                              className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-all">
+                              className="py-2.5 px-5 rounded-xl text-sm font-bold flex items-center gap-2 bg-success-soft text-success border border-success/30 hover:bg-success/30 transition-all">
                               {actionLoading === m.user_id ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
                               Check In
                             </button>
@@ -1002,18 +1001,18 @@ const MembersTab = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Members', value: totalMembers, icon: Users, color: 'text-primary' },
-          { label: 'Active', value: activeCount, icon: CheckCircle2, color: 'text-emerald-400' },
-          { label: 'Expired', value: expiredCount, icon: XCircle, color: 'text-amber-400' },
-          { label: 'In Gym Now', value: inGymCount, icon: Activity, color: 'text-green-400' },
+          { label: 'Total Members', value: totalMembers, icon: Users, color: 'text-accent-text' },
+          { label: 'Active', value: activeCount, icon: CheckCircle2, color: 'text-success' },
+          { label: 'Expired', value: expiredCount, icon: XCircle, color: 'text-warning' },
+          { label: 'In Gym Now', value: inGymCount, icon: Activity, color: 'text-success' },
         ].map((s, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="glass-card p-5">
+            className="bg-surface border border-border rounded-gm-xl shadow-card p-5">
             <div className="flex items-center justify-between">
-              <span className="text-white/40 text-xs font-bold uppercase tracking-wider">{s.label}</span>
+              <span className="text-ink-muted text-xs font-bold uppercase tracking-wider">{s.label}</span>
               <s.icon size={16} className={s.color} />
             </div>
-            <p className="text-3xl font-black mt-2">{s.value}</p>
+            <p className="text-3xl font-bold mt-2">{s.value}</p>
           </motion.div>
         ))}
       </div>
@@ -1021,10 +1020,10 @@ const MembersTab = () => {
       {/* View Toggle + Filters */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
         {/* Members / Attendance toggle */}
-        <div className="flex bg-white/5 rounded-xl p-1 border border-white/5">
+        <div className="flex bg-surface-raised rounded-xl p-1 border border-border">
           {(['members', 'attendance'] as const).map(mode => (
             <button key={mode} onClick={() => setViewMode(mode)}
-              className={`px-4 py-2 text-sm font-bold rounded-lg transition-all capitalize ${viewMode === mode ? 'bg-primary text-white shadow-lg' : 'text-white/40 hover:text-white'}`}>
+              className={`px-4 py-2 text-sm font-bold rounded-lg transition-all capitalize ${viewMode === mode ? 'bg-accent text-on-accent shadow-lg' : 'text-ink-muted hover:text-ink'}`}>
               {mode === 'members' ? 'Members' : 'Attendance Log'}
             </button>
           ))}
@@ -1034,17 +1033,17 @@ const MembersTab = () => {
           <>
             {/* Search */}
             <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle" size={16} />
               <input type="text" placeholder="Search by name or phone..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-accent outline-none transition-all"
                 value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }} />
             </div>
             {/* Status filter */}
             <div className="flex items-center gap-2">
-              <Filter size={14} className="text-white/30" />
+              <Filter size={14} className="text-ink-subtle" />
               {['', 'pending', 'active', 'expired', 'cancelled'].map(s => (
                 <button key={s} onClick={() => { setStatusFilter(s); setPage(1); }}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all capitalize ${statusFilter === s ? 'bg-primary/20 text-primary border-primary/30' : 'bg-white/5 text-white/40 border-white/5 hover:text-white'}`}>
+                  className={`text-xs font-bold px-3 py-1.5 rounded-lg border transition-all capitalize ${statusFilter === s ? 'bg-accent-soft text-accent-text border-accent-border' : 'bg-surface-raised text-ink-muted border-border hover:text-ink'}`}>
                   {s || 'All'}
                 </button>
               ))}
@@ -1054,9 +1053,9 @@ const MembersTab = () => {
           <>
             {/* Date filter for attendance */}
             <input type="date" value={attendanceDateFilter} onChange={e => { setAttendanceDateFilter(e.target.value); setAttendancePage(1); }}
-              className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-4 text-sm focus:border-primary outline-none transition-all" />
-            <button onClick={fetchAttendance} className="p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all">
-              <RefreshCw size={16} className="text-white/40" />
+              className="bg-surface-raised border border-border rounded-xl py-2.5 px-4 text-sm focus:border-accent outline-none transition-all" />
+            <button onClick={fetchAttendance} className="p-2.5 bg-surface-raised border border-border rounded-xl hover:bg-surface-sunken transition-all">
+              <RefreshCw size={16} className="text-ink-muted" />
             </button>
           </>
         )}
@@ -1066,19 +1065,19 @@ const MembersTab = () => {
       <AnimatePresence mode="wait">
         {viewMode === 'members' ? (
           <motion.div key="members" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="glass-card overflow-hidden">
+            className="bg-surface border border-border rounded-gm-xl shadow-card overflow-hidden">
             {loadingMembers ? (
-              <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-primary" size={32} /></div>
+              <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-accent-text" size={32} /></div>
             ) : members.length === 0 ? (
               <div className="p-16 text-center space-y-4">
-                <Users size={48} className="mx-auto text-white/10" />
-                <p className="text-white/30 text-lg font-bold">No members found</p>
-                <p className="text-white/20 text-sm">Enroll your first member to get started.</p>
+                <Users size={48} className="mx-auto text-ink-subtle" />
+                <p className="text-ink-subtle text-lg font-bold">No members found</p>
+                <p className="text-ink-subtle text-sm">Enroll your first member to get started.</p>
               </div>
             ) : (
               <>
                 {/* Table Header (Desktop Only) */}
-                <div className="hidden md:grid grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
+                <div className="hidden md:grid grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 p-4 px-6 text-[10px] font-bold text-ink-subtle uppercase tracking-widest border-b border-border">
                   <span>Member</span>
                   <span>Active Plans</span>
                   <span>Status</span>
@@ -1087,26 +1086,26 @@ const MembersTab = () => {
                 </div>
 
                 {/* Rows */}
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-border">
                   {members.map((m, i) => (
                     <motion.div key={m.user_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                      className="p-4 sm:p-5 md:px-6 flex flex-col md:grid md:grid-cols-[1fr_150px_100px_100px_minmax(120px,auto)] gap-4 items-stretch md:items-center hover:bg-surface-raised transition-colors cursor-pointer group"
                       onClick={() => fetchMemberDetail(m.user_id)}>
                       
                       {/* -- Header Row: Avatar, Name, Phone, Status (Mobile Optimized) -- */}
                       <div className="flex items-start justify-between w-full md:w-auto">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 font-bold text-sm shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-surface-raised border border-border flex items-center justify-center text-ink-muted font-bold text-sm shrink-0">
                             {(m.user_name || 'U')[0].toUpperCase()}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="font-bold truncate text-sm sm:text-base">{m.user_name || 'Unknown'}</p>
                               {m.is_currently_checked_in && (
-                                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" title="Currently in gym" />
+                                <span className="w-2 h-2 rounded-full bg-success animate-pulse shrink-0" title="Currently in gym" />
                               )}
                             </div>
-                            <p className="text-xs text-white/30 flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
+                            <p className="text-xs text-ink-subtle flex items-center gap-1"><Phone size={10} /> {m.user_phone}</p>
                           </div>
                         </div>
                         <div className="md:hidden">
@@ -1115,27 +1114,27 @@ const MembersTab = () => {
                       </div>
 
                       {/* -- Details Grid (Mobile: 2x2 Grid, Desktop: Columns) -- */}
-                      <div className="grid grid-cols-2 md:contents gap-3 p-3 md:p-0 bg-white/[0.03] md:bg-transparent rounded-xl border border-white/5 md:border-0">
+                      <div className="grid grid-cols-2 md:contents gap-3 p-3 md:p-0 bg-surface-raised md:bg-transparent rounded-xl border border-border md:border-0">
                         <div className="flex flex-col md:block">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">PLANS</span>
-                           <span className="text-xs md:text-sm text-white/60 truncate font-medium flex flex-col gap-1">
+                           <span className="md:hidden text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">PLANS</span>
+                           <span className="text-xs md:text-sm text-ink-muted truncate font-medium flex flex-col gap-1">
                              {m.memberships.length > 0 
-                              ? m.memberships.slice(0,2).map((sub, sIdx) => <span key={sIdx} className="bg-white/5 px-2 py-0.5 rounded text-[10px]">{sub.plan_name}</span>)
+                              ? m.memberships.slice(0,2).map((sub, sIdx) => <span key={sIdx} className="bg-surface-raised px-2 py-0.5 rounded text-[10px]">{sub.plan_name}</span>)
                               : 'None'}
-                              {m.memberships.length > 2 && <span className="text-[10px] text-white/40">+{m.memberships.length - 2} more</span>}
+                              {m.memberships.length > 2 && <span className="text-[10px] text-ink-muted">+{m.memberships.length - 2} more</span>}
                            </span>
                         </div>
                         <div className="hidden md:block">{statusBadge(m.active_status)}</div>
                         <div className="flex flex-col md:block">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">VISITS</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">VISITS</span>
                            <div className="space-y-1">
-                             <span className="text-xs md:text-sm font-mono text-white/80">{m.total_check_ins} Check-ins</span>
+                             <span className="text-xs md:text-sm font-mono text-ink-muted">{m.total_check_ins} Check-ins</span>
                              {m.fitness_score && (
                                <div className="flex flex-wrap gap-1.5">
-                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20 text-[10px] font-black text-primary">
+                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent-soft border border-accent-border text-[10px] font-bold text-accent-text">
                                    <Target size={10} /> {m.fitness_score.today_score ?? 0}/100
                                  </span>
-                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-400">
+                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-warning-soft border border-warning/30 text-[10px] font-bold text-warning">
                                    <Flame size={10} /> {m.fitness_score.streak ?? 0}d
                                  </span>
                                </div>
@@ -1143,15 +1142,15 @@ const MembersTab = () => {
                            </div>
                         </div>
                         <div className="md:hidden flex flex-col justify-center">
-                           <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">GYM STATUS</span>
-                           <span className={`text-[10px] font-bold ${m.is_currently_checked_in ? 'text-green-400' : 'text-white/20'}`}>
+                           <span className="text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">GYM STATUS</span>
+                           <span className={`text-[10px] font-bold ${m.is_currently_checked_in ? 'text-success' : 'text-ink-subtle'}`}>
                              {m.is_currently_checked_in ? 'In Gym Now' : 'Out of Gym'}
                            </span>
                         </div>
                       </div>
 
                       {/* -- Actions Row (Mobile: Full Width, Desktop: Inline) -- */}
-                      <div className="flex items-center justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t border-white/5 md:border-0 overflow-x-auto">
+                      <div className="flex items-center justify-between md:justify-end gap-2 pt-2 md:pt-0 border-t border-border md:border-0 overflow-x-auto">
                         <div className="flex items-center gap-2">
                           <button onClick={e => { 
                               e.stopPropagation(); 
@@ -1163,12 +1162,12 @@ const MembersTab = () => {
                                 } 
                               }); 
                             }}
-                            className="p-2.5 md:p-2 rounded-lg bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-all border border-orange-500/20 flex items-center gap-2" title="Create Invoice">
+                            className="p-2.5 md:p-2 rounded-lg bg-warning-soft text-warning hover:bg-warning-soft transition-all border border-warning/30 flex items-center gap-2" title="Create Invoice">
                             <CreditCard size={16} />
                             <span className="text-xs font-bold uppercase transition-all">BILL</span>
                           </button>
                         </div>
-                        <ChevronRight size={18} className="text-white/20 group-hover:text-primary transition-colors shrink-0" />
+                        <ChevronRight size={18} className="text-ink-subtle group-hover:text-accent-text transition-colors shrink-0" />
                       </div>
                     </motion.div>
                   ))}
@@ -1176,13 +1175,13 @@ const MembersTab = () => {
 
                 {/* Pagination */}
                 {totalMembers > 20 && (
-                  <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm">
-                    <span className="text-white/30">Page {page} of {Math.ceil(totalMembers / 20)}</span>
+                  <div className="p-4 border-t border-border flex items-center justify-between text-sm">
+                    <span className="text-ink-subtle">Page {page} of {Math.ceil(totalMembers / 20)}</span>
                     <div className="flex gap-2">
                       <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Prev</button>
+                        className="px-3 py-1.5 bg-surface-raised rounded-lg text-xs disabled:opacity-30">Prev</button>
                       <button onClick={() => setPage(page + 1)} disabled={page >= Math.ceil(totalMembers / 20)}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Next</button>
+                        className="px-3 py-1.5 bg-surface-raised rounded-lg text-xs disabled:opacity-30">Next</button>
                     </div>
                   </div>
                 )}
@@ -1192,18 +1191,18 @@ const MembersTab = () => {
         ) : (
           /* Attendance Log View */
           <motion.div key="attendance" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="glass-card overflow-hidden">
+            className="bg-surface border border-border rounded-gm-xl shadow-card overflow-hidden">
             {loadingAttendance ? (
-              <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-primary" size={32} /></div>
+              <div className="p-16 flex items-center justify-center"><Loader2 className="animate-spin text-accent-text" size={32} /></div>
             ) : attendance.length === 0 ? (
               <div className="p-16 text-center space-y-4">
-                <Clock size={48} className="mx-auto text-white/10" />
-                <p className="text-white/30 text-lg font-bold">No attendance records</p>
-                <p className="text-white/20 text-sm">{attendanceDateFilter ? 'No check-ins on this date.' : 'Check-in records will appear here.'}</p>
+                <Clock size={48} className="mx-auto text-ink-subtle" />
+                <p className="text-ink-subtle text-lg font-bold">No attendance records</p>
+                <p className="text-ink-subtle text-sm">{attendanceDateFilter ? 'No check-ins on this date.' : 'Check-in records will appear here.'}</p>
               </div>
             ) : (
               <>
-                <div className="hidden md:grid grid-cols-[1fr_120px_120px_80px_80px] gap-4 p-4 px-6 text-[10px] font-bold text-white/30 uppercase tracking-widest border-b border-white/5">
+                <div className="hidden md:grid grid-cols-[1fr_120px_120px_80px_80px] gap-4 p-4 px-6 text-[10px] font-bold text-ink-subtle uppercase tracking-widest border-b border-border">
                   <span>Member</span>
                   <span>Check In</span>
                   <span>Check Out</span>
@@ -1211,66 +1210,66 @@ const MembersTab = () => {
                   <span>Duration</span>
                   <span>Method</span>
                 </div>
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-border">
                   {attendance.map((a, i) => (
                     <motion.div key={a.check_in_id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
-                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_120px_80px_80px] gap-4 items-stretch md:items-center hover:bg-white/[0.02] transition-colors">
+                      className="p-4 px-6 flex flex-col md:grid md:grid-cols-[1fr_120px_120px_80px_80px] gap-4 items-stretch md:items-center hover:bg-surface-raised transition-colors">
                       
                       {/* Member Info */}
                       <div className="flex items-center gap-3 w-full">
-                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${a.check_out_time ? 'bg-white/20' : 'bg-green-400 animate-pulse'}`} />
+                        <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${a.check_out_time ? 'bg-surface-sunken' : 'bg-success animate-pulse'}`} />
                         <div className="min-w-0">
                           <p className="font-bold truncate text-sm">{a.user_name || 'Unknown'}</p>
-                          <p className="text-xs text-white/30">{a.user_phone}</p>
+                          <p className="text-xs text-ink-subtle">{a.user_phone}</p>
                         </div>
                       </div>
 
                       {/* Grid for details on Mobile */}
-                      <div className="grid grid-cols-2 md:contents gap-4 p-3 bg-white/[0.02] md:bg-transparent rounded-xl border border-white/5 md:border-0">
+                      <div className="grid grid-cols-2 md:contents gap-4 p-3 bg-surface-raised md:bg-transparent rounded-xl border border-border md:border-0">
                         <div className="text-sm">
-                           <span className="md:hidden block text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">IN</span>
+                           <span className="md:hidden block text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">IN</span>
                           <p className="font-medium">{formatDate(a.check_in_time)}</p>
-                          <p className="text-white/40 text-xs">{formatTime(a.check_in_time)}</p>
+                          <p className="text-ink-muted text-xs">{formatTime(a.check_in_time)}</p>
                         </div>
                         <div className="text-sm">
-                          <span className="md:hidden block text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">OUT</span>
+                          <span className="md:hidden block text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">OUT</span>
                           {a.check_out_time ? (
                             <>
                               <p className="font-medium">{formatDate(a.check_out_time)}</p>
-                              <p className="text-white/40 text-xs">{formatTime(a.check_out_time)}</p>
+                              <p className="text-ink-muted text-xs">{formatTime(a.check_out_time)}</p>
                             </>
                           ) : (
-                            <span className="text-green-400 text-xs font-bold uppercase tracking-widest bg-green-500/10 px-2 py-0.5 rounded">Active</span>
+                            <span className="text-success text-xs font-bold uppercase tracking-widest bg-success-soft px-2 py-0.5 rounded">Active</span>
                           )}
                         </div>
                         <div className="flex flex-col">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">FOCUS</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">FOCUS</span>
                            {a.workout_type ? (
-                             <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded uppercase tracking-wider text-center">{a.workout_type}</span>
+                             <span className="text-[10px] font-bold text-accent-text bg-accent-soft border border-accent-border px-2 py-0.5 rounded uppercase tracking-wider text-center">{a.workout_type}</span>
                            ) : (
-                             <span className="text-[10px] text-white/20 uppercase tracking-widest text-center">—</span>
+                             <span className="text-[10px] text-ink-subtle uppercase tracking-widest text-center">—</span>
                            )}
                         </div>
                         <div className="flex flex-col">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">DURATION</span>
-                           <span className="text-sm font-mono text-white/60">{a.duration_minutes != null ? `${a.duration_minutes}m` : '—'}</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">DURATION</span>
+                           <span className="text-sm font-mono text-ink-muted">{a.duration_minutes != null ? `${a.duration_minutes}m` : '—'}</span>
                         </div>
                         <div className="flex flex-col">
-                           <span className="md:hidden text-[9px] font-bold text-white/20 uppercase tracking-widest mb-1">METHOD</span>
-                           <span className="text-[10px] uppercase tracking-widest text-white/30">{a.method}</span>
+                           <span className="md:hidden text-[9px] font-bold text-ink-subtle uppercase tracking-widest mb-1">METHOD</span>
+                           <span className="text-[10px] uppercase tracking-widest text-ink-subtle">{a.method}</span>
                         </div>
                       </div>
                     </motion.div>
                   ))}
                 </div>
                 {attendanceTotal > 30 && (
-                  <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm">
-                    <span className="text-white/30">Page {attendancePage} of {Math.ceil(attendanceTotal / 30)}</span>
+                  <div className="p-4 border-t border-border flex items-center justify-between text-sm">
+                    <span className="text-ink-subtle">Page {attendancePage} of {Math.ceil(attendanceTotal / 30)}</span>
                     <div className="flex gap-2">
                       <button onClick={() => setAttendancePage(Math.max(1, attendancePage - 1))} disabled={attendancePage === 1}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Prev</button>
+                        className="px-3 py-1.5 bg-surface-raised rounded-lg text-xs disabled:opacity-30">Prev</button>
                       <button onClick={() => setAttendancePage(attendancePage + 1)} disabled={attendancePage >= Math.ceil(attendanceTotal / 30)}
-                        className="px-3 py-1.5 bg-white/5 rounded-lg text-xs disabled:opacity-30">Next</button>
+                        className="px-3 py-1.5 bg-surface-raised rounded-lg text-xs disabled:opacity-30">Next</button>
                     </div>
                   </div>
                 )}
@@ -1281,46 +1280,46 @@ const MembersTab = () => {
       </AnimatePresence>
 
       {/* ── Enroll Modal ──────────────────────────────────────────────────────── */}
-      <Modal isOpen={showEnrollModal} onClose={() => setShowEnrollModal(false)} title="Enroll New Member" maxWidth="max-w-md">
+      <Sheet size="sm" open={showEnrollModal} onClose={() => setShowEnrollModal(false)} title="Enroll New Member">
         <form onSubmit={handleEnroll} className="space-y-5">
           {/* Phone */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Phone Number</label>
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Phone Number</label>
             <div className="relative flex items-center">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
-                <Phone size={14} className="text-white/40" />
-                <span className="text-white/60 font-bold text-xs border-r border-white/10 pr-1.5">+91</span>
+                <Phone size={14} className="text-ink-muted" />
+                <span className="text-ink-muted font-bold text-xs border-r border-border pr-1.5">+91</span>
               </div>
               <input type="tel" required placeholder="10-digit number" maxLength={10}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-[4.5rem] pr-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 pl-[4.5rem] pr-4 text-sm focus:border-accent outline-none transition-all"
                 value={enrollForm.phone} onChange={e => setEnrollForm({ ...enrollForm, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })} />
             </div>
           </div>
 
           {/* Full Name */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Full Name</label>
             <input type="text" required placeholder="Member's full name"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
               value={enrollForm.full_name} onChange={e => setEnrollForm({ ...enrollForm, full_name: e.target.value })} />
           </div>
 
           {/* Plan */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Membership Plan</label>
             {!gym?.membership_plans || gym.membership_plans.length === 0 ? (
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 text-xs flex items-center gap-2">
+              <div className="p-3 bg-warning-soft border border-warning/30 rounded-xl text-warning text-xs flex items-center gap-2">
                 <AlertTriangle size={14} /> No plans found. Create one in the Plans tab first.
               </div>
             ) : (
               <select required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
                 value={enrollForm.plan_id} onChange={e => {
                   setEnrollForm({ ...enrollForm, plan_id: e.target.value });
                 }}>
                 <option value="">Select a plan...</option>
                 {gym.membership_plans.map((p: any) => (
-                  <option key={p.id} value={p.id} className="bg-[#111]">
+                  <option key={p.id} value={p.id} className="bg-surface">
                     {p.name} — ₹{p.discounted_price || p.price} / {p.duration_days} days
                   </option>
                 ))}
@@ -1331,16 +1330,16 @@ const MembersTab = () => {
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Start Date</label>
               <input type="date"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all text-ink-muted"
                 style={{ colorScheme: 'dark' }}
                 value={enrollForm.start_date} onChange={e => setEnrollForm({ ...enrollForm, start_date: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date (Auto)</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">End Date (Auto)</label>
               <input type="date"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all text-ink-muted"
                 style={{ colorScheme: 'dark' }}
                 value={enrollForm.end_date} onChange={e => setEnrollForm({ ...enrollForm, end_date: e.target.value })} />
             </div>
@@ -1349,19 +1348,19 @@ const MembersTab = () => {
           {/* Payment */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
-              <select className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Payment Method</label>
+              <select className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
                 value={enrollForm.payment_method} onChange={e => setEnrollForm({ ...enrollForm, payment_method: e.target.value })}>
-                <option value="cash" className="bg-[#111]">Cash</option>
-                <option value="upi" className="bg-[#111]">UPI</option>
-                <option value="card" className="bg-[#111]">Card</option>
-                <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                <option value="cash" className="bg-surface">Cash</option>
+                <option value="upi" className="bg-surface">UPI</option>
+                <option value="card" className="bg-surface">Card</option>
+                <option value="bank_transfer" className="bg-surface">Bank Transfer</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount (optional)</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Amount (optional)</label>
               <input type="number" placeholder="Auto from plan"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                 value={enrollForm.amount_paid} onChange={e => setEnrollForm({ ...enrollForm, amount_paid: e.target.value })} />
             </div>
           </div>
@@ -1369,7 +1368,7 @@ const MembersTab = () => {
           {/* Add-ons Selection */}
           {gym?.addons && gym.addons.length > 0 && (
             <div className="space-y-3">
-               <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Available Add-ons</label>
+               <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider">Available Add-ons</label>
                <div className="grid grid-cols-1 gap-2">
                   {gym.addons.map((addon: any) => (
                     <div 
@@ -1384,16 +1383,16 @@ const MembersTab = () => {
                       }}
                       className={clsx(
                         "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                        enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                        enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-success-soft border-success/30" : "bg-surface-raised border-border hover:border-border"
                       )}
                     >
                        <div className="flex items-center gap-3">
-                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                          <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", enrollForm.selected_addons.find(a => a.id === addon.id) ? "bg-success border-success text-on-accent" : "border-border-strong")}>
                             {enrollForm.selected_addons.find(a => a.id === addon.id) && <CheckCircle2 size={10} />}
                           </div>
-                          <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                          <span className="text-xs font-bold text-ink-muted">{addon.name}</span>
                        </div>
-                       <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
+                       <span className="text-xs font-bold text-success">₹{addon.price}</span>
                     </div>
                   ))}
                </div>
@@ -1401,45 +1400,45 @@ const MembersTab = () => {
           )}
 
           <button type="submit" disabled={enrolling || !enrollForm.plan_id}
-            className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
             {enrolling ? <><Loader2 size={16} className="animate-spin" /> Enrolling...</> : <><UserPlus size={16} /> Enroll Member</>}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
       {/* ── Confirm Dialog ────────────────────────────────────────────────────── */}
       {confirmAction && (
         <ConfirmDialog
-          isOpen={!!confirmAction}
+          open={!!confirmAction}
           onClose={() => setConfirmAction(null)}
           title={confirmAction.title}
           message={confirmAction.message}
           onConfirm={confirmAction.onConfirm}
           confirmLabel={confirmAction.confirmLabel || "Yes, Cancel"}
-          isDangerous={confirmAction.isDangerous !== undefined ? confirmAction.isDangerous : true}
+          tone={(confirmAction.isDangerous !== undefined ? confirmAction.isDangerous : true) ? 'danger' : 'default'}
         />
       )}
 
       {/* ── Edit Member Modal ─────────────────────────────────────────────────── */}
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Member Info">
+      <Sheet size="md" open={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Member Info">
         <form onSubmit={handleEditMember} className="space-y-5">
           {/* Full Name */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Full Name</label>
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Full Name</label>
             <input type="text" required placeholder="Member's full name"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
               value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
           </div>
 
           {/* Plan */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Membership Plan</label>
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Membership Plan</label>
             <select required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
               value={editForm.plan_id} onChange={e => setEditForm({ ...editForm, plan_id: e.target.value })}>
               <option value="">Select a plan...</option>
               {gym?.membership_plans?.map((p: any) => (
-                <option key={p.id} value={p.id} className="bg-[#111]">
+                <option key={p.id} value={p.id} className="bg-surface">
                   {p.name}
                 </option>
               ))}
@@ -1449,16 +1448,16 @@ const MembersTab = () => {
           {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Start Date</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Start Date</label>
               <input type="date" required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all text-ink-muted"
                 style={{ colorScheme: 'dark' }}
                 value={editForm.start_date} onChange={e => setEditForm({ ...editForm, start_date: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">End Date</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">End Date</label>
               <input type="date" required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all text-white/70"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all text-ink-muted"
                 style={{ colorScheme: 'dark' }}
                 value={editForm.end_date} onChange={e => setEditForm({ ...editForm, end_date: e.target.value })} />
             </div>
@@ -1467,49 +1466,49 @@ const MembersTab = () => {
           {/* Payment + Usage */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Amount Paid</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Amount Paid</label>
               <input type="number" min={0}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                 value={editForm.amount_paid} onChange={e => setEditForm({ ...editForm, amount_paid: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Payment Method</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Payment Method</label>
               <select
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
                 value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>
-                <option value="" className="bg-[#111]">Leave unchanged</option>
-                <option value="cash" className="bg-[#111]">Cash</option>
-                <option value="upi" className="bg-[#111]">UPI</option>
-                <option value="card" className="bg-[#111]">Card</option>
-                <option value="bank_transfer" className="bg-[#111]">Bank Transfer</option>
+                <option value="" className="bg-surface">Leave unchanged</option>
+                <option value="cash" className="bg-surface">Cash</option>
+                <option value="upi" className="bg-surface">UPI</option>
+                <option value="card" className="bg-surface">Card</option>
+                <option value="bank_transfer" className="bg-surface">Bank Transfer</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Remaining Visits</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Remaining Visits</label>
               <input type="number" min={0} placeholder="Blank for unlimited"
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                 value={editForm.remaining_visits} onChange={e => setEditForm({ ...editForm, remaining_visits: e.target.value })} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Total Check-ins</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Total Check-ins</label>
               <input type="number" min={0}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
+                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all"
                 value={editForm.total_check_ins} onChange={e => setEditForm({ ...editForm, total_check_ins: e.target.value })} />
             </div>
           </div>
 
-          <label className="flex items-center justify-between gap-3 rounded-xl bg-white/5 border border-white/10 px-4 py-3 cursor-pointer">
+          <label className="flex items-center justify-between gap-3 rounded-xl bg-surface-raised border border-border px-4 py-3 cursor-pointer">
             <span>
-              <span className="block text-xs font-bold text-white/70">Auto renew</span>
-              <span className="block text-[11px] text-white/30">Keep this membership marked for renewal reminders.</span>
+              <span className="block text-xs font-bold text-ink-muted">Auto renew</span>
+              <span className="block text-[11px] text-ink-subtle">Keep this membership marked for renewal reminders.</span>
             </span>
             <input type="checkbox" checked={editForm.auto_renew} onChange={e => setEditForm({ ...editForm, auto_renew: e.target.checked })}
-              className="w-5 h-5 accent-primary" />
+              className="w-5 h-5 accent-accent" />
           </label>
 
           {gym?.addons && gym.addons.length > 0 && (
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-white/40 uppercase tracking-wider">Add-ons</label>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider">Add-ons</label>
               <div className="grid grid-cols-1 gap-2">
                 {gym.addons.map((addon: any) => (
                   <div
@@ -1524,16 +1523,16 @@ const MembersTab = () => {
                     }}
                     className={clsx(
                       "p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all",
-                      editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500/10 border-emerald-500/30" : "bg-white/5 border-white/5 hover:border-white/10"
+                      editForm.selected_addons.find(a => a.id === addon.id) ? "bg-success-soft border-success/30" : "bg-surface-raised border-border hover:border-border"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", editForm.selected_addons.find(a => a.id === addon.id) ? "bg-emerald-500 border-emerald-500 text-black" : "border-white/20")}>
+                      <div className={clsx("w-4 h-4 rounded border flex items-center justify-center transition-all", editForm.selected_addons.find(a => a.id === addon.id) ? "bg-success border-success text-on-accent" : "border-border-strong")}>
                         {editForm.selected_addons.find(a => a.id === addon.id) && <CheckCircle2 size={10} />}
                       </div>
-                      <span className="text-xs font-bold text-white/80">{addon.name}</span>
+                      <span className="text-xs font-bold text-ink-muted">{addon.name}</span>
                     </div>
-                    <span className="text-xs font-black text-emerald-500">₹{addon.price}</span>
+                    <span className="text-xs font-bold text-success">₹{addon.price}</span>
                   </div>
                 ))}
               </div>
@@ -1542,72 +1541,72 @@ const MembersTab = () => {
 
           {/* Status */}
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-1.5">Status</label>
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-1.5">Status</label>
             <select required
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all appearance-none"
+              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 text-sm focus:border-accent outline-none transition-all appearance-none"
               value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}>
-              <option value="active" className="bg-[#111]">Active</option>
-              <option value="expired" className="bg-[#111]">Expired</option>
-              <option value="cancelled" className="bg-[#111]">Cancelled</option>
-              <option value="pending" className="bg-[#111]">Pending</option>
-              <option value="suspended" className="bg-[#111]">Suspended</option>
+              <option value="active" className="bg-surface">Active</option>
+              <option value="expired" className="bg-surface">Expired</option>
+              <option value="cancelled" className="bg-surface">Cancelled</option>
+              <option value="pending" className="bg-surface">Pending</option>
+              <option value="suspended" className="bg-surface">Suspended</option>
             </select>
           </div>
 
           <button type="submit" disabled={isUpdating}
-            className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
             {isUpdating ? <><Loader2 size={16} className="animate-spin" /> Updating...</> : <><CheckCircle2 size={16} /> Save Changes</>}
           </button>
         </form>
-      </Modal>
+      </Sheet>
 
-      <Modal isOpen={!!importSummary} onClose={() => setImportSummary(null)} title="Excel Import Summary" maxWidth="max-w-3xl">
+      <Sheet size="lg" open={!!importSummary} onClose={() => setImportSummary(null)} title="Excel Import Summary">
         {importSummary && (
           <div className="space-y-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: 'Rows', value: importSummary.total_rows, color: 'text-white' },
-                { label: 'Created', value: importSummary.created, color: 'text-emerald-400' },
-                { label: 'Updated', value: importSummary.updated, color: 'text-sky-300' },
-                { label: 'Failed', value: importSummary.failed, color: importSummary.failed ? 'text-rose-400' : 'text-white/50' },
+                { label: 'Rows', value: importSummary.total_rows, color: 'text-ink' },
+                { label: 'Created', value: importSummary.created, color: 'text-success' },
+                { label: 'Updated', value: importSummary.updated, color: 'text-info' },
+                { label: 'Failed', value: importSummary.failed, color: importSummary.failed ? 'text-danger' : 'text-ink-muted' },
               ].map(item => (
-                <div key={item.label} className="rounded-xl bg-white/5 border border-white/10 p-4">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-white/30">{item.label}</p>
-                  <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.value}</p>
+                <div key={item.label} className="rounded-xl bg-surface-raised border border-border p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">{item.label}</p>
+                  <p className={`text-2xl font-bold mt-1 ${item.color}`}>{item.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="max-h-[360px] overflow-auto rounded-2xl border border-white/10">
-              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-white/5 text-[10px] font-black uppercase tracking-widest text-white/30 sticky top-0">
+            <div className="max-h-[360px] overflow-auto rounded-gm-lg border border-border">
+              <div className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 bg-surface-raised text-[10px] font-bold uppercase tracking-widest text-ink-subtle sticky top-0">
                 <span>Row</span>
                 <span>Action</span>
                 <span>Member</span>
                 <span>Message</span>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-border">
                 {importSummary.results.map((result) => (
                   <div key={`${result.row}-${result.action}-${result.phone || ''}`} className="grid grid-cols-[70px_100px_1fr_1fr] gap-3 px-4 py-3 text-xs">
-                    <span className="font-mono text-white/50">{result.row}</span>
+                    <span className="font-mono text-ink-muted">{result.row}</span>
                     <span className={clsx(
-                      "font-black uppercase tracking-wider",
-                      result.action === 'failed' ? 'text-rose-400' : result.action === 'created' ? 'text-emerald-400' : 'text-sky-300'
+                      "font-bold uppercase tracking-wider",
+                      result.action === 'failed' ? 'text-danger' : result.action === 'created' ? 'text-success' : 'text-info'
                     )}>{result.action}</span>
-                    <span className="text-white/70 truncate">
-                      {result.full_name || 'Unknown'} <span className="text-white/30">{result.phone || ''}</span>
+                    <span className="text-ink-muted truncate">
+                      {result.full_name || 'Unknown'} <span className="text-ink-subtle">{result.phone || ''}</span>
                     </span>
-                    <span className={result.action === 'failed' ? 'text-rose-300' : 'text-white/45'}>{result.message}</span>
+                    <span className={result.action === 'failed' ? 'text-danger' : 'text-ink-muted'}>{result.message}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <button onClick={() => setImportSummary(null)} className="w-full btn-primary py-3">
+            <button onClick={() => setImportSummary(null)} className="w-full inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-3">
               Done
             </button>
           </div>
         )}
-      </Modal>
+      </Sheet>
     </div>
   );
 };

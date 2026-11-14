@@ -14,14 +14,14 @@ export default function ClubTierEditModal({ club, maxFeeDiscount, maxSupplementD
   const patch = (updater: (item: ClubConfig) => ClubConfig) => onChange(updater(club));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 sm:items-center">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.75rem] border border-white/10 bg-[#121212] p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay p-4 sm:items-center">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.75rem] border border-border bg-surface p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-primary">Edit tier</p>
-            <h3 className="mt-1 text-2xl font-black text-white">{club.club_name}</h3>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-accent-text">Edit tier</p>
+            <h3 className="mt-1 text-2xl font-bold text-ink">{club.club_name}</h3>
           </div>
-          <button type="button" onClick={onClose} className="rounded-xl border border-white/10 p-2 text-white/60 hover:text-white">
+          <button type="button" onClick={onClose} className="rounded-xl border border-border p-2 text-ink-muted hover:text-ink">
             <X size={18} />
           </button>
         </div>
@@ -51,18 +51,18 @@ export default function ClubTierEditModal({ club, maxFeeDiscount, maxSupplementD
         </div>
 
         <label className="mt-4 block space-y-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-white/35">Tasks (one per line)</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">Tasks (one per line)</span>
           <textarea
             value={toLinesText(club.tasks)}
             onChange={(event) => patch((item) => ({ ...item, tasks: fromLinesText(event.target.value) }))}
             rows={5}
-            className="w-full resize-none rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
+            className="w-full resize-none rounded-gm-lg border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
           />
         </label>
 
         {!club.protected_status && (
           <label className="mt-4 block space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/35">Comeback mission</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">Comeback mission</span>
             <textarea
               value={club.comeback_mission?.description || ''}
               onChange={(event) =>
@@ -74,7 +74,7 @@ export default function ClubTierEditModal({ club, maxFeeDiscount, maxSupplementD
                 }))
               }
               rows={3}
-              className="w-full resize-none rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
+              className="w-full resize-none rounded-gm-lg border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
             />
           </label>
         )}
@@ -82,7 +82,7 @@ export default function ClubTierEditModal({ club, maxFeeDiscount, maxSupplementD
         <button
           type="button"
           onClick={onClose}
-          className="mt-6 w-full rounded-xl bg-primary py-3 text-xs font-black uppercase text-black"
+          className="mt-6 w-full rounded-xl bg-accent py-3 text-xs font-bold uppercase text-on-accent"
         >
           Done
         </button>
@@ -103,12 +103,12 @@ const Field = ({
   type?: 'text' | 'number';
 }) => (
   <label className="space-y-2">
-    <span className="text-[10px] font-black uppercase tracking-widest text-white/35">{label}</span>
+    <span className="text-[10px] font-bold uppercase tracking-widest text-ink-subtle">{label}</span>
     <input
       type={type}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
+      className="w-full rounded-gm-lg border border-border bg-surface-sunken px-4 py-3 text-sm font-bold text-ink outline-none focus:border-accent-border"
     />
   </label>
 );
@@ -118,8 +118,8 @@ const Toggle = ({ label, checked, onChange }: { label: string; checked: boolean;
     type="button"
     onClick={() => onChange(!checked)}
     className={`rounded-2xl border px-4 py-3 text-left text-xs font-black uppercase tracking-widest ${
-      checked ? 'border-primary/35 bg-primary/15 text-primary' : 'border-white/10 bg-black/20 text-white/42'
-    }`}
+ checked ? 'border-accent-border bg-accent-soft text-accent-text' : 'border-border bg-surface-sunken text-ink-muted'
+ }`}
   >
     {label}: {checked ? 'Yes' : 'No'}
   </button>

@@ -90,8 +90,8 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
             <Zap size={20} fill="currentColor" />
           </div>
           <div>
-            <h3 className="text-xl font-black text-white italic tracking-tighter">DAILY DROP</h3>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Your saved AI plans for today</p>
+            <h3 className="text-xl font-black text-ink italic tracking-tighter">DAILY DROP</h3>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-ink/40">Your saved AI plans for today</p>
           </div>
         </div>
         <div className="px-3 py-1 rounded-lg bg-primary/10 border border-primary/20">
@@ -105,8 +105,8 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
             <Target size={32} />
           </div>
           <div className="space-y-2">
-            <h4 className="text-xl font-bold text-white">Fitness Profile Required</h4>
-            <p className="text-white/40 text-sm max-w-sm mx-auto leading-relaxed">
+            <h4 className="text-xl font-bold text-ink">Fitness Profile Required</h4>
+            <p className="text-ink/40 text-sm max-w-sm mx-auto leading-relaxed">
               Set up your profile so Migo AI can build personal drops for you.
             </p>
           </div>
@@ -127,7 +127,7 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
                 <motion.div
                   key={plan.id}
                   whileHover={{ y: -4 }}
-                  className="glass-card overflow-hidden group border-white/5 hover:border-primary/30 transition-all cursor-pointer"
+                  className="glass-card overflow-hidden group border-ink/5 hover:border-primary/30 transition-all cursor-pointer"
                 >
                   <div className={clsx(
                     "h-1 w-full",
@@ -152,21 +152,21 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
                         )}>
                           {plan.type === 'workout' ? 'WORKOUT' : 'FUEL CHECK'}
                         </span>
-                        <h4 className="text-lg font-bold text-white group-hover:text-primary transition-colors truncate">
+                        <h4 className="text-lg font-bold text-ink group-hover:text-primary transition-colors truncate">
                           {plan.structured_data?.focus || plan.title}
                         </h4>
                       </div>
                     </div>
 
-                    <p className="text-white/40 text-sm line-clamp-2 leading-relaxed font-medium">
+                    <p className="text-ink/40 text-sm line-clamp-2 leading-relaxed font-medium">
                       {plan.structured_data?.description || 'View your full tailored plan.'}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-3 pt-2">
                       {(plan.structured_data?.duration || plan.duration) && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-                          <Clock size={12} className="text-white/40" />
-                          <span className="text-[10px] font-black text-white/60 uppercase">{plan.structured_data?.duration || plan.duration} MIN</span>
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-ink/5 border border-ink/10">
+                          <Clock size={12} className="text-ink/40" />
+                          <span className="text-[10px] font-black text-ink/60 uppercase">{plan.structured_data?.duration || plan.duration} MIN</span>
                         </div>
                       )}
                       {(plan.structured_data?.intensity || plan.intensity) && (
@@ -195,8 +195,8 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
                 <Zap size={32} />
               </div>
               <div className="space-y-2">
-                <h4 className="text-xl font-bold text-white">No Drop Yet</h4>
-                <p className="text-white/40 text-sm max-w-sm mx-auto leading-relaxed">
+                <h4 className="text-xl font-bold text-ink">No Drop Yet</h4>
+                <p className="text-ink/40 text-sm max-w-sm mx-auto leading-relaxed">
                   Help Migo AI understand your energy levels to build today's tailored drop.
                 </p>
               </div>
@@ -227,7 +227,7 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
             >
               <button 
                 onClick={() => setShowCheckinModal(false)}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 text-white/40 hover:text-white transition-colors"
+                className="absolute top-6 right-6 p-2 rounded-full bg-ink/5 text-ink/40 hover:text-ink transition-colors"
               >
                 <X size={20} />
               </button>
@@ -237,27 +237,27 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
                   <Activity size={32} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white italic tracking-tighter">QUICK CHECK-IN</h3>
-                  <p className="text-sm text-white/40 font-medium">Help Migo AI build today's drop</p>
+                  <h3 className="text-2xl font-black text-ink italic tracking-tighter">QUICK CHECK-IN</h3>
+                  <p className="text-sm text-ink/40 font-medium">Help Migo AI build today's drop</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Time Available (mins)</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/40">Time Available (mins)</label>
                   <div className="relative">
-                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/20" size={18} />
                     <input 
                       type="number"
                       value={checkinTime}
                       onChange={(e) => setCheckinTime(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white font-bold focus:border-primary/50 focus:outline-none transition-all"
+                      className="w-full bg-ink/5 border border-ink/10 rounded-2xl py-4 pl-12 pr-4 text-ink font-bold focus:border-primary/50 focus:outline-none transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Motivation Level</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-ink/40">Motivation Level</label>
                   <div className="flex justify-between gap-2">
                     {[1, 2, 3, 4, 5].map((level) => (
                       <button
@@ -267,7 +267,7 @@ export default function AITodaysFocus({ refreshKey }: AITodaysFocusProps) {
                           "flex-1 py-4 rounded-2xl font-black transition-all border",
                           checkinMotivation === level 
                             ? "bg-primary border-primary text-black" 
-                            : "bg-white/5 border-white/10 text-white/40 hover:border-white/20"
+                            : "bg-ink/5 border-ink/10 text-ink/40 hover:border-ink/20"
                         )}
                       >
                         {level}

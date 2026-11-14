@@ -114,9 +114,9 @@ export default function MemberInsights() {
         </div>
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 items-center">
           <div className="flex items-center justify-center">
-            <div className={clsx("w-40 h-40 rounded-full border-4 flex flex-col items-center justify-center bg-white/[0.03]", scoreTone.border)}>
+            <div className={clsx("w-40 h-40 rounded-full border-4 flex flex-col items-center justify-center bg-ink/[0.03]", scoreTone.border)}>
               <span className={clsx("text-6xl font-black tracking-tighter leading-none", scoreTone.text)}>{dailyScore}</span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">out of 100</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-ink/30">out of 100</span>
             </div>
           </div>
 
@@ -128,30 +128,30 @@ export default function MemberInsights() {
                     <Zap size={22} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/35">Migo AI</p>
-                    <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white">Daily Fitness Score</h3>
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-ink/35">Migo AI</p>
+                    <h3 className="text-2xl md:text-3xl font-black tracking-tight text-ink">Daily Fitness Score</h3>
                   </div>
                 </div>
-                <p className="text-sm md:text-base text-white/55 max-w-3xl leading-relaxed">{coachNudge}</p>
+                <p className="text-sm md:text-base text-ink/55 max-w-3xl leading-relaxed">{coachNudge}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 shrink-0">
-                <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <div className="rounded-2xl bg-ink/5 border border-ink/10 px-4 py-3">
                   <div className="flex items-center gap-2 text-sky-300 mb-1">
                     <Globe2 size={14} />
                     <span className="text-[9px] font-black uppercase tracking-widest">Global Rank</span>
                   </div>
                   <p className="text-2xl font-black">
                     {globalRank ? `#${globalRank}` : '--'}
-                    {globalRankTotal ? <span className="text-xs text-white/30 font-bold"> / {globalRankTotal}</span> : null}
+                    {globalRankTotal ? <span className="text-xs text-ink/30 font-bold"> / {globalRankTotal}</span> : null}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-3">
+                <div className="rounded-2xl bg-ink/5 border border-ink/10 px-4 py-3">
                   <div className="flex items-center gap-2 text-violet-300 mb-1">
                     <Target size={14} />
                     <span className="text-[9px] font-black uppercase tracking-widest">Week Goal</span>
                   </div>
-                  <p className="text-2xl font-black">{weekActiveDays}<span className="text-xs text-white/30 font-bold"> / {weeklyTargetDays}</span></p>
+                  <p className="text-2xl font-black">{weekActiveDays}<span className="text-xs text-ink/30 font-bold"> / {weeklyTargetDays}</span></p>
                 </div>
               </div>
             </div>
@@ -164,12 +164,12 @@ export default function MemberInsights() {
                 ['Nutrition', scoreComponents.nutrition ?? 0, 10],
                 ['Goal', scoreComponents.goal_alignment ?? 0, 10],
               ].map(([label, value, max]) => (
-                <div key={String(label)} className="rounded-xl bg-white/5 border border-white/10 p-3 space-y-2">
+                <div key={String(label)} className="rounded-xl bg-ink/5 border border-ink/10 p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/35 truncate">{label}</span>
-                    <span className="text-[10px] font-black text-white/60">{String(value)}/{String(max)}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-ink/35 truncate">{label}</span>
+                    <span className="text-[10px] font-black text-ink/60">{String(value)}/{String(max)}</span>
                   </div>
-                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-2 bg-ink/5 rounded-full overflow-hidden">
                     <div
                       className={clsx("h-full rounded-full", dailyScore >= 80 ? 'bg-emerald-400' : dailyScore >= 50 ? 'bg-primary' : 'bg-rose-400')}
                       style={{ width: `${Math.min(100, (Number(value) / Number(max)) * 100)}%` }}
@@ -183,7 +183,7 @@ export default function MemberInsights() {
       </div>
 
       {todaysPlan && (
-        <div className="glass-card p-6 md:p-8 bg-gradient-to-br from-orange-500/10 via-white/[0.02] to-transparent border-orange-500/20 relative overflow-hidden">
+        <div className="glass-card p-6 md:p-8 bg-gradient-to-br from-orange-500/10 via-ink/[0.02] to-transparent border-orange-500/20 relative overflow-hidden">
           <div className="absolute -right-8 -bottom-8 text-orange-500/5 pointer-events-none">
             <Dumbbell size={170} />
           </div>
@@ -195,13 +195,13 @@ export default function MemberInsights() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-300/80">Today's Workout Plan</p>
-                  <h3 className="text-xl md:text-2xl font-black text-white tracking-tight truncate">{todaysPlan.title}</h3>
+                  <h3 className="text-xl md:text-2xl font-black text-ink tracking-tight truncate">{todaysPlan.title}</h3>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {planData.duration && (
-                  <span className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/50">
+                  <span className="px-3 py-1 rounded-lg bg-ink/5 border border-ink/10 text-[10px] font-black uppercase tracking-widest text-ink/50">
                     {planData.duration} min
                   </span>
                 )}
@@ -220,7 +220,7 @@ export default function MemberInsights() {
               {exercises.length > 0 ? (
                 <WorkoutExerciseMediaGrid exercises={exercises} compact />
               ) : (
-                <p className="text-sm text-white/50 max-w-2xl line-clamp-3">
+                <p className="text-sm text-ink/50 max-w-2xl line-clamp-3">
                   {todaysPlan.content?.replace(/\[METER:[^\]]+\]/g, '').replace(/[#*`]/g, '')}
                 </p>
               )}
@@ -228,7 +228,7 @@ export default function MemberInsights() {
 
             <Link
               to="/app/calendar"
-              className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/10 transition-all"
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-ink/5 border border-ink/10 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-ink/10 transition-all"
             >
               Open Calendar <ArrowRight size={14} />
             </Link>
@@ -263,13 +263,13 @@ export default function MemberInsights() {
             <div className="space-y-3 relative z-10">
               <div className="flex flex-wrap gap-2">
                 {['Badge missions', 'Locked previews', 'Share FitCard'].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/45">
+                  <span key={item} className="rounded-full border border-ink/10 bg-ink/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/45">
                     {item}
                   </span>
                 ))}
               </div>
               
-              <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
+              <div className="w-full h-3 bg-ink/5 rounded-full overflow-hidden border border-ink/5 relative">
                 <motion.div 
                   initial={{ width: 0 }} 
                   animate={{ width: `${weeklyProgressPercent}%` }} 
@@ -280,12 +280,12 @@ export default function MemberInsights() {
                   <motion.div 
                     animate={{ x: ['-100%', '200%'] }}
                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                    className="absolute top-0 bottom-0 w-10 bg-white/30 skew-x-12"
+                    className="absolute top-0 bottom-0 w-10 bg-ink/30 skew-x-12"
                   />
                 </motion.div>
               </div>
               
-              <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold text-center group-hover:text-white/60 transition-colors">
+              <p className="text-[10px] text-ink/40 uppercase tracking-widest font-bold text-center group-hover:text-ink/60 transition-colors">
                 Tap to preview higher locked clubs, required badges, and gym rewards.
               </p>
             </div>

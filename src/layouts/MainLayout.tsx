@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, MapPin, Sparkles } from 'lucide-react';
+import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, MapPin, Sparkles } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 import InfoModal from '../components/InfoModal';
 import MapPickerModal from '../components/MapPickerModal';
@@ -10,8 +10,8 @@ import { useAuth } from '../context/AuthContext';
 import { useGeoLocation, type AddressResult } from '../context/LocationContext';
 import api from '../utils/api';
 import { AvatarMenu } from './AvatarMenu';
-import { LegacyThemeContext } from './legacyThemeContext';
-import { gymNav, isActive, primaryNav, secondaryNav, type NavItem } from './navConfig';
+import { gymIcon as GymIcon, gymNav, isActive, roleNav, type NavItem } from './navConfig';
+import { useSidebarCollapsed } from './useSidebarCollapsed';
 
 /**
  * App shell, mirroring the mobile app:
@@ -23,7 +23,8 @@ export default function MainLayout() {
   const { selectedLocation, updateSelectedLocation, isMismatch, currentGPS, isLoaded } = useGeoLocation();
   const location = useLocation();
   const navigate = useNavigate();
-  const [forcedDark, setForcedDark] = useState(false);
+  const { collapsed, toggle: toggleSidebar } = useSidebarCollapsed();
+  const [ownerGyms, setOwnerGyms] = useState<{ id: string; name: string }[]>([]);
   const [mapOpen, setMapOpen] = useState(false);
   const [detected, setDetected] = useState<AddressResult | null>(null);
   const [syncOpen, setSyncOpen] = useState(false);
@@ -31,12 +32,13 @@ export default function MainLayout() {
   const [gymBranding, setGymBranding] = useState<{ id: string; name: string; logo?: string | null } | null>(null);
 
   const role = user?.active_role;
+  const isOwner = role === 'gym_owner' || role === 'gym_manager';
   const gymMatch = location.pathname.match(/\/app\/gym-owner\/gyms\/([^/\s]+)/);
-  const activeGymId = role === 'gym_owner' && gymMatch ? gymMatch[1] : null;
+  const activeGymId = isOwner && gymMatch ? gymMatch[1] : null;
   const branding = gymBranding?.id === activeGymId ? gymBranding : null;
-  const primary = primaryNav(role);
-  const secondary = secondaryNav(role);
-  const showLocation = role !== 'gym_owner';
+  const nav = roleNav(role);
+  const showLocation = !isOwner;
+  const here = (item: NavItem) => isActive(item, location.pathname, location.search);
 
   // Social hub drawer lives behind ?social=true (kept from the previous shell).
   const params = new URLSearchParams(location.search);
@@ -70,6 +72,26 @@ export default function MainLayout() {
     };
   }, [activeGymId]);
 
+  // Owners: their gyms for the sidebar's "My gyms" section.
+  useEffect(() => {
+    if (!isOwner) return;
+    let alive = true;
+    api
+      .get('/gym-owner/gyms')
+      .then(res => {
+        const d = res.data.data;
+        // Each entry is `{ gym, addresses, … }` (older responses were flat gym objects).
+        type Entry = { id?: string; name?: string; gym?: { id: string; name: string } };
+        const list: Entry[] = Array.isArray(d) ? d : (d?.gyms ?? []);
+        const gyms = list.map(e => e.gym ?? e).filter((g): g is { id: string; name: string } => !!g?.id);
+        if (alive) setOwnerGyms(gyms.map(g => ({ id: g.id, name: g.name || 'Untitled gym' })));
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [isOwner, user?.id, activeGymId]);
+
   // First visit with GPS but no saved location: offer to use the detected area.
   useEffect(() => {
     if (!isLoaded || selectedLocation || !currentGPS || syncAttempted.current) return;
@@ -101,7 +123,7 @@ export default function MainLayout() {
       className={cn(
         'group flex min-w-0 items-center gap-2.5 rounded-full border bg-surface py-1.5 pl-1.5 pr-3 text-left transition-colors hover:bg-surface-sunken',
         isMismatch ? 'border-accent' : 'border-border',
-        compact ? 'max-w-[62vw]' : 'max-w-[320px]',
+        compact ? 'max-w-[62vw] md:max-w-[320px]' : 'max-w-[320px]',
       )}
       aria-label={selectedLocation ? `Location: ${selectedLocation.address_line1}. Change` : 'Set your location'}>
       <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-text">
@@ -116,94 +138,135 @@ export default function MainLayout() {
     </button>
   );
 
-  const sideLink = (item: NavItem) => {
-    const active = isActive(item, location.pathname);
-    const cls = cn(
-      't-callout flex w-full items-center gap-3 rounded-gm-md px-3 py-2.5 transition-colors',
-      active ? 'bg-accent-soft font-semibold text-accent-text' : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
+  const linkClass = (active: boolean, nested = false) =>
+    cn(
+      'relative flex w-full items-center rounded-gm-md transition-colors',
+      collapsed ? 'h-11 justify-center' : cn('gap-3 px-3', nested ? 'py-2 t-footnote' : 'py-2.5 t-callout'),
+      active
+        ? 'bg-accent-soft font-semibold text-accent-text before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-accent'
+        : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
     );
+
+  const sideLink = (item: NavItem, nested = false) => {
+    const active = item.social ? socialOpen : here(item);
+    const content = (
+      <>
+        <item.icon size={nested ? 16 : 18} className="shrink-0" aria-hidden />
+        <span className={cn('truncate', collapsed && 'sr-only')}>{item.label}</span>
+      </>
+    );
+    const tip = collapsed ? item.label : undefined;
     if (item.social) {
       return (
-        <button key={item.key} type="button" onClick={() => openSocial('feed')} className={cn(cls, socialOpen && 'bg-accent-soft text-accent-text')}>
-          <item.icon size={18} aria-hidden />
-          {item.label}
+        <button key={item.key} type="button" title={tip} onClick={() => openSocial('feed')} className={linkClass(active, nested)}>
+          {content}
         </button>
       );
     }
     return (
-      <Link key={item.key} to={item.to} aria-current={active ? 'page' : undefined} className={cls}>
-        <item.icon size={18} aria-hidden />
-        {item.label}
+      <Link key={item.key} to={item.to} title={tip} aria-current={active ? 'page' : undefined} className={linkClass(active, nested)}>
+        {content}
       </Link>
     );
   };
 
-  return (
-    <LegacyThemeContext.Provider value={setForcedDark}>
-      <div data-theme={forcedDark ? 'dark' : undefined} className="min-h-dvh bg-background text-ink">
-        {/* Desktop sidebar */}
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] flex-col border-r border-border bg-surface md:flex">
-          <Link to="/app/dashboard" className="flex h-[72px] shrink-0 items-center px-5" aria-label="Gymmigo home">
-            {branding ? (
-              <span className="flex min-w-0 items-center gap-3">
-                {branding.logo ? (
-                  <img src={branding.logo} alt="" className="h-10 w-10 shrink-0 rounded-gm-md border border-border object-cover" />
-                ) : (
-                  <BrandLogo size={40} showText={false} />
-                )}
-                <span className="min-w-0">
-                  <span className="t-label-sm block text-accent-text">Managing</span>
-                  <span className="t-subtitle block truncate text-ink">{branding.name}</span>
-                </span>
-              </span>
-            ) : (
-              <BrandLogo size={36} />
-            )}
-          </Link>
-          <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pb-4" aria-label="Main">
-            {primary.map(sideLink)}
-            {activeGymId ? (
-              <>
-                <p className="t-label-sm px-3 pb-1 pt-5 text-ink-subtle">This gym</p>
-                {gymNav(activeGymId).map(item => {
-                  const active = item.key === 'overview' ? location.pathname === item.to : isActive(item, location.pathname);
-                  return (
-                    <Link
-                      key={item.key}
-                      to={item.to}
-                      aria-current={active ? 'page' : undefined}
-                      className={cn(
-                        't-callout flex items-center gap-3 rounded-gm-md px-3 py-2.5 transition-colors',
-                        active ? 'bg-accent-soft font-semibold text-accent-text' : 'text-ink-muted hover:bg-surface-sunken hover:text-ink',
-                      )}>
-                      <item.icon size={18} aria-hidden />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </>
+  const sectionLabel = (label: string) =>
+    collapsed ? <div className="mx-3 my-3 h-px bg-border" aria-hidden /> : <p className="t-label-sm px-3 pb-1 pt-5 text-ink-subtle">{label}</p>;
+
+  const ownerGymsSection = isOwner ? (
+    <div role="group" aria-label="My gyms">
+      {sectionLabel('My gyms')}
+      {ownerGyms.length === 0 && !collapsed ? <p className="t-footnote px-3 py-1 text-ink-subtle">No gyms yet</p> : null}
+      {ownerGyms.map(g => {
+        const selected = g.id === activeGymId;
+        const item: NavItem = { key: `gym-${g.id}`, label: g.name, to: `/app/gym-owner/gyms/${g.id}`, icon: GymIcon, exact: true };
+        return (
+          <div key={g.id}>
+            {sideLink(item)}
+            {selected ? (
+              <div className={cn('mb-1 mt-0.5 flex flex-col gap-0.5', !collapsed && 'ml-4 border-l border-border pl-2')}>
+                {gymNav(g.id).map(i => sideLink(i, true))}
+              </div>
             ) : null}
-            {secondary.length ? <p className="t-label-sm px-3 pb-1 pt-5 text-ink-subtle">More</p> : null}
-            {secondary.map(sideLink)}
+          </div>
+        );
+      })}
+    </div>
+  ) : null;
+
+  const sidebarW = collapsed ? 'md:w-[72px]' : 'md:w-[248px]';
+
+  return (
+      <div className="flex min-h-dvh bg-background text-ink">
+        {/* Desktop sidebar (collapsible to an icon rail) */}
+        <aside
+          className={cn(
+            'sticky top-0 z-40 hidden h-dvh shrink-0 flex-col self-start border-r border-border bg-surface transition-[width] duration-200 ease-out motion-reduce:transition-none md:flex',
+            sidebarW,
+          )}
+          aria-label="Sidebar">
+          <div className={cn('flex h-[72px] shrink-0 items-center', collapsed ? 'justify-center px-2' : 'px-5')}>
+            <Link to="/app/dashboard" className="flex min-w-0 items-center rounded-gm-md" aria-label="Gymmigo home">
+              {branding && !collapsed ? (
+                <span className="flex min-w-0 items-center gap-3">
+                  {branding.logo ? (
+                    <img src={branding.logo} alt="" className="h-10 w-10 shrink-0 rounded-gm-md border border-border object-cover" />
+                  ) : (
+                    <BrandLogo size={40} showText={false} />
+                  )}
+                  <span className="min-w-0">
+                    <span className="t-label-sm block text-accent-text">Managing</span>
+                    <span className="t-subtitle block truncate text-ink">{branding.name}</span>
+                  </span>
+                </span>
+              ) : (
+                <BrandLogo size={36} showText={!collapsed} />
+              )}
+            </Link>
+          </div>
+          <nav className="gm-scroll flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden px-3 pb-3" aria-label="Main">
+            {nav.sections.map((section, i) => (
+              <div key={section.key} className="flex flex-col gap-0.5">
+                {section.label ? sectionLabel(section.label) : i > 0 && !collapsed ? <div className="h-3" /> : null}
+                {section.items.map(item => sideLink(item))}
+                {isOwner && section.key === 'main' ? ownerGymsSection : null}
+              </div>
+            ))}
           </nav>
+          <div className="shrink-0 border-t border-border p-3">
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className={cn(
+                't-footnote flex h-10 w-full items-center gap-3 rounded-gm-md text-ink-subtle transition-colors hover:bg-surface-sunken hover:text-ink',
+                collapsed ? 'justify-center' : 'px-3',
+              )}>
+              {collapsed ? <ChevronsRight size={18} aria-hidden /> : <ChevronsLeft size={18} aria-hidden />}
+              {collapsed ? null : <span>Collapse</span>}
+            </button>
+          </div>
         </aside>
 
-        <div className="flex min-h-dvh flex-col md:pl-[248px]">
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
           {/* Top bar */}
-          <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-xl">
-            <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-3 px-4 md:h-[72px] md:px-8">
-              <Link to="/app/dashboard" className="md:hidden" aria-label="Gymmigo home">
+          <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-xl">
+            <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-2 px-4 sm:gap-3 md:h-[72px] md:px-8">
+              <Link to="/app/dashboard" className="shrink-0 rounded-gm-md md:hidden" aria-label="Gymmigo home">
                 <BrandLogo size={34} showText={false} />
               </Link>
               {showLocation ? <div className="min-w-0 flex-1">{locationButton(true)}</div> : <div className="flex-1" />}
               <button
                 type="button"
                 aria-label="Notifications"
-                className="relative hidden h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-ink transition-colors hover:bg-surface-sunken sm:inline-flex">
+                title="Notifications"
+                className="relative hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink transition-colors hover:bg-surface-sunken sm:inline-flex">
                 <Bell size={18} aria-hidden />
                 <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-surface" />
               </button>
-              <AvatarMenu extraNav={secondary} onSocial={() => openSocial('feed')} />
+              <AvatarMenu extraNav={nav.more} onSocial={() => openSocial('feed')} />
             </div>
           </header>
 
@@ -215,17 +278,14 @@ export default function MainLayout() {
         {/* Mobile bottom tab bar (Migo raised in the centre, like the app) */}
         <nav
           aria-label="Tabs"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-tab-bar pb-[env(safe-area-inset-bottom)] grid md:hidden"
-          style={{ gridTemplateColumns: `repeat(${primary.length}, minmax(0, 1fr))` }}>
-          {primary.map(item => {
-            const active = isActive(item, location.pathname);
+          className="fixed inset-x-0 bottom-0 z-40 grid border-t border-border bg-tab-bar pb-[env(safe-area-inset-bottom)] md:hidden"
+          style={{ gridTemplateColumns: `repeat(${nav.tabs.length}, minmax(0, 1fr))` }}>
+          {nav.tabs.map(item => {
+            const active = here(item);
             if (item.center) {
               return (
                 <Link key={item.key} to={item.to} aria-current={active ? 'page' : undefined} className="relative flex flex-col items-center justify-end pb-2 pt-1">
-                  <span
-                    className={cn(
-                      'absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full border-4 border-background bg-accent text-on-accent shadow-[0_10px_24px_-8px_rgba(255,87,34,0.65)]',
-                    )}>
+                  <span className="absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full border-4 border-background bg-accent text-on-accent shadow-[0_10px_24px_-8px_rgba(255,87,34,0.65)]">
                     <item.icon size={24} fill="currentColor" aria-hidden />
                   </span>
                   <span className={cn('t-caption mt-8', active ? 'font-bold text-accent-text' : 'text-ink-subtle')}>{item.label}</span>
@@ -237,9 +297,9 @@ export default function MainLayout() {
                 key={item.key}
                 to={item.to}
                 aria-current={active ? 'page' : undefined}
-                className={cn('flex flex-col items-center gap-1 py-2.5', active ? 'text-accent-text' : 'text-ink-subtle')}>
+                className={cn('flex min-w-0 flex-col items-center gap-1 py-2.5', active ? 'text-accent-text' : 'text-ink-subtle')}>
                 <item.icon size={22} strokeWidth={active ? 2.4 : 1.9} aria-hidden />
-                <span className={cn('t-caption', active && 'font-bold')}>{item.label}</span>
+                <span className={cn('t-caption max-w-full truncate px-1', active && 'font-bold')}>{item.label}</span>
               </Link>
             );
           })}
@@ -271,10 +331,7 @@ export default function MainLayout() {
             if (detected) updateSelectedLocation(detected);
           }}
         />
-        <div data-theme="dark">
-          <SocialHubDrawer isOpen={socialOpen} onClose={closeSocial} defaultTab={socialTab} />
-        </div>
+        <SocialHubDrawer isOpen={socialOpen} onClose={closeSocial} defaultTab={socialTab} />
       </div>
-    </LegacyThemeContext.Provider>
   );
 }

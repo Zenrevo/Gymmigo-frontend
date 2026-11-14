@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../utils/api';
 import { Package, Loader2 } from 'lucide-react';
-import Modal from './Modal';
+import { Sheet } from './kit';
 import { useNotification } from '../context/NotificationContext';
 import clsx from 'clsx';
 
@@ -62,19 +62,19 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Service Package" maxWidth="max-w-xl">
+    <Sheet open={isOpen} onClose={onClose} title="Create Service Package" size="md">
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Package Name */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Package Name *</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Package Name *</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             placeholder="e.g. 1 Month Elite Transformation"
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+            className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
             required
           />
         </div>
@@ -82,16 +82,16 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         <div className="grid grid-cols-2 gap-4">
           {/* Package Type */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Package Type</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Package Type</label>
             <div className="relative">
               <select
                 name="package_type"
                 value={formData.package_type}
                 onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white appearance-none cursor-pointer"
+                className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink appearance-none cursor-pointer"
               >
                 {PACKAGE_TYPES.map(type => (
-                  <option key={type} value={type} className="bg-zinc-900 text-white">{type.charAt(0).toUpperCase() + type.slice(1)}</option>
+                  <option key={type} value={type} className="bg-surface text-ink">{type.charAt(0).toUpperCase() + type.slice(1)}</option>
                 ))}
               </select>
             </div>
@@ -99,14 +99,14 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
           
           {/* Price */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Price (₹) *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Price (₹) *</label>
             <input
               type="number"
               name="price"
               value={formData.price}
               onChange={handleChange}
               placeholder="e.g. 5000"
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-emerald-400 placeholder-white/20 font-bold"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-success placeholder:text-ink-subtle font-bold"
               required
             />
           </div>
@@ -115,39 +115,39 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
         <div className="grid grid-cols-3 gap-4">
           {/* Total Sessions */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Total Sessions *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Total Sessions *</label>
             <input
               type="number"
               name="total_sessions"
               value={formData.total_sessions}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
 
           {/* Session Duration */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Duration (mins) *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Duration (mins) *</label>
             <input
               type="number"
               name="session_duration_mins"
               value={formData.session_duration_mins}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
 
           {/* Validity */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Validity (days) *</label>
+            <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Validity (days) *</label>
             <input
               type="number"
               name="validity_days"
               value={formData.validity_days}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20"
+              className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle"
               required
             />
           </div>
@@ -155,23 +155,23 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
 
         {/* Description */}
         <div>
-          <label className="block text-[10px] font-black tracking-widest text-white/40 uppercase mb-2">Description</label>
+          <label className="block text-[10px] font-bold tracking-widest text-ink-muted uppercase mb-2">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe what's included in this package..."
             rows={3}
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-white placeholder-white/20 resize-none"
+            className="w-full bg-surface-raised border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-ink placeholder:text-ink-subtle resize-none"
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 pt-4 border-t border-white/10">
+        <div className="flex gap-4 pt-4 border-t border-border">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-colors"
+            className="flex-1 py-4 bg-surface-raised border border-border text-ink rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-surface-sunken transition-colors"
           >
             Cancel
           </button>
@@ -179,10 +179,10 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
             type="submit"
             disabled={loading}
             className={clsx(
-              "flex-[2] py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
+              "flex-[2] py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2",
               loading 
-                ? "bg-primary/50 text-black/50 cursor-not-allowed" 
-                : "bg-primary text-black hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                ? "bg-accent/50 text-on-accent/70 cursor-not-allowed" 
+                : "bg-accent text-on-accent hover:bg-accent-pressed hover:scale-[1.02] active:scale-[0.98]"
             )}
           >
             {loading ? (
@@ -193,6 +193,6 @@ export default function CreatePackageModal({ isOpen, onClose, onSuccess }: Creat
           </button>
         </div>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

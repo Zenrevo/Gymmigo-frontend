@@ -27,13 +27,13 @@ const ComingSoon = ({ feature = "This feature", icon: Icon = Construction }: Com
           </div>
 
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ink/5 border border-ink/10 text-[10px] font-black uppercase tracking-widest text-ink/40">
               <Timer size={12} /> Under Development
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-black tracking-tighter italic uppercase underline decoration-primary/30 underline-offset-8">
               COMING SOON
             </h1>
-            <p className="text-white/40 text-sm md:text-base max-w-sm mx-auto leading-relaxed">
+            <p className="text-ink/40 text-sm md:text-base max-w-sm mx-auto leading-relaxed">
               We're currently architecting {feature.toLowerCase()}. 
               A professional-grade experience is worth the wait.
             </p>
@@ -59,12 +59,12 @@ const ComingSoon = ({ feature = "This feature", icon: Icon = Construction }: Com
       <div className="mt-12 flex items-center gap-6">
         <div className="flex -space-x-4">
           {[1,2,3,4].map((i) => (
-            <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-white/10 flex items-center justify-center text-[10px] font-bold">
+            <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-ink/10 flex items-center justify-center text-[10px] font-bold">
                {i}
             </div>
           ))}
         </div>
-        <p className="text-[10px] text-white/20 font-black uppercase tracking-widest">
+        <p className="text-[10px] text-ink/20 font-black uppercase tracking-widest">
            v1.0.4 Pipeline Stable
         </p>
       </div>

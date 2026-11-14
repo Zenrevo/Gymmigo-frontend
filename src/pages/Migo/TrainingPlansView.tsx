@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CalendarClock, ChevronRight, Dumbbell, History, Plus, Sparkles, Utensils } from 'lucide-react';
+import { CalendarClock, ChevronRight, Dumbbell, History, Moon, Plus, Sparkles, Utensils } from 'lucide-react';
 import { Badge, Button, Card, EmptyState, ErrorState, SectionHeader, Skeleton, Text } from '../../components/kit';
 import { ProgramCard } from '../../components/programs/ProgramParts';
 import { dayDateLabel } from '../../lib/migo/dates';
 import { RecommendationSheet } from '../../components/migo/RecommendationSheet';
 import { durationLabel, KIND_LABEL } from '../../lib/migo/programLogic';
-import { planMeta } from '../../lib/migo/planFields';
+import { isRestDay, planMeta } from '../../lib/migo/planFields';
 import { formatDay } from '../../lib/migo/dates';
 import { useInvalidatePrograms, usePrograms, useRecommendations } from '../../hooks/usePrograms';
 import type { Recommendation } from '../../types/ai';
@@ -136,15 +136,16 @@ export default function TrainingPlansView() {
 function RecRow({ rec, onOpen }: { rec: Recommendation; onOpen: () => void }) {
   const m = planMeta(rec);
   const diet = rec.type === 'diet';
+  const rest = !diet && isRestDay(rec);
   return (
     <Card onClick={onOpen} aria-label={m.title}>
       <div className="flex items-center gap-4">
-        <span className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-full ${diet ? 'bg-surface-sunken text-ink' : 'bg-accent-soft text-accent-text'}`}>
-          {diet ? <Utensils size={20} /> : <Dumbbell size={20} />}
+        <span className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-full ${diet || rest ? 'bg-surface-sunken text-ink' : 'bg-accent-soft text-accent-text'}`}>
+          {diet ? <Utensils size={20} /> : rest ? <Moon size={20} /> : <Dumbbell size={20} />}
         </span>
         <div className="min-w-0 flex-1">
           <Text variant="labelSm" tone={rec.is_completed ? 'subtle' : 'accent'}>
-            {(rec.type || 'plan').replace(/_/g, ' ')} · {rec.date_for ? formatDay(rec.date_for) : ''}
+            {rest ? 'rest' : (rec.type || 'plan').replace(/_/g, ' ')} · {rec.date_for ? formatDay(rec.date_for) : ''}
           </Text>
           <Text variant="title" truncate>
             {m.title}

@@ -309,9 +309,35 @@
     outline-offset: 2px;
   }
 
-  /* Legacy pages that still hard-code white text render inside a forced-dark wrapper. */
-  [data-theme="dark"] {
+  /* Subtrees pinned to a theme (e.g. the auth brand panel) re-resolve text colour. */
+  [data-theme] {
     color: var(--gm-text);
+  }
+
+  /* Thin themed scrollbars (both themes). */
+  html,
+  .gm-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gm-border-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--gm-border-strong);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--gm-text-subtle);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
