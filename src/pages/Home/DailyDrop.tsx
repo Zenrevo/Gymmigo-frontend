@@ -72,7 +72,7 @@ export default function DailyDrop() {
         <Skeleton className="h-36" />
       ) : !profile.data ? (
         <Card padding="lg">
-          <EmptyState icon={Target} title="Set up your fitness profile" message="Migo AI uses your goal and level to build a personal drop every day." actionLabel="Set up profile" actionTo="/app/profile" compact />
+          <EmptyState icon={Target} title="Set up your fitness profile" message="Migo AI uses your goal and level to build a personal drop every day." actionLabel="Set up profile" actionTo="/app/profile?open=migo" compact />
         </Card>
       ) : plans.data?.length ? (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">

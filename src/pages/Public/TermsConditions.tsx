@@ -173,11 +173,11 @@ export default function TermsConditions() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="rounded-2xl bg-surface p-5 border-border space-y-2">
-                <h4 className="font-bold text-sm flex items-center gap-2"><Brain size={16} className="text-ink" /> AI Data Usage</h4>
+                <h3 className="font-bold text-sm flex items-center gap-2"><Brain size={16} className="text-ink" /> AI Data Usage</h3>
                 <p className="text-xs text-ink-subtle">Your fitness data (check-ins, workout plans, fitness scores) is processed by our AI engine solely to provide personalized coaching and fitness recommendations within the Platform.</p>
               </div>
               <div className="rounded-2xl bg-surface p-5 border-border space-y-2">
-                <h4 className="font-bold text-sm flex items-center gap-2"><QrCode size={16} className="text-ink" /> Check-in Data</h4>
+                <h3 className="font-bold text-sm flex items-center gap-2"><QrCode size={16} className="text-ink" /> Check-in Data</h3>
                 <p className="text-xs text-ink-subtle">Check-in attendance data is shared only with the specific gym owner where you hold an active membership, for the purpose of occupancy tracking and member verification.</p>
               </div>
             </div>
@@ -308,22 +308,22 @@ export default function TermsConditions() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
                 <AlertCircle className="text-ink-subtle" size={22} />
-                <h4 className="font-bold text-lg">Account Termination</h4>
+                <h3 className="font-bold text-lg">Account Termination</h3>
                 <p className="text-sm text-ink-subtle">Zenrevo reserves the right to terminate your access for violations of these terms, including fraudulent activity, policy violations, abuse of the gamification system, or non-payment of dues.</p>
               </div>
               <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
                 <Scale className="text-ink" size={22} />
-                <h4 className="font-bold text-lg">Limitation of Liability</h4>
+                <h3 className="font-bold text-lg">Limitation of Liability</h3>
                 <p className="text-sm text-ink-subtle">Zenrevo shall not be held liable for any personal injury, property damage, data loss, or financial loss arising from your participation in gym activities, use of AI recommendations, or reliance on Platform data.</p>
               </div>
               <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
                 <Trash2 className="text-ink-subtle" size={22} />
-                <h4 className="font-bold text-lg">Data Upon Termination</h4>
+                <h3 className="font-bold text-lg">Data Upon Termination</h3>
                 <p className="text-sm text-ink-subtle">Upon account termination, your personal data will be deleted within 30 days in accordance with our Privacy Policy. Anonymized analytics data may be retained for platform improvement.</p>
               </div>
               <div className="rounded-2xl bg-surface p-6 border-border space-y-3">
                 <Bell className="text-ink-subtle" size={22} />
-                <h4 className="font-bold text-lg">Service Modifications</h4>
+                <h3 className="font-bold text-lg">Service Modifications</h3>
                 <p className="text-sm text-ink-subtle">Zenrevo may modify, suspend, or discontinue any part of the Platform at any time. We will provide reasonable notice for material changes that affect paid services.</p>
               </div>
             </div>

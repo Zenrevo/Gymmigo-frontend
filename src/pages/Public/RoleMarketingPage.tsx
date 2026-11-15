@@ -1,7 +1,7 @@
 import { ArrowRight, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PhoneFrame } from '../../components/marketing/Frames';
-import { Reveal } from '../../components/marketing/Motion';
+import { AboveFold, Reveal } from '../../components/marketing/Motion';
 import { useParallax } from '../../components/marketing/motionUtils';
 import { RouteLine } from '../../components/marketing/RouteLine';
 import { Shot } from '../../components/marketing/Shot';
@@ -36,7 +36,7 @@ export default function RoleMarketingPage({ page }: { page: RolePage }) {
 function Cta({ kind, label, page, actions, primary }: { kind: 'app' | 'lead' | 'pricing' | 'store'; label: string; page: RolePage; actions: PublicActions; primary?: boolean }) {
   const cls = cn(
     'inline-flex h-12 items-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-    primary ? 'bg-accent text-white hover:bg-accent-pressed' : 'border border-border-strong text-ink hover:bg-surface-sunken',
+    primary ? 'bg-cta text-white hover:bg-cta-pressed' : 'border border-border-strong text-ink hover:bg-surface-sunken',
   );
   if (kind === 'lead') return <button type="button" className={cls} onClick={() => actions.openLead(page.leadRole, `${page.slug} page`)}>{label}</button>;
   if (kind === 'store') return <a className={cls} href={PLAY_URL} target="_blank" rel="noreferrer">{label}</a>;
@@ -48,6 +48,7 @@ function RoleBody({ page, actions }: { page: RolePage; actions: PublicActions })
   const { ref, y } = useParallax(40);
   return (
     <>
+      <AboveFold>
       <section ref={ref} className="relative overflow-hidden pb-20 pt-12 sm:pt-16 lg:pb-24">
         <div aria-hidden className="pointer-events-none absolute right-[-15%] top-[-15%] h-[600px] w-[600px] rounded-full bg-accent-soft opacity-60 blur-3xl [[data-theme=dark]_&]:opacity-30" />
         <Container className="relative grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
@@ -78,6 +79,7 @@ function RoleBody({ page, actions }: { page: RolePage; actions: PublicActions })
           </div>
         </Container>
       </section>
+      </AboveFold>
 
       <section className="border-y border-border bg-surface py-20" aria-label="Steps">
         <Container>

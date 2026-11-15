@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { OPEN_LOCATION_EVENT } from '../../layouts/QuickSwitcher';
 import { BadgeCheck, ChevronDown, Crosshair, Dumbbell, MapPin, Navigation, Search, SearchX, SlidersHorizontal, Sparkles, Star, Target } from 'lucide-react';
-import { Avatar, Badge, Button, Card, Chip, EmptyState, ErrorState, IconButton, SegmentedControl, Skeleton, Spinner, Text, cn } from '../../components/kit';
+import { Avatar, Badge, Button, Card, Chip, ErrorState, IconButton, SegmentedControl, Skeleton, Spinner, Text, cn } from '../../components/kit';
 import InfoModal from '../../components/InfoModal';
 import { MapPanel, type MapPoint } from '../../components/explore/MapPanel';
 import { useGeoLocation } from '../../context/LocationContext';
@@ -180,7 +181,8 @@ function TrainerResultCard({ trainer, onOpen }: { trainer: any; onOpen: () => vo
 export default function Discovery() {
   const navigate = useNavigate();
   const { selectedLocation, currentGPS, refreshGPS, isLocating } = useGeoLocation();
-  const [tab, setTab] = useState<'gyms' | 'trainers'>('gyms');
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState<'gyms' | 'trainers'>(() => (params.get('tab') === 'trainers' ? 'trainers' : 'gyms'));
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -234,6 +236,7 @@ export default function Discovery() {
   };
 
   const area = selectedLocation?.city ?? null;
+  const needsArea = !selectedLocation && !currentGPS && nearMe;
   const ready = !loading && !failed;
   const noun = tab === 'gyms' ? (items.length === 1 ? 'gym' : 'gyms') : items.length === 1 ? 'trainer' : 'trainers';
   const nextRadius = RADII.find(r => r > radius);
@@ -248,10 +251,13 @@ export default function Discovery() {
     <div className="relative">
       <MapPanel center={center} points={points} onPick={id => navigate(`/app/gyms/${id}`)} className="h-[210px] rounded-gm-xl lg:h-[calc(100dvh-140px)]" />
       <div className="pointer-events-none absolute inset-x-3 top-3 flex items-center gap-2">
-        <span className="t-caption pointer-events-auto inline-flex min-w-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 font-semibold text-ink shadow-card">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event(OPEN_LOCATION_EVENT))}
+          className="t-caption pointer-events-auto inline-flex min-w-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 font-semibold text-ink shadow-card hover:bg-surface-sunken">
           <Navigation size={13} aria-hidden />
           <span className="truncate">{selectedLocation ? [selectedLocation.address_line1?.split(',')[0], area].filter(Boolean).join(', ') : 'Set your location'}</span>
-        </span>
+        </button>
         <button
           type="button"
           onClick={() => setFiltersOpen(o => !o)}
@@ -353,7 +359,7 @@ export default function Discovery() {
             </Card>
           ) : null}
 
-          {ready ? (
+          {ready && !needsArea ? (
             <div className="flex items-center justify-between gap-3">
               <Text variant="callout" className="truncate font-bold">
                 {items.length} {noun} found{area ? ` near ${area}` : ''}
@@ -364,6 +370,24 @@ export default function Discovery() {
             </div>
           ) : null}
 
+          {needsArea ? (
+            <Card padding="lg" className="flex flex-col gap-4 border-accent-border bg-accent-soft/40 sm:flex-row sm:items-center">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-text">
+                <MapPin size={20} aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <Text variant="subtitle">Where do you train?</Text>
+                <Text variant="footnote" tone="muted">
+                  Set an area to see {tab === 'gyms' ? 'gyms' : 'coaches'} and distances near you, or browse everything.
+                </Text>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button label="Set area" size="sm" onClick={() => window.dispatchEvent(new Event(OPEN_LOCATION_EVENT))} />
+                <Button label="Show all" size="sm" variant="secondary" onClick={() => setNearMe(false)} />
+              </div>
+            </Card>
+          ) : null}
+
           {loading ? (
             <div className="flex flex-col gap-4">
               <Skeleton className="h-[300px] rounded-gm-xl" />
@@ -372,7 +396,23 @@ export default function Discovery() {
           ) : failed ? (
             <ErrorState message="Tap Try again." onRetry={fetchItems} />
           ) : !items.length ? (
-            <EmptyState icon={SearchX} title="No results found" message="Try a different search or expand your search area." />
+            needsArea ? null : <Card padding="xl" className="flex flex-col items-center gap-3 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-sunken text-ink-muted">
+                <SearchX size={22} aria-hidden />
+              </span>
+              <Text variant="subtitle">
+                {search ? `Nothing matches “${search}”` : nearMe ? `No ${tab === 'gyms' ? 'partner gyms' : 'coaches'} within ${radius} km yet` : `No ${tab} to show yet`}
+              </Text>
+              <Text variant="footnote" tone="muted" className="max-w-sm">
+                {nearMe ? 'Gymmigo is adding gyms every week. Widen the area or look further out.' : 'Try another category or a different search.'}
+              </Text>
+              <div className="mt-1 flex flex-wrap justify-center gap-2">
+                {search ? <Button label="Clear search" size="sm" variant="secondary" onClick={() => setSearch('')} /> : null}
+                {category !== 'All' ? <Button label="All categories" size="sm" variant="secondary" onClick={() => setCategory('All')} /> : null}
+                {nearMe && nextRadius ? <Button label={`Search ${nextRadius} km`} size="sm" onClick={() => setRadius(nextRadius)} /> : null}
+                {nearMe ? <Button label="Show all" size="sm" variant="secondary" onClick={() => setNearMe(false)} /> : null}
+              </div>
+            </Card>
           ) : (
             <div className="flex flex-col gap-4">
               {items.map(item =>

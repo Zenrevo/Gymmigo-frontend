@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense } from 'react';
+import PageLoader from '../components/PageLoader';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, ChevronsLeft, ChevronsRight, MapPin, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronsLeft, ChevronsRight, MapPin, Search, Sparkles } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 import InfoModal from '../components/InfoModal';
 import MapPickerModal from '../components/MapPickerModal';
@@ -10,6 +11,9 @@ import { useAuth } from '../context/AuthContext';
 import { useGeoLocation, type AddressResult } from '../context/LocationContext';
 import api from '../utils/api';
 import { AvatarMenu } from './AvatarMenu';
+import { OPEN_LOCATION_EVENT, OPEN_SWITCHER_EVENT, QuickSwitcher } from './QuickSwitcher';
+import { UpdatesMenu } from './UpdatesMenu';
+import { usePageTitle } from './usePageTitle';
 import { gymIcon as GymIcon, gymNav, isActive, roleNav, type NavItem } from './navConfig';
 import { useSidebarCollapsed } from './useSidebarCollapsed';
 
@@ -115,6 +119,16 @@ export default function MainLayout() {
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [location.pathname]);
+
+  // The quick switcher and the Home checklist open the location picker through this event.
+  useEffect(() => {
+    const open = () => setMapOpen(true);
+    window.addEventListener(OPEN_LOCATION_EVENT, open);
+    return () => window.removeEventListener(OPEN_LOCATION_EVENT, open);
+  }, []);
+
+  const allNav = [...nav.sections.flatMap(s => s.items), ...nav.more];
+  usePageTitle(allNav.find(here)?.label ?? (activeGymId ? branding?.name : undefined));
 
   const locationButton = (compact: boolean) => (
     <button
@@ -260,18 +274,30 @@ export default function MainLayout() {
               {showLocation ? <div className="min-w-0 flex-1">{locationButton(true)}</div> : <div className="flex-1" />}
               <button
                 type="button"
-                aria-label="Notifications"
-                title="Notifications"
-                className="relative hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink transition-colors hover:bg-surface-sunken sm:inline-flex">
-                <Bell size={18} aria-hidden />
-                <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent ring-2 ring-surface" />
+                onClick={() => window.dispatchEvent(new Event(OPEN_SWITCHER_EVENT))}
+                aria-label="Search pages and actions"
+                aria-keyshortcuts="Control+K Meta+K"
+                className="hidden h-10 shrink-0 items-center gap-2 rounded-full border border-border bg-surface pl-3 pr-2 text-ink-subtle transition-colors hover:bg-surface-sunken hover:text-ink lg:inline-flex">
+                <Search size={16} aria-hidden />
+                <span className="t-footnote pr-6">Search or jump to…</span>
+                <kbd className="t-caption rounded-md border border-border bg-surface-sunken px-1.5 py-0.5 font-sans">⌘K</kbd>
               </button>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event(OPEN_SWITCHER_EVENT))}
+                aria-label="Search pages and actions"
+                className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink transition-colors hover:bg-surface-sunken sm:inline-flex lg:hidden">
+                <Search size={18} aria-hidden />
+              </button>
+              <UpdatesMenu enabled={role === 'user'} />
               <AvatarMenu extraNav={nav.more} onSocial={() => openSocial('feed')} />
             </div>
           </header>
 
           <main className="mx-auto w-full max-w-[1200px] flex-1 px-4 pb-[calc(96px+env(safe-area-inset-bottom))] pt-5 md:px-8 md:pb-12 md:pt-8">
-            <Outlet />
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
 
@@ -332,6 +358,7 @@ export default function MainLayout() {
           }}
         />
         <SocialHubDrawer isOpen={socialOpen} onClose={closeSocial} defaultTab={socialTab} />
+        <QuickSwitcher nav={allNav} isMember={role === 'user'} onSocial={() => openSocial('feed')} />
       </div>
   );
 }

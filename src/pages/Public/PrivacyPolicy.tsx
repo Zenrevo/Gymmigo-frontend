@@ -78,12 +78,12 @@ export default function PrivacyPolicy() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                 <div className="p-6 bg-surface rounded-2xl border border-border">
                   <Lock className="text-ink mb-4" size={20} />
-                  <h4 className="font-bold mb-2">Encryption</h4>
+                  <h3 className="font-bold mb-2">Encryption</h3>
                   <p className="text-sm text-ink-subtle">All sensitive user data is encrypted in transit and at rest using industry-standard protocols.</p>
                 </div>
                 <div className="p-6 bg-surface rounded-2xl border border-border">
                   <Eye className="text-ink mb-4" size={20} />
-                  <h4 className="font-bold mb-2">Transparency</h4>
+                  <h3 className="font-bold mb-2">Transparency</h3>
                   <p className="text-sm text-ink-subtle">We never sell your data to third parties. Your information is strictly for platform functionality.</p>
                 </div>
               </div>
@@ -97,8 +97,8 @@ export default function PrivacyPolicy() {
                 <div className="space-y-4">
                   <p className="text-sm text-ink-muted leading-relaxed">We retain your data only as long as your account is active. Users have the right to request the complete deletion of their account and associated metadata at any time.</p>
                   
-                  <div className="bg-black/50 p-5 rounded-xl border border-border space-y-3">
-                    <h4 className="font-bold text-ink text-xs">How to request data deletion:</h4>
+                  <div className="bg-surface-sunken p-5 rounded-xl border border-border space-y-3">
+                    <h3 className="font-bold text-ink text-xs">How to request data deletion:</h3>
                     <ol className="list-decimal pl-4 space-y-2 text-sm text-ink-muted">
                       <li><strong className="text-ink mr-1">In-App Deletion:</strong> Navigate to <span>Profile &gt; Settings &gt; Delete Account</span> inside the Gymmigo mobile application to immediately and permanently wipe your account.</li>
                       <li><strong className="text-ink mr-1">Email Request:</strong> Send an email to <a href="mailto:support@gymmigo.in" className="text-ink font-bold underline">support@gymmigo.in</a> with the subject line "Data Deletion Request". State your registered phone number. We will manually wipe your data within 7 days.</li>

@@ -1,10 +1,5 @@
 import { Route } from 'react-router-dom';
-import MigoPage from '../pages/Migo/MigoPage';
-import CalendarPage from '../pages/Calendar/CalendarPage';
-import ProgramCreatePage from '../pages/Programs/ProgramCreatePage';
-import ProgramReviewPage from '../pages/Programs/ProgramReviewPage';
-import ProgramDetailPage from '../pages/Programs/ProgramDetailPage';
-import ProgramLogDayPage from '../pages/Programs/ProgramLogDayPage';
+import { MigoPage, CalendarPage, ProgramCreatePage, ProgramReviewPage, ProgramDetailPage, ProgramLogDayPage } from './migoPages';
 
 /** Migo, plan programs and the calendar (children of the /app layout route). */
 export const migoRoutes = (

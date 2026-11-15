@@ -18,7 +18,10 @@ const BrandLogo: React.FC<BrandLogoProps> = ({ className = '', size = 56, showTe
         className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-gm-md border border-border bg-surface"
         style={{ width: size, height: size, minWidth: size, borderRadius: Math.round(size * 0.28) }}>
         {!imgFailed ? (
-          <img src="/logo.png" alt="Gymmigo" className="h-[72%] w-[72%] object-contain" onError={() => setImgFailed(true)} />
+          <picture className="contents">
+            <source type="image/webp" srcSet="/logo-96.webp" />
+            <img src="/logo-96.png" width={96} height={96} alt={showText ? '' : 'Gymmigo'} className="h-[64%] w-[64%] object-contain" onError={() => setImgFailed(true)} />
+          </picture>
         ) : (
           <Dumbbell className="text-accent" size={Math.round(size * 0.45)} />
         )}
@@ -26,7 +29,7 @@ const BrandLogo: React.FC<BrandLogoProps> = ({ className = '', size = 56, showTe
       {showText && (
         <div className="flex flex-col justify-center leading-none">
           <span className="font-display text-xl font-extrabold tracking-wide text-ink">
-            GYM<span className="text-accent">MIGO</span>
+            GYM<span className="text-accent-pressed [[data-theme=dark]_&]:text-accent">MIGO</span>
           </span>
           {tagline ? <span className="t-label-sm mt-1 text-ink-subtle">{tagline}</span> : null}
         </div>
