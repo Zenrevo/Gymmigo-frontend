@@ -53,7 +53,7 @@ test('people: search finds members and opens a profile', async ({ page }) => {
   await signIn(page);
   await page.goto('/app/people');
   await expect(page.getByRole('heading', { name: 'Find people' })).toBeVisible();
-  await page.getByLabel('Search people').fill('ar');
+  await page.getByLabel('Search people').fill('E2E');
   const row = page.locator('div[role="button"]').filter({ hasText: /\w/ }).first();
   await expect(row).toBeVisible();
   await row.click();

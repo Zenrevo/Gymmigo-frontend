@@ -34,7 +34,6 @@ import {
 import clsx from 'clsx';
 import api, { getApiErrorMessage } from '../../utils/api';
 import PageLoader from '../../components/PageLoader';
-import EmptyState from '../../components/EmptyState';
 import clubHeroImage from '../../assets/clubs/premium-club-hero.jpg';
 import {
   allowsSelfServeTaskLog,
@@ -462,12 +461,7 @@ const GymmigoClubsPage = () => {
 
   if (!activeMemberships.length) {
     return (
-      <EmptyState
-        icon={Trophy}
-        title="No active gym membership"
-        description="Join a gym to start badge missions, unlock Clubs, and build your FitCard."
-        action={<Link to="/app/discovery" className="btn-primary inline-flex items-center gap-2"><Building2 size={16} /> Explore Gyms</Link>}
-      />
+      <ClubsIntro />
     );
   }
 
@@ -1350,3 +1344,43 @@ const StatTile = ({ label, value, tone = 'white' }: { label: string; value: numb
 );
 
 export default GymmigoClubsPage;
+
+/** Clubs before the member has a gym: what Clubs are and how to unlock them. */
+function ClubsIntro() {
+  const steps = [
+    { icon: Building2, title: 'Join a partner gym', body: 'Any pass works: monthly, quarterly or a day pass.' },
+    { icon: Flame, title: 'Check in and train', body: 'Each QR check-in moves you along badge missions.' },
+    { icon: Trophy, title: 'Unlock Clubs and rewards', body: 'Clubs give perks at your gym and a tier on your FitCard.' },
+  ];
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <p className="t-label text-accent-text">Clubs</p>
+        <h1 className="t-h1 mt-1 text-ink">Train, climb, get rewarded</h1>
+        <p className="t-callout mt-2 max-w-xl text-ink-muted">Clubs turn your gym visits into progress you can see, with rewards your gym hands out at the desk.</p>
+      </div>
+      <ol className="grid gap-3 md:grid-cols-3">
+        {steps.map((st, i) => (
+          <li key={st.title} className="rounded-gm-xl border border-border bg-surface p-5">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-accent-text">
+                <st.icon size={18} aria-hidden />
+              </span>
+              <span className="t-caption font-semibold text-ink-subtle">Step {i + 1}</span>
+            </div>
+            <p className="t-subtitle mt-4 text-ink">{st.title}</p>
+            <p className="t-footnote mt-1 text-ink-muted">{st.body}</p>
+          </li>
+        ))}
+      </ol>
+      <div className="flex flex-wrap gap-3">
+        <Link to="/app/discovery" className="inline-flex h-12 items-center gap-2 rounded-full bg-cta px-6 text-[15px] font-semibold text-white transition-colors hover:bg-cta-pressed">
+          <Building2 size={16} aria-hidden /> Find a gym
+        </Link>
+        <Link to="/app/run-together" className="inline-flex h-12 items-center gap-2 rounded-full border border-border-strong px-6 text-[15px] font-semibold text-ink transition-colors hover:bg-surface-sunken">
+          Join the Run Club instead
+        </Link>
+      </div>
+    </div>
+  );
+}

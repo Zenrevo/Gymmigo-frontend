@@ -3,8 +3,6 @@ import { Activity, Award, Building2, Calendar, CheckCircle2, Flame, MapPin, Pack
 import {
   Badge,
   Button,
-  Card,
-  EmptyState,
   ListGroup,
   ListItem,
   SectionHeader,
@@ -170,7 +168,7 @@ export default function GymHome() {
             </div>
             <div>
               <Text variant="label" tone="accent">
-                Member home
+                Today
               </Text>
               <Text variant="h2" className="text-white">
                 {checkedIn ? 'Move in progress' : primaryGym ? "Today's move" : 'Find your move'}
@@ -272,7 +270,9 @@ export default function GymHome() {
             })}
           </ListGroup>
         ) : (
-          <EmptyState icon={Building2} title="No memberships yet" message="Find a gym near you and join a plan." actionLabel="Explore gyms" actionTo="/app/discovery" compact />
+          <ListGroup>
+            <ListItem icon={Building2} title="No gym pass yet" subtitle="Compare passes nearby and join in a few taps." to="/app/discovery" chevron />
+          </ListGroup>
         )}
       </section>
 
@@ -295,9 +295,9 @@ export default function GymHome() {
         </section>
       ) : null}
 
-      <section className="flex flex-col gap-3">
-        <SectionHeader label={sessions.length ? 'Upcoming sessions' : 'Personal training'} />
-        {sessions.length ? (
+      {sessions.length ? (
+        <section className="flex flex-col gap-3">
+          <SectionHeader label="Upcoming sessions" />
           <ListGroup>
             {sessions.slice(0, 3).map((s: any) => (
               <ListItem
@@ -318,14 +318,8 @@ export default function GymHome() {
               />
             ))}
           </ListGroup>
-        ) : null}
-        <Card padding="md" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Text variant="callout" tone="muted">
-            Book verified trainers for 1:1 sessions.
-          </Text>
-          <Button label="Find a trainer" size="md" variant="secondary" to="/app/discovery" />
-        </Card>
-      </section>
+        </section>
+      ) : null}
 
       <div data-theme="dark">
         <QRScannerModal isOpen={showScanner} onClose={() => setShowScanner(false)} onSuccess={() => reload()} />

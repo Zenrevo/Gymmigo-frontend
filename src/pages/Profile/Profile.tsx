@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -174,10 +174,19 @@ export default function Profile() {
   const social = useSocialCounts(user?.id);
   const fitness = useFitnessProfile();
 
-  const [qrOpen, setQrOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [migoOpen, setMigoOpen] = useState(false);
-  const [addrOpen, setAddrOpen] = useState(false);
+  // Deep links from Home, the quick switcher and Migo: /app/profile?open=migo|edit|address|qr
+  const [params, setParams] = useSearchParams();
+  const openParam = params.get('open');
+  const [qrOpen, setQrOpen] = useState(openParam === 'qr');
+  const [editOpen, setEditOpen] = useState(openParam === 'edit');
+  const [migoOpen, setMigoOpen] = useState(openParam === 'migo');
+  const [addrOpen, setAddrOpen] = useState(openParam === 'address');
+  useEffect(() => {
+    if (!openParam) return;
+    const next = new URLSearchParams(params);
+    next.delete('open');
+    setParams(next, { replace: true });
+  }, [openParam, params, setParams]);
   const [switching, setSwitching] = useState<string | null>(null);
 
   const p = profile.data as any;
