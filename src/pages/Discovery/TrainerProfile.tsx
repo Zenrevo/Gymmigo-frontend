@@ -46,12 +46,12 @@ function BookingSheet({ trainer, pkg, open, onClose }: { trainer: any; pkg: any 
     }
   };
 
-  const titles = ['Pick a start date', 'Goals & notes', 'Review & confirm', 'Request sent'];
+  const titles = ['Pick a start date', 'Goals & notes', 'Review your request', 'Request sent'];
   const footer =
     step === 4 ? (
       <Button label="Back to Home" fullWidth to="/app/dashboard" />
     ) : step === 3 ? (
-      <Button label="Confirm booking" loading={submitting} fullWidth onClick={submit} />
+      <Button label="Send request" loading={submitting} fullWidth onClick={submit} />
     ) : (
       <Button label="Continue" disabled={step === 1 && !date} fullWidth onClick={() => setStep(step + 1)} />
     );
@@ -104,11 +104,14 @@ function BookingSheet({ trainer, pkg, open, onClose }: { trainer: any; pkg: any 
               {inr(amount)}
             </Text>
           </div>
+          <Text variant="footnote" tone="muted">
+            Pay in cash: hand {inr(amount)} to {trainer.full_name} directly once they accept. Nothing is charged online.
+          </Text>
         </Card>
       ) : (
         <div className="flex flex-col items-center gap-3 py-4 text-center">
           <CheckCircle2 size={48} className="text-success" aria-hidden />
-          <Text tone="muted">{trainer.full_name} will confirm your booking. You’ll see it on Home once it’s accepted.</Text>
+          <Text tone="muted">{trainer.full_name} will review your request. Once they accept, pay them in cash and book your sessions from Home.</Text>
         </div>
       )}
     </Sheet>
