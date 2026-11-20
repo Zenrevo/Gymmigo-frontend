@@ -7,6 +7,9 @@ import { adminError, adminGet } from '../api';
 import { LineChart } from '../charts';
 import { fillSeries, inr, mapsLink, when } from '../format';
 import { DataTable, Field, StatusPill } from '../ui';
+import { ActionButton } from '../ActionSheet';
+import { RecentChanges } from '../RecentChanges';
+import { FacilitiesPanel, ItemsSection } from './GymPanels';
 
 type Row = Record<string, unknown>;
 type G360 = {
@@ -16,9 +19,10 @@ type G360 = {
   members: { membership_id: string; user_id: string; name: string | null; phone: string; status: string; payment_status: string; amount: number; end: string | null; check_ins: number | null; last_seen_at: string | null }[];
   trainers: { id: string; user_id: string; name: string | null; verification: string; status: string | null }[];
   reviews: Row[]; churn_risks: Row[]; clubs: Row[]; expenses: Row[];
+  addresses: Row[]; amenities: Row[]; facilities: Row[]; equipment: Row[]; addons: Row[];
   footprint: { table: string; column: string; group: string; count: number; last_at: string | null }[];
 };
-type Tab = 'overview' | 'members' | 'activity' | 'money' | 'all';
+type Tab = 'overview' | 'members' | 'activity' | 'money' | 'facilities' | 'all';
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const show = (v: unknown) => (v == null || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
@@ -54,9 +58,18 @@ export default function Gym360() {
         <StatTile label="Cash due" value={inr(d.stats.cash_due)} captionTone={d.stats.cash_due ? 'warning' : 'subtle'} caption="unpaid memberships" />
       </div>
 
+      <div className="mb-4 flex flex-wrap gap-2">
+        <ActionButton entity="gym" entityId={id!} op="gym.update" label="Edit gym details" initial={g} variant="secondary" />
+        <ActionButton entity="gym" entityId={id!} op="capacity.update" label="Capacity" initial={g} />
+        <ActionButton entity="gym" entityId={id!} op="media.update" label="Logo & cover" initial={g} />
+        {d.addresses[0] ? <ActionButton entity="gym" entityId={id!} op="address.update" itemId={String(d.addresses[0].id)} label="Edit address" initial={d.addresses[0]} />
+          : <ActionButton entity="gym" entityId={id!} op="address.add" label="Add address" mode="create" />}
+        <ActionButton entity="gym" entityId={id!} op="hours.set" label="Set hours for a day" mode="create" />
+      </div>
+
       <SegmentedControl aria-label="Section" value={tab} onChange={setTab} className="mb-4" options={[
         { value: 'overview', label: 'Overview' }, { value: 'members', label: `Members (${d.members.length})` }, { value: 'activity', label: 'Activity' },
-        { value: 'money', label: 'Money & plans' }, { value: 'all', label: 'All data' },
+        { value: 'money', label: 'Money & plans' }, { value: 'facilities', label: 'Equipment & facilities' }, { value: 'all', label: 'All data' },
       ]} />
 
       {tab === 'overview' ? (
@@ -96,6 +109,8 @@ export default function Gym360() {
         </div>
       ) : null}
 
+      {tab === 'overview' ? <div className="mt-4"><RecentChanges targetId={id!} /></div> : null}
+
       {tab === 'members' ? (
         <>
           <div className="mb-3 flex flex-wrap gap-2">
@@ -110,6 +125,20 @@ export default function Gym360() {
             { key: 'e', label: 'Ends', render: m => when(m.end, false) },
             { key: 'c', label: 'Check-ins', render: m => m.check_ins ?? 0 },
             { key: 'l', label: 'Last access', render: m => when(m.last_seen_at) },
+            { key: 'x', label: '', render: m => (
+              <div className="flex flex-wrap justify-end gap-1" onClick={e => e.stopPropagation()}>
+                {m.status === 'pending' ? (
+                  <>
+                    <ActionButton entity="gym" entityId={id!} op="member.accept" itemId={m.membership_id} label="Accept" variant="primary" initial={{ received: false }} />
+                    <ActionButton entity="gym" entityId={id!} op="member.reject" itemId={m.membership_id} label="Reject" variant="danger" />
+                  </>
+                ) : null}
+                <ActionButton entity="gym" entityId={id!} op="member.payment" itemId={m.membership_id} label="Payment" initial={{ received: m.payment_status !== 'paid', amount: m.amount }} />
+                <ActionButton entity="gym" entityId={id!} op="member.edit" itemId={m.membership_id} label="Edit" initial={{ end_date: m.end, amount_paid: m.amount, status: m.status, full_name: m.name }} />
+                {m.status === 'active' ? <ActionButton entity="gym" entityId={id!} op="member.check_in" itemId={m.membership_id} label="Check in" /> : null}
+                {['active', 'pending'].includes(m.status) ? <ActionButton entity="gym" entityId={id!} op="member.cancel" itemId={m.membership_id} label="Cancel" variant="danger" /> : null}
+              </div>
+            ) },
           ]} />
         </>
       ) : null}
@@ -149,15 +178,17 @@ export default function Gym360() {
             <Text variant="subtitle" className="mb-2">Cash collected per month</Text>
             <BarChart bars={d.revenue_months.map(m => ({ label: m.month.slice(5, 7), value: m.amount, caption: `${m.receipts} receipts` }))} height={120} formatValue={v => inr(v)} />
           </Card>
-          <section>
-            <Text variant="label" tone="subtle" className="mb-2">Plans</Text>
-            <DataTable rows={d.plans} rowKey={p => String(p.id)} empty="No plans." columns={[
-              { key: 'n', label: 'Plan', render: p => String(p.name) },
-              { key: 'd', label: 'Duration', render: p => `${show(p.duration_days)} days` },
-              { key: 'p', label: 'Price', render: p => <>{inr(Number(p.discounted_price ?? p.price))}{p.discounted_price ? <span className="ml-1 text-xs text-ink-subtle line-through">{inr(Number(p.price))}</span> : null}</> },
-              { key: 'a', label: 'Active', render: p => (p.is_active ? 'yes' : 'no') },
-            ]} />
-          </section>
+          <ItemsSection gymId={id!} title="Plans" rows={d.plans} add="plan.add" update="plan.update" remove="plan.delete" columns={[
+            { key: 'n', label: 'Plan', render: p => String(p.name) },
+            { key: 'd', label: 'Duration', render: p => `${show(p.duration_days)} days` },
+            { key: 'p', label: 'Price', render: p => <>{inr(Number(p.discounted_price ?? p.price))}{p.discounted_price ? <span className="ml-1 text-xs text-ink-subtle line-through">{inr(Number(p.price))}</span> : null}</> },
+            { key: 'a', label: 'Active', render: p => (p.is_active ? 'yes' : 'no') },
+          ]} />
+          <ItemsSection gymId={id!} title="Add-ons" rows={d.addons} add="addon.add" update="addon.update" remove="addon.delete" columns={[
+            { key: 'n', label: 'Add-on', render: a => show(a.name) },
+            { key: 'p', label: 'Price', render: a => inr(Number(a.price)) },
+            { key: 'a', label: 'Active', render: a => (a.is_active ? 'yes' : 'no') },
+          ]} />
           <section>
             <Text variant="label" tone="subtle" className="mb-2">Expenses</Text>
             <DataTable rows={d.expenses} rowKey={e => String(e.id)} empty="No expenses recorded." columns={[
@@ -169,6 +200,8 @@ export default function Gym360() {
           </section>
         </div>
       ) : null}
+
+      {tab === 'facilities' ? <FacilitiesPanel gymId={id!} amenities={d.amenities} facilities={d.facilities} equipment={d.equipment} /> : null}
 
       {tab === 'all' ? (
         <DataTable rows={d.footprint} rowKey={f => `${f.table}.${f.column}`} onRowClick={f => navigate(`/admin/data/${f.table}?f=${encodeURIComponent(JSON.stringify([{ col: f.column, op: 'eq', value: id }]))}`)} columns={[

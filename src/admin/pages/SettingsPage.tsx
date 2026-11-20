@@ -13,7 +13,7 @@ type Setting = {
   is_public: boolean; is_immutable: boolean; locked_at: string | null; locked_by: string | null; updated_by: string | null; updated_at: string | null;
 };
 
-const CATEGORY_LABEL: Record<string, string> = { ai: 'AI agents & governance', features: 'Features', platform: 'Platform', payments: 'Payments', app: 'App versions', general: 'General' };
+const CATEGORY_LABEL: Record<string, string> = { ai: 'AI agents & governance', monitor: 'Live monitor alerts', features: 'Features', platform: 'Platform', payments: 'Payments', app: 'App versions', general: 'General' };
 
 export default function SettingsPage() {
   const { can } = useAdmin();
