@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import {
-  BadgeCheck, Banknote, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
+  BadgeCheck, Banknote, Bot, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
   Repeat, ScrollText, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
@@ -24,6 +24,7 @@ const Reviews = lazy(() => import('./pages/Reviews'));
 const ClubTransfers = lazy(() => import('./pages/ClubTransfers'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AuditLog = lazy(() => import('./pages/AuditLog'));
+const AiAgents = lazy(() => import('./pages/AiAgents'));
 const Admins = lazy(() => import('./pages/Admins'));
 const Account = lazy(() => import('./pages/Account'));
 
@@ -40,6 +41,7 @@ const NAV: NavItem[] = [
   { to: 'payments', label: 'Cash payments', icon: Banknote, perm: 'payments.view', element: <Payments />, group: 'Business' },
   { to: 'reviews', label: 'Reviews', icon: MessageSquareWarning, perm: 'reviews.moderate', element: <Reviews />, group: 'Trust & safety' },
   { to: 'club-transfers', label: 'Club transfers', icon: Repeat, perm: 'clubs.manage', element: <ClubTransfers />, group: 'Trust & safety' },
+  { to: 'ai', label: 'AI agents', icon: Bot, perm: 'ai.view', element: <AiAgents />, group: 'Control' },
   { to: 'settings', label: 'Features & settings', icon: Flag, perm: 'settings.view', element: <SettingsPage />, group: 'Control' },
   { to: 'audit', label: 'Audit log', icon: ScrollText, perm: 'audit.view', element: <AuditLog />, group: 'Control' },
   { to: 'admins', label: 'Admins & access', icon: ShieldCheck, perm: 'admins.manage', element: <Admins />, group: 'Control' },
