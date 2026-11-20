@@ -78,7 +78,11 @@ export default function MyMembershipsPage() {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {g.memberships.map((m: any) => (
-                      <Badge key={m.id} label={`${m.plan_name || 'Plan'} · ${m.status}`} tone={STATUS_TONE[m.status] ?? 'neutral'} />
+                      <Badge
+                        key={m.id}
+                        label={`${m.plan_name || 'Plan'} · ${m.status}${m.payment_status === 'unpaid' && isActive(m) ? ` · pay ₹${m.amount_paid ?? ''} cash at desk` : ''}`}
+                        tone={m.payment_status === 'unpaid' && isActive(m) ? 'warning' : STATUS_TONE[m.status] ?? 'neutral'}
+                      />
                     ))}
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-2">

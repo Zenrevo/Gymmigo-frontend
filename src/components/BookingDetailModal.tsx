@@ -33,6 +33,8 @@ interface Booking {
   trainer_longitude?: number;
   total_amount: number;
   amount_paid: number;
+  /** Cash for now: 'unpaid' until the trainer marks it received. */
+  payment_status?: 'unpaid' | 'paid' | 'refunded';
   status: string;
   user_notes?: string;
   trainer_notes?: string;
@@ -455,20 +457,23 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                      </p>
                      <div className="bg-gradient-to-br from-white/5 to-transparent border border-border rounded-gm-xl p-6 shadow-xl space-y-5">
                         <div className="flex items-center justify-between">
-                           <span className="text-xs font-bold text-ink-muted uppercase tracking-widest">Amount Paid</span>
-                           <span className="text-xl font-bold text-success tabular-nums">₹{booking.amount_paid}</span>
+                           <span className="text-xs font-bold text-ink-muted uppercase tracking-widest">Package total</span>
+                           <span className="text-xl font-bold tabular-nums">₹{booking.total_amount}</span>
                          </div>
-                         {booking.amount_paid < booking.total_amount && (
-                           <div className="flex items-center justify-between pt-4 border-t border-border">
-                              <span className="text-xs font-bold text-ink-muted uppercase tracking-widest">Balance</span>
-                              <span className="text-lg font-bold text-danger tabular-nums">₹{booking.total_amount - booking.amount_paid}</span>
-                           </div>
-                         )}
+                         <div className="flex items-center justify-between pt-4 border-t border-border">
+                            <span className="text-xs font-bold text-ink-muted uppercase tracking-widest">Payment</span>
+                            <span className="text-sm font-bold text-ink-muted">Cash, in person</span>
+                         </div>
                          <div className={clsx(
                            "py-2 px-4 rounded-xl border text-[9px] font-bold uppercase text-center tracking-[0.2rem]",
-                           booking.amount_paid >= booking.total_amount ? "bg-success-soft text-success border-success/30" : "bg-danger-soft text-danger border-danger/30"
+                           booking.payment_status === 'paid' ? "bg-success-soft text-success border-success/30" :
+                           booking.payment_status === 'refunded' ? "bg-surface-raised text-ink-subtle border-border" :
+                           "bg-warning-soft text-warning border-warning/30"
                          )}>
-                           {booking.amount_paid >= booking.total_amount ? 'Payment Complete' : 'Balance Pending'}
+                           {booking.payment_status === 'paid' ? 'Paid in cash' :
+                            booking.payment_status === 'refunded' ? 'Refunded' :
+                            booking.status === 'pending' ? (role === 'user' ? 'Pay your coach after they accept' : 'Collect cash after accepting') :
+                            `Cash due ₹${Math.max(0, booking.total_amount - (booking.amount_paid || 0))}`}
                          </div>
                      </div>
                   </div>
@@ -592,7 +597,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                     onClick={() => onAccept?.(booking.id)}
                     className="w-full sm:flex-[2] py-4 sm:py-5 rounded-gm-lg sm:rounded-gm-xl bg-success text-on-accent font-display font-extrabold uppercase tracking-[0.2em] text-[10px] sm:text-xs hover:bg-success transition-all flex items-center justify-center gap-3 shadow-[0_15px_30px_rgba(16,185,129,0.25)] active:scale-95"
                   >
-                     <ShieldCheck size={16} className="sm:w-[18px] sm:h-[18px]" /> Confirm Enrollment
+                     <ShieldCheck size={16} className="sm:w-[18px] sm:h-[18px]" /> Accept Request
                   </button>
                </div>
               ) : (

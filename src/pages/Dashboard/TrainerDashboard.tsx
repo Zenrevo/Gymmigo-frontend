@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../../utils/api';
+import api, { getApiErrorMessage } from '../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Clock, Star, ArrowRight,
@@ -42,6 +42,8 @@ interface DashboardData {
     is_available: boolean;
     verification_status: string;
     profile_completion_pct?: number;
+    /** Cash still to collect from accepted packages. */
+    cash_due?: number;
   };
   recent_reviews: any[];
 }
@@ -285,6 +287,33 @@ const TrainerDashboard = () => {
     }
   };
 
+  // Package requests: the trainer accepts or declines; the client then pays cash in person.
+  const handleBookingAction = async (bookingId: string, action: 'accept' | 'reject') => {
+    if (action === 'reject' && !window.confirm('Decline this request? The client will be told you can’t take it.')) return;
+    try {
+      await api.post(`/trainer-bookings/bookings/${bookingId}/${action}`);
+      await Promise.all([fetchDashboard(), fetchAllBookings()]);
+      showNotification(action === 'accept' ? 'Request accepted. Collect the cash from your client.' : 'Request declined', 'success');
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
+    }
+  };
+
+  const handleBookingPayment = async (booking: { id: string; total_amount?: number; amount_paid?: number; user_name?: string; client_name?: string }, received: boolean) => {
+    const due = Math.max(0, (booking.total_amount || 0) - (booking.amount_paid || 0));
+    const ok = received
+      ? window.confirm(`Received ₹${(due || booking.total_amount || 0).toLocaleString()} in cash from ${booking.user_name || booking.client_name || 'the client'}?`)
+      : window.confirm('Mark this package as unpaid? Use this only if the client has not actually paid.');
+    if (!ok) return;
+    try {
+      await api.post(`/trainer-bookings/bookings/${booking.id}/payment`, { received });
+      await Promise.all([fetchDashboard(), fetchAllBookings()]);
+      showNotification(received ? 'Cash payment recorded' : 'Marked as unpaid', 'success');
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
+    }
+  };
+
   const handleLocationUpdate = async (location: any) => {
     try {
       await api.patch(`/trainer`, {
@@ -427,6 +456,11 @@ const TrainerDashboard = () => {
                   <div className="bg-surface border border-border rounded-gm-xl shadow-card p-4 sm:p-6 text-center hover:border-success/30 transition-colors">
                     <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-2">Today\'s Earnings</p>
                     <p className="text-2xl sm:text-3xl font-bold text-success">₹{(stats?.today_earnings || 0).toLocaleString()}</p>
+                    {stats?.cash_due ? (
+                      <button onClick={() => setActiveTab('bookings')} className="mt-2 text-[10px] font-bold uppercase tracking-widest text-warning hover:underline">
+                        ₹{stats.cash_due.toLocaleString()} cash to collect
+                      </button>
+                    ) : null}
                   </div>
                   <div className="bg-surface border border-border rounded-gm-xl shadow-card p-4 sm:p-6 text-center hover:border-border-strong transition-colors">
                     <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-widest mb-2">This Month</p>
@@ -570,7 +604,7 @@ const TrainerDashboard = () => {
                         <div className="w-8 h-8 rounded-lg bg-warning-soft border border-warning/30 flex items-center justify-center">
                           <Package size={16} className="text-warning" />
                         </div>
-                        Recent Purchases
+                        New Requests
                       </h3>
                       {data?.pending_bookings && data.pending_bookings.length > 0 && (
                         <span className="text-[10px] font-bold bg-accent-soft text-accent-text px-2 py-0.5 rounded-full border border-accent-border">
@@ -590,9 +624,13 @@ const TrainerDashboard = () => {
                               </div>
                               <p className="text-sm font-bold text-success">₹{booking.total_amount}</p>
                             </div>
-                            <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-ink-muted">
-                              Package paid. Sessions should be confirmed from the Sessions tab.
+                            <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-warning">
+                              Cash · collect after you accept
                             </p>
+                            <div className="mt-3 flex gap-2">
+                              <button onClick={() => handleBookingAction(booking.id, 'reject')} className="flex-1 rounded-lg border border-border py-2 text-[10px] font-bold uppercase tracking-widest text-ink-muted hover:text-danger hover:border-danger/40">Decline</button>
+                              <button onClick={() => handleBookingAction(booking.id, 'accept')} className="flex-1 rounded-lg bg-accent py-2 text-[10px] font-bold uppercase tracking-widest text-on-accent hover:bg-accent-pressed">Accept</button>
+                            </div>
                           </div>
                         ))}
                         <button onClick={() => setActiveTab('bookings')} className="w-full text-center text-[10px] text-ink-subtle hover:text-ink uppercase font-bold py-2">View All Bookings</button>
@@ -600,7 +638,7 @@ const TrainerDashboard = () => {
                     ) : (
                       <div className="bg-surface border border-border rounded-gm-xl shadow-card p-8 text-center border-dashed text-ink-subtle">
                         <Users size={24} className="mx-auto mb-2 opacity-30" />
-                        <p className="text-[10px] font-bold uppercase tracking-widest">No Recent Purchases</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest">No New Requests</p>
                       </div>
                     )}
                   </div>
@@ -746,6 +784,32 @@ const TrainerDashboard = () => {
                             )}>
                               {booking.status}
                             </span>
+                            {booking.status !== 'cancelled' || booking.payment_status === 'paid' ? (
+                              <span className={clsx(
+                                "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border",
+                                booking.payment_status === 'paid' ? 'bg-success-soft text-success border-success/30' :
+                                booking.payment_status === 'refunded' ? 'bg-surface-raised text-ink-subtle border-border' :
+                                'bg-warning-soft text-warning border-warning/30'
+                              )}>
+                                {booking.payment_status === 'paid' ? 'Paid in cash' : booking.payment_status === 'refunded' ? 'Refunded' : `Cash due ₹${Math.max(0, (booking.total_amount || 0) - (booking.amount_paid || 0)).toLocaleString()}`}
+                              </span>
+                            ) : null}
+                            {booking.status === 'pending' ? (
+                              <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                                <button onClick={() => handleBookingAction(booking.id, 'reject')} className="rounded-lg border border-border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-ink-muted hover:text-danger">Decline</button>
+                                <button onClick={() => handleBookingAction(booking.id, 'accept')} className="rounded-lg bg-accent px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-accent">Accept</button>
+                              </div>
+                            ) : (booking.status === 'confirmed' || booking.status === 'completed') && booking.payment_status !== 'refunded' ? (
+                              <button
+                                onClick={e => { e.stopPropagation(); handleBookingPayment(booking, booking.payment_status !== 'paid'); }}
+                                className={clsx(
+                                  "rounded-lg px-3 py-1 text-[10px] font-bold uppercase tracking-widest",
+                                  booking.payment_status === 'paid' ? 'text-ink-subtle hover:text-ink' : 'bg-accent text-on-accent hover:bg-accent-pressed'
+                                )}
+                              >
+                                {booking.payment_status === 'paid' ? 'Undo payment' : 'Mark cash received'}
+                              </button>
+                            ) : null}
                           </div>
                           <ArrowRight size={18} className="text-ink-subtle group-hover:text-accent-text transition-all group-hover:translate-x-1" />
                         </div>
@@ -1172,7 +1236,9 @@ const ClientDetailModal = ({ isOpen, onClose, client }: { isOpen: boolean; onClo
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-success text-sm">₹{booking.total_amount}</p>
-                          <p className="text-[9px] text-ink-subtle font-bold uppercase mt-1">{booking.status}</p>
+                          <p className="text-[9px] text-ink-subtle font-bold uppercase mt-1">
+                            {booking.status}{booking.status !== 'cancelled' ? ` · ${booking.payment_status === 'paid' ? 'paid in cash' : 'cash due'}` : ''}
+                          </p>
                         </div>
                       </div>
                     ))}

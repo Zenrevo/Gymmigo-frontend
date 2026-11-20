@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../utils/api';
+import api, { getApiErrorMessage } from '../../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import {
@@ -24,6 +24,8 @@ export interface MembershipItem {
   remaining_visits: number | null;
   amount_paid: number;
   payment_method?: string | null;
+  /** Cash at the desk for now: 'unpaid' until the owner marks it collected. */
+  payment_status?: 'unpaid' | 'paid' | 'refunded' | null;
   selected_addons: { id: string; name: string; price: number }[] | null;
   total_check_ins?: number;
   is_currently_checked_in: boolean;
@@ -357,14 +359,31 @@ const MembersTab = () => {
     });
   };
 
-  const handleAcceptRequest = async (membershipId: string) => {
+  // Payments are cash at the desk for now: accept with the cash in hand, or accept and collect it later.
+  const handleAcceptRequest = async (membershipId: string, cashReceived = false) => {
     setActionLoading(membershipId);
     try {
-      await api.post(`/gym-owner/gyms/${gymId}/members/${membershipId}/accept`);
-      showNotification('Request accepted successfully', 'success');
+      await api.post(`/gym-owner/gyms/${gymId}/members/${membershipId}/accept`, { received: cashReceived });
+      showNotification(cashReceived ? 'Request accepted · cash recorded' : 'Request accepted · cash still due', 'success');
       fetchMembers();
-    } catch (err: any) {
-      showNotification('Failed to accept request', 'error');
+      if (selectedMember) fetchMemberDetail(selectedMember.user_id);
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRecordPayment = async (membershipId: string, received: boolean) => {
+    if (!received && !window.confirm('Mark this membership as unpaid? The cash receipt will be cancelled.')) return;
+    setActionLoading(membershipId);
+    try {
+      await api.post(`/gym-owner/gyms/${gymId}/members/${membershipId}/payment`, { received });
+      showNotification(received ? 'Cash payment recorded' : 'Marked as unpaid', 'success');
+      fetchMembers();
+      if (selectedMember) fetchMemberDetail(selectedMember.user_id);
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
     } finally {
       setActionLoading(null);
     }
@@ -646,6 +665,15 @@ const MembersTab = () => {
                   <div className="mb-4 pr-20">
                     <h4 className="font-bold text-lg mb-1">{membership.plan_name || 'N/A'}</h4>
                     <p className="text-xs text-ink-muted">₹{membership.amount_paid} • {membership.remaining_visits ?? 'Unlimited'} visits left</p>
+                    {membership.payment_status && !['cancelled', 'rejected'].includes(membership.status) && (
+                      <span className={`mt-2 inline-block text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
+                        membership.payment_status === 'paid' ? 'bg-success-soft text-success border-success/30' :
+                        membership.payment_status === 'refunded' ? 'bg-surface-raised text-ink-subtle border-border' :
+                        'bg-warning-soft text-warning border-warning/30'
+                      }`}>
+                        {membership.payment_status === 'paid' ? 'Paid in cash' : membership.payment_status === 'refunded' ? 'Refunded' : `Cash due ₹${membership.amount_paid}`}
+                      </span>
+                    )}
                   </div>
                   
                   <div className="space-y-2 text-xs text-ink-muted mb-6 font-mono">
@@ -671,6 +699,15 @@ const MembersTab = () => {
                   )}
 
                   <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
+                    {membership.status !== 'pending' && !['cancelled', 'rejected'].includes(membership.status) && membership.payment_status && membership.payment_status !== 'refunded' && (
+                      <button onClick={() => handleRecordPayment(membership.membership_id || (membership as any).id, membership.payment_status !== 'paid')}
+                        disabled={actionLoading === (membership.membership_id || (membership as any).id)}
+                        className={membership.payment_status === 'paid'
+                          ? 'p-1.5 px-3 text-xs text-ink-subtle hover:text-ink rounded-lg transition-colors'
+                          : 'p-1.5 px-3 text-xs font-bold bg-accent text-on-accent rounded-lg hover:bg-accent-pressed transition-colors disabled:opacity-50'}>
+                        {membership.payment_status === 'paid' ? 'Undo payment' : 'Mark cash received'}
+                      </button>
+                    )}
                     {membership.status === 'active' && (
                       <button onClick={() => handleCancel(membership.membership_id || (membership as any).id, selectedMember.user_name || '')}
                         className="p-1.5 px-3 flex items-center justify-center bg-danger-soft text-danger border border-danger/30 rounded-lg hover:bg-danger-soft transition-all font-bold group-hover:scale-100" title="Cancel Subscription">
@@ -680,10 +717,16 @@ const MembersTab = () => {
                     
                     {membership.status === 'pending' && (
                       <>
-                        <button onClick={() => handleAcceptRequest(membership.membership_id || (membership as any).id)} 
+                        <button onClick={() => handleAcceptRequest(membership.membership_id || (membership as any).id, true)} 
                           disabled={actionLoading === (membership.membership_id || (membership as any).id)}
+                          title={`Accept and record ₹${membership.amount_paid} cash received at the desk`}
                           className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center rounded-lg">
-                          {actionLoading === (membership.membership_id || (membership as any).id) ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Accept
+                          {actionLoading === (membership.membership_id || (membership as any).id) ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Accept · ₹{membership.amount_paid} cash
+                        </button>
+                        <button onClick={() => handleAcceptRequest(membership.membership_id || (membership as any).id, false)} 
+                          disabled={actionLoading === (membership.membership_id || (membership as any).id)}
+                          className="py-1.5 px-3 text-xs flex items-center gap-1 flex-1 justify-center bg-surface-raised border border-border text-ink-muted rounded-lg hover:text-ink transition-all">
+                          Accept, collect later
                         </button>
                         <button onClick={() => handleRejectRequest(membership.membership_id || (membership as any).id)} 
                           disabled={actionLoading === (membership.membership_id || (membership as any).id)}

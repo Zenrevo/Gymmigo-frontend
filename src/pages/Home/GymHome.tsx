@@ -286,7 +286,11 @@ export default function GymHome() {
                 icon={User}
                 title={b.trainer_name || 'Trainer'}
                 subtitle={`${b.package_name || 'Personal training'} · ${b.sessions_completed ?? 0}/${b.total_sessions} sessions`}
-                right={<Badge label={b.status} tone={b.status === 'confirmed' ? 'success' : b.status === 'pending' ? 'warning' : 'neutral'} />}
+                right={
+                  b.status === 'pending' ? <Badge label="Awaiting coach" tone="warning" />
+                  : b.status === 'confirmed' && b.payment_status === 'unpaid' ? <Badge label={`Cash due ₹${Math.max(0, (b.total_amount || 0) - (b.amount_paid || 0))}`} tone="warning" />
+                  : <Badge label={b.status} tone={b.status === 'confirmed' ? 'success' : 'neutral'} />
+                }
                 onClick={() => setSelectedBooking(b)}
                 chevron
               />

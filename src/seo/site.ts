@@ -28,4 +28,4 @@ export const canonicalUrl = (path: string) => SITE_URL + (path === '/' ? '/' : p
 
 /** Paths that should never appear in search results (signed-in app, auth, onboarding, personal cards). */
 export const isPrivatePath = (path: string) =>
-  /^\/(app|onboarding|login|welcome|register-role|fitcard|fitness-card|s)(\/|$)/.test(path);
+  /^\/(app|admin|onboarding|login|welcome|register-role|fitcard|fitness-card|s)(\/|$)/.test(path);

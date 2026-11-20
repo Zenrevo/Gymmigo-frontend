@@ -57,6 +57,7 @@ writeFileSync(
   `User-agent: *
 Allow: /
 Disallow: /app/
+Disallow: /admin
 Disallow: /onboarding
 Disallow: /login
 Disallow: /welcome
