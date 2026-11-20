@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowDown, ArrowUp, BarChart3, Database, Download, ExternalLink, Filter, Plus, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, BarChart3, Database, Download, ExternalLink, Filter, X } from 'lucide-react';
 import { Badge, BarChart, Button, Card, ErrorState, Sheet, Skeleton, Text } from '../../components/kit';
 import { adminError, adminGet, adminHttp } from '../api';
 import { LineChart, JsonView } from '../charts';
+import { RecordEditor } from '../RecordEditor';
+import { useAdmin } from '../useAdmin';
 import { fillSeries, when } from '../format';
 import { PageTitle, Pager, SearchBox, Select, Toolbar } from '../ui';
 import { useDebounced } from '../useDebounced';
@@ -292,12 +294,17 @@ function AnalyzeSheet({ info, column, setColumn, filters, q, onClose }: { info: 
 function RecordSheet({ table, id, onClose }: { table: string; id: string; onClose: () => void }) {
   const r = useQuery({ queryKey: ['admin', 'data', 'record', table, id], queryFn: () => adminGet<RecordRes>(`/data/tables/${table}/rows/${id}`) });
   const d = r.data;
+  const { can } = useAdmin();
+  const [editing, setEditing] = useState(false);
   const userId = table === 'users' ? id : table === 'personal_profiles' ? (d?.data.user_id as string | undefined) : undefined;
   return (
     <Sheet open onClose={onClose} eyebrow={pretty(table)} title={d?.label ?? 'Record'} size="lg">
       {r.isLoading ? <Skeleton className="h-60" /> : r.isError || !d ? <ErrorState message={adminError(r.error).message} /> : (
         <div className="flex flex-col gap-5">
-          {userId ? <Button size="sm" icon={ExternalLink} label="Open member 360" to={`/admin/users/${userId}`} /> : null}
+          <div className="flex flex-wrap gap-2">
+            {can('data.edit') ? <Button size="sm" label="Edit record" onClick={() => setEditing(true)} /> : null}
+            {userId ? <Button size="sm" variant="secondary" icon={ExternalLink} label="Open member 360" to={`/admin/users/${userId}`} /> : null}
+          </div>
           {table === 'gyms' ? <Button size="sm" icon={ExternalLink} label="Open gym 360" to={`/admin/gyms/${id}`} /> : null}
           <dl className="divide-y divide-border rounded-gm-lg border border-border">
             {Object.entries(d.data).map(([k, v]) => (
@@ -334,7 +341,7 @@ function RecordSheet({ table, id, onClose }: { table: string; id: string; onClos
               </div>
             ) : <Text tone="muted">Nothing else references this record.</Text>}
           </section>
-          <Button size="sm" variant="ghost" icon={Plus} label="Filter this table by this record" to={`/admin/data/${table}?f=${encodeURIComponent(JSON.stringify([{ col: d.pk, op: 'eq', value: id }]))}`} />
+          {editing ? <RecordEditor table={table} id={id} data={d.data} onClose={() => { setEditing(false); void r.refetch(); }} /> : null}
         </div>
       )}
     </Sheet>

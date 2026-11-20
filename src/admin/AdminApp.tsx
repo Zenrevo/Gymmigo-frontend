@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import {
-  BadgeCheck, Banknote, Bot, Database, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
+  Activity, BadgeCheck, Banknote, Bot, Database, Wallet, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
   Repeat, ScrollText, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
@@ -13,6 +13,8 @@ import AdminLogin from './AdminLogin';
 import { NoAccess } from './ui';
 
 const Overview = lazy(() => import('./pages/Overview'));
+const Live = lazy(() => import('./pages/Live'));
+const Money = lazy(() => import('./pages/Money'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
 const Verifications = lazy(() => import('./pages/Verifications'));
 const Gyms = lazy(() => import('./pages/Gyms'));
@@ -34,13 +36,15 @@ const Account = lazy(() => import('./pages/Account'));
 type NavItem = { to: string; label: string; icon: LucideIcon; perm: string; element: ReactNode; group: string };
 
 const NAV: NavItem[] = [
-  { to: '', label: 'Overview', icon: LayoutDashboard, perm: 'dashboard.view', element: <Overview />, group: 'Platform' },
+  { to: '', label: 'Live', icon: Activity, perm: 'dashboard.view', element: <Live />, group: 'Platform' },
+  { to: 'overview', label: 'Overview', icon: LayoutDashboard, perm: 'dashboard.view', element: <Overview />, group: 'Platform' },
   { to: 'users', label: 'Users', icon: Users, perm: 'users.view', element: <UsersPage />, group: 'People' },
   { to: 'verifications', label: 'Verifications', icon: BadgeCheck, perm: 'verification.manage', element: <Verifications />, group: 'People' },
   { to: 'trainers', label: 'Trainers', icon: Dumbbell, perm: 'trainers.view', element: <Trainers />, group: 'People' },
   { to: 'gyms', label: 'Gyms', icon: ClipboardList, perm: 'gyms.view', element: <Gyms />, group: 'Business' },
   { to: 'memberships', label: 'Memberships', icon: Ticket, perm: 'memberships.view', element: <Memberships />, group: 'Business' },
   { to: 'bookings', label: 'Trainer bookings', icon: CalendarCheck, perm: 'bookings.view', element: <Bookings />, group: 'Business' },
+  { to: 'money', label: 'Money', icon: Wallet, perm: 'payments.view', element: <Money />, group: 'Business' },
   { to: 'payments', label: 'Cash payments', icon: Banknote, perm: 'payments.view', element: <Payments />, group: 'Business' },
   { to: 'reviews', label: 'Reviews', icon: MessageSquareWarning, perm: 'reviews.moderate', element: <Reviews />, group: 'Trust & safety' },
   { to: 'club-transfers', label: 'Club transfers', icon: Repeat, perm: 'clubs.manage', element: <ClubTransfers />, group: 'Trust & safety' },

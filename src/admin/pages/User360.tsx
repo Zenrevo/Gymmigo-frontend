@@ -8,6 +8,9 @@ import { JsonView, LineChart, RouteMap } from '../charts';
 import { inr, mapsLink, when } from '../format';
 import { DataTable, Field, StatusPill } from '../ui';
 import { useAdmin } from '../useAdmin';
+import { ActionButton } from '../ActionSheet';
+import { RecentChanges } from '../RecentChanges';
+import { AiPanel, TrainerPanel, type TrainerBlock } from './MemberPanels';
 
 type Row = Record<string, unknown>;
 type U360 = {
@@ -20,13 +23,14 @@ type U360 = {
     check_ins: { id: string; gym_id: string; gym: string; in: string | null; out: string | null; minutes: number | null; method: string | null; workout: string | null; lat: number | null; lng: number | null }[];
   };
   fitness: { health: Row[]; run_months: { month: string; runs: number; km: number }[]; run_totals: { runs: number; km: number; hours: number; kcal: number }; checkin_weeks: { week: string; count: number }[] };
-  memberships: { id: string; gym: string; plan: string | null; status: string; payment_status: string; amount: number; start: string | null; end: string | null; check_ins: number | null }[];
+  memberships: { id: string; gym_id: string; gym: string; plan: string | null; status: string; payment_status: string; amount: number; start: string | null; end: string | null; check_ins: number | null }[];
   trainer_bookings: Row[]; wallet: Row | null; wallet_transactions: Row[]; clubs: Row[];
   ai: { runs: number; tokens: number; last_at: string | null; rated_unhelpful: number; chat_messages: number; last_chat_at: string | null };
+  ai_control: Row | null; ai_programs: Row[]; ai_recommendations: Row[]; ai_memories: Row[]; trainer: TrainerBlock | null;
   social: { following: number | null; followers: number | null };
   footprint: { table: string; column: string; group: string; count: number; last_at: string | null }[];
 };
-type Tab = 'overview' | 'location' | 'fitness' | 'money' | 'all';
+type Tab = 'overview' | 'location' | 'fitness' | 'money' | 'trainer' | 'ai' | 'all';
 
 const ago = (iso?: string | null) => {
   if (!iso) return 'never';
@@ -66,7 +70,7 @@ export default function User360() {
           <Text tone="muted">{String(d.user.phone)} · {(d.user.roles as string[]).join(', ')} · joined {when(d.user.created_at as string, false)}</Text>
         </div>
         <StatusPill status={status} />
-        {can('users.view') ? <Button size="sm" variant="secondary" icon={Settings2} label="Manage" to={`/admin/users?open=${id}`} /> : null}
+        {can('users.view') ? <Button size="sm" variant="secondary" icon={Settings2} label="Status & roles" to={`/admin/users?open=${id}`} /> : null}
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -76,9 +80,18 @@ export default function User360() {
         <StatTile label="Migo AI" value={String(d.ai.chat_messages)} caption={`messages · ${d.ai.tokens.toLocaleString('en-IN')} tokens`} />
       </div>
 
+      <div className="mb-4 flex flex-wrap gap-2">
+        <ActionButton entity="member" entityId={id!} op="profile.update" label="Edit profile" initial={d.profile} variant="secondary" />
+        <ActionButton entity="member" entityId={id!} op="fitness.update" label="Edit fitness profile" initial={d.fitness_profile} variant="secondary" />
+        <ActionButton entity="member" entityId={id!} op="phone.change" label="Change phone" />
+        <ActionButton entity="member" entityId={id!} op="wallet.adjust" label="Wallet credit / debit" initial={{ direction: 'credit' }} />
+        <ActionButton entity="member" entityId={id!} op="account.delete" label="Delete account" variant="danger" />
+      </div>
+
       <SegmentedControl aria-label="Section" value={tab} onChange={setTab} className="mb-4" options={[
         { value: 'overview', label: 'Overview' }, { value: 'location', label: 'Location' }, { value: 'fitness', label: 'Fitness' },
-        { value: 'money', label: 'Gyms & money' }, { value: 'all', label: 'All data' },
+        { value: 'money', label: 'Gyms & money' }, ...(d.trainer ? [{ value: 'trainer' as Tab, label: 'Trainer' }] : []),
+        { value: 'ai', label: 'Migo AI' }, { value: 'all', label: 'All data' },
       ]} />
 
       {tab === 'overview' ? (
@@ -112,6 +125,8 @@ export default function User360() {
           </Card>
         </div>
       ) : null}
+
+      {tab === 'overview' ? <div className="mt-4"><RecentChanges targetId={id!} /></div> : null}
 
       {tab === 'location' ? (
         <div className="flex flex-col gap-4">
@@ -203,6 +218,14 @@ export default function User360() {
               { key: 'a', label: 'Amount', render: m => inr(m.amount) },
               { key: 'ps', label: 'Payment', render: m => <StatusPill status={m.payment_status} /> },
               { key: 's', label: 'Status', render: m => <StatusPill status={m.status} /> },
+              { key: 'x', label: '', render: m => (
+                <div className="flex flex-wrap justify-end gap-1">
+                  {m.status === 'pending' ? <ActionButton entity="gym" entityId={m.gym_id} op="member.accept" itemId={m.id} label="Accept" variant="primary" initial={{ received: false }} /> : null}
+                  <ActionButton entity="gym" entityId={m.gym_id} op="member.payment" itemId={m.id} label="Payment" initial={{ received: m.payment_status !== 'paid', amount: m.amount }} />
+                  <ActionButton entity="gym" entityId={m.gym_id} op="member.edit" itemId={m.id} label="Edit" initial={{ start_date: m.start, end_date: m.end, amount_paid: m.amount, status: m.status }} />
+                  {['active', 'pending'].includes(m.status) ? <ActionButton entity="gym" entityId={m.gym_id} op="member.cancel" itemId={m.id} label="Cancel" variant="danger" /> : null}
+                </div>
+              ) },
             ]} />
           </section>
           <section>
@@ -233,6 +256,12 @@ export default function User360() {
             </Card>
           </div>
         </div>
+      ) : null}
+
+      {tab === 'trainer' && d.trainer ? <TrainerPanel uid={id!} t={d.trainer} /> : null}
+      {tab === 'ai' ? (
+        <AiPanel uid={id!} ai={{ control: d.ai_control, programs: d.ai_programs, recommendations: d.ai_recommendations, memories: d.ai_memories,
+          memorySummary: (d.fitness_profile?.ai_memory_summary as string | null) ?? null, stats: d.ai }} />
       ) : null}
 
       {tab === 'all' ? (

@@ -7,6 +7,8 @@ import { when } from '../format';
 import { DataTable, Field, PageTitle, Pager, SearchBox, Select, Toolbar } from '../ui';
 import { useAdminAction } from '../useAdminAction';
 import { useDebounced } from '../useDebounced';
+import { adminPost } from '../api';
+import { useAdmin } from '../useAdmin';
 
 type Entry = { id: number; created_at: string; actor: string | null; action: string; target_type: string | null; target_id: string | null; summary: string | null; details: Record<string, unknown> | null; ip_address: string | null; entry_hash: string };
 type Chain = { valid: boolean; checked: number; broken_at_id: number | null; head?: string };
@@ -21,6 +23,7 @@ export default function AuditLog() {
   const [open, setOpen] = useState<Entry | null>(null);
   const [chain, setChain] = useState<Chain | null>(null);
   const { busy, run } = useAdminAction();
+  const { can } = useAdmin();
   const q = useQuery({ queryKey: ['admin', 'audit', actor, action, page], queryFn: () => adminGet<Paged<Entry>>('/audit', { actor, action, page, page_size: 50 }) });
 
   return (
@@ -63,6 +66,10 @@ export default function AuditLog() {
             <Field label="IP address">{open.ip_address}</Field>
             <Field label="Hash"><code className="break-all text-xs">{open.entry_hash}</code></Field>
             {open.details ? <pre className="mt-3 max-h-80 overflow-auto rounded-gm-md bg-surface-sunken p-3 text-xs">{JSON.stringify(open.details, null, 2)}</pre> : null}
+            {(open.action === 'data.update' || open.action === 'data.delete') && can('data.edit') ? (
+              <Button className="mt-3" variant="secondary" label={open.action === 'data.delete' ? 'Restore this record' : 'Undo this change'} loading={busy === 'undo'}
+                onClick={async () => (await run('undo', () => adminPost(`/data/undo/${open.id}`), 'Undone', ['audit', 'data'])) && setOpen(null)} />
+            ) : null}
           </div>
         ) : <span />}
       </Sheet>
