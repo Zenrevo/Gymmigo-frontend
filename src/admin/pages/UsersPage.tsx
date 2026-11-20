@@ -8,6 +8,7 @@ import { inr, when } from '../format';
 import { DataTable, Field, PageTitle, Pager, PromptDialog, SearchBox, Select, StatusPill, Toolbar } from '../ui';
 import { useAdminAction } from '../useAdminAction';
 import { useDebounced } from '../useDebounced';
+import { CreatePersonSheet } from '../CreatePeople';
 
 type UserRow = {
   id: string; phone: string; email: string | null; full_name: string | null; roles: string[]; active_role: string;
@@ -16,8 +17,8 @@ type UserRow = {
 };
 type UserDetail = UserRow & {
   active_sessions: number;
-  trainer: { id: string; verification_status: string; rejection_reason: string | null; experience_years: number | null; rating_avg: number | null } | null;
-  gym_owner: { id: string; business_name: string | null; verification_status: string; rejection_reason: string | null; gstin: string | null } | null;
+  trainer: { id: string; role_active?: boolean; verification_status: string; rejection_reason: string | null; experience_years: number | null; rating_avg: number | null } | null;
+  gym_owner: { id: string; role_active?: boolean; business_name: string | null; verification_status: string; rejection_reason: string | null; gstin: string | null } | null;
   gyms: { id: string; name: string; city: string | null; is_verified: boolean; is_active: boolean }[];
   memberships: { id: string; gym: string; status: string; payment_status: string; amount: number; start_date: string; end_date: string }[];
   bookings: { id: string; status: string; payment_status: string; total_amount: number; sessions: string; start_date: string }[];
@@ -37,6 +38,7 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [params] = useSearchParams();
   const [openId, setOpenId] = useState<string | null>(params.get('open'));
+  const [adding, setAdding] = useState(false);
   const list = useQuery({
     queryKey: ['admin', 'users', q, role, state, sort, page],
     queryFn: () => adminGet<Paged<UserRow>>('/users', { q, role, status: state, sort, page, page_size: 25 }),
@@ -44,7 +46,8 @@ export default function UsersPage() {
 
   return (
     <>
-      <PageTitle title="Users" subtitle="Everyone with a Gymmigo account: members, trainers and gym staff." />
+      <PageTitle title="Users" subtitle="Everyone with a Gymmigo account: members, trainers and gym staff."
+        actions={can('members.edit') ? <Button size="sm" label="+ Add person" onClick={() => setAdding(true)} /> : undefined} />
       <Toolbar>
         <SearchBox value={search} onChange={v => (setSearch(v), setPage(1))} placeholder="Name, phone or email" />
         <Select label="Role" value={role} onChange={v => (setRole(v), setPage(1))} options={[{ value: '', label: 'All roles' }, ...Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))]} />
@@ -70,6 +73,7 @@ export default function UsersPage() {
         </>
       )}
       <UserSheet id={openId} onClose={() => setOpenId(null)} />
+      {adding ? <CreatePersonSheet onClose={() => setAdding(false)} /> : null}
     </>
   );
 }
@@ -79,6 +83,7 @@ function UserSheet({ id, onClose }: { id: string | null; onClose: () => void }) 
   const { busy, run } = useAdminAction();
   const [banOpen, setBanOpen] = useState(false);
   const [editRoles, setEditRoles] = useState<string[] | null>(null);
+  const [roleWarnings, setRoleWarnings] = useState<string[]>([]);
   const q = useQuery({ queryKey: ['admin', 'user', id], queryFn: () => adminGet<UserDetail>(`/users/${id}`), enabled: !!id });
   const u = q.data;
   const refresh = ['users', 'user', 'overview'];
@@ -125,18 +130,26 @@ function UserSheet({ id, onClose }: { id: string | null; onClose: () => void }) 
                   <Checkbox key={r} label={label} checked={editRoles.includes(r)} disabled={r === 'user'} onChange={on => setEditRoles(on ? [...editRoles, r] : editRoles.filter(x => x !== r))} />
                 ))}
                 <div className="flex gap-2">
-                  <Button size="sm" label="Save roles" loading={busy === 'roles'} onClick={async () => (await run('roles', () => adminPut(`/users/${u.id}/roles`, { roles: editRoles }), 'Roles updated', refresh)) && setEditRoles(null)} />
+                  <Button size="sm" label="Save roles" loading={busy === 'roles'} onClick={async () => {
+                    let warnings: string[] = [];
+                    const okRun = await run('roles', async () => { warnings = (await adminPut<{ warnings?: string[] }>(`/users/${u.id}/roles`, { roles: editRoles })).warnings ?? []; }, 'Roles updated', refresh);
+                    if (okRun) {
+                      setEditRoles(null);
+                      setRoleWarnings(warnings);
+                    }
+                  }} />
                   <Button size="sm" variant="ghost" label="Cancel" onClick={() => setEditRoles(null)} />
                 </div>
               </div>
             ) : (
               <div className="flex flex-wrap gap-1">{u.roles.map(r => <Badge key={r} label={ROLE_LABEL[r] ?? r} />)}</div>
             )}
+            {roleWarnings.map(w => <p key={w} className="t-footnote mt-2 rounded-gm-md bg-warning-soft px-3 py-2 text-warning">{w}</p>)}
           </section>
 
           {u.trainer ? (
             <section>
-              <Text variant="label" tone="subtle" className="mb-1">Trainer profile</Text>
+              <Text variant="label" tone="subtle" className="mb-1">Trainer profile{u.trainer.role_active === false ? ' · role removed (kept for history, hidden from search)' : ''}</Text>
               <Field label="Verification"><StatusPill status={u.trainer.verification_status} /></Field>
               <Field label="Experience">{u.trainer.experience_years != null ? `${u.trainer.experience_years} yrs` : null}</Field>
               <Field label="Rating">{u.trainer.rating_avg != null ? `${u.trainer.rating_avg.toFixed(1)} ★` : null}</Field>
@@ -144,7 +157,7 @@ function UserSheet({ id, onClose }: { id: string | null; onClose: () => void }) 
           ) : null}
           {u.gym_owner ? (
             <section>
-              <Text variant="label" tone="subtle" className="mb-1">Gym owner</Text>
+              <Text variant="label" tone="subtle" className="mb-1">Gym owner{u.gym_owner.role_active === false ? ' · role removed (profile and gyms kept)' : ''}</Text>
               <Field label="Business">{u.gym_owner.business_name}</Field>
               <Field label="GSTIN">{u.gym_owner.gstin}</Field>
               <Field label="Verification"><StatusPill status={u.gym_owner.verification_status} /></Field>

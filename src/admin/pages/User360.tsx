@@ -9,8 +9,10 @@ import { inr, mapsLink, when } from '../format';
 import { DataTable, Field, StatusPill } from '../ui';
 import { useAdmin } from '../useAdmin';
 import { ActionButton } from '../ActionSheet';
+import { EditAll } from '../EditAll';
 import { RecentChanges } from '../RecentChanges';
 import { AiPanel, TrainerPanel, type TrainerBlock } from './MemberPanels';
+import { ActivityList } from './ApiActivity';
 
 type Row = Record<string, unknown>;
 type U360 = {
@@ -30,7 +32,7 @@ type U360 = {
   social: { following: number | null; followers: number | null };
   footprint: { table: string; column: string; group: string; count: number; last_at: string | null }[];
 };
-type Tab = 'overview' | 'location' | 'fitness' | 'money' | 'trainer' | 'ai' | 'all';
+type Tab = 'overview' | 'location' | 'fitness' | 'money' | 'trainer' | 'ai' | 'activity' | 'all';
 
 const ago = (iso?: string | null) => {
   if (!iso) return 'never';
@@ -90,14 +92,14 @@ export default function User360() {
 
       <SegmentedControl aria-label="Section" value={tab} onChange={setTab} className="mb-4" options={[
         { value: 'overview', label: 'Overview' }, { value: 'location', label: 'Location' }, { value: 'fitness', label: 'Fitness' },
-        { value: 'money', label: 'Gyms & money' }, ...(d.trainer ? [{ value: 'trainer' as Tab, label: 'Trainer' }] : []),
-        { value: 'ai', label: 'Migo AI' }, { value: 'all', label: 'All data' },
+        { value: 'money', label: 'Gyms & money' }, ...(d.trainer ? [{ value: 'trainer' as Tab, label: (d.user.roles as string[]).includes('trainer') ? 'Trainer' : 'Trainer (role removed)' }] : []),
+        { value: 'ai', label: 'Migo AI' }, ...(can('audit.view') ? [{ value: 'activity' as Tab, label: 'API activity' }] : []), { value: 'all', label: 'All data' },
       ]} />
 
       {tab === 'overview' ? (
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <Text variant="subtitle" className="mb-2">Access</Text>
+            <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Access</Text>{d.user ? <EditAll table="users" row={d.user} /> : null}</div>
             <Field label="Last access">{d.access.last_seen_at ? `${when(d.access.last_seen_at)} (${ago(d.access.last_seen_at)})` : '—'}</Field>
             <Field label="Client">{d.access.last_seen_client}</Field>
             <Field label="IP address">{d.access.last_seen_ip}</Field>
@@ -107,19 +109,28 @@ export default function User360() {
             <Field label="Devices (push)">{d.access.devices.length ? d.access.devices.map(x => `${x.platform}${x.is_active ? '' : ' (off)'}`).join(', ') : '—'}</Field>
           </Card>
           <Card>
-            <Text variant="subtitle" className="mb-2">Profile</Text>
+            <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Profile</Text>{d.profile ? <EditAll table="personal_profiles" row={d.profile} /> : null}</div>
             {d.profile ? (['full_name', 'username', 'gender', 'date_of_birth', 'email', 'city', 'bio'] as const).map(k => <Field key={k} label={k.replace(/_/g, ' ')}>{show(d.profile![k])}</Field>) : <Text tone="muted">No profile.</Text>}
             <Field label="Social">{d.social.followers ?? 0} followers · {d.social.following ?? 0} following</Field>
           </Card>
           <Card>
-            <Text variant="subtitle" className="mb-2">Fitness profile</Text>
+            <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Fitness profile</Text>{d.fitness_profile ? <EditAll table="user_fitness_profiles" row={d.fitness_profile} /> : null}</div>
             {d.fitness_profile ? (['primary_goal', 'activity_level', 'experience_level', 'height', 'current_weight', 'target_weight', 'workout_days_per_week', 'preferred_workout_duration', 'dietary_preference', 'food_allergies', 'injuries', 'medical_conditions', 'training_style'] as const)
               .map(k => <Field key={k} label={k.replace(/_/g, ' ')}>{show(d.fitness_profile![k])}</Field>) : <Text tone="muted">Not set up.</Text>}
           </Card>
           <Card>
             <Text variant="subtitle" className="mb-2">Roles</Text>
-            {d.trainer_profile ? <Field label="Trainer"><StatusPill status={String(d.trainer_profile.verification_status)} /> {show(d.trainer_profile.experience_years)} yrs</Field> : null}
-            {d.owner_profile ? <Field label="Gym owner"><StatusPill status={String(d.owner_profile.verification_status)} /> {show(d.owner_profile.business_name)}</Field> : null}
+            {d.trainer_profile ? (
+              <Field label={(d.user.roles as string[]).includes('trainer') ? 'Trainer' : 'Trainer (role removed)'}>
+                <StatusPill status={String(d.trainer_profile.verification_status)} /> {show(d.trainer_profile.experience_years)} yrs <EditAll table="trainer_profiles" row={d.trainer_profile} />
+              </Field>
+            ) : null}
+            {d.owner_profile ? (
+              <Field label={(d.user.roles as string[]).includes('gym_owner') ? 'Gym owner' : 'Gym owner (role removed)'}>
+                <StatusPill status={String(d.owner_profile.verification_status)} /> {show(d.owner_profile.business_name)} <EditAll table="gym_owner_profiles" row={d.owner_profile} />
+              </Field>
+            ) : null}
+            {(d.user.roles as string[]).includes('gym_owner') ? <div className="mt-2"><ActionButton entity="member" entityId={id!} op="gym.create" label="+ Create a gym for this owner" mode="create" /></div> : null}
             <Field label="Migo AI">{d.ai.chat_messages} messages · last {ago(d.ai.last_chat_at)} · {d.ai.rated_unhelpful} rated not helpful</Field>
             {d.fitness_profile?.ai_memory_summary ? <><Text variant="label" tone="subtle" className="mt-3">Migo's memory</Text><Text variant="footnote" className="mt-1 whitespace-pre-line">{String(d.fitness_profile.ai_memory_summary)}</Text></> : null}
           </Card>
@@ -263,6 +274,8 @@ export default function User360() {
         <AiPanel uid={id!} ai={{ control: d.ai_control, programs: d.ai_programs, recommendations: d.ai_recommendations, memories: d.ai_memories,
           memorySummary: (d.fitness_profile?.ai_memory_summary as string | null) ?? null, stats: d.ai }} />
       ) : null}
+
+      {tab === 'activity' ? <ActivityList actorId={id!} compact /> : null}
 
       {tab === 'all' ? (
         <section>
