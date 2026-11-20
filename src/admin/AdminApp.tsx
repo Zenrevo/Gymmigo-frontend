@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import {
-  BadgeCheck, Banknote, Bot, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
+  BadgeCheck, Banknote, Bot, Database, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
   Repeat, ScrollText, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
@@ -25,6 +25,9 @@ const ClubTransfers = lazy(() => import('./pages/ClubTransfers'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const AuditLog = lazy(() => import('./pages/AuditLog'));
 const AiAgents = lazy(() => import('./pages/AiAgents'));
+const DataExplorer = lazy(() => import('./pages/DataExplorer'));
+const User360 = lazy(() => import('./pages/User360'));
+const Gym360 = lazy(() => import('./pages/Gym360'));
 const Admins = lazy(() => import('./pages/Admins'));
 const Account = lazy(() => import('./pages/Account'));
 
@@ -41,6 +44,7 @@ const NAV: NavItem[] = [
   { to: 'payments', label: 'Cash payments', icon: Banknote, perm: 'payments.view', element: <Payments />, group: 'Business' },
   { to: 'reviews', label: 'Reviews', icon: MessageSquareWarning, perm: 'reviews.moderate', element: <Reviews />, group: 'Trust & safety' },
   { to: 'club-transfers', label: 'Club transfers', icon: Repeat, perm: 'clubs.manage', element: <ClubTransfers />, group: 'Trust & safety' },
+  { to: 'data', label: 'Data explorer', icon: Database, perm: 'data.explore', element: <DataExplorer />, group: 'Control' },
   { to: 'ai', label: 'AI agents', icon: Bot, perm: 'ai.view', element: <AiAgents />, group: 'Control' },
   { to: 'settings', label: 'Features & settings', icon: Flag, perm: 'settings.view', element: <SettingsPage />, group: 'Control' },
   { to: 'audit', label: 'Audit log', icon: ScrollText, perm: 'audit.view', element: <AuditLog />, group: 'Control' },
@@ -58,6 +62,10 @@ export default function AdminApp() {
             {NAV.map(n => (
               <Route key={n.to} index={n.to === ''} path={n.to || undefined} element={<Gate perm={n.perm}>{n.element}</Gate>} />
             ))}
+            <Route path="data/:table" element={<Gate perm="data.explore"><DataExplorer /></Gate>} />
+            <Route path="data/:table/:id" element={<Gate perm="data.explore"><DataExplorer /></Gate>} />
+            <Route path="users/:id" element={<Gate perm="data.explore"><User360 /></Gate>} />
+            <Route path="gyms/:id" element={<Gate perm="data.explore"><Gym360 /></Gate>} />
             <Route path="account" element={<Account />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>

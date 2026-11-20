@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { Button, ErrorState, Skeleton } from '../../components/kit';
 import { adminGet, adminPatch, type Paged } from '../api';
 import { useAdmin } from '../useAdmin';
@@ -36,7 +37,7 @@ export default function Gyms() {
       {list.isLoading ? <Skeleton className="h-64" rounded="xl" /> : list.isError || !list.data ? <ErrorState onRetry={() => list.refetch()} /> : (
         <>
           <DataTable rows={list.data.items} rowKey={g => g.id} empty="No gyms match." columns={[
-            { key: 'n', label: 'Gym', render: g => <><div className="font-semibold">{g.name}</div><div className="text-xs text-ink-subtle">{[g.city, g.state].filter(Boolean).join(', ') || '—'} · {g.owner_business || 'owner'}</div></> },
+            { key: 'n', label: 'Gym', render: g => <><div className="font-semibold">{can('data.explore') ? <Link className="text-accent-text underline" to={`/admin/gyms/${g.id}`}>{g.name}</Link> : g.name}</div><div className="text-xs text-ink-subtle">{[g.city, g.state].filter(Boolean).join(', ') || '—'} · {g.owner_business || 'owner'}</div></> },
             { key: 'v', label: 'Verified', render: g => <StatusPill status={g.is_verified ? 'verified' : 'pending'} label={g.is_verified ? 'verified' : 'not verified'} /> },
             { key: 'a', label: 'On the app', render: g => <StatusPill status={g.is_active ? 'active' : 'deactivated'} label={g.is_active ? 'live' : 'hidden'} /> },
             { key: 'm', label: 'Active members', render: g => g.active_members },
