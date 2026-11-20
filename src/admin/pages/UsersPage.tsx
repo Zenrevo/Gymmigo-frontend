@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { Badge, Button, Checkbox, ErrorState, Sheet, Skeleton, Text } from '../../components/kit';
 import { adminGet, adminPost, adminPut, type Paged } from '../api';
 import { useAdmin } from '../useAdmin';
@@ -30,7 +31,8 @@ export default function UsersPage() {
   const [role, setRole] = useState('');
   const [state, setState] = useState('');
   const [page, setPage] = useState(1);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [params] = useSearchParams();
+  const [openId, setOpenId] = useState<string | null>(params.get('open'));
   const list = useQuery({
     queryKey: ['admin', 'users', q, role, state, page],
     queryFn: () => adminGet<Paged<UserRow>>('/users', { q, role, status: state, page, page_size: 25 }),

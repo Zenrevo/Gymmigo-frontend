@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Lock } from 'lucide-react';
 import { Badge, Button, Card, ErrorState, Skeleton, Text, TextArea, TextField, Toggle } from '../../components/kit';
@@ -13,7 +13,7 @@ type Setting = {
   is_public: boolean; is_immutable: boolean; locked_at: string | null; locked_by: string | null; updated_by: string | null; updated_at: string | null;
 };
 
-const CATEGORY_LABEL: Record<string, string> = { features: 'Features', platform: 'Platform', payments: 'Payments', app: 'App versions', general: 'General' };
+const CATEGORY_LABEL: Record<string, string> = { ai: 'AI agents & governance', features: 'Features', platform: 'Platform', payments: 'Payments', app: 'App versions', general: 'General' };
 
 export default function SettingsPage() {
   const { can } = useAdmin();
@@ -24,6 +24,12 @@ export default function SettingsPage() {
   const save = (s: Setting, value: unknown) => run(s.key, () => adminPatch(`/settings/${s.key}`, { value }), `${s.label} saved`, ['settings']);
 
   const cats = [...new Set((q.data ?? []).map(s => s.category))];
+  const loaded = !!q.data;
+  useEffect(() => {
+    // /admin/settings#ai jumps to that section once the settings have loaded.
+    const id = window.location.hash.slice(1);
+    if (loaded && id) document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [loaded]);
 
   return (
     <>
@@ -40,7 +46,7 @@ export default function SettingsPage() {
       {q.isLoading ? <Skeleton className="h-64" rounded="xl" /> : q.isError || !q.data ? <ErrorState onRetry={() => q.refetch()} /> : (
         <div className="flex flex-col gap-6">
           {cats.map(cat => (
-            <section key={cat}>
+            <section key={cat} id={cat} className="scroll-mt-20">
               <Text variant="label" tone="subtle" className="mb-2">{CATEGORY_LABEL[cat] ?? cat}</Text>
               <Card padding="none">
                 {q.data.filter(s => s.category === cat).map(s => (
@@ -89,6 +95,17 @@ function SettingRow({ s, editable, busy, canLock, onSave, onLock }: { s: Setting
       <div className="flex shrink-0 flex-col items-stretch gap-2 sm:w-72 sm:items-end">
         {s.value_type === 'bool' ? (
           <Toggle label={s.label} checked={s.value === true} disabled={!editable || busy} onChange={v => onSave(v)} />
+        ) : s.key.endsWith('.engine') ? (
+          <select
+            aria-label={s.label}
+            value={String(s.value ?? 'adk')}
+            disabled={!editable || busy}
+            onChange={e => onSave(e.target.value)}
+            className="h-10 rounded-gm-lg border border-border bg-surface px-3 text-sm text-ink"
+          >
+            <option value="adk">ADK workflow (governed)</option>
+            <option value="legacy">Previous pipeline</option>
+          </select>
         ) : !editable ? (
           <Text className="break-words sm:text-right">{s.value == null ? <span className="text-ink-subtle">Server default</span> : String(s.value)}</Text>
         ) : (
