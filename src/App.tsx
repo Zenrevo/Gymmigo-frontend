@@ -26,6 +26,7 @@ import { runTogetherRoutes } from './routes/runTogetherRoutes';
 import './index.css';
 
 const ComingSoon = lazy(() => import('./components/ComingSoon'));
+const AdminApp = lazy(() => import('./admin/AdminApp'));
 const MainLayout = lazy(() => import('./layouts/MainLayout'));
 const WithLocation = lazy(() => import('./layouts/WithLocation'));
 const WelcomePage = lazy(() => import('./pages/Auth/WelcomePage'));
@@ -99,6 +100,7 @@ const AppRoutes = () => (
   <RobotsGuard />
   <Routes>
     <Route path="/" element={<LandingPage />} />
+    <Route path="/admin/*" element={<AdminApp />} />
     <Route path="/welcome" element={<WelcomePage />} />
     <Route path="/login" element={<LoginPage />} />
     <Route path="/privacy" element={<PrivacyPolicy />} />
