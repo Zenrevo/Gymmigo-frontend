@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Badge, Button, Checkbox, ErrorState, Sheet, Skeleton, Text } from '../../components/kit';
 import { adminGet, adminPost, adminPut, type Paged } from '../api';
 import { useAdmin } from '../useAdmin';
@@ -12,6 +12,7 @@ import { useDebounced } from '../useDebounced';
 type UserRow = {
   id: string; phone: string; email: string | null; full_name: string | null; roles: string[]; active_role: string;
   is_active: boolean; is_banned: boolean; ban_reason: string | null; created_at: string; last_login_at: string | null;
+  last_seen_at?: string | null; last_seen_client?: string | null;
 };
 type UserDetail = UserRow & {
   active_sessions: number;
@@ -30,12 +31,15 @@ export default function UsersPage() {
   const q = useDebounced(search);
   const [role, setRole] = useState('');
   const [state, setState] = useState('');
+  const [sort, setSort] = useState('joined');
+  const { can } = useAdmin();
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [params] = useSearchParams();
   const [openId, setOpenId] = useState<string | null>(params.get('open'));
   const list = useQuery({
-    queryKey: ['admin', 'users', q, role, state, page],
-    queryFn: () => adminGet<Paged<UserRow>>('/users', { q, role, status: state, page, page_size: 25 }),
+    queryKey: ['admin', 'users', q, role, state, sort, page],
+    queryFn: () => adminGet<Paged<UserRow>>('/users', { q, role, status: state, sort, page, page_size: 25 }),
   });
 
   return (
@@ -45,20 +49,21 @@ export default function UsersPage() {
         <SearchBox value={search} onChange={v => (setSearch(v), setPage(1))} placeholder="Name, phone or email" />
         <Select label="Role" value={role} onChange={v => (setRole(v), setPage(1))} options={[{ value: '', label: 'All roles' }, ...Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))]} />
         <Select label="Status" value={state} onChange={v => (setState(v), setPage(1))} options={[{ value: '', label: 'Any status' }, { value: 'active', label: 'Active' }, { value: 'banned', label: 'Banned' }, { value: 'deactivated', label: 'Deactivated' }]} />
+        <Select label="Sort" value={sort} onChange={v => (setSort(v), setPage(1))} options={[{ value: 'joined', label: 'Newest first' }, { value: 'last_seen', label: 'Recently active' }]} />
       </Toolbar>
       {list.isLoading ? <Skeleton className="h-64" rounded="xl" /> : list.isError || !list.data ? <ErrorState onRetry={() => list.refetch()} /> : (
         <>
           <DataTable
             rows={list.data.items}
             rowKey={u => u.id}
-            onRowClick={u => setOpenId(u.id)}
+            onRowClick={u => (can('data.explore') ? navigate(`/admin/users/${u.id}`) : setOpenId(u.id))}
             empty="No users match."
             columns={[
               { key: 'name', label: 'User', render: u => <><div className="font-semibold">{u.full_name || '—'}</div><div className="text-xs text-ink-subtle">{u.phone}</div></> },
               { key: 'roles', label: 'Roles', render: u => <div className="flex flex-wrap justify-end gap-1 md:justify-start">{u.roles.map(r => <Badge key={r} label={ROLE_LABEL[r] ?? r} />)}</div> },
               { key: 'status', label: 'Status', render: u => <StatusPill status={status(u)} /> },
               { key: 'joined', label: 'Joined', render: u => when(u.created_at, false) },
-              { key: 'seen', label: 'Last sign-in', render: u => when(u.last_login_at) },
+              { key: 'seen', label: 'Last access', render: u => <>{when(u.last_seen_at ?? u.last_login_at)}{u.last_seen_client ? <div className="text-xs text-ink-subtle">{u.last_seen_client}</div> : null}</> },
             ]}
           />
           <Pager page={page} pageSize={25} total={list.data.total} onPage={setPage} />
