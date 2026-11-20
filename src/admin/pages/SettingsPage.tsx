@@ -103,6 +103,7 @@ function SettingRow({ s, editable, busy, canLock, onSave, onLock }: { s: Setting
             onChange={e => onSave(e.target.value)}
             className="h-10 rounded-gm-lg border border-border bg-surface px-3 text-sm text-ink"
           >
+            {s.key === 'ai.migo.engine' ? <option value="multi">Multi-agent (specialists + MCP + memory)</option> : null}
             <option value="adk">ADK workflow (governed)</option>
             <option value="legacy">Previous pipeline</option>
           </select>

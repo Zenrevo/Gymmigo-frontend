@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, Text } from '../../components/kit';
 import { ActionButton, ActionSheet } from '../ActionSheet';
 import { EditAll } from '../EditAll';
+import { MemoryFacts } from '../MemoryFacts';
 import { inr, when } from '../format';
 import { DataTable, Field, StatusPill } from '../ui';
 
@@ -108,7 +109,7 @@ export function AiPanel({ uid, ai }: { uid: string; ai: AiBlock }) {
           <Field label="Rated not helpful">{ai.stats.rated_unhelpful}</Field>
         </Card>
         <Card>
-          <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Migo's memory</Text>
+          <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Previous memory summary</Text>
             <div className="flex gap-2">
               <ActionButton entity="member" entityId={uid} op="ai.memory.set" label="Edit" initial={{ summary: ai.memorySummary ?? '' }} />
               <ActionButton entity="member" entityId={uid} op="ai.memory.clear" label="Clear" variant="danger" />
@@ -118,6 +119,7 @@ export function AiPanel({ uid, ai }: { uid: string; ai: AiBlock }) {
           {ai.memories.length ? <Text variant="caption" tone="subtle" className="mt-2">{ai.memories.length} stored memory items</Text> : null}
         </Card>
       </div>
+      <MemoryFacts uid={uid} />
       <section>
         <Text variant="label" tone="subtle" className="mb-2">AI plans ({ai.programs.length})</Text>
         <DataTable rows={ai.programs} rowKey={r => String(r.id)} empty="No AI plans." columns={[

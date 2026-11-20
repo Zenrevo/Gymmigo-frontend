@@ -32,7 +32,7 @@ const STATUS_TONE: Record<string, Tone> = { ok: 'success', blocked: 'warning', e
 const GUARD_LABEL: Record<string, string> = {
   pii_redaction: 'Personal data masked', prompt_injection: 'Prompt injection flagged', crisis_protocol: 'Crisis protocol',
   tool_allowlist: 'Tool blocked', tool_call_budget: 'Tool budget hit', llm_call_budget: 'Model budget hit',
-  output_check: 'Unsafe answer replaced', ai_disabled_or_budget: 'AI off / daily limit',
+  output_check: 'Unsafe answer replaced', ai_disabled_or_budget: 'AI off / daily limit', mcp_fallback: 'MCP down: ran in-process',
 };
 const num = (n: number) => n.toLocaleString('en-IN');
 const secs = (ms?: number | null) => (ms == null ? '—' : ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`);
@@ -163,6 +163,12 @@ function RunSheet({ id, onClose }: { id: string | null; onClose: () => void }) {
           {r.review ? (
             <section>
               <Text variant="label" tone="subtle" className="mb-1">Review</Text>
+              {Array.isArray(r.review.analysts) ? (
+                <div className="mb-2 flex flex-col gap-1 text-sm">
+                  <span>Intent: <strong>{String(r.review.intent ?? '—')}</strong> · specialists: {(r.review.analysts as string[]).join(', ') || 'none'} · prompt ≈ {String(r.review.context_tokens ?? '—')} tokens</span>
+                  <span>Rules engine: {r.review.revised_by_rules ? 'corrected the first draft' : 'first draft passed'}{Array.isArray(r.review.rule_issues) && r.review.rule_issues.length ? ` · still flagged: ${(r.review.rule_issues as string[]).join(' | ')}` : ''}</span>
+                </div>
+              ) : null}
               <pre className="overflow-auto rounded-gm-md bg-surface-sunken p-3 text-xs">{JSON.stringify(r.review, null, 2)}</pre>
             </section>
           ) : null}
