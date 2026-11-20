@@ -6,18 +6,32 @@ import { adminGet, adminPatch, adminPost } from '../api';
 import { useAdmin } from '../useAdmin';
 import { when } from '../format';
 import { DataTable, Field, PageTitle, Select, StatusPill } from '../ui';
+import { ActivityList } from './ApiActivity';
 import { useAdminAction } from '../useAdminAction';
 
 type AdminRow = {
   id: string; username: string; full_name: string | null; role: string; role_label: string; extra_permissions: string[]; denied_permissions: string[];
   permissions: string[]; phone_masked: string | null; phone_verified: boolean; must_change_password: boolean; is_active: boolean;
-  locked_until: string | null; last_login_at: string | null; created_at: string;
+  locked_until: string | null; last_login_at: string | null; created_at: string; parent_id?: string | null; can_manage?: boolean;
 };
+type TreeRow = AdminRow & { depth: number };
+
+/** Order admins as a reporting tree (manager first, then their team, indented). */
+function asTree(rows: AdminRow[]): TreeRow[] {
+  const ids = new Set(rows.map(r => r.id));
+  const kids = new Map<string, AdminRow[]>();
+  rows.forEach(r => { const p = r.parent_id && ids.has(r.parent_id) ? r.parent_id : ''; kids.set(p, [...(kids.get(p) ?? []), r]); });
+  const out: TreeRow[] = [];
+  const walk = (p: string, depth: number) => (kids.get(p) ?? []).forEach(r => { if (!out.some(o => o.id === r.id)) { out.push({ ...r, depth }); walk(r.id, depth + 1); } });
+  walk('', 0);
+  rows.forEach(r => { if (!out.some(o => o.id === r.id)) out.push({ ...r, depth: 0 }); });
+  return out;
+}
 type Meta = { permissions: { key: string; label: string }[]; roles: { key: string; label: string; permissions: string[] }[] };
 type Override = 'role' | 'grant' | 'deny';
 
 export default function Admins() {
-  const { admin: me } = useAdmin();
+  const { admin: me, can } = useAdmin();
   const list = useQuery({ queryKey: ['admin', 'admins'], queryFn: () => adminGet<AdminRow[]>('/admins') });
   const meta = useQuery({ queryKey: ['admin', 'meta'], queryFn: () => adminGet<Meta>('/auth/meta'), staleTime: Infinity });
   const [editing, setEditing] = useState<AdminRow | 'new' | null>(null);
@@ -25,10 +39,11 @@ export default function Admins() {
 
   return (
     <>
-      <PageTitle title="Admins & access" subtitle="Who can sign in to this console and what each person may do." actions={<Button size="sm" icon={UserPlus} label="Add admin" onClick={() => setEditing('new')} />} />
+      <PageTitle title="Admins & access" subtitle={can('admins.manage') ? 'Who can sign in to this console, who they report to, and what each person may do.' : 'You and your team. You can add sub-admins with up to the access you have.'} actions={<Button size="sm" icon={UserPlus} label={can('admins.manage') ? 'Add admin' : 'Add team member'} onClick={() => setEditing('new')} />} />
       {list.isLoading ? <Skeleton className="h-64" rounded="xl" /> : list.isError || !list.data ? <ErrorState onRetry={() => list.refetch()} /> : (
-        <DataTable rows={list.data} rowKey={a => a.id} onRowClick={setEditing} columns={[
-          { key: 'u', label: 'Admin', render: a => <><div className="font-semibold">{a.full_name || a.username}{a.id === me?.id ? ' (you)' : ''}</div><div className="text-xs text-ink-subtle">@{a.username}</div></> },
+        <DataTable rows={asTree(list.data)} rowKey={a => a.id} onRowClick={setEditing} columns={[
+          { key: 'u', label: 'Admin', render: a => <div style={{ paddingLeft: Math.min(a.depth, 4) * 16 }}><div className="font-semibold">{a.depth ? '↳ ' : ''}{a.full_name || a.username}{a.id === me?.id ? ' (you)' : ''}</div><div className="text-xs text-ink-subtle">@{a.username}</div></div> },
+          { key: 'm', label: 'Reports to', render: a => { const p = list.data!.find(x => x.id === a.parent_id); return p ? p.full_name || `@${p.username}` : '—'; } },
           { key: 'r', label: 'Role', render: a => <Badge label={a.role_label} tone={a.role === 'super_admin' ? 'accent' : 'neutral'} /> },
           { key: 'p', label: 'Custom access', render: a => (a.extra_permissions.length || a.denied_permissions.length ? `+${a.extra_permissions.length} / −${a.denied_permissions.length}` : '—') },
           { key: 's', label: 'Status', render: a => <StatusPill status={!a.is_active ? 'deactivated' : a.must_change_password || !a.phone_verified ? 'pending' : 'active'} label={!a.is_active ? 'disabled' : a.must_change_password || !a.phone_verified ? 'setup pending' : 'active'} /> },
@@ -39,6 +54,7 @@ export default function Admins() {
         <AdminSheet
           key={editing === 'new' ? 'new' : editing?.id ?? 'none'}
           target={editing}
+          all={list.data ?? []}
           meta={meta.data}
           isSelf={editing !== 'new' && editing?.id === me?.id}
           meIsSuper={me?.role === 'super_admin'}
@@ -69,8 +85,9 @@ export default function Admins() {
   );
 }
 
-function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
+function AdminSheet({ target, all, meta, isSelf, meIsSuper, onClose, onSecret }: {
   target: AdminRow | 'new' | null;
+  all: AdminRow[];
   meta: Meta;
   isSelf: boolean;
   meIsSuper: boolean;
@@ -80,6 +97,15 @@ function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
   const isNew = target === 'new';
   const a = isNew ? null : target;
   const { busy, run } = useAdminAction();
+  const { admin: me, can } = useAdmin();
+  const manageAll = can('admins.manage');
+  const mine = new Set((me?.permissions ?? []) as string[]);
+  const [parent, setParent] = useState<string>(a ? a.parent_id ?? '' : manageAll ? '' : me?.id ?? '');
+  const [showActivity, setShowActivity] = useState(false);
+  // Who this admin may report to: anyone visible (managers see only their team), never themselves or their own team.
+  const below = (id: string): Set<string> => { const s = new Set<string>(); const go = (p: string) => all.filter(x => x.parent_id === p).forEach(x => { s.add(x.id); go(x.id); }); go(id); return s; };
+  const blocked = a ? new Set([a.id, ...below(a.id)]) : new Set<string>();
+  const parentOptions = [...(manageAll ? [{ value: '', label: 'Nobody (top level)' }] : []), ...all.filter(x => !blocked.has(x.id)).map(x => ({ value: x.id, label: `${x.full_name || x.username} (@${x.username})` }))];
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState(a?.full_name ?? '');
   const [phone, setPhone] = useState('');
@@ -94,11 +120,11 @@ function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
   const roleDefaults = new Set(meta.roles.find(r => r.key === role)?.permissions ?? []);
   const extra = Object.entries(overrides).filter(([, v]) => v === 'grant').map(([k]) => k);
   const denied = Object.entries(overrides).filter(([, v]) => v === 'deny').map(([k]) => k);
-  const roleOptions = meta.roles.filter(r => meIsSuper || r.key !== 'super_admin').map(r => ({ value: r.key, label: r.label }));
-  const locked = !!a && a.role === 'super_admin' && !meIsSuper;
+  const roleOptions = meta.roles.filter(r => (meIsSuper || r.key !== 'super_admin') && (manageAll || r.key === role || r.permissions.every(p => mine.has(p)))).map(r => ({ value: r.key, label: r.label }));
+  const locked = !!a && ((a.role === 'super_admin' && !meIsSuper) || (a.can_manage === false && !isSelf));
 
   const create = async () => {
-    const res = await adminPost<AdminRow & { temp_password: string }>('/admins', { username: username.trim().toLowerCase(), full_name: fullName || undefined, phone: phone || undefined, role, extra_permissions: extra, denied_permissions: denied });
+    const res = await adminPost<AdminRow & { temp_password: string }>('/admins', { username: username.trim().toLowerCase(), full_name: fullName || undefined, phone: phone || undefined, role, parent_id: parent || undefined, extra_permissions: extra, denied_permissions: denied });
     onSecret({ username: res.username, temp_password: res.temp_password });
   };
 
@@ -113,12 +139,12 @@ function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
         locked ? undefined : isNew ? (
           <Button fullWidth label="Create admin" loading={busy === 'create'} disabled={username.trim().length < 4} onClick={() => run('create', create, 'Admin created', ['admins'])} />
         ) : (
-          <Button fullWidth label="Save changes" loading={busy === 'save'} onClick={async () => (await run('save', () => adminPatch(`/admins/${a!.id}`, { full_name: fullName, role: isSelf ? undefined : role, is_active: isSelf ? undefined : active, extra_permissions: extra, denied_permissions: denied }), 'Admin updated', ['admins'])) && onClose()} />
+          <Button fullWidth label="Save changes" loading={busy === 'save'} onClick={async () => (await run('save', () => adminPatch(`/admins/${a!.id}`, { full_name: fullName, parent_id: !isSelf && parent !== (a!.parent_id ?? '') ? parent : undefined, role: isSelf ? undefined : role, is_active: isSelf ? undefined : active, extra_permissions: extra, denied_permissions: denied }), 'Admin updated', ['admins'])) && onClose()} />
         )
       }
     >
       <div className="flex flex-col gap-5">
-        {locked ? <Text tone="warning">Only a super admin can change a super admin.</Text> : null}
+        {locked ? <Text tone="warning">{a?.role === 'super_admin' && !meIsSuper ? 'Only a super admin can change a super admin.' : 'This admin is outside your team, so you can only view them.'}</Text> : null}
         {a ? (
           <div>
             <Field label="Phone for codes">{a.phone_masked ? `${a.phone_masked}${a.phone_verified ? '' : ' (not verified)'}` : 'Not set'}</Field>
@@ -139,6 +165,13 @@ function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
           <Select label="Role" value={role} onChange={setRole} options={roleOptions} />
           {isSelf ? <Text variant="caption" tone="subtle">You can’t change your own role.</Text> : null}
         </div>
+        {!isSelf && !locked ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <Text variant="label" tone="subtle">Reports to</Text>
+            <Select label="Reports to" value={parent} onChange={setParent} options={parentOptions} />
+            <Text variant="caption" tone="subtle">Their manager can manage them and their team.</Text>
+          </div>
+        ) : null}
         {!isNew && !isSelf && !locked ? <Toggle label="Account enabled" checked={active} onChange={setActive} /> : null}
 
         <section>
@@ -160,7 +193,7 @@ function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
                     onChange={v => setOverrides(prev => ({ ...prev, [p.key]: v }))}
                     options={[
                       { value: 'role', label: roleDefaults.has(p.key) ? 'Role: allowed' : 'Role: not allowed' },
-                      { value: 'grant', label: 'Grant' },
+                      ...(meIsSuper || mine.has(p.key) || o === 'grant' ? [{ value: 'grant' as Override, label: 'Grant' }] : []),
                       { value: 'deny', label: 'Deny' },
                     ]}
                   />
@@ -175,6 +208,12 @@ function AdminSheet({ target, meta, isSelf, meIsSuper, onClose, onSecret }: {
             <Button size="sm" variant="outline" label="Reset password" loading={busy === 'pw'} onClick={() => run('pw', async () => onSecret(await adminPost(`/admins/${a.id}/reset-password`)), 'New temporary password issued', ['admins'])} />
             <Button size="sm" variant="outline" label="Reset phone" loading={busy === 'phone'} onClick={() => run('phone', async () => onSecret(await adminPost(`/admins/${a.id}/reset-phone`)), 'Phone unbound', ['admins'])} />
             <Button size="sm" variant="outline" label="Sign out everywhere" loading={busy === 'out'} onClick={() => run('out', () => adminPost(`/admins/${a.id}/revoke-sessions`), 'Signed out', ['admins'])} />
+          </section>
+        ) : null}
+        {a && can('audit.view') ? (
+          <section>
+            <Button size="sm" variant="ghost" label={showActivity ? 'Hide API activity' : 'Show API activity'} onClick={() => setShowActivity(v => !v)} />
+            {showActivity ? <div className="mt-3"><ActivityList actorId={a.id} compact /></div> : null}
           </section>
         ) : null}
       </div>

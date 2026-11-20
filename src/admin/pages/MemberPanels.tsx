@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Text } from '../../components/kit';
 import { ActionButton, ActionSheet } from '../ActionSheet';
+import { EditAll } from '../EditAll';
 import { inr, when } from '../format';
 import { DataTable, Field, StatusPill } from '../ui';
 
@@ -25,6 +26,7 @@ export function TrainerPanel({ uid, t }: { uid: string; t: TrainerBlock }) {
             <div className="flex gap-2">
               <ActionButton entity="trainer" entityId={uid} op="profile.update" label="Edit" initial={p} />
               <ActionButton entity="trainer" entityId={uid} op="professional.update" label="Experience" initial={p} />
+              <EditAll table="trainer_profiles" row={p} label="All fields" />
             </div>
           </div>
           <Field label="Verification"><StatusPill status={String(p.verification_status)} /></Field>
@@ -54,6 +56,7 @@ export function TrainerPanel({ uid, t }: { uid: string; t: TrainerBlock }) {
           { key: 'x', label: '', render: r => (
             <div className="flex justify-end gap-1">
               <ActionButton entity="trainer" entityId={uid} op="package.update" itemId={String(r.id)} initial={r} label="Edit" />
+              <EditAll table="trainer_packages" row={r} label="All fields" />
               <ActionButton entity="trainer" entityId={uid} op="package.delete" itemId={String(r.id)} label="Delete" variant="danger" title={`Delete ${show(r.name)}?`} />
             </div>
           ) },
@@ -76,6 +79,7 @@ export function TrainerPanel({ uid, t }: { uid: string; t: TrainerBlock }) {
               ) : null}
               {['confirmed', 'completed'].includes(b.status) ? <ActionButton entity="trainer" entityId={uid} op="booking.payment" itemId={b.id} label="Payment" initial={{ received: b.payment_status !== 'paid', amount: b.total_amount }} /> : null}
               <ActionButton entity="trainer" entityId={uid} op="booking.sessions" itemId={b.id} label="Sessions" />
+              <EditAll table="trainer_bookings" row={{ id: b.id }} label="All fields" />
             </div>
           ) },
         ]} />

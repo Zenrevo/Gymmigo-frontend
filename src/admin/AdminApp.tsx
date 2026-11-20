@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import {
   Activity, BadgeCheck, Banknote, Bot, Database, Wallet, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
-  Repeat, ScrollText, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
+  Radio, Repeat, ScrollText, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 import PageLoader from '../components/PageLoader';
@@ -31,6 +31,7 @@ const DataExplorer = lazy(() => import('./pages/DataExplorer'));
 const User360 = lazy(() => import('./pages/User360'));
 const Gym360 = lazy(() => import('./pages/Gym360'));
 const Admins = lazy(() => import('./pages/Admins'));
+const ApiActivity = lazy(() => import('./pages/ApiActivity'));
 const Account = lazy(() => import('./pages/Account'));
 
 type NavItem = { to: string; label: string; icon: LucideIcon; perm: string; element: ReactNode; group: string };
@@ -51,8 +52,9 @@ const NAV: NavItem[] = [
   { to: 'data', label: 'Data explorer', icon: Database, perm: 'data.explore', element: <DataExplorer />, group: 'Control' },
   { to: 'ai', label: 'AI agents', icon: Bot, perm: 'ai.view', element: <AiAgents />, group: 'Control' },
   { to: 'settings', label: 'Features & settings', icon: Flag, perm: 'settings.view', element: <SettingsPage />, group: 'Control' },
+  { to: 'activity', label: 'API activity', icon: Radio, perm: 'audit.view', element: <ApiActivity />, group: 'Control' },
   { to: 'audit', label: 'Audit log', icon: ScrollText, perm: 'audit.view', element: <AuditLog />, group: 'Control' },
-  { to: 'admins', label: 'Admins & access', icon: ShieldCheck, perm: 'admins.manage', element: <Admins />, group: 'Control' },
+  { to: 'admins', label: 'Admins & access', icon: ShieldCheck, perm: 'admins.manage|admins.team', element: <Admins />, group: 'Control' },
 ];
 
 /** Everything under /admin: its own sign-in, session and layout (separate from the member app). */
@@ -88,14 +90,14 @@ function Guard() {
 
 function Gate({ perm, children }: { perm: string; children: ReactNode }) {
   const { can } = useAdmin();
-  return can(perm) ? <>{children}</> : <NoAccess />;
+  return perm.split('|').some(can) ? <>{children}</> : <NoAccess />;
 }
 
 function Shell() {
   const { admin, can, logout } = useAdmin();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const items = NAV.filter(n => can(n.perm));
+  const items = NAV.filter(n => n.perm.split('|').some(can));
   const groups = [...new Set(items.map(n => n.group))];
   const current = NAV.find(n => (n.to ? pathname.startsWith(`/admin/${n.to}`) : pathname === '/admin' || pathname === '/admin/'));
 

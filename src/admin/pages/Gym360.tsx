@@ -8,6 +8,7 @@ import { LineChart } from '../charts';
 import { fillSeries, inr, mapsLink, when } from '../format';
 import { DataTable, Field, StatusPill } from '../ui';
 import { ActionButton } from '../ActionSheet';
+import { EditAll } from '../EditAll';
 import { RecentChanges } from '../RecentChanges';
 import { FacilitiesPanel, ItemsSection } from './GymPanels';
 
@@ -65,6 +66,8 @@ export default function Gym360() {
         {d.addresses[0] ? <ActionButton entity="gym" entityId={id!} op="address.update" itemId={String(d.addresses[0].id)} label="Edit address" initial={d.addresses[0]} />
           : <ActionButton entity="gym" entityId={id!} op="address.add" label="Add address" mode="create" />}
         <ActionButton entity="gym" entityId={id!} op="hours.set" label="Set hours for a day" mode="create" />
+        {d.addresses[0] ? <EditAll table="gym_addresses" row={d.addresses[0]} label="Address: all fields" /> : null}
+        <ActionButton entity="gym" entityId={id!} op="gym.delete" label="Delete gym" variant="danger" onDone={() => navigate('/admin/gyms')} />
       </div>
 
       <SegmentedControl aria-label="Section" value={tab} onChange={setTab} className="mb-4" options={[
@@ -75,7 +78,7 @@ export default function Gym360() {
       {tab === 'overview' ? (
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <Text variant="subtitle" className="mb-2">Gym</Text>
+            <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Gym</Text><EditAll table="gyms" row={g} /></div>
             {(['contact_person_name', 'contact_phone', 'contact_email', 'website_url', 'max_capacity', 'current_occupancy', 'is_24_hours', 'established_year'] as const).map(k => <Field key={k} label={k.replace(/_/g, ' ')}>{show(g[k])}</Field>)}
             <Field label="Rating">{g.rating_avg != null ? `${Number(g.rating_avg).toFixed(1)} ★ (${g.rating_count})` : '—'}</Field>
             {d.address ? (
@@ -86,7 +89,7 @@ export default function Gym360() {
             ) : null}
           </Card>
           <Card>
-            <Text variant="subtitle" className="mb-2">Owner</Text>
+            <div className="mb-2 flex items-center justify-between"><Text variant="subtitle">Owner</Text>{d.owner ? <EditAll table="gym_owner_profiles" row={d.owner} /> : null}</div>
             {d.owner ? (
               <>
                 <Field label="Business">{show(d.owner.business_name)}</Field>
@@ -178,13 +181,13 @@ export default function Gym360() {
             <Text variant="subtitle" className="mb-2">Cash collected per month</Text>
             <BarChart bars={d.revenue_months.map(m => ({ label: m.month.slice(5, 7), value: m.amount, caption: `${m.receipts} receipts` }))} height={120} formatValue={v => inr(v)} />
           </Card>
-          <ItemsSection gymId={id!} title="Plans" rows={d.plans} add="plan.add" update="plan.update" remove="plan.delete" columns={[
+          <ItemsSection gymId={id!} table="gym_membership_plans" title="Plans" rows={d.plans} add="plan.add" update="plan.update" remove="plan.delete" columns={[
             { key: 'n', label: 'Plan', render: p => String(p.name) },
             { key: 'd', label: 'Duration', render: p => `${show(p.duration_days)} days` },
             { key: 'p', label: 'Price', render: p => <>{inr(Number(p.discounted_price ?? p.price))}{p.discounted_price ? <span className="ml-1 text-xs text-ink-subtle line-through">{inr(Number(p.price))}</span> : null}</> },
             { key: 'a', label: 'Active', render: p => (p.is_active ? 'yes' : 'no') },
           ]} />
-          <ItemsSection gymId={id!} title="Add-ons" rows={d.addons} add="addon.add" update="addon.update" remove="addon.delete" columns={[
+          <ItemsSection gymId={id!} table="gym_addons" title="Add-ons" rows={d.addons} add="addon.add" update="addon.update" remove="addon.delete" columns={[
             { key: 'n', label: 'Add-on', render: a => show(a.name) },
             { key: 'p', label: 'Price', render: a => inr(Number(a.price)) },
             { key: 'a', label: 'Active', render: a => (a.is_active ? 'yes' : 'no') },

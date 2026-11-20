@@ -8,6 +8,7 @@ import { when } from '../format';
 import { DataTable, PageTitle, Pager, PromptDialog, SearchBox, Select, StatusPill, Toolbar } from '../ui';
 import { useAdminAction } from '../useAdminAction';
 import { useDebounced } from '../useDebounced';
+import { CreateGymSheet } from '../CreatePeople';
 
 type Gym = { id: string; name: string; city: string | null; state: string | null; owner_business: string | null; contact_phone: string | null; is_verified: boolean; is_active: boolean; active_members: number; rating_avg: number | null; rating_count: number; created_at: string };
 
@@ -20,6 +21,7 @@ export default function Gyms() {
   const [active, setActive] = useState('');
   const [page, setPage] = useState(1);
   const [deactivating, setDeactivating] = useState<Gym | null>(null);
+  const [adding, setAdding] = useState(false);
   const list = useQuery({
     queryKey: ['admin', 'gyms', q, verified, active, page],
     queryFn: () => adminGet<Paged<Gym>>('/gyms', { q, verified: verified || undefined, active: active || undefined, page, page_size: 25 }),
@@ -28,7 +30,8 @@ export default function Gyms() {
 
   return (
     <>
-      <PageTitle title="Gyms" subtitle="Verify gyms and take them off the app if needed." />
+      <PageTitle title="Gyms" subtitle="Verify, edit, add or remove gyms."
+        actions={can('gyms.edit') ? <Button size="sm" label="+ Add gym" onClick={() => setAdding(true)} /> : undefined} />
       <Toolbar>
         <SearchBox value={search} onChange={v => (setSearch(v), setPage(1))} placeholder="Gym, city, phone or business" />
         <Select label="Verified" value={verified} onChange={v => (setVerified(v), setPage(1))} options={[{ value: '', label: 'Verified or not' }, { value: 'true', label: 'Verified' }, { value: 'false', label: 'Not verified' }]} />
@@ -69,6 +72,7 @@ export default function Gyms() {
           if (deactivating && (await run(`${deactivating.id}-is_active`, () => adminPatch(`/gyms/${deactivating.id}`, { is_active: false, reason }), 'Gym hidden', ['gyms', 'overview']))) setDeactivating(null);
         }}
       />
+      {adding ? <CreateGymSheet onClose={() => setAdding(false)} /> : null}
     </>
   );
 }

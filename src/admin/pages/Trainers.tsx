@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ErrorState, Skeleton } from '../../components/kit';
+import { Button, ErrorState, Skeleton } from '../../components/kit';
 import { adminGet, type Paged } from '../api';
 import { DataTable, PageTitle, Pager, SearchBox, Select, StatusPill, Toolbar } from '../ui';
 import { useDebounced } from '../useDebounced';
+import { useAdmin } from '../useAdmin';
+import { CreatePersonSheet } from '../CreatePeople';
 
 type Row = { id: string; user_id: string; phone: string; full_name: string | null; verification_status: string; experience_years: number | null; is_available: boolean; location: string | null; rating_avg: number | null; rating_count: number };
 
@@ -12,10 +14,13 @@ export default function Trainers() {
   const q = useDebounced(search);
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
+  const { can } = useAdmin();
+  const [adding, setAdding] = useState(false);
   const list = useQuery({ queryKey: ['admin', 'trainers', q, status, page], queryFn: () => adminGet<Paged<Row>>('/trainers', { q, status, page, page_size: 25 }) });
   return (
     <>
-      <PageTitle title="Trainers" subtitle="Every trainer profile. Approve or reject them under Verifications." />
+      <PageTitle title="Trainers" subtitle="Every trainer profile. Approve or reject them under Verifications."
+        actions={can('trainers.edit') ? <Button size="sm" label="+ Add trainer" onClick={() => setAdding(true)} /> : undefined} />
       <Toolbar>
         <SearchBox value={search} onChange={v => (setSearch(v), setPage(1))} placeholder="Name, phone or area" />
         <Select label="Verification" value={status} onChange={v => (setStatus(v), setPage(1))} options={[
@@ -36,6 +41,7 @@ export default function Trainers() {
           <Pager page={page} pageSize={25} total={list.data.total} onPage={setPage} />
         </>
       )}
+      {adding ? <CreatePersonSheet defaultRole="trainer" onClose={() => setAdding(false)} /> : null}
     </>
   );
 }
