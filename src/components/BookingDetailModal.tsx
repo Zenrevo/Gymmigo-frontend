@@ -403,7 +403,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                         {hasCoordinates && isLoaded && (
                            <div className="h-40 sm:h-56 w-full rounded-gm-lg overflow-hidden border border-border relative group bg-neutral-800 shadow-inner">
                               <button 
-                                 onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`, '_blank')}
+                                 onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${mapLat},${mapLng}`, '_blank', 'noopener,noreferrer')}
                                  className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl bg-overlay backdrop-blur-md border border-border text-[9px] sm:text-[10px] font-bold text-ink-muted hover:text-ink hover:bg-overlay transition-all uppercase tracking-widest flex items-center gap-2"
                               >
                                  <Globe size={12} className="sm:w-[14px] sm:h-[14px]"/> <span className="hidden sm:inline">Open Maps</span><span className="sm:hidden">Maps</span>
@@ -614,7 +614,7 @@ const BookingDetailModal = ({ isOpen, onClose, booking, role, onAccept, onReject
                       <button 
                         onClick={() => {
                            const phone = role === 'trainer' ? booking.user_phone : booking.trainer_phone;
-                           if (phone) window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
+                           if (phone) window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank', 'noopener,noreferrer');
                            else alert('Contact number not available');
                         }}
                         className="p-4 sm:p-5 rounded-xl sm:rounded-[1.5rem] bg-surface-raised border border-border text-ink-muted hover:text-ink hover:bg-surface-sunken transition-all active:scale-90"

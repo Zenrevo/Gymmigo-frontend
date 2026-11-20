@@ -4,23 +4,111 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 const DEFAULT_TIMEOUT_MS = 20000;
 const RETRY_DELAY_MS = 600;
 
-type ApiRequestConfig = AxiosRequestConfig & {
+export type ApiRequestConfig = AxiosRequestConfig & {
   _authRetry?: boolean;
   _networkRetry?: boolean;
   _requestStartedAt?: number;
   _requestId?: string;
+  /** On a failed refresh, reject instead of redirecting to /login (session bootstrap). */
+  _skipAuthRedirect?: boolean;
 };
 
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+/**
+ * Where the web keeps auth. `cookie`: the backend's httpOnly cookies only — no JWT is
+ * readable by page scripts. `local`: tokens in localStorage, for hosts that can't
+ * receive the API's cookies (localhost, Vercel previews). Override with VITE_AUTH_STORAGE.
+ */
+type AuthStorage = 'cookie' | 'local';
 
-const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach((callback) => callback(token));
-  refreshSubscribers = [];
+const resolveAuthStorage = (): AuthStorage => {
+  const configured = import.meta.env.VITE_AUTH_STORAGE;
+  if (configured === 'cookie' || configured === 'local') return configured;
+  const host = typeof window !== 'undefined' ? window.location.hostname : '';
+  return host === 'gymmigo.in' || host.endsWith('.gymmigo.in') ? 'cookie' : 'local';
 };
 
-const addRefreshSubscriber = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback);
+export const AUTH_STORAGE: AuthStorage = resolveAuthStorage();
+
+const ACCESS_KEY = 'access_token';
+const REFRESH_KEY = 'refresh_token';
+/** Non-secret marker so cookie mode only bootstraps a session when one may exist. */
+const SESSION_MARKER_KEY = 'auth_session';
+
+export const authTokens = {
+  getAccess: () => (AUTH_STORAGE === 'local' ? localStorage.getItem(ACCESS_KEY) : null),
+  getRefresh: () => (AUTH_STORAGE === 'local' ? localStorage.getItem(REFRESH_KEY) : null),
+  hasSession: () =>
+    AUTH_STORAGE === 'local' ? Boolean(localStorage.getItem(ACCESS_KEY)) : localStorage.getItem(SESSION_MARKER_KEY) === '1',
+  save: (accessToken?: string | null, refreshToken?: string | null) => {
+    if (AUTH_STORAGE === 'local') {
+      if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
+      if (refreshToken) localStorage.setItem(REFRESH_KEY, refreshToken);
+    } else {
+      localStorage.setItem(SESSION_MARKER_KEY, '1');
+    }
+  },
+  clear: () => {
+    localStorage.removeItem(ACCESS_KEY);
+    localStorage.removeItem(REFRESH_KEY);
+    localStorage.removeItem(SESSION_MARKER_KEY);
+    localStorage.removeItem('user');
+  },
+};
+
+if (AUTH_STORAGE === 'cookie') {
+  // Tokens left over from before cookie auth must not linger where scripts can read them.
+  localStorage.removeItem(ACCESS_KEY);
+  localStorage.removeItem(REFRESH_KEY);
+}
+
+/** Headers for requests made outside the shared axios instance (e.g. fetch streaming). */
+export const authRequestHeaders = (): Record<string, string> => {
+  const token = authTokens.getAccess();
+  return {
+    'X-Requested-With': 'XMLHttpRequest',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
+/** Sentinel: refresh failed for network/server reasons — keep the session. */
+export const REFRESH_NETWORK_ERROR = '__network_error__';
+
+let inflightRefresh: Promise<string | null> | null = null;
+
+/**
+ * Single-flight refresh shared by the interceptor and AuthContext, so a rotated
+ * refresh token is never presented twice. Resolves to the new access token, null
+ * when the server rejects the refresh token, or REFRESH_NETWORK_ERROR on a
+ * transient failure (the user stays signed in).
+ */
+export const refreshSession = (): Promise<string | null> => {
+  inflightRefresh ??= doRefresh().finally(() => {
+    inflightRefresh = null;
+  });
+  return inflightRefresh;
+};
+
+const doRefresh = async (): Promise<string | null> => {
+  const refreshToken = authTokens.getRefresh();
+  if (AUTH_STORAGE === 'local' && !refreshToken) return null;
+  try {
+    const res = await axios.post(
+      `${API_URL}/auth/refresh-token`,
+      refreshToken ? { refresh_token: refreshToken } : {},
+      { timeout: 15000, withCredentials: true, headers: { 'X-Requested-With': 'XMLHttpRequest' } },
+    );
+    if (res.data?.success) {
+      const { access_token, refresh_token } = res.data.data;
+      // refresh_token is only present when the server rotates; keep it or the next refresh fails.
+      authTokens.save(access_token, refresh_token);
+      return access_token;
+    }
+    return null;
+  } catch (err) {
+    const status = (err as AxiosError).response?.status;
+    if (status === 401 || status === 403) return null;
+    return REFRESH_NETWORK_ERROR;
+  }
 };
 
 const createRequestId = () => {
@@ -83,8 +171,10 @@ export const getApiErrorMessage = (error: unknown) => {
 const api = axios.create({
   baseURL: API_URL,
   timeout: DEFAULT_TIMEOUT_MS,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
 });
 
@@ -97,7 +187,7 @@ api.interceptors.request.use(
     config.headers = config.headers || {};
     config.headers['X-Request-ID'] = requestConfig._requestId;
 
-    const token = localStorage.getItem('access_token');
+    const token = authTokens.getAccess();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -156,44 +246,19 @@ api.interceptors.response.use(
 
       originalRequest._authRetry = true;
 
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          addRefreshSubscriber((newAccessToken: string) => {
-            originalRequest.headers = originalRequest.headers || {};
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            resolve(api(originalRequest));
-          });
-        });
+      const newAccessToken = await refreshSession();
+      if (newAccessToken === REFRESH_NETWORK_ERROR) {
+        return Promise.reject(error);
       }
-      
-      const refreshToken = localStorage.getItem('refresh_token');
-      if (refreshToken) {
-        try {
-          isRefreshing = true;
-          const res = await axios.post(`${API_URL}/auth/refresh-token`, {
-            refresh_token: refreshToken,
-          }, { timeout: 15000 });
-          
-          if (res.data.success) {
-            const newAccessToken = res.data.data.access_token;
-            localStorage.setItem('access_token', newAccessToken);
-            onRefreshed(newAccessToken);
-            originalRequest.headers = originalRequest.headers || {};
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return api(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error('Session expired. Redirecting to login.');
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          localStorage.removeItem('user');
-          refreshSubscribers = [];
-          window.location.href = '/login';
-        } finally {
-          isRefreshing = false;
-        }
-      } else {
-        refreshSubscribers = [];
+      if (newAccessToken) {
+        // In cookie mode the request interceptor attaches nothing; the refreshed cookie is sent.
+        delete originalRequest.headers?.Authorization;
+        return api(originalRequest);
+      }
+
+      authTokens.clear();
+      if (!originalRequest._skipAuthRedirect) {
+        console.error('Session expired. Redirecting to login.');
         window.location.href = '/login';
       }
     }

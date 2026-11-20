@@ -110,9 +110,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
 
   const fetchRecommendation = useCallback(async () => {
     try {
-      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
       const res = await api.get(`/ai/recommendations`, {
-        ...authHeader,
         params: { date: new Date().toISOString().split('T')[0] }
       });
       const workoutRec = (res.data?.data as Recommendation[] | undefined)?.find((r) => r.type === 'workout' && r.is_active);
@@ -136,14 +134,12 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
     setScanState('processing');
 
     try {
-      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
-      
       const payload = { qr_payload: decodedText };
-      
+
       const previewRes = await api.post(`/memberships/check-in`, {
         ...payload,
         preview: true
-      }, authHeader);
+      });
 
       if (!previewRes.data.success) {
         handleError(previewRes.data.error || previewRes.data);
@@ -219,8 +215,6 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
     setScanState('processing');
     
     try {
-      const authHeader = { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } };
-      
       const finalWorkout = selectedWorkout === 'Other' ? customWorkout : selectedWorkout;
       
       const res = await api.post(`/memberships/check-in`, {
@@ -229,7 +223,7 @@ const QRScannerModal = ({ isOpen, onClose, onSuccess }: QRScannerModalProps) => 
         confirmed: isConfirmed,
         action: confirmData.action,
         workout_type: finalWorkout || undefined
-      }, authHeader);
+      });
 
       if (res.data.success) {
         setScanState('success');

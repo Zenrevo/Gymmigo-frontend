@@ -6,12 +6,8 @@ export const uploadToR2 = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const authHeader = localStorage.getItem('access_token');
     const { data } = await api.post(`/storage/upload`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        ...(authHeader ? { Authorization: `Bearer ${authHeader}` } : {}),
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
 
     return data.url;

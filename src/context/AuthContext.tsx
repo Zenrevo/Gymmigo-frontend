@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api, { getApiErrorMessage } from '../utils/api';
+import api, {
+  AUTH_STORAGE,
+  authTokens,
+  getApiErrorMessage,
+  refreshSession,
+  REFRESH_NETWORK_ERROR,
+  type ApiRequestConfig,
+} from '../utils/api';
 import { COMPLETED_ROLES_KEY, readLocalCompletions, rememberCompletion, withLocalCompletions } from '../auth/onboarding';
 
 const storage = () => (typeof window !== 'undefined' ? window.localStorage : undefined);
@@ -17,6 +24,10 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  /**
+   * Truthy while signed in. In local mode this is the access JWT; in cookie mode the
+   * JWT lives in an httpOnly cookie, so this is a non-secret placeholder.
+   */
   token: string | null;
   isLoading: boolean;
   login: (token: string, refreshToken: string, user: User) => void;
@@ -27,89 +38,73 @@ interface AuthContextType {
   markRoleCompleted: (role: string) => Promise<void>;
 }
 
+const COOKIE_SESSION_TOKEN = 'cookie-session';
+
+const currentSessionToken = () =>
+  AUTH_STORAGE === 'local' ? authTokens.getAccess() : authTokens.hasSession() ? COOKIE_SESSION_TOKEN : null;
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(() => storage()?.getItem('access_token') ?? null);
+  const [token, setToken] = useState<string | null>(() => (storage() ? currentSessionToken() : null));
   const [isLoading, setIsLoading] = useState(true);
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-    setToken(accessToken);
+    authTokens.save(accessToken, refreshToken);
+    setToken(currentSessionToken());
     setUser(mergeLocal(userData));
     setIsLoading(false);
   };
 
-  const attemptTokenRefresh = async (): Promise<string | null> => {
-    const refreshToken = localStorage.getItem('refresh_token');
-    if (!refreshToken) return null;
-
-    try {
-      const response = await api.post('/auth/refresh-token', { 
-        refresh_token: refreshToken 
-      }, { timeout: 15000 });
-      
-      if (response.data.success) {
-        const { access_token } = response.data.data;
-        localStorage.setItem('access_token', access_token);
-        setToken(access_token);
-        return access_token;
-      }
-    } catch (error: any) {
-      console.error('Failed to refresh token:', error);
-      return null;
-    }
-    return null;
-  };
-
-  const logout = async () => {
-    const refreshToken = localStorage.getItem('refresh_token');
-    if (refreshToken) {
-      try {
-        await api.post('/auth/logout', { refresh_token: refreshToken }, { timeout: 5000 });
-      } catch (e) {
-        console.warn('Logout request failed', e);
-      }
-    }
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+  const clearSession = () => {
+    authTokens.clear();
     localStorage.removeItem(COMPLETED_ROLES_KEY);
     setToken(null);
     setUser(null);
     setIsLoading(false);
   };
 
+  const logout = async () => {
+    if (authTokens.hasSession()) {
+      try {
+        // In cookie mode the backend reads the refresh token from the cookie and clears both cookies.
+        const refreshToken = authTokens.getRefresh();
+        await api.post('/auth/logout', refreshToken ? { refresh_token: refreshToken } : {}, { timeout: 5000 });
+      } catch (e) {
+        console.warn('Logout request failed', e);
+      }
+    }
+    clearSession();
+  };
+
   const refreshUser = async () => {
-    const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
+    if (!authTokens.hasSession()) {
       setIsLoading(false);
       return;
     }
 
     try {
-      const response = await api.get('/auth/me');
+      // A 401 here is refreshed by the interceptor; only a rejected refresh surfaces.
+      const config: ApiRequestConfig = { _skipAuthRedirect: true };
+      const response = await api.get('/auth/me', config);
       if (response.data.success) {
         setUser(mergeLocal(response.data.data));
+        setToken(currentSessionToken());
       } else {
-        // If /me fails with success=false, try a refresh first before giving up
-        const newToken = await attemptTokenRefresh();
-        if (newToken) {
+        const refreshed = await refreshSession();
+        if (refreshed && refreshed !== REFRESH_NETWORK_ERROR) {
           await refreshUser();
-        } else {
-          if (!user) logout();
+        } else if (!refreshed && !user) {
+          clearSession();
         }
       }
     } catch (error: any) {
-      if (error.response?.status === 401) {
-        const newToken = await attemptTokenRefresh();
-        if (newToken) {
-          await refreshUser();
-        } else {
-          if (!user) logout();
-        }
-      } else {
+      // The interceptor clears stored auth only when the server rejected the refresh;
+      // a refresh that failed on the network leaves the session in place.
+      if (error.response?.status === 401 && !authTokens.hasSession()) {
+        clearSession();
+      } else if (error.response?.status !== 401) {
         console.error('Failed to fetch user:', getApiErrorMessage(error), error);
       }
     } finally {

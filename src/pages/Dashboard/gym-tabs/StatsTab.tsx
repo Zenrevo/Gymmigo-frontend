@@ -14,8 +14,7 @@ const StatsTab = () => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const authHeader = { Authorization: `Bearer ${localStorage.getItem('access_token')}` };
-        const res = await api.get(`/gyms/${gymId}/workout-stats`, { headers: authHeader });
+        const res = await api.get(`/gyms/${gymId}/workout-stats`);
         setWorkoutStats(res.data);
       } catch (err) {
         console.error('Failed to fetch stats:', err);

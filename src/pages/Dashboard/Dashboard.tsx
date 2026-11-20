@@ -561,7 +561,7 @@ const UserDashboardView = ({ data, onRefreshData }: { data: any; onRefreshData: 
             ) : (
               <h4 className="font-bold">Personal Training</h4>
             )}
-            <Link to="/app/trainers" className="w-full btn-primary py-3 inline-block text-center mt-2">Find a Trainer</Link>
+            <Link to="/app/discovery?tab=trainers" className="w-full btn-primary py-3 inline-block text-center mt-2">Find a Trainer</Link>
           </div>
         </div>
       )}

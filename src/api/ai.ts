@@ -1,5 +1,5 @@
 import type { AxiosError } from 'axios';
-import api, { API_URL, getApiErrorMessage } from '../utils/api';
+import api, { API_URL, authRequestHeaders, getApiErrorMessage, refreshSession, REFRESH_NETWORK_ERROR } from '../utils/api';
 import type { ChatMedia, ChatMessagePayload, Recommendation, WeeklyScheduleBody } from '../types/ai';
 import type { CreateProgramBody, LogProgramDayBody, Program, ProgramDay, ProgramLists } from '../types/programs';
 import { programErrorText } from '../lib/migo/programLogic';
@@ -48,12 +48,19 @@ async function streamChat(
   messages: ChatMessagePayload[],
   { onText, onMedia }: { onText?: (t: string) => void; onMedia?: (m: ChatMedia) => void },
 ): Promise<ChatResult> {
-  const token = localStorage.getItem('access_token');
-  const response = await fetch(`${API_URL}/ai/chat/stream`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify({ messages }),
-  });
+  const send = () =>
+    fetch(`${API_URL}/ai/chat/stream`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...authRequestHeaders() },
+      body: JSON.stringify({ messages }),
+    });
+  let response = await send();
+  if (response.status === 401) {
+    // fetch bypasses the axios interceptor, so refresh here once.
+    const refreshed = await refreshSession();
+    if (refreshed && refreshed !== REFRESH_NETWORK_ERROR) response = await send();
+  }
   if (!response.ok || !response.body) throw new Error(`Streaming request failed with ${response.status}`);
 
   const reader = response.body.getReader();
