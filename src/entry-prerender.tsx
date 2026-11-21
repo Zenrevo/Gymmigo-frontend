@@ -18,6 +18,7 @@ import MembersPage from './pages/Public/MembersPage';
 import GymOwnersPage from './pages/Public/GymOwnersPage';
 import TrainersPage from './pages/Public/TrainersPage';
 import PricingPage from './pages/Public/PricingPage';
+import { ClubsFairPlayPage, ClubsGcpiPage, ClubsGlossaryPage, ClubsLevelsPage, ClubsOverviewPage, ClubsPassportPage, ClubsPointsPage, ClubsRewardsPage } from './pages/Public/clubs/ClubsPages';
 import ContactUs from './pages/Public/ContactUs';
 import PrivacyPolicy from './pages/Public/PrivacyPolicy';
 import TermsConditions from './pages/Public/TermsConditions';
@@ -29,6 +30,14 @@ const PAGES: Record<string, ComponentType> = {
   '/gym-owners': GymOwnersPage,
   '/trainers': TrainersPage,
   '/pricing': PricingPage,
+  '/clubs': ClubsOverviewPage,
+  '/clubs/levels': ClubsLevelsPage,
+  '/clubs/points': ClubsPointsPage,
+  '/clubs/performance-index': ClubsGcpiPage,
+  '/clubs/fair-play': ClubsFairPlayPage,
+  '/clubs/rewards-and-coins': ClubsRewardsPage,
+  '/clubs/migo-passport': ClubsPassportPage,
+  '/clubs/glossary': ClubsGlossaryPage,
   '/contact': ContactUs,
   '/privacy': PrivacyPolicy,
   '/terms': TermsConditions,

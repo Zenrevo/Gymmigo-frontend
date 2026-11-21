@@ -13,6 +13,7 @@ import { EditAll } from '../EditAll';
 import { RecentChanges } from '../RecentChanges';
 import { AiPanel, TrainerPanel, type TrainerBlock } from './MemberPanels';
 import { ActivityList } from './ApiActivity';
+import { ClubsMemberPanel } from './ClubsPanels';
 
 type Row = Record<string, unknown>;
 type U360 = {
@@ -32,7 +33,7 @@ type U360 = {
   social: { following: number | null; followers: number | null };
   footprint: { table: string; column: string; group: string; count: number; last_at: string | null }[];
 };
-type Tab = 'overview' | 'location' | 'fitness' | 'money' | 'trainer' | 'ai' | 'activity' | 'all';
+type Tab = 'overview' | 'location' | 'fitness' | 'money' | 'trainer' | 'ai' | 'clubs' | 'activity' | 'all';
 
 const ago = (iso?: string | null) => {
   if (!iso) return 'never';
@@ -93,7 +94,7 @@ export default function User360() {
       <SegmentedControl aria-label="Section" value={tab} onChange={setTab} className="mb-4" options={[
         { value: 'overview', label: 'Overview' }, { value: 'location', label: 'Location' }, { value: 'fitness', label: 'Fitness' },
         { value: 'money', label: 'Gyms & money' }, ...(d.trainer ? [{ value: 'trainer' as Tab, label: (d.user.roles as string[]).includes('trainer') ? 'Trainer' : 'Trainer (role removed)' }] : []),
-        { value: 'ai', label: 'Migo AI' }, ...(can('audit.view') ? [{ value: 'activity' as Tab, label: 'API activity' }] : []), { value: 'all', label: 'All data' },
+        { value: 'ai', label: 'Migo AI' }, ...(can('clubs.manage') ? [{ value: 'clubs' as Tab, label: 'Clubs' }] : []), ...(can('audit.view') ? [{ value: 'activity' as Tab, label: 'API activity' }] : []), { value: 'all', label: 'All data' },
       ]} />
 
       {tab === 'overview' ? (
@@ -275,6 +276,7 @@ export default function User360() {
           memorySummary: (d.fitness_profile?.ai_memory_summary as string | null) ?? null, stats: d.ai }} />
       ) : null}
 
+      {tab === 'clubs' ? <ClubsMemberPanel uid={id!} /> : null}
       {tab === 'activity' ? <ActivityList actorId={id!} compact /> : null}
 
       {tab === 'all' ? (

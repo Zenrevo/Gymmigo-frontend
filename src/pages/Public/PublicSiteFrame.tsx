@@ -20,7 +20,7 @@ export type PublicActions = {
 };
 
 type FrameProps = {
-  active?: 'home' | 'members' | 'owners' | 'trainers' | 'pricing' | 'contact' | 'legal';
+  active?: 'home' | 'members' | 'owners' | 'trainers' | 'clubs' | 'pricing' | 'contact' | 'legal';
   children: (actions: PublicActions) => ReactNode;
 };
 
@@ -28,6 +28,7 @@ const NAV: Array<[string, string]> = [
   ['Members', '/members'],
   ['Gym owners', '/gym-owners'],
   ['Trainers', '/trainers'],
+  ['Clubs', '/clubs'],
   ['Pricing', '/pricing'],
 ];
 
@@ -172,6 +173,7 @@ export function PublicSiteFrame({ children }: FrameProps) {
               ['For members', '/members'],
               ['For gym owners', '/gym-owners'],
               ['For trainers', '/trainers'],
+              ['Gymmigo Clubs', '/clubs'],
               ['Pricing', '/pricing'],
             ]}
           />

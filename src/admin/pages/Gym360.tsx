@@ -11,6 +11,8 @@ import { ActionButton } from '../ActionSheet';
 import { EditAll } from '../EditAll';
 import { RecentChanges } from '../RecentChanges';
 import { FacilitiesPanel, ItemsSection } from './GymPanels';
+import { ClubsGymPanel } from './ClubsPanels';
+import { useAdmin } from '../useAdmin';
 
 type Row = Record<string, unknown>;
 type G360 = {
@@ -23,7 +25,7 @@ type G360 = {
   addresses: Row[]; amenities: Row[]; facilities: Row[]; equipment: Row[]; addons: Row[];
   footprint: { table: string; column: string; group: string; count: number; last_at: string | null }[];
 };
-type Tab = 'overview' | 'members' | 'activity' | 'money' | 'facilities' | 'all';
+type Tab = 'overview' | 'members' | 'activity' | 'money' | 'facilities' | 'clubs' | 'all';
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const show = (v: unknown) => (v == null || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
@@ -31,6 +33,7 @@ export default function Gym360() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('overview');
+  const { can } = useAdmin();
   const [memberFilter, setMemberFilter] = useState('');
   const q = useQuery({ queryKey: ['admin', 'gym360', id], queryFn: () => adminGet<G360>(`/data/gyms/${id}`) });
   const d = q.data;
@@ -72,7 +75,7 @@ export default function Gym360() {
 
       <SegmentedControl aria-label="Section" value={tab} onChange={setTab} className="mb-4" options={[
         { value: 'overview', label: 'Overview' }, { value: 'members', label: `Members (${d.members.length})` }, { value: 'activity', label: 'Activity' },
-        { value: 'money', label: 'Money & plans' }, { value: 'facilities', label: 'Equipment & facilities' }, { value: 'all', label: 'All data' },
+        { value: 'money', label: 'Money & plans' }, { value: 'facilities', label: 'Equipment & facilities' }, ...(can('clubs.manage') ? [{ value: 'clubs' as Tab, label: 'Clubs' }] : []), { value: 'all', label: 'All data' },
       ]} />
 
       {tab === 'overview' ? (
@@ -205,6 +208,8 @@ export default function Gym360() {
       ) : null}
 
       {tab === 'facilities' ? <FacilitiesPanel gymId={id!} amenities={d.amenities} facilities={d.facilities} equipment={d.equipment} /> : null}
+
+      {tab === 'clubs' ? <ClubsGymPanel gymId={id!} /> : null}
 
       {tab === 'all' ? (
         <DataTable rows={d.footprint} rowKey={f => `${f.table}.${f.column}`} onRowClick={f => navigate(`/admin/data/${f.table}?f=${encodeURIComponent(JSON.stringify([{ col: f.column, op: 'eq', value: id }]))}`)} columns={[

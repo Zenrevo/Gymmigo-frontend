@@ -20,6 +20,7 @@ import MembersPage from './pages/Public/MembersPage';
 import GymOwnersPage from './pages/Public/GymOwnersPage';
 import TrainersPage from './pages/Public/TrainersPage';
 import PricingPage from './pages/Public/PricingPage';
+import { ClubsFairPlayPage, ClubsGcpiPage, ClubsGlossaryPage, ClubsLevelsPage, ClubsOverviewPage, ClubsPassportPage, ClubsPointsPage, ClubsRewardsPage } from './pages/Public/clubs/ClubsPages';
 import { activityRoutes } from './routes/activityRoutes';
 import { migoRoutes } from './routes/migoRoutes';
 import { runTogetherRoutes } from './routes/runTogetherRoutes';
@@ -45,6 +46,7 @@ const WalletTransactionsPage = lazy(() => import('./pages/Profile/WalletTransact
 const WatchGuidePage = lazy(() => import('./pages/Devices/WatchGuidePage'));
 const MyMembershipsPage = lazy(() => import('./pages/Memberships/MyMembershipsPage'));
 const GymmigoClubsPage = lazy(() => import('./pages/Clubs/GymmigoClubsPage'));
+const ClubsV2Page = lazy(() => import('./pages/Clubs/ClubsV2Page'));
 const AddGymPage = lazy(() => import('./pages/Dashboard/AddGymPage'));
 const GymManageDashboard = lazy(() => import('./pages/Dashboard/GymManageDashboard'));
 const OverviewTab = lazy(() => import('./pages/Dashboard/gym-tabs/OverviewTab'));
@@ -110,6 +112,14 @@ const AppRoutes = () => (
     <Route path="/gym-owners" element={<GymOwnersPage />} />
     <Route path="/trainers" element={<TrainersPage />} />
     <Route path="/pricing" element={<PricingPage />} />
+    <Route path="/clubs" element={<ClubsOverviewPage />} />
+    <Route path="/clubs/levels" element={<ClubsLevelsPage />} />
+    <Route path="/clubs/points" element={<ClubsPointsPage />} />
+    <Route path="/clubs/performance-index" element={<ClubsGcpiPage />} />
+    <Route path="/clubs/fair-play" element={<ClubsFairPlayPage />} />
+    <Route path="/clubs/rewards-and-coins" element={<ClubsRewardsPage />} />
+    <Route path="/clubs/migo-passport" element={<ClubsPassportPage />} />
+    <Route path="/clubs/glossary" element={<ClubsGlossaryPage />} />
     <Route path="/fitcard/:inviteCode" element={<PublicFitCard />} />
     <Route path="/fitness-card/:cardCode" element={<PublicFitCard />} />
 
@@ -131,7 +141,8 @@ const AppRoutes = () => (
       <Route path="devices" element={<WatchGuidePage />} />
       <Route path="memberships" element={<MyMembershipsPage />} />
       <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
-      <Route path="clubs" element={<GymmigoClubsPage />} />
+      <Route path="clubs" element={<ClubsV2Page />} />
+      <Route path="clubs/badges" element={<GymmigoClubsPage />} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
       {activityRoutes}
