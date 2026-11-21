@@ -15,6 +15,7 @@ import ClubsTimelineReviewStep from './clubs/ClubsTimelineReviewStep';
 import ClubsPublishStep from './clubs/ClubsPublishStep';
 import ClubTierEditModal from './clubs/ClubTierEditModal';
 import ClubsOperationsPanel from './clubs/ClubsOperationsPanel';
+import OwnerClubsV2 from './clubs/OwnerClubsV2';
 import { clubToPublishPayload, normalizeClubList } from './clubs/clubsOwnerUtils';
 
 type WizardStep = 1 | 2 | 3;
@@ -282,6 +283,7 @@ const ClubsTab = () => {
 
   return (
     <div className="space-y-8">
+      {gymId ? <OwnerClubsV2 gymId={gymId} /> : null}
       <section className="rounded-gm-xl border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.16),rgba(255,255,255,0.035)_45%,rgba(34,197,94,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">

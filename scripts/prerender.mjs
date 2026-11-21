@@ -4,7 +4,7 @@
 //   dist/404.html        → not-found page, served with a real 404 status
 //   dist/app.html        → the empty SPA shell for /app, /login, onboarding… (noindex)
 //   dist/robots.txt, dist/sitemap.xml
-import { readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -32,6 +32,7 @@ for (const path of pages) {
     .replace(BODY, `<!--app-html-->${html}<!--/app-html-->`)
     .replace('<html lang="en">', '<html lang="en-IN">');
   const file = path === '/' ? 'index.html' : `${path.slice(1)}.html`;
+  mkdirSync(dirname(resolve(dist, file)), { recursive: true });
   writeFileSync(resolve(dist, file), out);
   console.log(`prerendered ${path.padEnd(12)} → dist/${file} (${(out.length / 1024).toFixed(1)} kB)`);
 }

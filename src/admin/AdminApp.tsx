@@ -2,7 +2,7 @@ import { lazy, Suspense, useState, type ReactNode } from 'react';
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import {
   Activity, BadgeCheck, Banknote, Bot, Database, Wallet, CalendarCheck, ClipboardList, Dumbbell, Flag, LayoutDashboard, LogOut, Menu, MessageSquareWarning,
-  Radio, Repeat, ScrollText, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
+  Radio, Repeat, ScrollText, Trophy, ShieldCheck, Ticket, UserCog, Users, X, type LucideIcon,
 } from 'lucide-react';
 import BrandLogo from '../components/BrandLogo';
 import PageLoader from '../components/PageLoader';
@@ -32,6 +32,7 @@ const User360 = lazy(() => import('./pages/User360'));
 const Gym360 = lazy(() => import('./pages/Gym360'));
 const Admins = lazy(() => import('./pages/Admins'));
 const ApiActivity = lazy(() => import('./pages/ApiActivity'));
+const ClubTemplate = lazy(() => import('./pages/ClubTemplate'));
 const Account = lazy(() => import('./pages/Account'));
 
 type NavItem = { to: string; label: string; icon: LucideIcon; perm: string; element: ReactNode; group: string };
@@ -48,6 +49,7 @@ const NAV: NavItem[] = [
   { to: 'money', label: 'Money', icon: Wallet, perm: 'payments.view', element: <Money />, group: 'Business' },
   { to: 'payments', label: 'Cash payments', icon: Banknote, perm: 'payments.view', element: <Payments />, group: 'Business' },
   { to: 'reviews', label: 'Reviews', icon: MessageSquareWarning, perm: 'reviews.moderate', element: <Reviews />, group: 'Trust & safety' },
+  { to: 'club-template', label: 'Club template', icon: Trophy, perm: 'clubs.manage', element: <ClubTemplate />, group: 'Trust & safety' },
   { to: 'club-transfers', label: 'Club transfers', icon: Repeat, perm: 'clubs.manage', element: <ClubTransfers />, group: 'Trust & safety' },
   { to: 'data', label: 'Data explorer', icon: Database, perm: 'data.explore', element: <DataExplorer />, group: 'Control' },
   { to: 'ai', label: 'AI agents', icon: Bot, perm: 'ai.view', element: <AiAgents />, group: 'Control' },
