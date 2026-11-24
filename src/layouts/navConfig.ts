@@ -25,6 +25,9 @@ import {
   Zap,
   type LucideIcon,
   Wifi,
+  Wallet,
+  ShoppingCart,
+  Bell,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -123,11 +126,15 @@ export function gymNav(gymId: string): NavItem[] {
   return [
     { key: 'overview', label: 'Dashboard', to: base, icon: Home, exact: true },
     l('members', 'Members', Users),
+    l('billing', 'Billing & dues', Wallet),
+    l('pos', 'Point of sale', ShoppingCart),
+    l('finance', 'Finance', IndianRupee),
+    l('reminders', 'Reminders', Bell),
+    l('analytics', 'Analytics', BarChart3),
+    l('trainers', 'Trainers & PT', Dumbbell),
+    l('clubs', 'Clubs', Trophy),
     l('plans', 'Plans', Tags),
     l('schedule', 'Schedule', CalendarDays),
-    l('finance', 'Finance', IndianRupee),
-    l('stats', 'Stats', BarChart3),
-    l('clubs', 'Clubs', Trophy),
     l('leads', 'Leads', UserPlus),
     l('team', 'Team', Shield),
     l('reviews', 'Reviews', Star),

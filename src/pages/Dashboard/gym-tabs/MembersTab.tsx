@@ -2,7 +2,7 @@ import { ConfirmDialog, Sheet } from '../../../components/kit';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api, { getApiErrorMessage } from '../../../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
@@ -595,6 +595,10 @@ const MembersTab = () => {
             </div>
 
             <div className="flex gap-2">
+               <Link to={`/app/gym-owner/gyms/${gymId}/members/${selectedMember.user_id}`}
+                 className="flex items-center gap-2 rounded-xl border border-accent-border bg-accent-soft px-4 py-2 text-xs font-bold uppercase tracking-widest text-accent-text hover:bg-accent hover:text-on-accent">
+                 Full analytics
+               </Link>
                {selectedMember.active_status === 'active' && !selectedMember.is_currently_checked_in && (
                  <button onClick={() => handleCheckIn(selectedMember.user_id, selectedMember.user_name)} disabled={actionLoading === selectedMember.user_id}
                    className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 py-2 px-5 text-sm flex items-center gap-2 rounded-xl bg-accent-soft hover:bg-accent/30 text-accent-text border border-accent-border hover:-translate-y-0.5 transition-all font-bold">

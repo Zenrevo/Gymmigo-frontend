@@ -284,6 +284,9 @@ const ClubsTab = () => {
   return (
     <div className="space-y-8">
       {gymId ? <OwnerClubsV2 gymId={gymId} /> : null}
+      <details className="group rounded-gm-xl border border-border bg-surface p-4">
+        <summary className="cursor-pointer select-none font-semibold text-ink">Badge journey (earlier 8-tier badge setup)</summary>
+        <div className="mt-6 space-y-8">
       <section className="rounded-gm-xl border border-border bg-[linear-gradient(135deg,rgba(241,130,44,0.16),rgba(255,255,255,0.035)_45%,rgba(34,197,94,0.10))] p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
@@ -392,6 +395,8 @@ const ClubsTab = () => {
       </section>
 
       {generatingDraft && <GenerationOverlay regenerating={hasDraft || wizardStep === 2} />}
+        </div>
+      </details>
     </div>
   );
 };

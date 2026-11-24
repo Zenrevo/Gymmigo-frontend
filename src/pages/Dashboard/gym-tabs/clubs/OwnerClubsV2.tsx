@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { Button, Card, Text, TextField, useToast } from '../../../../components/kit';
 import { RewardEditor, type RewardRow } from '../../../../components/clubs/RewardEditor';
 import api, { getApiErrorMessage } from '../../../../utils/api';
+import { ownerSuite } from '../../../../api/ownerSuite';
+import ClubBudget from './ClubBudget';
 
 type Summary = {
   members_by_level: { level: number; name: string; members: number }[];
@@ -31,6 +33,15 @@ export default function OwnerClubsV2({ gymId }: { gymId: string }) {
       await refresh();
     } catch (e) {
       throw new Error(getApiErrorMessage(e));
+    }
+  };
+  const remove = async (id: string) => {
+    try {
+      await ownerSuite.deleteReward(gymId, id);
+      toast({ tone: 'success', title: 'Reward removed' });
+      await refresh();
+    } catch (e) {
+      toast({ tone: 'danger', title: 'Could not remove', message: getApiErrorMessage(e) });
     }
   };
   const verify = async () => {
@@ -76,6 +87,7 @@ export default function OwnerClubsV2({ gymId }: { gymId: string }) {
           </Card>
         </div>
       ) : null}
+      <ClubBudget gymId={gymId} usedPct={s?.rewards_this_month.budget_used_pct} onChanged={refresh} />
       <Card>
         <Text variant="subtitle">Honour a claimed reward</Text>
         <div className="mt-2 flex flex-wrap items-end gap-2">
@@ -83,7 +95,7 @@ export default function OwnerClubsV2({ gymId }: { gymId: string }) {
           <Button label="Mark redeemed" loading={busy} disabled={code.trim().length < 4} onClick={verify} />
         </div>
       </Card>
-      <RewardEditor rewards={rewards.data ?? []} onSave={save} />
+      <RewardEditor rewards={rewards.data ?? []} onSave={save} onRemove={remove} />
     </section>
   );
 }

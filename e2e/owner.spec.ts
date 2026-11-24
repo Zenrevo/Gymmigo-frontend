@@ -52,7 +52,8 @@ async function signInAsNewOwner(page: Page) {
   await page.getByRole('button', { name: /Done|Continue/ }).click();
 }
 
-const SECTIONS = ['Members', 'Plans', 'Schedule', 'Finance', 'Stats', 'Clubs', 'Leads', 'Team', 'Reviews', 'Gallery', 'Equipment', 'Amenities', 'Settings'];
+const SECTIONS = ['Members', 'Billing', 'POS', 'Finance', 'Reminders', 'Analytics', 'Trainers', 'Plans', 'Schedule', 'Stats', 'Clubs', 'Leads', 'Team', 'Reviews', 'Gallery', 'Equipment', 'Amenities', 'Settings'];
+const SHOTS = process.env.E2E_SHOTS;
 
 test('a new owner lists a gym, then every manage section renders', async ({ page }) => {
   test.skip(!seedOtp(), 'needs the local e2e database (gymmigo-backend scripts/e2e.sh)');
@@ -86,5 +87,11 @@ test('a new owner lists a gym, then every manage section renders', async ({ page
     await expect(page.getByRole('heading', { name: gymName }), section).toBeVisible();
     await expect(page.getByText('Gym not found'), section).toHaveCount(0);
     await expect(page.getByText(/Something went wrong/i), section).toHaveCount(0);
+    await page.waitForLoadState('networkidle');
+    if (section === 'Clubs') await expect(page.getByText('Monthly reward budget')).toBeVisible();
+    if (SHOTS) await page.screenshot({ path: `${SHOTS}/owner-${section.toLowerCase()}.png`, fullPage: true });
   }
+  // Stats now lives in Analytics.
+  await page.goto(`${base}/stats`);
+  await page.waitForURL(/\/analytics$/);
 });
