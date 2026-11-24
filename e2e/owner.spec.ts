@@ -91,6 +91,15 @@ test('a new owner lists a gym, then every manage section renders', async ({ page
     if (section === 'Clubs') await expect(page.getByText('Monthly reward budget')).toBeVisible();
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/owner-${section.toLowerCase()}.png`, fullPage: true });
   }
+  // Notifications: bell for owners too, and the inbox page with settings.
+  await page.getByRole('button', { name: /^Updates|Notifications/ }).first().click();
+  await expect(page.getByRole('dialog', { name: 'Updates' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.goto('/app/notifications');
+  await expect(page.getByRole('heading', { name: 'Notifications' })).toBeVisible();
+  await expect(page.getByText('What reaches your phone')).toBeVisible();
+  await expect(page.getByText('Payments & purchases')).toBeVisible();
+  if (SHOTS) await page.screenshot({ path: `${SHOTS}/owner-notifications.png`, fullPage: true });
   // Stats now lives in Analytics.
   await page.goto(`${base}/stats`);
   await page.waitForURL(/\/analytics$/);

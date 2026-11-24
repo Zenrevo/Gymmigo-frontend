@@ -289,7 +289,7 @@ export default function MainLayout() {
                 className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-ink transition-colors hover:bg-surface-sunken sm:inline-flex lg:hidden">
                 <Search size={18} aria-hidden />
               </button>
-              <UpdatesMenu enabled={role === 'user'} />
+              <UpdatesMenu enabled={role === 'user'} role={role} />
               <AvatarMenu extraNav={nav.more} onSocial={() => openSocial('feed')} />
             </div>
           </header>

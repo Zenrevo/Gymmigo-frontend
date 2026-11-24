@@ -59,6 +59,7 @@ const GalleryTab = lazy(() => import('./pages/Dashboard/gym-tabs/GalleryTab'));
 const ReviewsTab = lazy(() => import('./pages/Dashboard/gym-tabs/ReviewsTab'));
 const SettingsTab = lazy(() => import('./pages/Dashboard/gym-tabs/SettingsTab'));
 const FinanceTab = lazy(() => import('./pages/Dashboard/gym-tabs/FinanceTab'));
+const NotificationsPage = lazy(() => import('./pages/Notifications/NotificationsPage'));
 const BillingTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/BillingTab'));
 const RemindersTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/RemindersTab'));
 const PosTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/PosTab'));
@@ -147,6 +148,7 @@ const AppRoutes = () => (
       <Route path="memberships" element={<MyMembershipsPage />} />
       <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
       <Route path="clubs" element={<ClubsV2Page />} />
+      <Route path="notifications" element={<NotificationsPage />} />
       <Route path="clubs/badges" element={<GymmigoClubsPage />} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
