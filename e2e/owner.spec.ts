@@ -91,6 +91,39 @@ test('a new owner lists a gym, then every manage section renders', async ({ page
     if (section === 'Clubs') await expect(page.getByText('Monthly reward budget')).toBeVisible();
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/owner-${section.toLowerCase()}.png`, fullPage: true });
   }
+  // Finance: products carry GST/HSN/stock; the invoice builder previews totals like the app.
+  await page.goto(`${base}/finance`);
+  await page.getByRole('button', { name: 'Products', exact: true }).click();
+  await page.getByRole('button', { name: /Create Product/ }).click();
+  const sheet = page.getByRole('dialog');
+  await sheet.getByLabel('Name').fill('Whey 1kg');
+  await sheet.getByLabel('Price').fill('2400');
+  await sheet.getByLabel(/HSN/).fill('2106');
+  await sheet.getByLabel('Opening stock').fill('5');
+  await sheet.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Whey 1kg')).toBeVisible();
+  await expect(page.getByText(/5 in stock/)).toBeVisible();
+  await page.getByRole('button', { name: 'Invoices', exact: true }).click();
+  await page.getByRole('button', { name: /Generate Invoice/ }).click();
+  const inv = page.getByRole('dialog');
+  await inv.getByLabel('Product').selectOption({ index: 1 }); // the only product: Whey 1kg
+  await expect(inv.getByLabel('Description')).toHaveValue('Whey 1kg');
+  await inv.getByLabel('Qty').fill('2');
+  await expect(inv.getByText('Total', { exact: true })).toBeVisible();
+  await expect(inv.getByText('₹4,800').first()).toBeVisible();
+  await expect(inv.getByRole('button', { name: /Create invoice/ })).toBeDisabled(); // no member picked yet
+  await page.waitForTimeout(400);
+  if (SHOTS) await page.screenshot({ path: `${SHOTS}/owner-new-invoice.png`, fullPage: true });
+  await page.keyboard.press('Escape');
+  // Clubs desk: claims list and Gym Coins on a bill.
+  await page.goto(`${base}/clubs`);
+  await expect(page.getByText('Claimed rewards')).toBeVisible();
+  await page.getByRole('button', { name: 'Use Gym Coins on a bill' }).click();
+  await expect(page.getByRole('dialog').getByLabel("Member's phone")).toBeVisible();
+  await page.waitForTimeout(400);
+  if (SHOTS) await page.screenshot({ path: `${SHOTS}/owner-desk-coins.png`, fullPage: true });
+  await page.keyboard.press('Escape');
+
   // Notifications: bell for owners too, and the inbox page with settings.
   await page.getByRole('button', { name: /^Updates|Notifications/ }).first().click();
   await expect(page.getByRole('dialog', { name: 'Updates' })).toBeVisible();

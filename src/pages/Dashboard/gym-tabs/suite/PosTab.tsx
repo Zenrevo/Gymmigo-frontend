@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Minus, Package, Plus, ShoppingCart, X } from 'lucide-react';
-import { Badge, Button, Card, Chip, EmptyState, IconButton, PageHeader, SegmentedControl, Sheet, Skeleton, StatTile, Text, TextField, Toggle, useToast } from '../../../../components/kit';
+import { Badge, Button, Card, Chip, EmptyState, IconButton, PageHeader, SegmentedControl, Sheet, Skeleton, StatTile, Text, TextField, useToast } from '../../../../components/kit';
 import { useGym } from '../../../../context/GymContext';
 import { coinCap, inr, ownerSuite, type Invoice, type PayMethod, type PosMember, type Product, type Totals } from '../../../../api/ownerSuite';
 import { getApiErrorMessage } from '../../../../utils/api';
 import { Row } from './Row';
 import { PAY } from './shared';
+import { ProductSheet } from './ProductSheet';
 
 const digits = (v: string) => v.replace(/\D/g, '');
 
@@ -142,72 +143,19 @@ function Sell({ gymId, products, onSold }: { gymId: string; products: Product[];
 }
 
 function Stock({ gymId, products, onChanged }: { gymId: string; products: Product[]; onChanged: () => void }) {
-  const toast = useToast();
   const [edit, setEdit] = useState<Product | 'new' | null>(null);
-  const [f, setF] = useState({ name: '', price: '', category: 'retail', gst_rate: '', hsn: '', track_stock: true, stock_qty: '', low_stock_at: '' });
-  const [move, setMove] = useState({ qty: '', reason: 'purchase' as 'purchase' | 'adjust' | 'return', minus: false });
-  const [busy, setBusy] = useState(false);
-  const open = (p: Product | 'new') => {
-    setEdit(p);
-    setMove({ qty: '', reason: 'purchase', minus: false });
-    setF(p === 'new' ? { name: '', price: '', category: 'retail', gst_rate: '', hsn: '', track_stock: true, stock_qty: '', low_stock_at: '' }
-      : { name: p.name, price: String(p.price), category: p.category, gst_rate: p.gst_rate != null ? String(p.gst_rate) : '', hsn: p.hsn ?? '', track_stock: p.track_stock, stock_qty: '', low_stock_at: String(p.low_stock_at || '') });
-  };
-  const save = async () => {
-    if (!edit) return;
-    setBusy(true);
-    try {
-      const body: Record<string, unknown> = { name: f.name.trim(), price: Number(f.price), category: f.category, gst_rate: f.gst_rate === '' ? null : Number(f.gst_rate), hsn: f.hsn.trim() || null,
-        track_stock: f.track_stock, low_stock_at: Number(f.low_stock_at) || 0 };
-      if (edit === 'new') body.stock_qty = f.track_stock ? Number(f.stock_qty) || 0 : 0;
-      await ownerSuite.saveProduct(gymId, body, edit === 'new' ? undefined : edit.id);
-      if (edit !== 'new' && Number(move.qty)) await ownerSuite.stock(gymId, edit.id, { delta: move.minus ? -Number(move.qty) : Number(move.qty), reason: move.reason });
-      toast({ tone: 'success', title: 'Saved' });
-      setEdit(null);
-      onChanged();
-    } catch (e) {
-      toast({ tone: 'danger', title: 'Could not save', message: getApiErrorMessage(e) });
-    } finally {
-      setBusy(false);
-    }
-  };
   return (
     <div className="space-y-3">
-      <div className="flex justify-end"><Button size="sm" icon={Plus} onClick={() => open('new')}>Add product</Button></div>
+      <div className="flex justify-end"><Button size="sm" icon={Plus} onClick={() => setEdit('new')}>Add product</Button></div>
       <Card padding="none" className="divide-y divide-line">
         {products.map(p => (
-          <button key={p.id} type="button" onClick={() => open(p)} className="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-surface-sunken">
+          <button key={p.id} type="button" onClick={() => setEdit(p)} className="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-surface-sunken">
             <div className="min-w-0 flex-1"><Text variant="bodyStrong">{p.name}</Text><Text variant="caption" tone="subtle">{inr(p.price)}{p.gst_rate != null ? ` · GST ${p.gst_rate}%` : ''}{p.hsn ? ` · HSN ${p.hsn}` : ''}</Text></div>
             {p.track_stock ? <Badge tone={p.low_stock ? 'danger' : 'neutral'} label={`${p.stock_qty} in stock`} /> : <Text variant="caption" tone="subtle">Not tracked</Text>}
           </button>
         ))}
       </Card>
-      {edit ? (
-        <Sheet open onClose={() => setEdit(null)} eyebrow="Product" title={edit === 'new' ? 'New product' : edit.name} footer={<Button fullWidth loading={busy} disabled={!f.name.trim() || !Number(f.price)} onClick={save}>Save</Button>}>
-          <div className="space-y-4">
-            <TextField label="Name" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
-            <div className="grid grid-cols-2 gap-3">
-              <TextField label="Price" prefix="₹" inputMode="numeric" value={f.price} onChange={e => setF({ ...f, price: digits(e.target.value) })} />
-              <TextField label="GST % (if different)" optional inputMode="numeric" value={f.gst_rate} onChange={e => setF({ ...f, gst_rate: digits(e.target.value).slice(0, 2) })} />
-              <TextField label="HSN / SAC" optional value={f.hsn} onChange={e => setF({ ...f, hsn: e.target.value })} />
-              <TextField label="Low-stock alert at" optional inputMode="numeric" value={f.low_stock_at} onChange={e => setF({ ...f, low_stock_at: digits(e.target.value) })} />
-            </div>
-            <div className="flex gap-2">{['retail', 'service'].map(c => <Chip key={c} label={c === 'retail' ? 'Retail' : 'Service'} selected={f.category === c} onClick={() => setF({ ...f, category: c })} />)}</div>
-            <Toggle checked={f.track_stock} onChange={v => setF({ ...f, track_stock: v })} label="Track stock" />
-            {f.track_stock && edit === 'new' ? <TextField label="Opening stock" inputMode="numeric" value={f.stock_qty} onChange={e => setF({ ...f, stock_qty: digits(e.target.value) })} /> : null}
-            {f.track_stock && edit !== 'new' ? (
-              <Card variant="sunken" padding="md" className="space-y-3">
-                <Text variant="footnote" tone="muted">{edit.stock_qty} in stock now</Text>
-                <div className="flex flex-wrap gap-2">
-                  {([['purchase', 'Received'], ['adjust', 'Correction'], ['return', 'Returned']] as const).map(([v, l]) => <Chip key={v} label={l} selected={move.reason === v} onClick={() => setMove({ ...move, reason: v, minus: false })} />)}
-                  {move.reason === 'adjust' ? <Chip label={move.minus ? 'Remove' : 'Add'} selected onClick={() => setMove({ ...move, minus: !move.minus })} /> : null}
-                </div>
-                <TextField label="Quantity" optional inputMode="numeric" value={move.qty} onChange={e => setMove({ ...move, qty: digits(e.target.value) })} />
-              </Card>
-            ) : null}
-          </div>
-        </Sheet>
-      ) : null}
+      {edit ? <ProductSheet gymId={gymId} product={edit} onClose={() => setEdit(null)} onSaved={onChanged} /> : null}
     </div>
   );
 }
