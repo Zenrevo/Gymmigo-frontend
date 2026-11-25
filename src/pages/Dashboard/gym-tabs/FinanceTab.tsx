@@ -3,14 +3,18 @@ import { useGym } from '../../../context/GymContext';
 import { useNotification } from '../../../context/NotificationContext';
 import api from '../../../utils/api';
 import { motion } from 'framer-motion';
-import { Sheet } from '../../../components/kit';
+import { Sheet, confirmDialog } from '../../../components/kit';
 import { 
   TrendingUp, TrendingDown, DollarSign, Plus, Download, 
-  Mail, FileText, Loader2, ArrowUpRight, ArrowDownRight, User,
-  Search, X, CheckCircle2, XCircle
+  Mail, FileText, Loader2, ArrowUpRight, ArrowDownRight,
+  Search, XCircle, Pencil, Trash2
 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import clsx from 'clsx';
+import { inr, type Product } from '../../../api/ownerSuite';
+import { InvoiceSheet } from './suite/BillingTab';
+import { NewInvoiceSheet } from './suite/NewInvoiceSheet';
+import { ProductSheet } from './suite/ProductSheet';
 
 interface Invoice {
   id: string;
@@ -18,8 +22,10 @@ interface Invoice {
   member_id: string;
   member_name?: string;
   amount: number;
+  total_amount?: number;
+  balance_due?: number;
   status: string;
-  items: any[];
+  items: unknown[];
   notes: string | null;
   created_at: string;
 }
@@ -36,14 +42,6 @@ interface Summary {
   revenue: number;
   expenses: number;
   profit: number;
-}
-
-interface MemberSearchResult {
-  user_id: string;
-  user_name: string;
-  user_phone: string;
-  avatar_url?: string;
-  membership_id: string;
 }
 
 const FinanceTab = () => {
@@ -64,27 +62,16 @@ const FinanceTab = () => {
   const itemsPerPage = 8;
 
   // Modal states
-  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // Forms
-  const [invoiceForm, setInvoiceForm] = useState({
-    member_id: '',
-    items: [{ id: `item-${Date.now()}-${Math.random()}`, description: '', quantity: 1, rate: 0, amount: 0 }],
-    notes: ''
-  });
-
-  // Member Search State
-  const [memberSearchQuery, setMemberSearchQuery] = useState('');
-  const [memberSearchResults, setMemberSearchResults] = useState<MemberSearchResult[]>([]);
-  const [isSearchingMembers, setIsSearchingMembers] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<MemberSearchResult | null>(null);
+  // Sheets (same builders as the app)
+  const [newInvoice, setNewInvoice] = useState<null | { preset: { user_id: string; user_name: string | null; user_phone: string | null } | null }>(null);
+  const [openInvoice, setOpenInvoice] = useState<string | null>(null);
+  const [editProduct, setEditProduct] = useState<Product | 'new' | null>(null);
 
   // Product State
-  const [products, setProducts] = useState<any[]>([]);
-  const [isAddingProduct, setIsAddingProduct] = useState(false);
-  const [newProduct, setNewProduct] = useState({ name: '', price: 0, category: 'service' });
+  const [products, setProducts] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
     try {
@@ -97,63 +84,35 @@ const FinanceTab = () => {
 
   useEffect(() => {
     if (gymId) fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gymId]);
 
-  const searchMembers = async (query: string) => {
-    if (!query || query.length < 2) {
-      setMemberSearchResults([]);
-      return;
-    }
-    setIsSearchingMembers(true);
-    try {
-      const response = await api.get(`/gym-owner/gyms/${gymId}/members`, {
-        params: { search: query, page_size: 5 }
-      });
-      setMemberSearchResults(response.data.data.members || []);
-    } catch (err) {
-      console.error('Search failed', err);
-    } finally {
-      setIsSearchingMembers(false);
-    }
-  };
-
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (memberSearchQuery) searchMembers(memberSearchQuery);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [memberSearchQuery]);
-
-  // Handle incoming memberId from state
+  // Handle incoming memberId from state (e.g. "Create invoice" on a member)
   useEffect(() => {
     if (location.state?.memberId) {
       const { memberId, memberName, memberPhone } = location.state;
-      setInvoiceForm(prev => ({ 
-        ...prev, 
-        member_id: memberId,
-        items: [{ id: `item-${Date.now()}-${Math.random()}`, description: '', quantity: 1, rate: 0, amount: 0 }] 
-      }));
-      if (memberName && memberPhone) {
-        setSelectedMember({
-          user_id: memberId,
-          user_name: memberName,
-          user_phone: memberPhone,
-          membership_id: '' // Not needed for the selection UI
-        });
-      }
-      setShowInvoiceModal(true);
-      // Clear state so it doesn't reopen on refresh
+      setNewInvoice({ preset: { user_id: memberId, user_name: memberName ?? null, user_phone: memberPhone ?? null } });
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-  
-  const [expenseForm, setExpenseForm] = useState({
-    category: 'rent',
-    amount: '',
-    description: '',
-    expense_date: new Date().toISOString().split('T')[0]
-  });
+
+  const [expenseForm, setExpenseForm] = useState({ category: 'rent', amount: '', description: '', expense_date: new Date().toISOString().split('T')[0] });
+  const [editingExpense, setEditingExpense] = useState<string | null>(null);
+  const openExpense = (exp?: Expense) => {
+    setEditingExpense(exp?.id ?? null);
+    setExpenseForm(exp ? { category: exp.category, amount: String(exp.amount), description: exp.description ?? '', expense_date: exp.expense_date.slice(0, 10) } : { category: 'rent', amount: '', description: '', expense_date: new Date().toISOString().split('T')[0] });
+    setShowExpenseModal(true);
+  };
+  const deleteExpense = async (exp: Expense) => {
+    if (!(await confirmDialog({ title: 'Delete this expense?', message: `${exp.category} · ₹${exp.amount.toLocaleString()}`, tone: 'danger', confirmLabel: 'Delete' }))) return;
+    try {
+      await api.delete(`/gym-owner/gyms/${gymId}/expenses/${exp.id}`);
+      showNotification('Expense deleted', 'success');
+      fetchData();
+    } catch {
+      showNotification('Failed to delete expense', 'error');
+    }
+  };
 
   const fetchData = useCallback(async () => {
     if (!gymId) return;
@@ -172,45 +131,23 @@ const FinanceTab = () => {
     } finally {
       setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gymId, selectedMonth]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const handleCreateInvoice = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!invoiceForm.member_id) return showNotification('Please select a member', 'error');
-    
-    setActionLoading('create_invoice');
-    try {
-      const total = invoiceForm.items.reduce((sum, item) => sum + (item.rate * item.quantity), 0);
-      const itemsClean = invoiceForm.items.map(({ id, ...rest }) => rest);
-      await api.post(`/gym-owner/gyms/${gymId}/invoices`, {
-        ...invoiceForm,
-        amount: total,
-        items: itemsClean
-      });
-      showNotification('Invoice created successfully', 'success');
-      setShowInvoiceModal(false);
-      fetchData();
-    } catch (err) {
-      showNotification('Failed to create invoice', 'error');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   const handleLogExpense = async (e: React.FormEvent) => {
     e.preventDefault();
     setActionLoading('log_expense');
     try {
-      await api.post(`/gym-owner/gyms/${gymId}/expenses`, expenseForm);
-      showNotification('Expense logged successfully', 'success');
+      const body = { ...expenseForm, amount: Number(expenseForm.amount) || 0 };
+      if (editingExpense) await api.patch(`/gym-owner/gyms/${gymId}/expenses/${editingExpense}`, body);
+      else await api.post(`/gym-owner/gyms/${gymId}/expenses`, body);
+      showNotification(editingExpense ? 'Expense updated' : 'Expense logged successfully', 'success');
       setShowExpenseModal(false);
       fetchData();
-    } catch (err) {
+    } catch {
       showNotification('Failed to log expense', 'error');
     } finally {
       setActionLoading(null);
@@ -222,7 +159,7 @@ const FinanceTab = () => {
     try {
       await api.post(`/gym-owner/gyms/${gymId}/invoices/${invoiceId}/send-email`);
       showNotification('Invoice sent to member email', 'success');
-    } catch (err) {
+    } catch {
       showNotification('Failed to send email', 'error');
     } finally {
       setActionLoading(null);
@@ -237,7 +174,7 @@ const FinanceTab = () => {
       });
       showNotification(`Invoice marked as ${status}`, 'success');
       fetchData();
-    } catch (err) {
+    } catch {
       showNotification('Failed to update status', 'error');
     } finally {
       setActionLoading(null);
@@ -257,26 +194,8 @@ const FinanceTab = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-    } catch (err) {
+    } catch {
       showNotification('Failed to download invoice', 'error');
-    }
-  };
-
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProduct.name || newProduct.price <= 0) return showNotification('Please enter valid product details', 'error');
-    
-    setActionLoading('create_product');
-    try {
-      await api.post(`/gym-owner/gyms/${gymId}/products`, newProduct);
-      showNotification('Product created successfully', 'success');
-      setIsAddingProduct(false);
-      setNewProduct({ name: '', price: 0, category: 'service' });
-      fetchProducts();
-    } catch (err) {
-      showNotification('Failed to create product', 'error');
-    } finally {
-      setActionLoading(null);
     }
   };
 
@@ -411,21 +330,21 @@ const FinanceTab = () => {
           <div className="flex gap-2">
             {activeSubTab === 'invoices' ? (
               <button 
-                onClick={() => setShowInvoiceModal(true)}
+                onClick={() => setNewInvoice({ preset: null })}
                 className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 px-4 py-2 flex items-center gap-2 text-xs"
               >
                 <Plus size={16} /> Generate Invoice
               </button>
             ) : activeSubTab === 'expenses' ? (
               <button 
-                onClick={() => setShowExpenseModal(true)}
+                onClick={() => openExpense()}
                 className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 px-4 py-2 flex items-center gap-2 text-xs"
               >
                 <Plus size={16} /> Log Expense
               </button>
             ) : (
               <button 
-                onClick={() => setIsAddingProduct(true)}
+                onClick={() => setEditProduct('new')}
                 className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 px-4 py-2 flex items-center gap-2 text-xs"
               >
                 <Plus size={16} /> Create Product
@@ -476,18 +395,21 @@ const FinanceTab = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <FileText size={16} className="text-ink-subtle" />
-                          <span className="font-mono font-bold text-sm">{inv.invoice_number}</span>
+                          <button type="button" onClick={() => setOpenInvoice(inv.id)} className="font-mono font-bold text-sm hover:underline">{inv.invoice_number}</button>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm font-bold truncate max-w-[150px]">
                         {inv.member_name || "Valued Member"}
                       </td>
-                      <td className="px-6 py-4 text-sm font-bold">₹{inv.amount.toLocaleString()}</td>
+                      <td className="px-6 py-4 text-sm font-bold">
+                        {inr(inv.total_amount ?? inv.amount)}
+                        {inv.balance_due && inv.status !== 'paid' && inv.status !== 'canceled' ? <span className="block text-[11px] font-semibold text-danger">{inr(inv.balance_due)} due</span> : null}
+                      </td>
                       <td className="px-6 py-4">
                         <span className={clsx(
                           "px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
                           inv.status === 'paid' ? "bg-success-soft text-success" : 
-                          inv.status === 'canceled' ? "bg-danger-soft text-danger" : 
+                          inv.status === 'canceled' || inv.status === 'overdue' ? "bg-danger-soft text-danger" : 
                           "bg-warning-soft text-warning"
                         )}>
                           {inv.status}
@@ -498,19 +420,14 @@ const FinanceTab = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          {inv.status === 'pending' && (
+                          {['pending', 'partial', 'overdue'].includes(inv.status) && (
                             <>
                               <button 
-                                onClick={() => handleStatusUpdate(inv.id, 'paid')}
-                                disabled={!!actionLoading}
-                                className="p-2 hover:bg-success-soft rounded-lg text-ink-muted hover:text-success transition-colors"
-                                title="Mark as Paid"
+                                onClick={() => setOpenInvoice(inv.id)}
+                                className="px-3 py-1.5 rounded-lg bg-success-soft text-success text-xs font-bold hover:opacity-80 transition-opacity"
+                                title="Take a full or part payment"
                               >
-                                {actionLoading === `status_${inv.id}_paid` ? (
-                                  <Loader2 size={16} className="animate-spin" />
-                                ) : (
-                                  <CheckCircle2 size={16} />
-                                )}
+                                Take payment
                               </button>
                               <button 
                                 onClick={() => handleStatusUpdate(inv.id, 'canceled')}
@@ -594,7 +511,8 @@ const FinanceTab = () => {
                   key={p.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="p-5 bg-surface-raised border border-border rounded-gm-lg hover:border-accent-border transition-all group"
+                  onClick={() => setEditProduct(p)}
+                  className="p-5 bg-surface-raised border border-border rounded-gm-lg hover:border-accent-border transition-all group cursor-pointer"
                 >
                   <div className="flex justify-between items-start mb-3">
                     <span className="px-2 py-0.5 bg-accent-soft text-accent-text text-[10px] font-bold uppercase tracking-widest rounded">
@@ -603,7 +521,10 @@ const FinanceTab = () => {
                     <p className="text-xl font-bold text-ink">₹{p.price.toLocaleString()}</p>
                   </div>
                   <h4 className="text-sm font-bold text-ink group-hover:text-accent-text transition-colors">{p.name}</h4>
-                  <p className="text-xs text-ink-muted mt-1 line-clamp-2">{p.description || "No description provided."}</p>
+                  <p className="text-xs text-ink-muted mt-1">
+                    {p.gst_rate != null ? `GST ${p.gst_rate}%` : 'Gym GST rate'}{p.hsn ? ` · HSN ${p.hsn}` : ''}
+                    {p.track_stock ? <span className={clsx('ml-1 font-semibold', p.low_stock ? 'text-danger' : 'text-ink-muted')}>· {p.stock_qty} in stock</span> : null}
+                  </p>
                 </motion.div>
               ))}
               {products.length === 0 && (
@@ -621,6 +542,7 @@ const FinanceTab = () => {
                   <th className="px-6 py-4 font-bold">Description</th>
                   <th className="px-6 py-4 font-bold">Amount</th>
                   <th className="px-6 py-4 font-bold">Date</th>
+                  <th className="px-6 py-4 font-bold text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -641,11 +563,17 @@ const FinanceTab = () => {
                       <td className="px-6 py-4 text-xs text-ink-muted uppercase">
                         {new Date(exp.expense_date).toLocaleDateString()}
                       </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button onClick={() => openExpense(exp)} className="p-2 hover:bg-surface-raised rounded-lg text-ink-muted hover:text-ink transition-colors" title="Edit expense"><Pencil size={16} /></button>
+                          <button onClick={() => deleteExpense(exp)} className="p-2 hover:bg-danger-soft rounded-lg text-ink-muted hover:text-danger transition-colors" title="Delete expense"><Trash2 size={16} /></button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="px-6 py-20 text-center">
+                    <td colSpan={5} className="px-6 py-20 text-center">
                       <div className="flex flex-col items-center gap-4 opacity-20">
                         <TrendingDown size={48} />
                         <p className="text-sm uppercase tracking-widest font-bold">No expenses logged yet</p>
@@ -659,231 +587,11 @@ const FinanceTab = () => {
         </div>
       </div>
 
-      {/* Invoice Modal */}
-      <Sheet size="md" 
-        open={showInvoiceModal} 
-        onClose={() => setShowInvoiceModal(false)}
-        title="Generate New Invoice"
-      >
-        <form onSubmit={handleCreateInvoice} className="space-y-6">
-          <div className="space-y-2 relative">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Select Member</label>
-            
-            {!selectedMember ? (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle" size={18} />
-                <input 
-                  type="text"
-                  placeholder="Search by name or contact..."
-                  className="w-full bg-surface-raised border border-border rounded-xl py-3 pl-10 pr-4 focus:border-accent-border outline-none transition-all text-sm"
-                  value={memberSearchQuery}
-                  onChange={(e) => setMemberSearchQuery(e.target.value)}
-                />
-                {isSearchingMembers && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Loader2 size={16} className="text-accent-text animate-spin" />
-                  </div>
-                )}
-
-                {/* Search Results Dropdown */}
-                {memberSearchResults.length > 0 && (
-                  <div className="absolute z-50 left-0 right-0 top-full mt-2 bg-surface border border-border rounded-xl overflow-hidden shadow-2xl">
-                    {memberSearchResults.map((m) => (
-                      <button
-                        key={m.user_id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedMember(m);
-                          setInvoiceForm({...invoiceForm, member_id: m.user_id});
-                          setMemberSearchResults([]);
-                          setMemberSearchQuery('');
-                        }}
-                        className="w-full px-4 py-3 flex items-center justify-between hover:bg-surface-raised transition-colors border-b border-border last:border-0"
-                      >
-                        <div className="text-left">
-                          <p className="text-sm font-bold text-ink">{m.user_name}</p>
-                          <p className="text-[10px] text-ink-muted uppercase tracking-tight">{m.user_phone}</p>
-                        </div>
-                        <CheckCircle2 size={16} className="text-ink-subtle" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center justify-between p-4 bg-accent-soft border border-accent-border rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-accent-soft rounded-lg text-accent-text">
-                    <User size={20} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-ink">{selectedMember.user_name}</p>
-                    <p className="text-[10px] text-accent-text uppercase font-bold tracking-widest">{selectedMember.user_phone}</p>
-                  </div>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    setSelectedMember(null);
-                    setInvoiceForm({...invoiceForm, member_id: ''});
-                  }}
-                  className="p-2 hover:bg-surface-raised rounded-lg text-ink-muted hover:text-ink transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
-          </div>
-
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Invoice Items</label>
-              <button 
-                type="button"
-                onClick={() => setInvoiceForm({...invoiceForm, items: [...invoiceForm.items, { id: `item-${Date.now()}-${Math.random()}`, description: '', quantity: 1, rate: 0, amount: 0 }]})}
-                className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-accent-text hover:text-accent-text transition-colors"
-              >
-                <Plus size={14} />
-                Add Item
-              </button>
-            </div>
-            
-            <div className="space-y-3">
-              {invoiceForm.items.map((item, idx) => (
-                <div key={item.id} className="p-4 bg-surface-raised border border-border rounded-xl space-y-3 relative group">
-                  <div className="grid grid-cols-12 gap-3">
-                    <div className="col-span-12 md:col-span-7">
-                      <div className="relative">
-                        <input 
-                          placeholder="Description (e.g. Monthly Fee)"
-                          className="w-full bg-surface border border-border rounded-lg py-2.5 px-3 text-sm focus:border-accent-border outline-none"
-                          value={item.description}
-                          onChange={(e) => {
-                            const newItems = [...invoiceForm.items];
-                            newItems[idx].description = e.target.value;
-                            setInvoiceForm({...invoiceForm, items: newItems});
-                          }}
-                        />
-                        {/* Product Suggestions */}
-                        {products.length > 0 && !item.description.includes('(') && (
-                          <div className="absolute z-10 left-0 right-0 top-full mt-1 bg-[#181818] border border-border rounded-lg overflow-hidden shadow-xl hidden group-focus-within:block">
-                            {products.filter(p => !item.description || p.name.toLowerCase().includes(item.description.toLowerCase())).map(p => (
-                              <button
-                                key={p.id}
-                                type="button"
-                                onClick={() => {
-                                  const newItems = [...invoiceForm.items];
-                                  newItems[idx].description = p.name;
-                                  newItems[idx].rate = p.price;
-                                  newItems[idx].amount = newItems[idx].quantity * p.price;
-                                  setInvoiceForm({...invoiceForm, items: newItems});
-                                }}
-                                className="w-full px-3 py-2 text-left text-xs hover:bg-accent-soft transition-colors flex justify-between items-center"
-                              >
-                                <span>{p.name}</span>
-                                <span className="text-accent-text font-bold">₹{p.price}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="col-span-4 md:col-span-2">
-                      <input 
-                        type="number"
-                        placeholder="Qty"
-                        className="w-full bg-surface border border-border rounded-lg py-2.5 px-3 text-sm focus:border-accent-border outline-none"
-                        value={item.quantity}
-                        onChange={(e) => {
-                          const newItems = [...invoiceForm.items];
-                          newItems[idx].quantity = Math.max(1, parseInt(e.target.value) || 0);
-                          newItems[idx].amount = newItems[idx].quantity * newItems[idx].rate;
-                          setInvoiceForm({...invoiceForm, items: newItems});
-                        }}
-                      />
-                    </div>
-                    <div className="col-span-8 md:col-span-3">
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle text-sm">₹</span>
-                        <input 
-                          type="number"
-                          placeholder="Rate"
-                          className="w-full bg-surface border border-border rounded-lg py-2.5 pl-7 pr-3 text-sm focus:border-accent-border outline-none"
-                          value={item.rate}
-                          onChange={(e) => {
-                            const newItems = [...invoiceForm.items];
-                            newItems[idx].rate = parseInt(e.target.value) || 0;
-                            newItems[idx].amount = newItems[idx].quantity * newItems[idx].rate;
-                            setInvoiceForm({...invoiceForm, items: newItems});
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {invoiceForm.items.length > 1 && (
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        const newItems = invoiceForm.items.filter((_, i) => i !== idx);
-                        setInvoiceForm({...invoiceForm, items: newItems});
-                      }}
-                      className="absolute -top-2 -right-2 p-1 bg-danger-soft text-danger border border-danger/30 rounded-full hover:bg-danger hover:text-on-accent transition-all opacity-0 group-hover:opacity-100"
-                    >
-                      <X size={12} />
-                    </button>
-                  )}
-                  
-                  <div className="flex justify-end pr-1">
-                    <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-widest">
-                      Sub-total: <span className="text-ink">₹{(item.quantity * item.rate).toLocaleString()}</span>
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-4 bg-accent-soft border border-accent-border rounded-gm-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] text-accent-text font-bold uppercase tracking-widest">Grand Total</p>
-                <p className="text-2xl font-bold text-ink">₹{invoiceForm.items.reduce((sum, item) => sum + (item.quantity * item.rate), 0).toLocaleString()}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-tight">{invoiceForm.items.length} items included</p>
-                <p className="text-[10px] text-ink-subtle uppercase font-bold tracking-tight ">Professional Invoice PDF will be generated</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Notes</label>
-            <textarea 
-              className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent-border outline-none transition-all text-sm min-h-[100px]"
-              placeholder="Any additional info..."
-              value={invoiceForm.notes}
-              onChange={(e) => setInvoiceForm({...invoiceForm, notes: e.target.value})}
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={!!actionLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 font-bold uppercase tracking-widest flex items-center justify-center gap-2"
-          >
-            {actionLoading ? <Loader2 className="animate-spin" /> : <TrendingUp size={20} />}
-            Generate Official Invoice
-          </button>
-        </form>
-      </Sheet>
-
       {/* Expense Modal */}
       <Sheet size="md" 
         open={showExpenseModal} 
         onClose={() => setShowExpenseModal(false)}
-        title="Log Gym Expense"
+        title={editingExpense ? "Edit expense" : "Log Gym Expense"}
       >
         <form onSubmit={handleLogExpense} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -941,73 +649,17 @@ const FinanceTab = () => {
             className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 font-bold uppercase tracking-widest flex items-center justify-center gap-2"
           >
             {actionLoading ? <Loader2 className="animate-spin" /> : <TrendingDown size={20} />}
-            Confirm Expense Entry
+            {editingExpense ? 'Save changes' : 'Confirm Expense Entry'}
           </button>
         </form>
       </Sheet>
 
-      {/* Create Product Modal */}
-      <Sheet size="md"
-        open={isAddingProduct}
-        onClose={() => setIsAddingProduct(false)}
-        title="Create New Product/Service"
-      >
-        <form onSubmit={handleCreateProduct} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Product Name</label>
-              <input 
-                type="text"
-                placeholder="e.g. Personal Training (10 Sessions)"
-                className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent-border outline-none transition-all text-sm"
-                value={newProduct.name}
-                onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                required
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Price (₹)</label>
-                <input 
-                  type="number"
-                  placeholder="0"
-                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent-border outline-none transition-all text-sm"
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({...newProduct, price: parseInt(e.target.value) || 0})}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-ink-muted">Category</label>
-                <select 
-                  className="w-full bg-surface-raised border border-border rounded-xl py-3 px-4 focus:border-accent-border outline-none transition-all text-sm appearance-none"
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                >
-                  <option value="service">Service</option>
-                  <option value="membership">Membership</option>
-                  <option value="supplement">Supplement</option>
-                  <option value="merch">Merchandise</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            disabled={!!actionLoading}
-            className="inline-flex items-center justify-center gap-2 rounded-gm-lg bg-accent px-5 py-3 font-semibold text-on-accent transition-colors hover:bg-accent-pressed disabled:opacity-50 w-full py-4 flex items-center justify-center gap-2"
-          >
-            {actionLoading === 'create_product' ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              <>Create & Save Product</>
-            )}
-          </button>
-        </form>
-      </Sheet>
+      {newInvoice && gymId ? (
+        <NewInvoiceSheet gymId={gymId} preset={newInvoice.preset} onClose={() => setNewInvoice(null)}
+          onCreated={inv => { setNewInvoice(null); fetchData(); if (inv.balance_due) setOpenInvoice(inv.id); }} />
+      ) : null}
+      {openInvoice && gymId ? <InvoiceSheet gymId={gymId} invoiceId={openInvoice} onClose={() => setOpenInvoice(null)} onChanged={fetchData} /> : null}
+      {editProduct && gymId ? <ProductSheet gymId={gymId} product={editProduct} onClose={() => setEditProduct(null)} onSaved={fetchProducts} /> : null}
     </div>
   );
 };

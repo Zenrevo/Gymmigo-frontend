@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { GymSharingCard, TrainerGymInvitations } from '../../components/GymSharing';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
@@ -422,6 +423,19 @@ export default function Profile() {
               <ListItem icon={MapPin} title="Saved addresses" subtitle={home ? [home.address_line1, home.city].filter(Boolean).join(', ') : 'Not set'} onClick={() => setAddrOpen(true)} />
             </Group>
           )}
+
+          {isMember ? (
+            <section>
+              <GroupLabel label="Your gym" />
+              <GymSharingCard />
+            </section>
+          ) : null}
+          {user?.active_role === 'trainer' ? (
+            <section>
+              <GroupLabel label="Gyms" />
+              <TrainerGymInvitations />
+            </section>
+          ) : null}
 
           <section>
             <GroupLabel label="Gym ecosystem role" />

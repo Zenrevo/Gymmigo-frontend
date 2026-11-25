@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, MapPin } from 'lucide-react';
 import { BarChart, Button, Card, ErrorState, SegmentedControl, Skeleton, StatTile, Text } from '../../components/kit';
 import { adminError, adminGet } from '../api';
@@ -32,7 +32,8 @@ const show = (v: unknown) => (v == null || v === '' ? '—' : typeof v === 'obje
 export default function Gym360() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>('overview');
+  const [params] = useSearchParams();
+  const [tab, setTab] = useState<Tab>(() => (params.get('tab') as Tab) || 'overview');
   const { can } = useAdmin();
   const [memberFilter, setMemberFilter] = useState('');
   const q = useQuery({ queryKey: ['admin', 'gym360', id], queryFn: () => adminGet<G360>(`/data/gyms/${id}`) });

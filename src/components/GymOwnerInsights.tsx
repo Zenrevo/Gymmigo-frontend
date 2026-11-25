@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, MessageCircle, BellRing, Star, Zap, UserX, Clock } from 'lucide-react';
 import { clsx } from 'clsx';
-import api from '../utils/api';
+import api, { getApiErrorMessage } from '../utils/api';
+import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 
 export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
@@ -36,9 +37,20 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
     fetchAnalytics();
   }, [selectedGymId]);
 
-  const handleAction = (action: string) => {
-    showNotification(`${action} executed successfully.`, 'success');
+  const navigate = useNavigate();
+  /** "Come back" nudge: a real push (and WhatsApp when set up) through the gym's reminders, logged there. */
+  const nudge = async (member: { user_id?: string; name?: string }) => {
+    if (!member.user_id || !selectedGymId) return;
+    try {
+      await api.post(`/gym-owner/gyms/${selectedGymId}/members/${member.user_id}/remind`, {
+        kind: 'custom', message: `Hi ${member.name?.split(' ')[0] ?? 'there'}, we miss you at the gym! Drop in this week, your next session is on us to plan.`,
+      });
+      showNotification(`Reminder sent to ${member.name ?? 'member'}`, 'success');
+    } catch (err) {
+      showNotification(getApiErrorMessage(err), 'error');
+    }
   };
+  const wa = (phone: string) => `https://wa.me/${phone.replace(/\D/g, '').slice(-10).replace(/^(?=\d{10}$)/, '91')}`;
 
   if (!gyms || gyms.length === 0) return null;
 
@@ -191,17 +203,16 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
-                      onClick={() => handleAction(`Promo Sent to ${member.name}`)}
+                      onClick={() => nudge(member)}
                       className="p-2 bg-accent-soft text-accent-text hover:bg-accent hover:text-on-accent rounded-lg transition-colors border border-accent-border"
-                      title="Send Promo Offer"
+                      title="Send a come-back reminder"
                     >
                       <Zap size={16} />
                     </button>
                     {member.phone && (
                       <a 
-                        href={`https://wa.me/${member.phone}`}
+                        href={wa(member.phone)}
                         target="_blank" rel="noreferrer"
-                        onClick={() => handleAction(`WhatsApp opened for ${member.name}`)}
                         className="p-2 bg-success-soft text-success hover:bg-success hover:text-on-accent rounded-lg transition-colors border border-success/30"
                         title="Message on WhatsApp"
                       >
@@ -226,18 +237,18 @@ export default function GymOwnerInsights({ gyms }: { gyms?: any[] }) {
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <button 
-                  onClick={() => handleAction('Broadcast UI opened')}
+                  onClick={() => navigate(`/app/gym-owner/gyms/${selectedGymId}/reminders`)}
                   className="flex flex-col items-center justify-center gap-2 p-4 bg-surface-raised hover:bg-surface-sunken border border-border rounded-xl transition-all group"
                 >
                   <BellRing size={20} className="text-ink-muted group-hover:text-accent-text transition-colors" />
                   <span className="text-[10px] font-bold uppercase tracking-widest">Broadcast</span>
                 </button>
                 <button 
-                  onClick={() => handleAction('Flash Sale UI opened')}
+                  onClick={() => navigate(`/app/gym-owner/gyms/${selectedGymId}/billing`)}
                   className="flex flex-col items-center justify-center gap-2 p-4 bg-surface-raised hover:bg-surface-sunken border border-border rounded-xl transition-all group"
                 >
                   <TrendingUp size={20} className="text-ink-muted group-hover:text-success transition-colors" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Flash Sale</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Dues</span>
                 </button>
               </div>
             </div>

@@ -11,7 +11,7 @@ import { useAdmin } from '../useAdmin';
 type Program = {
   enabled: boolean; gym_coins_enabled: boolean; coin_ceilings: Record<string, number | null>; cashback_pct: Record<string, number | null>;
   coin_expiry_days: number | null; coin_invoice_cap_pct: number | null; monthly_reward_budget_inr: number | null; budget_alerts: number[];
-  no_cash_cost_only: boolean; notes: string | null; updated_by: string | null; updated_at: string | null;
+  no_cash_cost_only: boolean; owner_locked: boolean; notes: string | null; updated_by: string | null; updated_at: string | null;
   template_limits: { coin_ceilings: Record<string, number>; cashback_pct: Record<string, number>; coin_invoice_cap_pct: number; coin_expiry_days: number; gym_coins_platform_enabled: boolean };
 };
 type GymClubs = {
@@ -46,7 +46,7 @@ export function ClubsGymPanel({ gymId }: { gymId: string }) {
     try {
       await adminPut(`/clubs/gyms/${gymId}/program`, { enabled: prog.enabled, gym_coins_enabled: prog.gym_coins_enabled, coin_ceilings: prog.coin_ceilings, cashback_pct: prog.cashback_pct,
         coin_expiry_days: prog.coin_expiry_days, coin_invoice_cap_pct: prog.coin_invoice_cap_pct, monthly_reward_budget_inr: prog.monthly_reward_budget_inr,
-        no_cash_cost_only: prog.no_cash_cost_only, notes: prog.notes });
+        no_cash_cost_only: prog.no_cash_cost_only, owner_locked: prog.owner_locked, notes: prog.notes });
       setMsg({ ok: true, text: 'Program saved.' });
       setP(null);
       await qc.invalidateQueries({ queryKey: key });
@@ -99,6 +99,7 @@ export function ClubsGymPanel({ gymId }: { gymId: string }) {
             ['Clubs on at this gym', prog.enabled, (v: boolean) => setP({ ...prog, enabled: v })],
             [`Gym Coins${lim.gym_coins_platform_enabled ? '' : ' (off platform-wide)'}`, prog.gym_coins_enabled, (v: boolean) => setP({ ...prog, gym_coins_enabled: v })],
             ['No-cost rewards only', prog.no_cash_cost_only, (v: boolean) => setP({ ...prog, no_cash_cost_only: v })],
+            ['Lock owner changes', prog.owner_locked, (v: boolean) => setP({ ...prog, owner_locked: v })],
           ] as [string, boolean, (v: boolean) => void][]).map(([label, on, fn]) => (
             <span key={label} className="flex items-center gap-2 text-sm"><Toggle label={label} checked={on} disabled={!edit} onChange={fn} />{label}</span>
           ))}

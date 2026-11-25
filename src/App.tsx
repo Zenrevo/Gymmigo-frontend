@@ -59,7 +59,13 @@ const GalleryTab = lazy(() => import('./pages/Dashboard/gym-tabs/GalleryTab'));
 const ReviewsTab = lazy(() => import('./pages/Dashboard/gym-tabs/ReviewsTab'));
 const SettingsTab = lazy(() => import('./pages/Dashboard/gym-tabs/SettingsTab'));
 const FinanceTab = lazy(() => import('./pages/Dashboard/gym-tabs/FinanceTab'));
-const StatsTab = lazy(() => import('./pages/Dashboard/gym-tabs/StatsTab'));
+const NotificationsPage = lazy(() => import('./pages/Notifications/NotificationsPage'));
+const BillingTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/BillingTab'));
+const RemindersTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/RemindersTab'));
+const PosTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/PosTab'));
+const TrainersTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/TrainersTab'));
+const AnalyticsTab = lazy(() => import('./pages/Dashboard/gym-tabs/suite/AnalyticsTab'));
+const MemberAnalyticsPage = lazy(() => import('./pages/Dashboard/gym-tabs/suite/MemberAnalyticsPage'));
 const TeamTab = lazy(() => import('./pages/Dashboard/gym-tabs/TeamTab'));
 const ReferralLeadsTab = lazy(() => import('./pages/Dashboard/gym-tabs/ReferralLeadsTab'));
 const ClubsTab = lazy(() => import('./pages/Dashboard/gym-tabs/ClubsTab'));
@@ -142,6 +148,7 @@ const AppRoutes = () => (
       <Route path="memberships" element={<MyMembershipsPage />} />
       <Route path="wallet-transactions" element={<WalletTransactionsPage />} />
       <Route path="clubs" element={<ClubsV2Page />} />
+      <Route path="notifications" element={<NotificationsPage />} />
       <Route path="clubs/badges" element={<GymmigoClubsPage />} />
       <Route path="rank-run" element={<Navigate to="/app/clubs" replace />} />
       {migoRoutes}
@@ -161,10 +168,15 @@ const AppRoutes = () => (
         <Route path="reviews" element={<ReviewsTab />} />
         <Route path="settings" element={<SettingsTab />} />
         <Route path="finance" element={<FinanceTab />} />
-        <Route path="stats" element={<StatsTab />} />
+        <Route path="stats" element={<Navigate to="../analytics" replace />} />
+        <Route path="analytics" element={<AnalyticsTab />} />
+        <Route path="billing" element={<BillingTab />} />
+        <Route path="reminders" element={<RemindersTab />} />
+        <Route path="pos" element={<PosTab />} />
+        <Route path="trainers" element={<TrainersTab />} />
+        <Route path="members/:userId" element={<MemberAnalyticsPage />} />
         <Route path="team" element={<TeamTab />} />
         <Route path="leads" element={<ReferralLeadsTab />} />
-        <Route path="coming-soon" element={<ComingSoon />} />
       </Route>
       {KitGallery ? (
         <Route
